@@ -36,7 +36,7 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
   </tr>
   <tr>
     <td width="50%"><img src="art/screenshot-03-choice-cards.png" width="100%" style="border-radius: 8px;" alt="ChoiceCards and ChoiceCheckboxCards — rich card-based selection UI"></td>
-    <td width="50%"><img src="art/screenshot-04-item-cards.png" width="100%" style="border-radius: 8px;" alt="ItemCardGroup — iOS-style settings layout for Filament forms"></td>
+    <td width="50%"><img src="art/screenshot-04-item-cards.png" width="100%" style="border-radius: 8px;" alt="ItemCardGroup — polished settings layout for Filament forms"></td>
   </tr>
 </table>
 
@@ -60,23 +60,21 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 
 ---
 
-## Why Flex Fields?
+## Key Benefits
 
-| Problem | Flex Fields solution |
-|---------|---------------------|
-| Custom attributes need a migration per field | One JSON column (`flex_field_values`) + `HasFlexFields` trait |
-| Filament native fields look plain for SaaS onboarding | HeroUI-inspired controls with unified `--fff-*` design tokens |
-| Surveys & configurator UIs need matrix grids | `MatrixChoiceField` with reactive `disableCellWhen` / `disableRowWhen` |
-| Slug + permalink preview needs a separate plugin | `TitleSlugField` / `SlugField` with live URL preview, uniqueness, Spatie Sluggable |
-| Phone, currency, country, timezone each need a plugin | Built-in `PhoneField`, `CurrencyField`, `CountryField`, `TimezoneField` |
-| iOS-style settings pages in admin panels | `ItemCardGroup`, `ItemCardStack`, `SegmentTabs` + `CoverCard` patterns |
-| Evaluating components before shipping | Built-in **Playground** page for every custom component (local/dev) |
-| Heavy field plugins bloat every admin page | **Lazy CSS + tiered JS chunks** — only the components on screen load their assets; shared code is deduplicated |
+Filament Flex Fields simplifies and elevates your form building experience:
+
+* **Migration-Free Custom Fields:** Store dynamic attributes in a single JSON column using the `HasFlexFields` trait. Perfect for CMS, CRM, and SaaS customization.
+* **Premium UX & Design:** HeroUI-inspired form controls with a unified `--fff-*` CSS design token scale for a polished, modern look.
+* **Complex Forms Made Simple:** Features like `MatrixChoiceField` with reactive row/cell disabling make building surveys and product configurators effortless.
+* **All-in-One Component Suite:** Built-in fields for Phones, Currencies, Countries, Timezones, and Slugs with live permalink preview and uniqueness checking.
+* **Performance-First Asset Pipeline:** Tired of heavy pages? Flex Fields lazy-loads CSS and uses esbuild JS code-splitting to only download what is visible on the screen.
+* **Visual QA (Playground):** A built-in local Playground page to preview and interact with all 59 components during development.
 
 **Two ways to use it:**
 
-1. **Dynamic flex fields** — define schemas in config, store values as JSON, build forms with `FlexFieldFormBuilder`.
-2. **Standalone components** — import any field directly; no JSON column required.
+* **Dynamic flex fields** — define schemas in your configuration, store values as JSON, and build forms dynamically with `FlexFieldFormBuilder`.
+* **Standalone components** — import and chain any field directly in your forms, just like native Filament components.
 
 ---
 
@@ -152,7 +150,7 @@ Fields with no shared deps (e.g. `RatingField`) stay as a single small entry —
 
 ### Layout & display (schemas)
 
-- 🃏 **Cards** — `ItemCard`, `ItemCardGroup`, `ItemCardStack`, `CoverCard` — build iOS settings, tabbed editors, and profile layouts.
+- 🃏 **Cards** — `ItemCard`, `ItemCardGroup`, `ItemCardStack`, `CoverCard` — build polished card-based settings, tabbed editors, and profile layouts.
 - 📊 **Progress** — `ProgressBar` (linear, pills, segments), `ProgressCircle` (circle, semicircle, gradients).
 - 🧪 **Playground** — visual QA page for every component; enable in `local` by default.
 
@@ -259,7 +257,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`TranslatableFields`](docs/translatablefields.md) | Locale tabs wrapping any fields (JSON or Spatie Translatable) |
 | [`TranslatableTabs`](docs/translatablefields.md) | Legacy alias for `TranslatableFields` |
 | [`ItemCard`](docs/itemcard.md) | Single settings-style card row |
-| [`ItemCardGroup`](docs/itemcardgroup.md) | iOS-style settings group |
+| [`ItemCardGroup`](docs/itemcardgroup.md) | Polished card-based settings group |
 | [`ItemCardStack`](docs/itemcardstack.md) | Stacked card layout for profile / settings pages |
 | [`CoverCard`](docs/covercard.md) | Hero cover card for tabbed editors |
 | [`ProgressBar`](docs/progressbar.md) | Linear, pill, or segment progress bar |
@@ -445,7 +443,7 @@ ProgressCircle::make()
     ->variant('semicircle');
 
 ItemCardGroup::make([
-    // iOS-style settings rows…
+    // Polished card-based settings rows…
 ]);
 ```
 
