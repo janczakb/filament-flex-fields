@@ -60,21 +60,22 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 
 ---
 
-## Key Benefits
+## Key Features & Advantages
 
-Filament Flex Fields simplifies and elevates your form building experience:
+### 📦 59 Custom UI Components
+A massive collection of **59 polished components** (48 form fields, 9 layout/schema components, and 2 table columns) designed to replace dozens of individual, uncoordinated plugins. Everything uses a unified design language with customizable sizes, colors, and variants.
 
-* **Migration-Free Custom Fields:** Store dynamic attributes in a single JSON column using the `HasFlexFields` trait. Perfect for CMS, CRM, and SaaS customization.
-* **Premium UX & Design:** HeroUI-inspired form controls with a unified `--fff-*` CSS design token scale for a polished, modern look.
-* **Complex Forms Made Simple:** Features like `MatrixChoiceField` with reactive row/cell disabling make building surveys and product configurators effortless.
-* **All-in-One Component Suite:** Built-in fields for Phones, Currencies, Countries, Timezones, and Slugs with live permalink preview and uniqueness checking.
-* **Performance-First Asset Pipeline:** Tired of heavy pages? Flex Fields lazy-loads CSS and uses esbuild JS code-splitting to only download what is visible on the screen.
-* **Visual QA (Playground):** A built-in local Playground page to preview and interact with all 59 components during development.
+### ⚡ Performance-First Asset Pipeline (Chunk-based Loading)
+Real-world admin panels shouldn't feel sluggish. Flex Fields implements an advanced, enterprise-grade asset loading mechanism:
+* **Lazy-Loaded CSS:** Component stylesheets are only injected into the page when the component is actually rendered.
+* **Tiered JS Chunks (esbuild splitting):** Reusable JS logic (like emoji pickers, Mapbox geocoding, audio playback, and searchable select overlays) is automatically split into semantic shared chunks and loaded once per request, drastically reducing bundle size.
 
-**Two ways to use it:**
+### 🧩 Migration-Free Dynamic Flex Fields
+Define your schemas dynamically in PHP and store all custom attributes in a **single JSON column** using our `HasFlexFields` trait. No more database schema migrations or complex EAV joins.
 
-* **Dynamic flex fields** — define schemas in your configuration, store values as JSON, and build forms dynamically with `FlexFieldFormBuilder`.
-* **Standalone components** — import and chain any field directly in your forms, just like native Filament components.
+### 🧪 Standalone or Dynamic — You Choose
+* **Dynamic Builder:** Bind your registry schemas to forms automatically using `FlexFieldFormBuilder`.
+* **Standalone Fields:** Use any of the 59 premium components directly in your Filament schemas by chaining them just like native inputs.
 
 ---
 
