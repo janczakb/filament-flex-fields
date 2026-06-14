@@ -333,7 +333,7 @@ export default function phoneFieldFormComponent({
             this.applyCountryMenuTheme(menu)
 
             const rect = trigger.getBoundingClientRect()
-            const gap = 6
+            const gap = 12
             const viewportPadding = 16
             const menuWidth = Math.min(288, window.innerWidth - (viewportPadding * 2))
 

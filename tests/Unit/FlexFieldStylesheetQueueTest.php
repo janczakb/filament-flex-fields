@@ -66,6 +66,16 @@ it('keeps flex text input in its own bundle separate from phone field', function
         ->toContain('--fff-flex-text-input-icon-size');
 });
 
+it('scopes phone country dropdown text tokens on the teleported menu for dark mode', function () {
+    $phoneCss = file_get_contents(__DIR__.'/../../resources/dist/css/phone-field.css');
+
+    expect($phoneCss)
+        ->toContain('--fff-phone-field-menu-text')
+        ->toContain('--fff-phone-field-menu-muted')
+        ->toContain('.fff-phone-field__country-option')
+        ->toMatch('/\.dark\s+\.fff-phone-field__country-menu[\s\S]*--fff-phone-field-menu-text:#fafafa/');
+});
+
 it('keeps flex text input shell styles separate from date time field bundle', function () {
     $dateTimeCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-date-time-field.css');
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-text-input.css');

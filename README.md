@@ -141,6 +141,16 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">SlugField & TranslatableFields — Translatable SEO Slugs</p>
     </td>
   </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-23.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">PhoneField — International Phone Input</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-24.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ColorSwatchField - Interactive color swatch picker supporting circle/square shapes, size configurations, and focus indicators">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">ColorSwatchField — Preset Color Swatches</p>
+    </td>
+  </tr>
 </table>
 
 
