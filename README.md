@@ -131,6 +131,16 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">RatingField — Visual Star Rating Input</p>
     </td>
   </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-21.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="HoldConfirmAction - Custom action button requiring the user to press and hold to confirm high-risk actions like deletion">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">HoldConfirmAction — Press & Hold Button</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-22.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SlugField combined with TranslatableFields showing multi-lingual title fields and live localized URL slug generation">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">SlugField & TranslatableFields — Translatable SEO Slugs</p>
+    </td>
+  </tr>
 </table>
 
 
