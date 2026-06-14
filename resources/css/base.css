@@ -110,6 +110,11 @@
 .dark {
     --fff-surface-border: rgb(255 255 255 / 0.1);
     --fff-surface-shadow: none;
+    --fff-field-bg: rgb(39 39 42);
+    --fff-field-border: rgb(63 63 70);
+    --fff-field-secondary-bg: rgb(39 39 42);
+    --fff-field-secondary-border: rgb(63 63 70);
+    --fff-field-secondary-shadow: none;
     --fff-field-focus-border: var(--primary-400, rgb(96 165 250));
     --fff-field-focus-ring: color-mix(in srgb, var(--fff-field-focus-border) 32%, transparent);
     --fff-field-soft-bg: rgb(39 39 42);

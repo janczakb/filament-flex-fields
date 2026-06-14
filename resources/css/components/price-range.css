@@ -227,14 +227,14 @@
 
 .dark .fff-price-range-field--primary,
 .dark .fff-price-range--primary {
-    --fff-price-range-input-bg: var(--fff-field-bg);
-    --fff-price-range-input-border: var(--fff-field-border);
+    --fff-price-range-input-bg: rgb(39 39 42);
+    --fff-price-range-input-border: rgb(63 63 70);
 }
 
 .dark .fff-price-range-field--secondary,
 .dark .fff-price-range--secondary {
-    --fff-price-range-input-bg: var(--fff-field-secondary-bg);
-    --fff-price-range-input-border: var(--fff-field-secondary-border);
+    --fff-price-range-input-bg: rgb(39 39 42);
+    --fff-price-range-input-border: rgb(63 63 70);
 }
 
 .dark .fff-price-range__input {

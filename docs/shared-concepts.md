@@ -1,6 +1,6 @@
 # Shared Concepts
 
-[← Powrót do spisu treści](../README.md)
+[← Back to table of contents](../README.md)
 
 # Components Reference
 
@@ -184,36 +184,36 @@ CSS is split into bundles:
 
 ### JavaScript (tiered chunks)
 
-**Wszystkie 29 komponentów** przechodzą przez jeden build esbuild z `splitting: true`. Jeśli dwa pola importują ten sam moduł z `resources/js/core/` lub `resources/js/support/`, kod trafia do wspólnego chunka — ładowany raz i cache’owany w przeglądarce.
+All Alpine components are compiled together in a single esbuild build with `splitting: true`. If two fields import the same module from `resources/js/core/` or `resources/js/support/`, the code is split into a shared chunk — loaded once and cached by the browser.
 
 | Output | Role |
 |--------|------|
-| `resources/dist/components/{component}.js` | Cienki entry — fabryka Alpine `x-data` |
-| `resources/dist/components/flex-fields-{name}-{hash}.js` | Współdzielone moduły (semantyczne nazwy, np. `flex-fields-emoji-*.js`) |
-| `resources/dist/components/alpine-manifest.json` | Mapa komponent → chunki + `__chunk_modules__` |
+| `resources/dist/components/{component}.js` | Thin entry — Alpine `x-data` factory for the component |
+| `resources/dist/components/flex-fields-{name}-{hash}.js` | Shared modules with semantic names (e.g. `flex-fields-emoji-*.js`) |
+| `resources/dist/components/alpine-manifest.json` | Component-to-chunk map + `__chunk_modules__` metadata |
 
-#### Aktualnie współdzielone chunki (automatycznie z buildu)
+#### Currently shared chunks (auto-generated from build)
 
-| Moduły źródłowe | Komponenty | Przykład |
-|-----------------|------------|----------|
+| Source modules | Components | Purpose / Example |
+|----------------|------------|-------------------|
 | `core/shared-emoji-picker.js` | `flex-text-input`, `flex-textarea` | Emoji picker (~45 KB) |
-| `core/audio-waveform.js`, `format-time.js`, `waveform-bars.js`, `audio-playback.js` | `audio-field`, `voice-note-recorder-field` | Audio UI |
-| `core/dynamic-bars.js` | `price-range`, `audio-field`, `voice-note-recorder-field` | Słupki waveform / histogram |
-| `support/mapbox-geocoding.js` | `map-picker`, `address-autocomplete` | Mapbox API |
-| `core/searchable-select-menu.js` | `country-field`, `timezone-field`, `currency-field` | Menu select w shellu flex-text-input |
-| `libphonenumber-js` (lazy `import()`) | `phone-field` | Walidacja telefonu (~190 KB, ładowane on-demand) |
+| `core/audio-waveform.js`, `format-time.js`, `waveform-bars.js`, `audio-playback.js` | `audio-field`, `voice-note-recorder-field` | Waveform, playback, time formatting |
+| `core/dynamic-bars.js` | `price-range`, `audio-field`, `voice-note-recorder-field` | Waveform / price histogram bars |
+| `support/mapbox-geocoding.js` | `map-picker`, `address-autocomplete` | Mapbox geocoding integration |
+| `core/searchable-select-menu.js` | `country-field`, `timezone-field`, `currency-field` | Common dropdown overlay shell |
+| `libphonenumber-js` (lazy `import()`) | `phone-field` | Phone validation (~190 KB, loaded on demand) |
 
-Komponenty **bez** wpisów w manifeście (np. `rating-field`, `dual-listbox`) nie mają współdzielonego kodu z innymi polami — cała logika zostaje w cienkim entry (to poprawne).
+Components **without** entries in the manifest (e.g. `rating-field`, `dual-listbox`) do not share code with other components — their entire logic remains inside their thin entry (which is expected).
 
-Moduły używane tylko przez jedno pole (np. `core/date-time/*` → tylko `flex-date-time-field`, `nouislider` → tylko `flex-slider`) pozostają w entry, dopóki drugi komponent ich nie zaimportuje.
+Modules used by only a single field (e.g. `core/date-time/*` used only by `flex-date-time-field`, `nouislider` used only by `flex-slider`) remain inside their entries until another component starts importing them.
 
 #### Preload
 
-Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` automatycznie robi też `modulepreload` chunków z manifestu (`FlexFieldAlpineQueue` deduplikuje między polami na stronie).
+Every blade template rendering a component stylesheet will automatically register a `modulepreload` hint for its required chunks using the manifest (`FlexFieldAlpineQueue` deduplicates chunks rendered by multiple components on the same page).
 
-Komponenty bez własnego CSS ale z JS (np. `rating-field`) ładują chunki przez ESM `import` przy `x-load` — bez osobnego preloadu, bo manifest jest pusty.
+Components without custom CSS but requiring JS (e.g. `rating-field`) load their chunks dynamically via ESM `import` inside `x-load` — without explicit preloading, since their manifest entry is empty.
 
-Po zmianie JS:
+After modifying JavaScript:
 
 ```bash
 npm run build:js

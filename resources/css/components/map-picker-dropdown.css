@@ -146,21 +146,42 @@
     }
 }
 
+.dark .fff-map-picker__dropdown-panel {
+    --fff-select-menu-bg: rgb(255 255 255 / 0.98);
+    --fff-select-menu-hover: rgb(244 244 245);
+    --fff-select-menu-selected: rgb(228 228 231);
+    --fff-select-menu-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+    background: rgb(255 255 255 / 0.98);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+}
+
 .dark .fff-map-picker__dropdown-hint {
-    color: rgb(161 161 170);
+    color: rgb(113 113 122);
 }
 
 .dark .fff-map-picker__dropdown-skeleton-icon,
 .dark .fff-map-picker__dropdown-skeleton-line {
     background: linear-gradient(
         90deg,
-        rgb(63 63 70 / 0.75) 0%,
-        rgb(82 82 91 / 0.95) 50%,
-        rgb(63 63 70 / 0.75) 100%
+        rgb(228 228 231 / 0.75) 0%,
+        rgb(212 212 216 / 0.95) 50%,
+        rgb(228 228 231 / 0.75) 100%
     );
     background-size: 200% 100%;
 }
 
 .dark .fff-map-picker__dropdown-option > span {
-    color: rgb(244 244 245);
+    color: rgb(39 39 42);
+}
+
+.dark .fff-map-picker__dropdown-option:hover > span,
+.dark .fff-map-picker__dropdown-option:focus-visible > span {
+    background: rgb(244 244 245);
+    color: rgb(24 24 27);
+}
+
+.dark .fff-map-picker__dropdown-option.is-active > span {
+    background: rgb(228 228 231);
+    color: rgb(24 24 27);
+    font-weight: 500;
 }

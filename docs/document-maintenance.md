@@ -1,6 +1,6 @@
 # Document maintenance
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Update this file whenever a component gains a new public method, validation rule, config key, or default value change.

@@ -1,11 +1,11 @@
-# Dokumentacja Komponentów
+# Components Documentation
 
-Witaj w dokumentacji **Filament Flex Fields**. Poniżej znajdziesz spis treści z podziałem na poszczególne sekcje i komponenty:
+Welcome to the **Filament Flex Fields** documentation. Below you will find the table of contents divided into sections and components:
 
-## Główne pojęcia i konfiguracja
-- [Shared Concepts (Wspólne założenia, rozmiary, konfiguracja)](shared-concepts.md)
+## Core Concepts & Configuration
+- [Shared Concepts (Design system, sizing, configuration)](shared-concepts.md)
 
-## Komponenty (Form Fields & Layouts)
+## Components (Form Fields & Layouts)
 - [FlexTextInput](flextextinput.md)
 - [FlexTextareaField](flextextareafield.md)
 - [SelectField](selectfield.md)

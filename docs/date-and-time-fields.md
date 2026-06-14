@@ -1,6 +1,6 @@
 # Date & time fields
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Spectrum-style segmented date and time inputs powered by [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/). All variants share one Alpine component (`flex-date-time-field`), one Blade view, and the `InteractsWithDateTimeConfiguration` trait.

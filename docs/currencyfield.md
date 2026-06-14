@@ -1,6 +1,6 @@
 # CurrencyField
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 ### Summary

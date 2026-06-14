@@ -1,6 +1,6 @@
 # ProgressBar
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Linear progress indicator for uploads, sync status, stepped delivery trackers, and pill-style multi-segment bars.

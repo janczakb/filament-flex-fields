@@ -1,6 +1,6 @@
 # ItemCardGroup
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Grouped list surface: multiple `ItemCard` rows share one bordered container (HeroUI **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.

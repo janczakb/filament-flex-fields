@@ -1,6 +1,6 @@
 # Deprecated class aliases
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 | Deprecated class | Replacement | Notes |

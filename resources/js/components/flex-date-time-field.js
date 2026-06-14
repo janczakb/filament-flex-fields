@@ -1258,10 +1258,16 @@ export default function flexDateTimeFieldFormComponent({
                 menu.style.setProperty('--fff-date-time-menu-bg', '#27272a3d')
                 menu.style.setProperty('--fff-date-time-menu-border', 'rgb(255 255 255 / 0.12)')
                 menu.style.setProperty('--fff-date-time-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.28), 0 12px 28px -6px rgb(0 0 0 / 0.5)')
+                menu.style.setProperty('--fff-date-time-time-track-bg', 'rgb(63 63 70 / 0.5)')
+                menu.style.setProperty('--fff-date-time-time-text', 'rgb(244 244 245)')
+                menu.style.setProperty('--fff-date-time-muted', 'rgb(161 161 170)')
             } else {
                 menu.style.setProperty('--fff-date-time-menu-bg', '#ffffffa3')
                 menu.style.setProperty('--fff-date-time-menu-border', 'rgb(228 228 231 / 0.65)')
                 menu.style.setProperty('--fff-date-time-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 12px 28px -6px rgb(0 0 0 / 0.12)')
+                menu.style.setProperty('--fff-date-time-time-track-bg', 'rgb(244 244 245 / 0.8)')
+                menu.style.setProperty('--fff-date-time-time-text', 'rgb(24 24 27)')
+                menu.style.setProperty('--fff-date-time-muted', 'rgb(113 113 122)')
             }
 
             menu.style.backgroundColor = isDark ? '#27272a3d' : '#ffffffa3'

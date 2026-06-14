@@ -1,6 +1,6 @@
 # ItemCardStack
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (HeroUI vertical stack / pressable list).

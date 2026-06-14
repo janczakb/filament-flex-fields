@@ -4,6 +4,8 @@
     --fff-date-time-primary: var(--primary-500, var(--fff-flex-text-input-primary, rgb(59 130 246)));
     --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 14%, transparent);
     --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 35%, transparent);
+    --fff-date-time-time-track-bg: rgb(244 244 245 / 0.8);
+    --fff-date-time-time-text: rgb(24 24 27);
 }
 
 .fi-fo-field:has(> .fi-fo-field-content-col .fff-date-time-field) > .fi-fo-field-content-col {
@@ -284,6 +286,11 @@
     @apply fixed z-[80] flex flex-col overflow-hidden rounded-2xl border p-3;
     --fff-date-time-primary: var(--primary-500, rgb(59 130 246));
     --fff-date-time-range-bg: color-mix(in srgb, var(--fff-date-time-primary) 14%, transparent);
+    --fff-date-time-muted: rgb(113 113 122);
+    --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 14%, transparent);
+    --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 35%, transparent);
+    --fff-date-time-time-track-bg: rgb(244 244 245 / 0.8);
+    --fff-date-time-time-text: rgb(24 24 27);
     visibility: hidden;
     min-width: 18rem;
     border-color: var(--fff-date-time-menu-border, rgb(228 228 231 / 0.65)) !important;
@@ -444,11 +451,13 @@
 }
 
 .fff-date-time-field__time-segments {
-    @apply inline-flex min-w-0 flex-1 flex-nowrap items-center gap-0 rounded-full bg-zinc-100/80 px-2 py-1;
+    @apply inline-flex min-w-0 flex-1 flex-nowrap items-center gap-0 rounded-full px-2 py-1;
+    background-color: var(--fff-date-time-time-track-bg);
 }
 
 .fff-date-time-field__time-separator {
-    @apply inline-flex w-3 shrink-0 justify-center text-zinc-400 select-none;
+    @apply inline-flex w-3 shrink-0 justify-center select-none;
+    color: var(--fff-date-time-muted);
 }
 
 .fff-date-time-field__time-segment {
@@ -456,6 +465,7 @@
     width: 1.75rem;
     min-width: 1.75rem;
     max-width: 1.75rem;
+    color: var(--fff-date-time-time-text);
 }
 
 .dark .fff-date-time-field {
@@ -464,6 +474,18 @@
     --fff-date-time-segment-bg: rgb(63 63 70 / 0.72);
     --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 18%, transparent);
     --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 40%, transparent);
+    --fff-date-time-time-track-bg: rgb(63 63 70 / 0.5);
+    --fff-date-time-time-text: rgb(244 244 245);
+}
+
+.dark .fff-date-time-field__calendar {
+    --fff-date-time-muted: rgb(161 161 170);
+    --fff-date-time-primary: var(--primary-400, rgb(96 165 250));
+    --fff-date-time-range-bg: color-mix(in srgb, var(--fff-date-time-primary) 18%, transparent);
+    --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 18%, transparent);
+    --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 40%, transparent);
+    --fff-date-time-time-track-bg: rgb(63 63 70 / 0.5);
+    --fff-date-time-time-text: rgb(244 244 245);
 }
 
 .dark .fff-date-time-field__calendar-button,
@@ -492,8 +514,8 @@
     @apply border-zinc-700/70;
 }
 
-.dark .fff-date-time-field__time-segment {
-    @apply bg-zinc-800/80 text-zinc-100;
+.dark .fff-date-time-field__time-label {
+    color: var(--fff-date-time-muted);
 }
 
 .fff-date-time-field--sm .fff-date-time-field__segment {

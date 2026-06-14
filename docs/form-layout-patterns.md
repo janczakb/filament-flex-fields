@@ -1,6 +1,6 @@
 # Form layout patterns
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 Recipes for modern forms **without** heavy Filament `Section` / `Grid` / `Fieldset` chrome. See **Modern form layouts** in Flex Fields Playground.

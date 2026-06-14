@@ -194,18 +194,23 @@
 }
 
 .dark .fff-number-stepper {
-    @apply bg-white/8;
+    background-color: rgb(255 255 255 / 0.05);
 }
 
 .dark .fff-number-stepper__button {
-    @apply bg-zinc-800 text-gray-200;
+    background-color: rgb(63 63 70);
+    color: rgb(212 212 216);
     box-shadow:
-        0 1px 2px rgb(0 0 0 / 0.35),
-        inset 0 0 0 1px rgb(255 255 255 / 0.06);
+        0 1px 2px rgb(0 0 0 / 0.28),
+        inset 0 0 0 1px rgb(255 255 255 / 0.07);
 }
 
 .dark .fff-number-stepper__button:hover:not(:disabled) {
-    @apply bg-zinc-700;
+    background-color: rgb(82 82 91);
+    color: rgb(244 244 245);
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.32),
+        inset 0 0 0 1px rgb(255 255 255 / 0.1);
 }
 
 .dark .fff-number-stepper__value {
@@ -272,21 +277,34 @@
 
 .dark .fff-number-stepper--secondary .fff-number-stepper__button {
     color: var(--primary-300, rgb(165 180 252));
-    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 22%, transparent);
+    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 24%, rgb(39 39 42));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-400, #818cf8) 22%, transparent);
+}
+
+.dark .fff-number-stepper--secondary .fff-number-stepper__button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 32%, rgb(39 39 42));
 }
 
 .dark .fff-number-stepper--tertiary .fff-number-stepper__button {
-    @apply bg-zinc-700 text-gray-100;
+    background-color: rgb(63 63 70);
+    color: rgb(212 212 216);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
 }
 
 .dark .fff-number-stepper--tertiary .fff-number-stepper__button:hover:not(:disabled) {
-    @apply bg-zinc-600;
+    background-color: rgb(82 82 91);
+    color: rgb(244 244 245);
 }
 
 .dark .fff-number-stepper--outline .fff-number-stepper__button {
-    @apply border-white/15 bg-zinc-900 text-gray-100;
+    border-color: rgb(255 255 255 / 0.1);
+    background-color: rgb(63 63 70);
+    color: rgb(212 212 216);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.05);
 }
 
 .dark .fff-number-stepper--outline .fff-number-stepper__button:hover:not(:disabled) {
-    @apply bg-zinc-800;
+    border-color: rgb(255 255 255 / 0.14);
+    background-color: rgb(82 82 91);
+    color: rgb(244 244 245);
 }

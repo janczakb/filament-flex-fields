@@ -86,10 +86,11 @@
 }
 
 .dark .fff-hold-confirm-action--palette-danger {
-    --fff-hold-confirm-track-bg: rgb(69 10 10 / 0.45);
-    --fff-hold-confirm-track-text: rgb(254 202 202);
-    --fff-hold-confirm-fill-bg: rgb(220 38 38);
+    --fff-hold-confirm-track-bg: rgb(127 29 29 / 0.62);
+    --fff-hold-confirm-track-text: rgb(254 226 226);
+    --fff-hold-confirm-fill-bg: rgb(239 68 68);
     --fff-hold-confirm-fill-text: #fff;
+    box-shadow: inset 0 0 0 1px rgb(248 113 113 / 0.32) !important;
 }
 
 .fff-hold-confirm-action__base {

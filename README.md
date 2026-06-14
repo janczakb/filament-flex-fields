@@ -1,5 +1,5 @@
 <p align="center" class="filament-hidden">
-    <img src="art/plugin-filament-flex-fields.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — dynamic custom fields and HeroUI-inspired form components for Filament v5" class="filament-hidden">
+    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — dynamic custom fields and HeroUI-inspired form components for Filament v5" class="filament-hidden">
 </p>
 
 <h1 align="center">Filament Flex Fields</h1>
@@ -30,16 +30,49 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 
 ## Screenshots
 
-<table width="100%" border="0">
+<table width="100%" style="border-collapse: collapse; border: none;">
   <tr>
-    <td width="50%"><img src="art/screenshot-01-playground.png" width="100%" style="border-radius: 8px;" alt="Filament Flex Fields playground — live preview of all form components"></td>
-    <td width="50%"><img src="art/screenshot-02-matrix-choice.png" width="100%" style="border-radius: 8px;" alt="MatrixChoiceField — multiple choice grid with radio and checkbox modes"></td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-1.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">SignatureField — Canvas Handwriting Signature Pad</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-2.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MatrixChoiceField - Dynamic survey matrix choice grid with radio and checkbox modes, reactive disabled cells, and custom validations">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">MatrixChoiceField — Survey & Configurator Grid</p>
+    </td>
   </tr>
   <tr>
-    <td width="50%"><img src="art/screenshot-03-choice-cards.png" width="100%" style="border-radius: 8px;" alt="ChoiceCards and ChoiceCheckboxCards — rich card-based selection UI"></td>
-    <td width="50%"><img src="art/screenshot-04-item-cards.png" width="100%" style="border-radius: 8px;" alt="ItemCardGroup — polished settings layout for Filament forms"></td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-3.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexTextareaField - Advanced multi-line input with speech dictation, character counter, autosize, and integrated emoji picker">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexTextareaField — Autosize Textarea with Voice & Emoji Input</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-4.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressBar and ProgressCircle - Multi-style visual progress indicators, linear trackers, and circular dashboard widgets for Laravel Filament">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressBar & ProgressCircle — Visual Progress Indicators</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-5.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CurrencyField - Multi-currency localized money input with real-time formatting, automatic decimal separation, and prefix selector">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">CurrencyField — Multi-Currency Localized Input</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-6.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MapPickerField - Interactive map coordinate pin picker with marker support, location autofill, and custom layouts for Filament">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">MapPickerField — Interactive Map Pin Selector</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern HeroUI-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Premium Card-Based Layout Group</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-8.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="DualListboxField - Highly interactive searchable dual panel transfer list for selecting and reordering multiple options in Filament v5">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">DualListboxField — Reorderable Two-Panel Transfer List</p>
+    </td>
   </tr>
 </table>
+
 
 ---
 

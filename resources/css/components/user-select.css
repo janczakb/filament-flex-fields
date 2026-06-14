@@ -99,6 +99,7 @@
     --fff-select-radius: 0;
     --fff-select-bg: transparent;
     --fff-select-border: transparent;
+    --fff-select-border-width: 0;
     --fff-select-shadow: none;
     --fff-select-px: 0;
     --fff-select-value-label: rgb(107 114 128);
@@ -1657,5 +1658,44 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     background-color: rgb(39 39 42 / 0.75) !important;
     border-color: rgb(82 82 91) !important;
     color: rgb(228 228 231) !important;
+}
+
+.dark .fff-select-field--item-card,
+.dark .item-card__action .fff-select-field--item-card,
+.dark .item-card-group .item-card__action .fff-select-field--item-card {
+    --fff-select-bg: transparent;
+    --fff-select-border: transparent;
+    --fff-select-border-width: 0;
+    --fff-select-shadow: none;
+    --fff-select-value-label: rgb(161 161 170);
+}
+
+.dark .fi-input-wrp.fff-select-field--item-card,
+.dark .item-card__action .fi-input-wrp.fff-select-field--item-card,
+.dark .item-card-group .item-card__action .fi-input-wrp.fff-select-field--item-card {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+.dark .fi-input-wrp.fff-select-field--item-card:focus-within:not(.fi-disabled):not(:has(.fi-ac-action:focus)),
+.dark .fi-input-wrp.fff-select-field--item-card.has-focus-outline:not(.fi-disabled):not(.fi-invalid):focus-within,
+.dark .fi-input-wrp.fff-select-field--item-card.has-focus-outline.is-dropdown-open:not(.fi-disabled):not(.fi-invalid),
+.dark .item-card__action .fi-input-wrp.fff-select-field--item-card:focus-within:not(.fi-disabled):not(:has(.fi-ac-action:focus)),
+.dark .item-card__action .fi-input-wrp.fff-select-field--item-card.has-focus-outline:not(.fi-disabled):not(.fi-invalid):focus-within,
+.dark .item-card__action .fi-input-wrp.fff-select-field--item-card.has-focus-outline.is-dropdown-open:not(.fi-disabled):not(.fi-invalid),
+.dark .item-card-group .item-card__action .fi-input-wrp.fff-select-field--item-card:focus-within:not(.fi-disabled):not(:has(.fi-ac-action:focus)),
+.dark .item-card-group .item-card__action .fi-input-wrp.fff-select-field--item-card.has-focus-outline.is-dropdown-open:not(.fi-disabled):not(.fi-invalid) {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.dark .fff-select-field--item-card .fi-select-input-btn,
+.dark .fff-select-field--item-card .fi-select-input-ctn,
+.dark .item-card__action .fff-select-field--item-card .fi-select-input-btn,
+.dark .item-card__action .fff-select-field--item-card .fi-select-input-ctn {
+    background-color: transparent;
 }
 

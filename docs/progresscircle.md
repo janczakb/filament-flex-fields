@@ -1,6 +1,6 @@
 # ProgressCircle
 
-[← Powrót do spisu treści](../README.md)
+[← Back to Table of Contents](index.md)
 
 
 SVG circular progress with full-circle and semi-circle variants, rounded stroke caps, center or beside content, optional card shell, gap arc, and gradient strokes.

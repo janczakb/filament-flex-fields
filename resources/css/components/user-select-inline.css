@@ -31,11 +31,13 @@
 }
 
 .fff-user-select-option__name {
-    @apply truncate text-sm font-medium leading-snug text-zinc-900;
+    @apply truncate text-sm font-medium leading-snug;
+    color: var(--fff-select-text);
 }
 
 .fff-user-select-option__email {
-    @apply truncate text-xs leading-tight text-zinc-500;
+    @apply truncate text-xs leading-tight;
+    color: var(--fff-select-placeholder);
 }
 
 .fff-user-select__avatar {
@@ -160,7 +162,7 @@
     font-size: 0.875rem;
     line-height: 1.25rem;
     font-weight: 500;
-    color: rgb(24 24 27);
+    color: var(--fff-select-text);
 }
 
 .fff-user-select__dropdown-skeleton {
@@ -415,12 +417,17 @@
     max-width: 100%;
 }
 
+.fff-user-select .fi-select-input-value-label .fff-user-select-option__name,
+.fff-user-select .fff-select-trigger-ssr .fff-user-select-option__name,
 .fff-user-select .fi-dropdown-panel .fff-user-select-option__name {
-    @apply font-medium text-zinc-900;
+    @apply font-medium;
+    color: var(--fff-select-text);
 }
 
+.fff-user-select .fi-select-input-value-label .fff-user-select-option__email,
+.fff-user-select .fff-select-trigger-ssr .fff-user-select-option__email,
 .fff-user-select .fi-dropdown-panel .fff-user-select-option__email {
-    @apply text-zinc-500;
+    color: var(--fff-select-placeholder);
 }
 
 .fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option--list {
