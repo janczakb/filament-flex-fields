@@ -77,7 +77,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 
 ## Overview
 
-Filament Flex Fields provides HeroUI-inspired form controls with a unified design language:
+Filament Flex Fields provides modern SaaS-inspired form controls with a unified design language:
 
 - Shared **size scale** (`sm`, `md`, `lg`)
 - Shared **CSS tokens** (`--fff-*` in `resources/css/base.css` and modular bundles under `resources/css/`)

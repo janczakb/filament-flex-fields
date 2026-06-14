@@ -44,7 +44,7 @@ class SegmentControlPlayground
         $iconExpandOptions = PlaygroundOptions::iconExpand();
 
         return Section::make('Segment Control')
-            ->description('HeroUI-style sizes, disabled states, separators and icon expand.')
+            ->description('SaaS-style sizes, disabled states, separators and icon expand.')
             ->extraAttributes(['class' => 'fff-playground-section'])
             ->schema([
                 Grid::make(1)

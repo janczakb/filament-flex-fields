@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **multi-line** textarea with optional toolbar, autosize, emoji picker, and speech dictation. Extends Filament `Textarea`.
+SaaS-style **multi-line** textarea with optional toolbar, autosize, emoji picker, and speech dictation. Extends Filament `Textarea`.
 
 | | |
 |---|---|

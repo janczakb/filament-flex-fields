@@ -315,7 +315,7 @@ class ItemCardGroupPlayground
                         ]),
                 ]),
             Section::make('ItemCardGroup')
-                ->description('HeroUI item-card-group layout with mixed switch and item-card select actions.')
+                ->description('SaaS item-card-group layout with mixed switch and item-card select actions.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     ItemCardGroup::make('Source Control')

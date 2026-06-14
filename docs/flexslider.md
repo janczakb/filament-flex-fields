@@ -5,7 +5,7 @@
 
 ### Summary
 
-Styled wrapper around Filament's `Slider` with HeroUI-like track, step dots, server-rendered pips, fill segments, and formatted value display.
+Styled wrapper around Filament's `Slider` with SaaS-like track, step dots, server-rendered pips, fill segments, and formatted value display.
 
 | | |
 |---|---|

@@ -84,7 +84,7 @@ class DualListboxPlayground
 
         return [
             Section::make('Dual Listbox')
-                ->description('HeroUI-style transfer list with search, reorder and compact panels.')
+                ->description('SaaS-style transfer list with search, reorder and compact panels.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     DualListboxField::make('dual_listbox__permissions')

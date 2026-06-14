@@ -35,7 +35,7 @@ class TagsFieldPlayground
     public function section(): Section
     {
         return Section::make('Tags field')
-            ->description('HeroUI-style tags input — clean text field with removable pills below, autocomplete suggestions, and full Filament TagsInput API.')
+            ->description('SaaS-style tags input — clean text field with removable pills below, autocomplete suggestions, and full Filament TagsInput API.')
             ->extraAttributes(['class' => 'fff-playground-section'])
             ->schema([
                 Grid::make(['default' => 1, 'lg' => 2])

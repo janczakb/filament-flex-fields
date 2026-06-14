@@ -1,5 +1,5 @@
 <p align="center" class="filament-hidden">
-    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — dynamic custom fields and HeroUI-inspired form components for Filament v5" class="filament-hidden">
+    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — dynamic custom fields and modern SaaS-inspired form components for Filament v5" class="filament-hidden">
 </p>
 
 <h1 align="center">Filament Flex Fields</h1>
@@ -22,9 +22,9 @@
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
 </p>
 
-A [Filament v5](https://filamentphp.com) plugin for **dynamic custom fields** and a polished, HeroUI-inspired form UI. Store all flex field values in a **single JSON column** — no per-field migrations, no EAV tables — or drop any component directly into Filament forms, tables, and schemas.
+A [Filament v5](https://filamentphp.com) plugin for **dynamic custom fields** and a polished, modern SaaS-inspired form UI. Store all flex field values in a **single JSON column** — no per-field migrations, no EAV tables — or drop any component directly into Filament forms, tables, and schemas.
 
-Stop stitching together a dozen separate Filament field plugins. Flex Fields ships **61 custom UI components** with HeroUI-inspired styling, layout primitives (`ItemCard`, `SegmentTabs`, `CoverCard`), table columns (`UserColumn`, `RatingColumn`), optional **JSON custom-field storage**, and a dev **Playground** — with pre-built CSS/JS in `resources/dist/` so consumers **do not need Node.js** at install time. Assets are **lazy-loaded per component** with **shared JS chunks** so heavy pages stay fast.
+Stop stitching together a dozen separate Filament field plugins. Flex Fields ships **61 custom UI components** with modern SaaS-inspired styling, layout primitives (`ItemCard`, `SegmentTabs`, `CoverCard`), table columns (`UserColumn`, `RatingColumn`), optional **JSON custom-field storage**, and a dev **Playground** — with pre-built CSS/JS in `resources/dist/` so consumers **do not need Node.js** at install time. Assets are **lazy-loaded per component** with **shared JS chunks** so heavy pages stay fast.
 
 ---
 
@@ -63,7 +63,7 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
   </tr>
   <tr>
     <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
-      <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern HeroUI-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
+      <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern modern SaaS-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Premium Card-Based Layout Group</p>
     </td>
     <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
@@ -129,8 +129,8 @@ Filament Flex Fields is the most complete, visually stunning, and performance-op
 ### 📦 61 Premium Filament Components (All-in-One UI Plugin)
 No other package offers this level of coverage. Flex Fields delivers a massive library of **61 premium components** (50 form fields, 9 layout/schema components, and 2 table columns). Instead of stitching together 15+ different plugins—each with their own design philosophies, code quality, and styles—you get a single, curated suite where everything works together flawlessly.
 
-### 🎨 Modern SaaS Form UI & HeroUI-Inspired Design
-Standard admin panels look plain. Flex Fields brings gorgeous, state-of-the-art UI elements inspired by HeroUI. Every component features smooth CSS transitions, interactive hover micro-animations, clean borders, and a unified design token scale (`--fff-*`). Customize component sizes (`sm`, `md`, `lg`), colors, and focus states globally or per-field.
+### 🎨 Modern SaaS Form UI & modern SaaS-inspired Design
+Standard admin panels look plain. Flex Fields brings gorgeous, state-of-the-art UI elements inspired by SaaS. Every component features smooth CSS transitions, interactive hover micro-animations, clean borders, and a unified design token scale (`--fff-*`). Customize component sizes (`sm`, `md`, `lg`), colors, and focus states globally or per-field.
 
 ### ⚡ Enterprise-Grade Asset Performance (Lazy CSS & JS Code Splitting)
 Loading dozens of complex fields shouldn't make your admin panel sluggish. Flex Fields implements an advanced, enterprise-grade asset loading system:

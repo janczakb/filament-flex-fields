@@ -1,4 +1,4 @@
-/* PriceRangeField — HeroUI-style histogram range slider */
+/* PriceRangeField — SaaS-style histogram range slider */
 .fff-price-range {
     @apply flex w-full flex-col gap-3;
     --fff-price-range-primary: var(--primary-500, rgb(59 130 246));

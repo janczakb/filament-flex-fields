@@ -1,4 +1,4 @@
-/* Rating — HeroUI-style star / icon input with fractional read-only display */
+/* Rating — SaaS-style star / icon input with fractional read-only display */
 .fff-rating {
     --fff-rating-inactive: rgb(228 228 231);
     --fff-rating-active: rgb(251 191 36);

@@ -30,7 +30,7 @@ class ChoiceCardsPlayground
     public function section(): Section
     {
         return Section::make('Choice Cards')
-            ->description('HeroUI-style selectable cards. Rich options with label, description, price, icons and badges.')
+            ->description('SaaS-style selectable cards. Rich options with label, description, price, icons and badges.')
             ->extraAttributes(['class' => 'fff-playground-section'])
             ->schema([
                 Grid::make(['default' => 1, 'xl' => 2])

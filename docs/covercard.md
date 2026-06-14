@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **media card** for hero banners, product tiles, and CTA blocks. Supports background image, gradient, or solid color, optional top/footer copy, and a footer action button.
+SaaS-style **media card** for hero banners, product tiles, and CTA blocks. Supports background image, gradient, or solid color, optional top/footer copy, and a footer action button.
 
 | | |
 |---|---|

@@ -1,4 +1,4 @@
-/* Segment control — HeroUI-style sliding pill */
+/* Segment control — SaaS-style sliding pill */
 .fff-segment-control {
     @apply block w-fit max-w-max justify-self-start;
 }

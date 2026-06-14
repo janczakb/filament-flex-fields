@@ -144,7 +144,7 @@ class SelectPlayground
 
         return [
             Section::make('SelectField')
-                ->description('Filament Select engine with HeroUI styling, rich options, searchable, grouped and multi-select chips.')
+                ->description('Filament Select engine with premium SaaS design, rich options, searchable, grouped and multi-select chips.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Select::make('select__filament')

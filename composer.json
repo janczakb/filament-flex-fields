@@ -1,7 +1,7 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "janczakb/filament-flex-fields",
-    "description": "59 custom Filament v5 form components with HeroUI-inspired UI — matrix grid, tags, slug, phone, currency, maps, translatable fields, JSON custom attributes, and playground.",
+    "description": "59 custom Filament v5 form components with modern SaaS-inspired UI — matrix grid, tags, slug, phone, currency, maps, translatable fields, JSON custom attributes, and playground.",
     "keywords": [
         "filament",
         "filament-plugin",

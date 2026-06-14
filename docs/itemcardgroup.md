@@ -3,7 +3,7 @@
 [← Back to Table of Contents](index.md)
 
 
-Grouped list surface: multiple `ItemCard` rows share one bordered container (HeroUI **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.
+Grouped list surface: multiple `ItemCard` rows share one bordered container (SaaS **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.
 
 **Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardGroup`  
 **Extends:** `Filament\Schemas\Components\Component`  

@@ -47,7 +47,7 @@ class SwitchPlayground
     {
         return [
             Section::make('Switch')
-                ->description('HeroUI-style switch rows with capsule thumb, variants, groups, and announcement cards.')
+                ->description('SaaS-style switch rows with capsule thumb, variants, groups, and announcement cards.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Grid::make(['default' => 1, 'sm' => 2])

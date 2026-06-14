@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](flexchecklist.md) but one choice at a time.
+SaaS-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](flexchecklist.md) but one choice at a time.
 
 | | |
 |---|---|
@@ -54,7 +54,7 @@ FlexRadiolist::make('role')
 #### `variant(string|Closure $variant)`
 
 
-Sets the visual layout variant. Available: `default` (standard list), `cards` (HeroUI choice cards), `label-only`.
+Sets the visual layout variant. Available: `default` (standard list), `cards` (SaaS choice cards), `label-only`.
 
 ```php
 FlexRadiolist::make('gender')

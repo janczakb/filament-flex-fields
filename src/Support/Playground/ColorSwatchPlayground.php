@@ -65,7 +65,7 @@ class ColorSwatchPlayground
 
         return [
             Section::make('Color swatch')
-                ->description('HeroUI-style color pills with sm / md / lg sizes, hover tooltips and optional section header.')
+                ->description('SaaS-style color pills with sm / md / lg sizes, hover tooltips and optional section header.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Grid::make(3)

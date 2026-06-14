@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **single-select** card group (radio behaviour).
+SaaS-style **single-select** card group (radio behaviour).
 
 | | |
 |---|---|

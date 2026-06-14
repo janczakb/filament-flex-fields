@@ -40,7 +40,7 @@ class PriceRangePlayground
 
         return [
             Section::make('Price Range')
-                ->description('HeroUI-style histogram range with animated bars, dual thumbs and min/max inputs.')
+                ->description('SaaS-style histogram range with animated bars, dual thumbs and min/max inputs.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     PriceRangeField::make('price_range__basic')

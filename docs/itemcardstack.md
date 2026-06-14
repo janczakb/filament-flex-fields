@@ -3,7 +3,7 @@
 [← Back to Table of Contents](index.md)
 
 
-Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (HeroUI vertical stack / pressable list).
+Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (SaaS vertical stack / pressable list).
 
 **Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardStack`  
 **Extends:** `Filament\Schemas\Components\Component`

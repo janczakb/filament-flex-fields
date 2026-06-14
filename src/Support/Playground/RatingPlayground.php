@@ -45,7 +45,7 @@ class RatingPlayground
     {
         return [
             Section::make('Rating')
-                ->description('HeroUI-style rating input with custom icons, colors, sizes, disabled, required, and fractional read-only display. See the RatingColumn section below for read-only table examples.')
+                ->description('SaaS-style rating input with custom icons, colors, sizes, disabled, required, and fractional read-only display. See the RatingColumn section below for read-only table examples.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     RatingField::make('rating__default')
@@ -53,7 +53,7 @@ class RatingPlayground
                         ->helperText('Default stars with hover preview.'),
                     RatingField::make('rating__with_label')
                         ->label('How would you rate this product?')
-                        ->helperText('With label variant from HeroUI docs.'),
+                        ->helperText('With label variant from SaaS docs.'),
                     RatingField::make('rating__heart')
                         ->label('Custom icon heart')
                         ->icon(Heroicon::OutlinedHeart)

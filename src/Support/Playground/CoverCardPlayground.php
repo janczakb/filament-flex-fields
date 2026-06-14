@@ -34,7 +34,7 @@ class CoverCardPlayground
     {
         return [
             Section::make('Cover card')
-                ->description('HeroUI-style media card with configurable background, copy blocks, footer action and aspect ratio. Use fullWidth() with a wide ratio (e.g. 21:9) for low-height banners.')
+                ->description('SaaS-style media card with configurable background, copy blocks, footer action and aspect ratio. Use fullWidth() with a wide ratio (e.g. 21:9) for low-height banners.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Grid::make(1)

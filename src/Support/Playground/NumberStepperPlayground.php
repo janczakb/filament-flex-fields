@@ -49,7 +49,7 @@ class NumberStepperPlayground
     public function section(): Section
     {
         return Section::make('Number Stepper')
-            ->description('HeroUI-style sizes, formats, custom icons, variants and rolling digit animation.')
+            ->description('SaaS-style sizes, formats, custom icons, variants and rolling digit animation.')
             ->extraAttributes(['class' => 'fff-playground-section'])
             ->schema([
                 Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3, 'xl' => 3])

@@ -157,7 +157,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | UI Defaults (HeroUI-inspired cell components)
+    | UI Defaults (modern SaaS-inspired cell components)
     |--------------------------------------------------------------------------
     | Control sizes (sm / md / lg) share one scale across all components.
     | Track heights: 32px · 40px · 48px — see --fff-track-* in base.css.

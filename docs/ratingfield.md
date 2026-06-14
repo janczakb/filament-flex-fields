@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style star (or custom icon) rating input with hover preview, semantic colors, sizes, disabled/required states, and **fractional read-only display**.
+SaaS-style star (or custom icon) rating input with hover preview, semantic colors, sizes, disabled/required states, and **fractional read-only display**.
 
 | | |
 |---|---|
@@ -74,7 +74,7 @@ Semantic fill color for active icons.
 
 | Value | Use case |
 |-------|----------|
-| `warning` | Default HeroUI amber stars |
+| `warning` | Default SaaS amber stars |
 | `primary` | Accent / blue |
 | `danger` | Error / red hearts |
 | `success` | Positive / green |

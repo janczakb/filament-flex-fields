@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **single-line** text input with pill layout, grouped action buttons, and optional toolbar features. Extends Filament `TextInput` — **all native TextInput APIs remain available**.
+SaaS-style **single-line** text input with pill layout, grouped action buttons, and optional toolbar features. Extends Filament `TextInput` — **all native TextInput APIs remain available**.
 
 | | |
 |---|---|

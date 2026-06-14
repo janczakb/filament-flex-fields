@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style boolean toggle: label and description on one side, switch on the other.
+SaaS-style boolean toggle: label and description on one side, switch on the other.
 
 | | |
 |---|---|

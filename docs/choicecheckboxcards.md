@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **multi-select** card group (checkbox behaviour).
+SaaS-style **multi-select** card group (checkbox behaviour).
 
 | | |
 |---|---|

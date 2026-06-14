@@ -1,4 +1,4 @@
-/* Track slider — HeroUI-style inline range bar */
+/* Track slider — SaaS-style inline range bar */
 .fff-track-slider {
     @apply block w-full select-none;
 }

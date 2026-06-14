@@ -5,7 +5,7 @@
 
 ### Summary
 
-HeroUI-style **multi-select** checklist. Same row layout as [FlexRadiolist](flexradiolist.md) but stores an array of selected keys.
+SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](flexradiolist.md) but stores an array of selected keys.
 
 | | |
 |---|---|

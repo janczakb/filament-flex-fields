@@ -73,7 +73,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 
 ## Overview
 
-Filament Flex Fields provides HeroUI-inspired form controls with a unified design language:
+Filament Flex Fields provides modern SaaS-inspired form controls with a unified design language:
 
 - Shared **size scale** (`sm`, `md`, `lg`)
 - Shared **CSS tokens** (`--fff-*` in `resources/css/base.css` and modular bundles under `resources/css/`)
@@ -353,7 +353,7 @@ Used by **DualListboxField** via `options()`.
 
 ### Summary
 
-HeroUI-style **single-line** text input with pill layout, grouped action buttons, and optional toolbar features. Extends Filament `TextInput` — **all native TextInput APIs remain available**.
+SaaS-style **single-line** text input with pill layout, grouped action buttons, and optional toolbar features. Extends Filament `TextInput` — **all native TextInput APIs remain available**.
 
 | | |
 |---|---|
@@ -522,7 +522,7 @@ All standard Filament `TextInput` methods work unchanged, including:
 
 ### Summary
 
-HeroUI-style **multi-line** textarea with optional toolbar, autosize, emoji picker, and speech dictation. Extends Filament `Textarea`.
+SaaS-style **multi-line** textarea with optional toolbar, autosize, emoji picker, and speech dictation. Extends Filament `Textarea`.
 
 | | |
 |---|---|
@@ -2237,7 +2237,7 @@ Config defaults (`config/filament-flex-fields.php` → `ui`):
 
 ### Summary
 
-HeroUI-style **single-select** card group (radio behaviour).
+SaaS-style **single-select** card group (radio behaviour).
 
 | | |
 |---|---|
@@ -2370,7 +2370,7 @@ When built via `FlexFieldFormBuilder`:
 
 ### Summary
 
-HeroUI-style **multi-select** card group (checkbox behaviour).
+SaaS-style **multi-select** card group (checkbox behaviour).
 
 | | |
 |---|---|
@@ -2477,7 +2477,7 @@ Same card transitions as ChoiceCards, plus:
 
 ### Summary
 
-HeroUI-style **multi-select** checklist. Same row layout as [FlexRadiolist](#flexradiolist) but stores an array of selected keys.
+SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](#flexradiolist) but stores an array of selected keys.
 
 | | |
 |---|---|
@@ -2614,7 +2614,7 @@ Exact count; overrides min/max semantics when set.
 
 ### Summary
 
-HeroUI-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](#flexchecklist) but one choice at a time.
+SaaS-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](#flexchecklist) but one choice at a time.
 
 | | |
 |---|---|
@@ -3122,7 +3122,7 @@ Also supports standard [Inherited Filament field API](#inherited-filament-field-
 
 ### Summary
 
-HeroUI-style boolean toggle: label and description on one side, switch on the other.
+SaaS-style boolean toggle: label and description on one side, switch on the other.
 
 | | |
 |---|---|
@@ -6085,7 +6085,7 @@ See [Control size](#control-size).
 
 ### Summary
 
-Styled wrapper around Filament's `Slider` with HeroUI-like track, step dots, server-rendered pips, fill segments, and formatted value display.
+Styled wrapper around Filament's `Slider` with SaaS-like track, step dots, server-rendered pips, fill segments, and formatted value display.
 
 | | |
 |---|---|
@@ -6688,7 +6688,7 @@ Drag handles use a **local** stacking context (`z-index: 2` inside `.fff-traffic
 
 ### Summary
 
-HeroUI-style star (or custom icon) rating input with hover preview, semantic colors, sizes, disabled/required states, and **fractional read-only display**.
+SaaS-style star (or custom icon) rating input with hover preview, semantic colors, sizes, disabled/required states, and **fractional read-only display**.
 
 | | |
 |---|---|
@@ -6745,7 +6745,7 @@ Semantic fill color for active icons.
 
 | Value | Use case |
 |-------|----------|
-| `warning` | Default HeroUI amber stars |
+| `warning` | Default SaaS amber stars |
 | `primary` | Accent / blue |
 | `danger` | Error / red hearts |
 | `success` | Positive / green |
@@ -6881,7 +6881,7 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 
 ### Summary
 
-HeroUI-style **media card** for hero banners, product tiles, and CTA blocks. Supports background image, gradient, or solid color, optional top/footer copy, and a footer action button.
+SaaS-style **media card** for hero banners, product tiles, and CTA blocks. Supports background image, gradient, or solid color, optional top/footer copy, and a footer action button.
 
 | | |
 |---|---|
@@ -7339,7 +7339,7 @@ Semantic stroke color and diameter scale.
 
 ## ItemCard
 
-HeroUI-inspired list row / card for settings screens, navigation rows, and mixed action layouts. Renders a horizontal row with optional leading icon, title, description, trailing schema slot (switch, select, actions), and optional chevron.
+modern SaaS-inspired list row / card for settings screens, navigation rows, and mixed action layouts. Renders a horizontal row with optional leading icon, title, description, trailing schema slot (switch, select, actions), and optional chevron.
 
 **Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard`  
 **Extends:** `Filament\Schemas\Components\Component`  
@@ -7698,7 +7698,7 @@ All configuration methods accept `Closure` with Filament utility injection.
 
 ## ItemCardGroup
 
-Grouped list surface: multiple `ItemCard` rows share one bordered container (HeroUI **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.
+Grouped list surface: multiple `ItemCard` rows share one bordered container (SaaS **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.
 
 **Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardGroup`  
 **Extends:** `Filament\Schemas\Components\Component`  
@@ -7870,7 +7870,7 @@ Displayed **per field** under the control in the row's trailing slot. `ItemCardG
 
 ## ItemCardStack
 
-Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (HeroUI vertical stack / pressable list).
+Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (SaaS vertical stack / pressable list).
 
 **Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardStack`  
 **Extends:** `Filament\Schemas\Components\Component`
