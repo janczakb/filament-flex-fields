@@ -4,7 +4,8 @@
 
 <h1 align="center">Filament Flex Fields</h1>
 
-<p align="center"><strong>The most complete Filament v5 form component kit — 59 custom UI components + migration-free JSON custom fields.</strong><br>Choice cards · Matrix grid · Tags · Slug & permalink · Phone · Currency · Maps · Translatable · Playground</p>
+<p align="center"><strong>The ultimate form components, custom fields builder, and UI kit for Laravel Filament v5.</strong><br>61+ premium inputs, dynamic JSON storage, and pre-built performance-first esbuild pipeline.</p>
+<p align="center">Choice cards · Matrix choice grid · Tags · Slug & permalink preview · International Phone · Currency formatting · Maps & location · Translatable forms · Layout cards · Settings stack</p>
 
 <p align="center">
     <a href="https://packagist.org/packages/janczakb/filament-flex-fields"><img src="https://img.shields.io/packagist/v/janczakb/filament-flex-fields.svg?style=flat-square" alt="Latest Version on Packagist"></a>
@@ -23,7 +24,7 @@
 
 A [Filament v5](https://filamentphp.com) plugin for **dynamic custom fields** and a polished, HeroUI-inspired form UI. Store all flex field values in a **single JSON column** — no per-field migrations, no EAV tables — or drop any component directly into Filament forms, tables, and schemas.
 
-Stop stitching together a dozen separate Filament field plugins. Flex Fields ships **59 custom UI components** with HeroUI-inspired styling, layout primitives (`ItemCard`, `SegmentTabs`, `CoverCard`), table columns (`UserColumn`, `RatingColumn`), optional **JSON custom-field storage**, and a dev **Playground** — with pre-built CSS/JS in `resources/dist/` so consumers **do not need Node.js** at install time. Assets are **lazy-loaded per component** with **shared JS chunks** so heavy pages stay fast.
+Stop stitching together a dozen separate Filament field plugins. Flex Fields ships **61 custom UI components** with HeroUI-inspired styling, layout primitives (`ItemCard`, `SegmentTabs`, `CoverCard`), table columns (`UserColumn`, `RatingColumn`), optional **JSON custom-field storage**, and a dev **Playground** — with pre-built CSS/JS in `resources/dist/` so consumers **do not need Node.js** at install time. Assets are **lazy-loaded per component** with **shared JS chunks** so heavy pages stay fast.
 
 ---
 
@@ -45,9 +46,7 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 ## Table of contents
 
 - [Why Flex Fields?](#why-flex-fields)
-- [Performance-first assets](#performance-first-assets)
-- [Features](#features)
-- [Custom components (59)](#custom-components-59)
+- [Custom Components (61)](#custom-components-61)
 - [Use cases](#use-cases)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -60,30 +59,25 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 
 ---
 
-## Key Features & Advantages
+## Why Flex Fields?
 
-### 📦 59 Custom UI Components
-A massive collection of **59 polished components** (48 form fields, 9 layout/schema components, and 2 table columns) designed to replace dozens of individual, uncoordinated plugins. Everything uses a unified design language with customizable sizes, colors, and variants.
+Filament Flex Fields is the most complete, visually stunning, and performance-optimized form component kit ever built for Filament v5. It is designed to replace dozens of scattered, uncoordinated community packages with a single, unified design system.
 
-### ⚡ Performance-First Asset Pipeline (Chunk-based Loading)
-Real-world admin panels shouldn't feel sluggish. Flex Fields implements an advanced, enterprise-grade asset loading mechanism:
-* **Lazy-Loaded CSS:** Component stylesheets are only injected into the page when the component is actually rendered.
-* **Tiered JS Chunks (esbuild splitting):** Reusable JS logic (like emoji pickers, Mapbox geocoding, audio playback, and searchable select overlays) is automatically split into semantic shared chunks and loaded once per request, drastically reducing bundle size.
+### 📦 61 Premium Filament Components (All-in-One UI Plugin)
+No other package offers this level of coverage. Flex Fields delivers a massive library of **61 premium components** (50 form fields, 9 layout/schema components, and 2 table columns). Instead of stitching together 15+ different plugins—each with their own design philosophies, code quality, and styles—you get a single, curated suite where everything works together flawlessly.
 
-### 🧩 Migration-Free Dynamic Flex Fields
-Define your schemas dynamically in PHP and store all custom attributes in a **single JSON column** using our `HasFlexFields` trait. No more database schema migrations or complex EAV joins.
+### 🎨 Modern SaaS Form UI & HeroUI-Inspired Design
+Standard admin panels look plain. Flex Fields brings gorgeous, state-of-the-art UI elements inspired by HeroUI. Every component features smooth CSS transitions, interactive hover micro-animations, clean borders, and a unified design token scale (`--fff-*`). Customize component sizes (`sm`, `md`, `lg`), colors, and focus states globally or per-field.
 
-### 🧪 Standalone or Dynamic — You Choose
-* **Dynamic Builder:** Bind your registry schemas to forms automatically using `FlexFieldFormBuilder`.
-* **Standalone Fields:** Use any of the 59 premium components directly in your Filament schemas by chaining them just like native inputs.
+### ⚡ Enterprise-Grade Asset Performance (Lazy CSS & JS Code Splitting)
+Loading dozens of complex fields shouldn't make your admin panel sluggish. Flex Fields implements an advanced, enterprise-grade asset loading system:
+* **Lazy-Loaded CSS:** Component stylesheets are injected on-the-fly *only* when the field is rendered on the page.
+* **Tiered JS Chunks (esbuild code splitting):** Shared libraries (like Mapbox, libphonenumber, emoji pickers, and audio players) are split into semantic modules. They are automatically preloaded and deduplicated via `FlexFieldAlpineQueue`—meaning the browser downloads each shared helper *exactly once per page request*, no matter how many fields use it.
 
----
+<details>
+<summary>🔍 View Asset Optimization details (CSS & JS tables)</summary>
 
-## Performance-first assets
-
-Most Filament field plugins ship one fat CSS/JS bundle. Flex Fields is built for **real admin panels with dozens of fields** — assets load **per component**, shared modules are **split once and cached**, and heavy libraries stay **lazy**.
-
-### CSS — lazy per component
+#### CSS — lazy per component
 
 | Bundle | When it loads |
 |--------|----------------|
@@ -91,20 +85,20 @@ Most Filament field plugins ship one fat CSS/JS bundle. Flex Fields is built for
 | `{component}.css` | **Only when that field is on the page** (injected via `load-stylesheet`) |
 | `playground.css` | Playground page only |
 
-Use `PhoneField` and `TagsField` on the same form → the browser fetches **only** `phone-field.css` and `tags-field.css`, not styles for the other 57 components.
+Use `PhoneField` and `TagsField` on the same form → the browser fetches **only** `phone-field.css` and `tags-field.css`, not styles for the other 59 components.
 
-### JavaScript — tiered chunks (esbuild code splitting)
+#### JavaScript — tiered chunks (esbuild code splitting)
 
-All **29 Alpine components** are built together with `splitting: true`:
+All Alpine components are built together with `splitting: true`:
 
 | Layer | What you get |
 |-------|----------------|
 | **Entry** | Thin `{component}.js` — just the `x-data` factory for that field |
 | **Shared chunks** | Reusable `core/` modules with **semantic names** (`flex-fields-emoji-*`, `flex-fields-audio-*`, `flex-fields-select-menu-*`, …) |
 | **Manifest** | `alpine-manifest.json` maps each field → its chunks for `modulepreload` |
-| **Dedup** | `FlexFieldAlpineQueue` preloads each shared chunk **once per request**, even with multiple fields on the page |
+| **Dedup** | `FlexFieldAlpineQueue` preloads each shared chunk **once per request** |
 
-**Examples of what gets shared automatically:**
+#### Examples of what gets shared automatically:
 
 | Shared module | Used by | Why it matters |
 |---------------|---------|----------------|
@@ -116,56 +110,32 @@ All **29 Alpine components** are built together with `splitting: true`:
 
 Fields with no shared deps (e.g. `RatingField`) stay as a single small entry — no artificial splitting.
 
-### Consumer-friendly
+#### Consumer-friendly
+* **Zero Node.js for consumers:** Pre-built assets in `resources/dist/` — no Node.js required in your host app.
+* **Auto-registered:** After `composer update`, run `php artisan filament:assets`.
+* **Technical deep-dive:** [docs/index.md](docs/index.md) (Assets & playground).
 
-- Pre-built assets in `resources/dist/` — **no Node.js required** in your app.
-- After `composer update`, run `php artisan filament:assets` (or wire it in `post-autoload-dump`).
-- Technical deep-dive: [docs/index.md → Assets & playground](docs/index.md#assets--playground).
+</details>
 
----
+### 🧩 Zero-Migration Custom Fields (Dynamic JSON Storage)
+Define your fields dynamically in PHP and store all custom attributes in a **single JSON column** using our `HasFlexFields` trait. Build dynamic CMS pages, customer onboarding surveys, or customizable tenant settings on the fly without database migrations, new tables, or complex EAV joins.
 
-## Features
+### 🧬 Highly Reactive Form Builder & Specialized Inputs
+Build complex forms that would otherwise take weeks of custom frontend development:
+* **MatrixChoiceField:** A survey-style grid with radio/checkbox modes and reactive `disableCellWhen()` / `disableRowWhen()` logic to easily disable specific choices.
+* **TitleSlugField & SlugField:** Beautiful inputs with live URL permalink previews, automatic slug generation, copy actions, and database uniqueness validation.
+* **Specialized inputs:** Custom audio players with waveforms (`AudioField`), voice recorders (`VoiceNoteRecorderField`), weighted A/B splitters (`TrafficSplit`), multi-currency inputs (`CurrencyField`), card selection lists (`ChoiceCards`), and map pins (`MapPickerField`).
 
-### Dynamic flex fields (JSON storage)
+### 🧪 Standalone Filament Inputs or Dynamic Schema Registry
+* **Standalone Fields:** Import any of the 61 components directly into your standard Filament forms, chaining them like native fields (no JSON column required).
+* **Dynamic Builder:** Bind your registry schemas to forms automatically using `FlexFieldFormBuilder` for dynamic JSON attributes.
 
-- 📦 **Migration-free custom attributes** — one JSON column per model; no EAV tables, no schema migrations when adding fields.
-- 🧩 **Schema registry** — `FlexFieldSchemaRegistry` + config-driven field groups for CMS, CRM, and product catalogs.
-- 🧩 **Schema registry** — `FlexFieldSchemaRegistry` + `FlexFieldFormBuilder` wire custom components into config-driven field groups (CMS, CRM, product catalogs).
-- 🌍 **Translatable fields** — locale tabs via `TranslatableFields` (JSON/array storage or optional Spatie Translatable).
-- 🔗 **Optional Spatie integrations** — Sluggable (slug generation), Translatable (i18n), Media Library (`FlexSpatieMediaLibraryFileUpload`), Tags (`FlexSpatieTagsField` with `spatie/laravel-tags`).
-
-### Form UI & UX
-
-- 🎴 **Rich choice UI** — `ChoiceCards`, `ChoiceCheckboxCards`, `FlexChecklist`, `FlexRadiolist`, `MatrixChoiceField` (radio/checkbox grid, per-row validation, reactive cell disabling).
-- 📞 **International inputs** — `PhoneField` (libphonenumber), `CountryField`, `TimezoneField`, `CurrencyField` with locale-aware formatting.
-- 🗺️ **Location** — `MapPickerField` (interactive map) + `AddressAutocompleteField` (Mapbox geocoding).
-- 💳 **Payments & verification** — `CreditCardField` (Luhn validation, card flip on CVV), `FlexVerificationCode` (OTP / 2FA codes).
-- 📅 **Date & time suite** — 9 pickers: segmented date, calendar date, time, datetime, date range, time range, duration, month, year.
-- 🎚️ **Numbers & ranges** — `NumberStepper`, `FlexSlider`, `TrackSlider`, `PriceRangeField`, `TrafficSplit` (weighted A/B-style segments).
-- 🔘 **Toggles & segments** — `SwitchField`, `SegmentControl`, `SegmentTabs`.
-- 📎 **Media** — `FlexFileUpload`, `FlexImageUpload`, `VideoField`, `AudioField`, `VoiceNoteRecorderField`, `SignatureField`.
-- 🎨 **Color** — `ColorSwatchField` (presets), `FlexColorPickerField` (advanced picker with eyedropper).
-- 🔗 **Slug & permalink** — `SlugField`, `TitleSlugField` with live preview, copy/visit/regenerate actions, homepage slug support.
-- 👤 **Users** — `UserSelect` with avatars, verification badges, and stacked display.
-- 📋 **Lists** — `DualListboxField`, `SelectField`, `TagsField` (pills below input with inline remove).
-
-### Layout & display (schemas)
-
-- 🃏 **Cards** — `ItemCard`, `ItemCardGroup`, `ItemCardStack`, `CoverCard` — build polished card-based settings, tabbed editors, and profile layouts.
-- 📊 **Progress** — `ProgressBar` (linear, pills, segments), `ProgressCircle` (circle, semicircle, gradients).
-- 🧪 **Playground** — visual QA page for every component; enable in `local` by default.
-
-### Developer experience
-
-- ⚡ **Performance-first assets** — lazy per-component CSS, esbuild JS code splitting, semantic shared chunks, `modulepreload` dedup (see [Performance-first assets](#performance-first-assets)).
-- 🎨 **Unified design tokens** — shared `--fff-*` CSS scale (`sm` / `md` / `lg`) across all components.
-- 📦 **Zero Node.js for consumers** — pre-built assets committed to `resources/dist/`.
-- 📖 **Full API reference** — [docs/index.md](docs/index.md) documents every method, option, validation rule, and example.
-- ✅ **Tested** — Pest feature/unit tests, PHPStan, Laravel Pint.
+### 🔍 Built-in Local Developer Playground (Visual QA)
+Validate, preview, and interact with all 61 custom components instantly. Flex Fields features an out-of-the-box local Playground page (`/admin/playground` by default) containing interactive previews of every field to speed up your development.
 
 ---
 
-## Custom components (59)
+## Custom Components (61)
 
 Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
 
@@ -196,7 +166,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`PriceRangeField`](docs/pricerangefield.md) | Dual-handle price filter with histogram |
 | [`TrafficSplit`](docs/trafficsplit.md) | Weighted segment split control (A/B-style traffic allocation) |
 
-### Choice & selection (12)
+### Choice & selection (13)
 
 | Component | Description |
 |-----------|-------------|
@@ -212,6 +182,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`UserSelect`](docs/userselect.md) | User picker with avatar stacks and verification badges |
 | [`DualListboxField`](docs/duallistboxfield.md) | Two-panel reorderable transfer list |
 | [`TagsField`](docs/index.md) | Tag input — pills below the field with inline remove buttons |
+| [`FlexSpatieTagsField`](docs/index.md) | Spatie Tags integration for `TagsField` |
 
 ### Date & time (9)
 
@@ -227,7 +198,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`FlexMonthPicker`](docs/date-and-time-fields.md) | Month picker |
 | [`FlexYearPicker`](docs/date-and-time-fields.md) | Year picker |
 
-### Media, color & location (11)
+### Media, color & location (12)
 
 | Component | Description |
 |-----------|-------------|
@@ -273,7 +244,7 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 | [`UserColumn`](docs/usercolumn.md) | Avatar + name/email display with hover card |
 | [`RatingColumn`](docs/ratingcolumn.md) | Star rating display in Filament tables |
 
-**Total: 59 custom components** (48 form fields + 9 schema/display + 2 table columns).
+**Total: 61 custom components** (50 form fields + 9 layout/schema + 2 table columns).
 
 ---
 
@@ -490,7 +461,7 @@ Each component loads its own CSS/JS on demand. Shared JavaScript (emoji picker, 
 Yes. Import any component directly into Filament forms — the JSON column and `HasFlexFields` trait are optional.
 
 **How many components are included?**
-**59** custom UI classes with own views and CSS — listed in [Custom components (59)](#custom-components-59). The optional JSON flex-field registry wires these components via `FlexFieldFormBuilder`.
+**61** custom UI classes with own views and CSS — listed in [Custom Components (61)](#custom-components-61). The optional JSON flex-field registry wires these components via `FlexFieldFormBuilder`.
 
 **Does it work with Filament v4?**
 No — this package targets **Filament v5** only.
