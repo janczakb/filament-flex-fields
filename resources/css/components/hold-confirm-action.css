@@ -1,0 +1,190 @@
+.fff-hold-confirm-action-host {
+    display: inline-grid;
+    vertical-align: middle;
+}
+
+.fff-hold-confirm-action-host > * {
+    grid-area: 1 / 1;
+}
+
+.fff-hold-confirm-action {
+    --fff-hold-progress: 0;
+
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    transition: transform 160ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.fff-hold-confirm-action[data-holding="true"] {
+    transform: scale(0.97);
+}
+
+.fff-action--rounded-none {
+    border-radius: 0 !important;
+}
+
+.fff-action--rounded-sm {
+    border-radius: 0.25rem !important;
+}
+
+.fff-action--rounded-md {
+    border-radius: 0.375rem !important;
+}
+
+.fff-action--rounded-lg {
+    border-radius: 0.5rem !important;
+}
+
+.fff-action--rounded-xl {
+    border-radius: 0.75rem !important;
+}
+
+.fff-action--rounded-full,
+.fff-hold-confirm-action.fff-action--rounded-full,
+.fff-hold-confirm-action--palette-danger.fff-action--rounded-full {
+    border-radius: 9999px !important;
+}
+
+.fff-hold-confirm-action--palette-danger {
+    --fff-hold-confirm-track-bg: rgb(254 226 226);
+    --fff-hold-confirm-track-text: rgb(127 29 29);
+    --fff-hold-confirm-fill-bg: rgb(220 38 38);
+    --fff-hold-confirm-fill-text: #fff;
+
+    background-color: var(--fff-hold-confirm-track-bg) !important;
+    background-image: none !important;
+    color: var(--fff-hold-confirm-track-text) !important;
+    box-shadow: none !important;
+    --tw-shadow: 0 0 #0000;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    --tw-ring-color: transparent;
+}
+
+.fff-hold-confirm-action--palette-danger.fi-color.fi-btn:not(label) > .fi-icon,
+.fff-hold-confirm-action--palette-danger.fi-color.fi-ac-btn-action:not(label) > .fi-icon {
+    color: var(--fff-hold-confirm-track-text) !important;
+}
+
+.fff-hold-confirm-action--palette-danger .fff-hold-confirm-action__overlay {
+    background-color: var(--fff-hold-confirm-fill-bg);
+    color: var(--fff-hold-confirm-fill-text);
+}
+
+.fff-hold-confirm-action--palette-danger .fff-hold-confirm-action__base .fi-icon,
+.fff-hold-confirm-action--palette-danger .fff-hold-confirm-action__base svg {
+    color: var(--fff-hold-confirm-track-text);
+}
+
+.fff-hold-confirm-action--palette-danger .fff-hold-confirm-action__overlay .fi-icon,
+.fff-hold-confirm-action--palette-danger .fff-hold-confirm-action__overlay svg {
+    color: var(--fff-hold-confirm-fill-text);
+}
+
+.dark .fff-hold-confirm-action--palette-danger {
+    --fff-hold-confirm-track-bg: rgb(69 10 10 / 0.45);
+    --fff-hold-confirm-track-text: rgb(254 202 202);
+    --fff-hold-confirm-fill-bg: rgb(220 38 38);
+    --fff-hold-confirm-fill-text: #fff;
+}
+
+.fff-hold-confirm-action__base {
+    position: relative;
+    z-index: 1;
+    display: contents;
+    color: inherit;
+}
+
+.fff-hold-confirm-action__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: inline-grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: center;
+    gap: inherit;
+    padding: inherit;
+    border-radius: inherit;
+    clip-path: inset(0 100% 0 0);
+    pointer-events: none;
+}
+
+.fff-hold-confirm-action.fi-color .fff-hold-confirm-action__overlay {
+    background-color: var(--color-600);
+    color: #fff;
+}
+
+.dark .fff-hold-confirm-action.fi-color .fff-hold-confirm-action__overlay {
+    background-color: var(--color-500);
+    color: #fff;
+}
+
+.fff-hold-confirm-action.fi-color:not(.fi-outlined) .fff-hold-confirm-action__overlay {
+    background-color: var(--color-700);
+}
+
+.dark .fff-hold-confirm-action.fi-color:not(.fi-outlined) .fff-hold-confirm-action__overlay {
+    background-color: var(--color-400);
+}
+
+.fff-hold-confirm-action.fi-btn .fff-hold-confirm-action__overlay .fi-icon,
+.fff-hold-confirm-action.fi-ac-btn-action .fff-hold-confirm-action__overlay .fi-icon,
+.fff-hold-confirm-action.fi-btn .fff-hold-confirm-action__overlay svg,
+.fff-hold-confirm-action.fi-ac-btn-action .fff-hold-confirm-action__overlay svg {
+    color: inherit;
+}
+
+.fff-hold-confirm-action__base .fi-icon,
+.fff-hold-confirm-action__base svg,
+.fff-hold-confirm-action__overlay .fi-icon,
+.fff-hold-confirm-action__overlay svg {
+    color: currentColor;
+    stroke: none;
+}
+
+.item-card__action .fff-hold-confirm-action {
+    --fff-hold-confirm-icon-size: 0.875rem;
+
+    min-height: calc(0.25rem * 8);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    padding-inline: calc(0.25rem * 3);
+    gap: 0.375rem;
+}
+
+.item-card__action .fff-hold-confirm-action .fi-icon,
+.item-card__action .fff-hold-confirm-action .fi-icon svg,
+.item-card__action .fff-hold-confirm-action svg {
+    width: var(--fff-hold-confirm-icon-size) !important;
+    height: var(--fff-hold-confirm-icon-size) !important;
+}
+
+.dark .item-card__action .fff-item-card-action.fi-btn,
+.dark .item-card__action .fff-item-card-action.fi-ac-btn-group {
+    --fff-item-card-action-bg: rgb(39 39 42);
+    --fff-item-card-action-border: rgb(255 255 255 / 0.1);
+    --fff-item-card-action-text: rgb(244 244 245);
+}
+
+.dark .item-card__action .fff-item-card-action.fi-btn:hover:not(.fi-disabled),
+.dark .item-card__action .fff-item-card-action.fi-ac-btn-group:hover:not(.fi-disabled) {
+    background-color: rgb(63 63 70);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-hold-confirm-action {
+        transition-duration: 0ms !important;
+        transform: none !important;
+    }
+
+    .fff-hold-confirm-action[data-holding="true"] {
+        outline: 2px dashed currentColor;
+        outline-offset: -2px;
+    }
+}

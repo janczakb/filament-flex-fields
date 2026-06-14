@@ -1,0 +1,166 @@
+/* Shared Mapbox geocoding autocomplete dropdown (MapPicker + AddressAutocomplete) */
+.fff-map-picker__dropdown-panel {
+    margin-top: var(--fff-select-dropdown-gap, calc(0.25rem + 6px));
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 14rem;
+    border-radius: var(--fff-select-menu-radius, 1.5rem);
+    border: none;
+    background: var(--fff-select-menu-bg, rgb(255 255 255 / 0.9));
+    backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%));
+    -webkit-backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%));
+    box-shadow: var(--fff-select-menu-shadow, 0 10px 30px rgb(0 0 0 / 0.08));
+    padding: 0.375rem;
+    box-sizing: border-box;
+}
+
+.fff-map-picker__dropdown-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.125rem;
+}
+
+.fff-map-picker__dropdown-hint {
+    margin: 0;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: rgb(113 113 122);
+}
+
+.fff-map-picker__dropdown-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.fff-map-picker__dropdown-skeleton-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    padding: 0.125rem;
+    border-radius: 16px;
+    background: transparent;
+}
+
+.fff-map-picker__dropdown-skeleton-icon {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-top: 0.375rem;
+    margin-left: 0.375rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0.55) 0%,
+        rgb(212 212 216 / 0.9) 50%,
+        rgb(228 228 231 / 0.55) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-map-picker-skeleton-pulse 1.35s ease-in-out infinite;
+    animation-delay: calc(var(--fff-map-picker-skeleton-i, 0) * 90ms);
+}
+
+.fff-map-picker__dropdown-skeleton-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.375rem;
+    padding: 0.5rem 0.625rem 0.5rem 0;
+}
+
+.fff-map-picker__dropdown-skeleton-line {
+    display: block;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0.65) 0%,
+        rgb(212 212 216 / 0.95) 50%,
+        rgb(228 228 231 / 0.65) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-map-picker-skeleton-pulse 1.35s ease-in-out infinite;
+    animation-delay: calc((var(--fff-map-picker-skeleton-i, 0) * 90ms) + 45ms);
+}
+
+.fff-map-picker__dropdown-skeleton-line.is-primary {
+    width: 88%;
+}
+
+.fff-map-picker__dropdown-skeleton-line.is-secondary {
+    width: 62%;
+    height: 0.5rem;
+    opacity: 0.72;
+}
+
+.fff-map-picker__dropdown-option {
+    display: block;
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 16px;
+    background: transparent;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+}
+
+.fff-map-picker__dropdown-option > span {
+    display: block;
+    width: 100%;
+    border-radius: 16px;
+    padding-inline: 10px;
+    padding-block: 0.5rem;
+    box-sizing: border-box;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(39 39 42);
+    white-space: normal;
+    transition: background-color 0.15s ease;
+}
+
+.fff-map-picker__dropdown-option:hover > span,
+.fff-map-picker__dropdown-option:focus-visible > span,
+.fff-map-picker__dropdown-option.is-active > span {
+    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    outline: none;
+}
+
+.fff-map-picker__dropdown-option.is-active > span {
+    background: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+    font-weight: 500;
+}
+
+@keyframes fff-map-picker-skeleton-pulse {
+    0%,
+    100% {
+        background-position: 100% 0;
+        opacity: 0.55;
+    }
+
+    50% {
+        background-position: 0 0;
+        opacity: 1;
+    }
+}
+
+.dark .fff-map-picker__dropdown-hint {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-map-picker__dropdown-skeleton-icon,
+.dark .fff-map-picker__dropdown-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        rgb(63 63 70 / 0.75) 0%,
+        rgb(82 82 91 / 0.95) 50%,
+        rgb(63 63 70 / 0.75) 100%
+    );
+    background-size: 200% 100%;
+}
+
+.dark .fff-map-picker__dropdown-option > span {
+    color: rgb(244 244 245);
+}

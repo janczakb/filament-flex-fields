@@ -1,0 +1,423 @@
+/* PhoneField — FlexTextInput shell + inline country chip dropdown */
+.fff-phone-field [x-cloak] {
+    display: none !important;
+}
+
+.fff-phone-field {
+    overflow: visible;
+}
+
+.fi-fo-field:has(.fff-phone-field) .fi-fo-field-content-col {
+    overflow: visible;
+}
+
+.fff-phone-field .fff-flex-text-input__shell {
+    overflow: visible;
+}
+
+.fff-phone-field {
+    --fff-phone-field-flag-size: calc(var(--fff-flex-text-input-icon-size) * 1.25);
+    --fff-phone-field-chevron-size: calc(var(--fff-flex-text-input-icon-size) * 0.9375);
+    --fff-phone-field-chip-h: calc(var(--fff-flex-text-input-h) * 0.72);
+    --fff-phone-field-chip-px: calc(var(--fff-flex-text-input-p) * 0.85);
+    --fff-phone-field-chip-py: 0;
+    --fff-phone-field-chip-radius: 9999px;
+    --fff-phone-field-suffix-size: var(--fff-flex-text-input-icon-size, 1rem);
+    --fff-phone-field-muted: rgb(113 113 122);
+    --fff-phone-field-chip-bg: var(--fff-field-secondary-bg);
+    --fff-phone-field-error: rgb(239 68 68);
+    --fff-phone-field-error-ring: rgb(239 68 68 / 0.2);
+}
+
+.fff-phone-field.fff-flex-text-input--secondary {
+    --fff-phone-field-chip-bg: rgb(228 228 231);
+}
+
+.fff-phone-field.fff-flex-text-input--soft {
+    --fff-phone-field-chip-bg: var(--fff-field-soft-chip-bg);
+    --fff-phone-field-chip-radius: calc(var(--fff-field-soft-radius) - 0.375rem);
+}
+
+.fff-phone-field.fff-flex-text-input--flat {
+    --fff-phone-field-chip-bg: var(--fff-field-secondary-bg);
+}
+
+.fff-phone-field__row {
+    @apply flex h-full min-w-0 items-center;
+    gap: 0.5rem;
+    padding-inline-start: calc(var(--fff-flex-text-input-p) * 0.45);
+    padding-inline-end: var(--fff-flex-text-input-p);
+}
+
+.fff-phone-field__country {
+    @apply relative shrink-0;
+}
+
+.fff-phone-field__country-trigger {
+    @apply inline-flex shrink-0 items-center justify-center border-0 outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none;
+    height: var(--fff-phone-field-chip-h);
+    min-height: var(--fff-phone-field-chip-h);
+    max-height: var(--fff-phone-field-chip-h);
+    padding-block: var(--fff-phone-field-chip-py);
+    padding-inline: var(--fff-phone-field-chip-px);
+    gap: 0.375rem;
+    border-radius: var(--fff-phone-field-chip-radius);
+    background-color: var(--fff-phone-field-chip-bg);
+    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+    font-size: var(--fff-flex-text-input-text-size);
+    font-weight: inherit;
+    line-height: 1.2;
+}
+
+.fff-phone-field__country-trigger:focus,
+.fff-phone-field__country-trigger:focus-visible {
+    @apply outline-none ring-0;
+    box-shadow: none;
+}
+
+.fff-phone-field__country-trigger:disabled {
+    @apply cursor-not-allowed opacity-60;
+}
+
+.fff-phone-field__flag-wrap {
+    @apply inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full;
+    width: var(--fff-phone-field-flag-size);
+    height: var(--fff-phone-field-flag-size);
+    min-width: var(--fff-phone-field-flag-size);
+    min-height: var(--fff-phone-field-flag-size);
+    background: rgb(228 228 231 / 0.9);
+}
+
+.fff-phone-field__flag {
+    @apply block h-full w-full shrink-0 rounded-full object-cover;
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+}
+
+.fff-phone-field__country-trigger .fff-phone-field__flag {
+    opacity: 1;
+}
+
+.fff-phone-field__flag.is-loaded {
+    opacity: 1;
+}
+
+.fff-phone-field__country-chevron {
+    @apply shrink-0 text-zinc-500;
+    display: block;
+    width: var(--fff-phone-field-chevron-size) !important;
+    height: var(--fff-phone-field-chevron-size) !important;
+}
+
+.fff-phone-field__country-menu {
+    @apply fixed z-[80] flex flex-col overflow-hidden;
+    --fff-phone-field-menu-flag-size: 1.125rem;
+    --fff-select-menu-bg: rgb(255 255 255 / 0.9);
+    --fff-select-menu-border: rgb(228 228 231 / 0.65);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.06),
+        0 12px 28px -6px rgb(0 0 0 / 0.12);
+    --fff-select-menu-hover: rgb(244 244 245 / 0.72);
+    --fff-select-menu-selected: rgb(228 228 231 / 0.78);
+    --fff-select-search-bg: rgb(255 255 255 / 0.55);
+    --fff-select-search-border: rgb(228 228 231);
+    --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    visibility: hidden;
+    min-width: 12rem;
+    max-height: 15rem;
+    border-radius: 1rem !important;
+    border: 1px solid var(--fff-select-menu-border) !important;
+    background-color: var(--fff-select-menu-bg) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    box-shadow: var(--fff-select-menu-shadow) !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-width: 0px !important;
+    --tw-shadow: 0 0 #0000 !important;
+    padding: 0.375rem;
+}
+
+.fff-phone-field__country-menu--sm {
+    --fff-phone-field-menu-text-size: var(--fff-text-md);
+    --fff-phone-field-menu-search-min-h: 2rem;
+    --fff-phone-field-menu-flag-size: 1rem;
+    --fff-phone-field-menu-search-icon-size: 0.875rem;
+    --fff-phone-field-menu-search-pad-left: 2.125rem;
+}
+
+.fff-phone-field__country-menu--md {
+    --fff-phone-field-menu-text-size: var(--fff-text-md);
+    --fff-phone-field-menu-search-min-h: 2.375rem;
+    --fff-phone-field-menu-flag-size: 1.125rem;
+    --fff-phone-field-menu-search-icon-size: 1rem;
+    --fff-phone-field-menu-search-pad-left: 2.375rem;
+}
+
+.fff-phone-field__country-menu--lg {
+    --fff-phone-field-menu-text-size: var(--fff-text-lg);
+    --fff-phone-field-menu-search-min-h: 2.5rem;
+    --fff-phone-field-menu-flag-size: 1.25rem;
+    --fff-phone-field-menu-search-icon-size: 1.125rem;
+    --fff-phone-field-menu-search-pad-left: 2.5rem;
+}
+
+.fff-phone-field__country-menu.is-positioned {
+    visibility: visible;
+}
+
+.fff-phone-field__country-search-wrap {
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
+    padding: 0.375rem 0.375rem 0.5rem;
+    border-bottom: 0;
+    background: var(--fff-select-menu-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.fff-phone-field__country-search {
+    width: 100%;
+    min-height: var(--fff-phone-field-menu-search-min-h);
+    border-radius: 9999px !important;
+    border: 1px solid var(--fff-select-search-border) !important;
+    background-color: var(--fff-select-search-bg) !important;
+    background-image: var(--fff-select-search-icon) !important;
+    background-repeat: no-repeat !important;
+    background-position: 0.75rem center !important;
+    background-size: var(--fff-phone-field-menu-search-icon-size) var(--fff-phone-field-menu-search-icon-size) !important;
+    padding: 0.5rem 1rem 0.5rem var(--fff-phone-field-menu-search-pad-left) !important;
+    font-size: var(--fff-phone-field-menu-text-size);
+    font-weight: inherit;
+    line-height: 1.25rem;
+    color: rgb(113 113 122);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04) !important;
+    appearance: none;
+    -webkit-appearance: none;
+    outline: none !important;
+    ring: 0 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.fff-phone-field__country-search::-webkit-search-decoration,
+.fff-phone-field__country-search::-webkit-search-cancel-button,
+.fff-phone-field__country-search::-webkit-search-results-button,
+.fff-phone-field__country-search::-webkit-search-results-decoration {
+    display: none;
+}
+
+.fff-phone-field__country-search::placeholder {
+    color: rgb(161 161 170);
+}
+
+.fff-phone-field__country-search:hover {
+    background-color: rgb(255 255 255 / 0.78) !important;
+    border-color: rgb(212 212 216);
+    color: rgb(63 63 70);
+}
+
+.fff-phone-field__country-search:focus,
+.fff-phone-field__country-search:focus-visible {
+    outline: none !important;
+    border-color: rgb(212 212 216);
+    background-color: rgb(255 255 255 / 0.82) !important;
+    color: rgb(39 39 42);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+}
+
+.fff-phone-field__country-list {
+    @apply m-0 min-h-0 flex-1 list-none overflow-x-hidden overflow-y-auto p-0.5;
+}
+
+.fff-phone-field__country-menu .fff-phone-field__flag-wrap {
+    width: var(--fff-phone-field-menu-flag-size);
+    height: var(--fff-phone-field-menu-flag-size);
+    min-width: var(--fff-phone-field-menu-flag-size);
+    min-height: var(--fff-phone-field-menu-flag-size);
+    flex-shrink: 0;
+}
+
+.fff-phone-field__country-menu .fff-phone-field__flag {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.fff-phone-field__country-option {
+    @apply flex w-full min-w-0 items-center gap-2 overflow-hidden rounded-xl border-0 bg-transparent px-2.5 py-2 text-start transition-colors;
+    font-size: var(--fff-phone-field-menu-text-size, var(--fff-text-md));
+    font-weight: inherit;
+    line-height: 1.25rem;
+    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+}
+
+.fff-phone-field__country-option:hover {
+    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+}
+
+.fff-phone-field__country-option.is-selected {
+    background: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+}
+
+.fff-phone-field__country-name {
+    @apply min-w-0 flex-1 truncate;
+}
+
+.fff-phone-field__country-dial {
+    @apply shrink-0 tabular-nums;
+    font-size: calc(var(--fff-phone-field-menu-text-size, var(--fff-text-md)) * 0.857);
+    line-height: 1.25rem;
+    color: var(--fff-phone-field-muted);
+}
+
+.fff-phone-field__control {
+    @apply relative min-w-0 flex-1;
+    height: 100%;
+}
+
+.fff-phone-field__input-wrap {
+    @apply flex h-full w-full min-w-0 items-center gap-1.5;
+}
+
+.fff-phone-field__dial-prefix {
+    @apply inline-flex shrink-0 items-center;
+    font-size: var(--fff-flex-text-input-text-size);
+    font-weight: inherit;
+    line-height: 1.2;
+    color: var(--fff-phone-field-muted);
+}
+
+.fff-phone-field__input {
+    @apply min-w-0 flex-1 appearance-none border-0 bg-transparent p-0 text-zinc-900 shadow-none outline-none ring-0 focus:outline-none focus:ring-0 focus-visible:outline-none;
+    height: auto;
+    min-height: 0;
+    font-size: var(--fff-flex-text-input-text-size);
+    font-weight: inherit;
+    line-height: 1.2;
+    color: var(--fff-flex-text-input-text);
+}
+
+.fff-phone-field__input.fff-flex-text-input__input {
+    height: auto;
+}
+
+.fff-phone-field__input:focus,
+.fff-phone-field__input:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+}
+
+.fff-phone-field__input::placeholder {
+    color: rgb(161 161 170);
+}
+
+.fff-phone-field__suffix {
+    @apply inline-flex shrink-0 items-center justify-center self-center text-zinc-400;
+    width: var(--fff-phone-field-suffix-size);
+    height: var(--fff-phone-field-suffix-size);
+    min-width: var(--fff-phone-field-suffix-size);
+    min-height: var(--fff-phone-field-suffix-size);
+}
+
+.fff-phone-field__suffix .fi-icon,
+.fff-phone-field__suffix svg {
+    @apply block;
+    width: var(--fff-phone-field-suffix-size) !important;
+    height: var(--fff-phone-field-suffix-size) !important;
+}
+
+.fff-phone-field__shell.is-invalid,
+.fi-fo-field:has([data-validation-error]) .fff-phone-field__shell,
+.fi-fo-field-wrp:has([data-validation-error]) .fff-phone-field__shell,
+.fi-input-wrp:not(.fi-valid) .fff-phone-field__shell {
+    border-color: var(--fff-phone-field-error) !important;
+    box-shadow: 0 0 0 3px var(--fff-phone-field-error-ring) !important;
+}
+
+.dark .fff-phone-field__shell.is-invalid,
+.dark .fi-fo-field:has([data-validation-error]) .fff-phone-field__shell,
+.dark .fi-fo-field-wrp:has([data-validation-error]) .fff-phone-field__shell,
+.dark .fi-input-wrp:not(.fi-valid) .fff-phone-field__shell {
+    border-color: var(--fff-phone-field-error) !important;
+    box-shadow: 0 0 0 3px var(--fff-phone-field-error-ring) !important;
+}
+
+.fff-phone-field.is-disabled .fff-phone-field__shell,
+.fff-phone-field.is-read-only .fff-phone-field__shell {
+    @apply opacity-60;
+}
+
+.dark .fff-phone-field__input {
+    @apply text-zinc-50;
+}
+
+.dark .fff-phone-field__input::placeholder {
+    color: rgb(113 113 122);
+}
+
+.dark .fff-phone-field .fff-flex-text-input__shell {
+    --fff-flex-text-input-bg: rgb(39 39 42);
+}
+
+.dark .fff-phone-field {
+    --fff-phone-field-muted: rgb(161 161 170);
+    --fff-phone-field-chip-bg: rgb(63 63 70);
+}
+
+.dark .fff-phone-field__flag-wrap {
+    background: rgb(63 63 70 / 0.9);
+}
+
+.dark .fff-phone-field__country-menu {
+    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-border: rgb(255 255 255 / 0.12);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+    --fff-select-menu-hover: rgb(63 63 70 / 0.82);
+    --fff-select-menu-selected: rgb(82 82 91 / 0.88);
+    --fff-select-search-bg: rgb(39 39 42 / 0.55);
+    --fff-select-search-border: rgb(63 63 70);
+    --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    background-color: var(--fff-select-menu-bg) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.dark .fff-phone-field__country-search {
+    background-color: var(--fff-select-search-bg);
+    border-color: var(--fff-select-search-border);
+    box-shadow: none;
+}
+
+.dark .fff-phone-field__country-search:hover,
+.dark .fff-phone-field__country-search:focus {
+    background-color: rgb(39 39 42);
+    border-color: rgb(82 82 91);
+    color: rgb(228 228 231);
+}
+
+.dark .fff-phone-field__suffix {
+    @apply text-zinc-500;
+}
+
+.fff-select-option__trigger-icon .fff-select-option__image,
+.fff-select-option__icon .fff-select-option__image {
+    background-color: rgb(228 228 231 / 0.85);
+}
+
+.dark .fff-select-option__trigger-icon .fff-select-option__image,
+.dark .fff-select-option__icon .fff-select-option__image {
+    background-color: rgb(63 63 70 / 0.85);
+}
+

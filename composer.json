@@ -1,0 +1,95 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "janczakb/filament-flex-fields",
+    "description": "59 custom Filament v5 form components with HeroUI-inspired UI — matrix grid, tags, slug, phone, currency, maps, translatable fields, JSON custom attributes, and playground.",
+    "keywords": [
+        "filament",
+        "filament-plugin",
+        "filament-forms",
+        "form-components",
+        "custom-fields",
+        "dynamic-fields",
+        "flex-fields",
+        "json-attributes",
+        "eav",
+        "cms-fields",
+        "matrix-choice",
+        "choice-cards",
+        "slug-field",
+        "phone-input",
+        "currency-field",
+        "translatable",
+        "laravel",
+        "forms",
+        "hero-ui"
+    ],
+    "homepage": "https://github.com/janczakb/filament-flex-fields",
+    "license": "proprietary",
+    "authors": [
+        {
+            "name": "Bartek Janczak",
+            "email": "barek122@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "janczakb/blade-gravity-icons": "^1.0",
+        "filament/filament": "^5.0",
+        "giggsey/libphonenumber-for-php": "^9.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0",
+        "phpstan/phpstan": "^2.0",
+        "spatie/laravel-sluggable": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bjanczak\\FilamentFlexFields\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Bjanczak\\FilamentFlexFields\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bjanczak\\FilamentFlexFields\\FilamentFlexFieldsServiceProvider"
+            ]
+        },
+        "suggest": {
+            "spatie/laravel-sluggable": "Optional model-based slug generation for SlugField via spatieModel().",
+            "spatie/laravel-translatable": "Optional JSON translation storage for translatable TitleSlugField titles via spatieTranslatable().",
+            "spatie/laravel-medialibrary": "Optional Spatie Media Library integration via FlexSpatieMediaLibraryFileUpload.",
+            "filament/spatie-laravel-media-library-plugin": "Optional Filament Spatie Media Library file upload base class for FlexSpatieMediaLibraryFileUpload.",
+            "spatie/laravel-tags": "Optional Spatie Tags integration via FlexSpatieTagsField (set use_spatie_tags in field config)."
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "analyse": "phpstan analyse --memory-limit=512M",
+        "build:css": "npm run build:css",
+        "build:js": "npm run build:js",
+        "build:assets": "npm run build",
+        "format": "vendor/bin/pint",
+        "post-install-cmd": [
+            "@npm-install"
+        ],
+        "post-update-cmd": [
+            "@npm-install"
+        ],
+        "npm-install": "npm install --ignore-scripts --no-audit --no-fund"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

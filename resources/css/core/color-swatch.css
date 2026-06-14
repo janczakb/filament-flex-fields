@@ -1,0 +1,127 @@
+/* Color swatch — HeroUI-style preset pills */
+.fff-color-swatch {
+    --fff-color-swatch-pill-size: 1.75rem;
+    --fff-color-swatch-pill-gap: 0.625rem;
+    --fff-color-swatch-header-text: rgb(24 24 27);
+    --fff-color-swatch-header-icon: rgb(113 113 122);
+    --fff-color-swatch-header-icon-size: 1rem;
+    --fff-color-swatch-header-label-size: 0.875rem;
+    --fff-color-swatch-stack-gap: 0.75rem;
+    --fff-color-swatch-ring-gap: rgb(255 255 255);
+    --fff-color-swatch-light-border: rgb(228 228 231);
+    display: grid;
+    gap: var(--fff-color-swatch-stack-gap);
+}
+
+.fff-color-swatch--sm {
+    --fff-color-swatch-pill-size: 1.25rem;
+    --fff-color-swatch-pill-gap: 0.5rem;
+    --fff-color-swatch-header-icon-size: 0.875rem;
+    --fff-color-swatch-header-label-size: 0.8125rem;
+    --fff-color-swatch-stack-gap: 0.5rem;
+}
+
+.fff-color-swatch--md {
+    --fff-color-swatch-pill-size: 1.75rem;
+    --fff-color-swatch-pill-gap: 0.625rem;
+    --fff-color-swatch-header-icon-size: 1rem;
+    --fff-color-swatch-header-label-size: 0.875rem;
+    --fff-color-swatch-stack-gap: 0.75rem;
+}
+
+.fff-color-swatch--lg {
+    --fff-color-swatch-pill-size: 2.25rem;
+    --fff-color-swatch-pill-gap: 0.75rem;
+    --fff-color-swatch-header-icon-size: 1.125rem;
+    --fff-color-swatch-header-label-size: 1rem;
+    --fff-color-swatch-stack-gap: 0.875rem;
+}
+
+.fff-color-swatch__header {
+    @apply inline-flex w-full items-center gap-2 border-0 bg-transparent p-0 text-left;
+    color: var(--fff-color-swatch-header-text);
+}
+
+.fff-color-swatch__header-icon {
+    @apply inline-flex shrink-0 items-center justify-center;
+    color: var(--fff-color-swatch-header-icon);
+}
+
+.fff-color-swatch__header-icon .fi-icon,
+.fff-color-swatch__header-icon svg {
+    width: var(--fff-color-swatch-header-icon-size);
+    height: var(--fff-color-swatch-header-icon-size);
+}
+
+.fff-color-swatch__header-label {
+    @apply font-medium;
+    font-size: var(--fff-color-swatch-header-label-size);
+}
+
+.fff-color-swatch__pills {
+    @apply flex flex-wrap items-center;
+    gap: var(--fff-color-swatch-pill-gap);
+}
+
+.fff-color-swatch__pill {
+    width: var(--fff-color-swatch-pill-size);
+    height: var(--fff-color-swatch-pill-size);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-color: var(--fff-color-swatch-pill);
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.35),
+        0 1px 2px rgb(0 0 0 / 0.08);
+    cursor: pointer;
+    transition:
+        box-shadow 0.15s ease,
+        transform 0.15s ease;
+}
+
+.fff-color-swatch__pill--light {
+    border-color: var(--fff-color-swatch-light-border);
+}
+
+.fff-color-swatch__pill:hover:not(:disabled) {
+    transform: scale(1.05);
+}
+
+.fff-color-swatch__pill.is-selected {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.35),
+        0 0 0 2px var(--fff-color-swatch-ring-gap),
+        0 0 0 4px var(--fff-color-swatch-pill);
+}
+
+.fff-color-swatch__pill:focus-visible {
+    @apply outline-none;
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.35),
+        0 0 0 2px var(--fff-color-swatch-ring-gap),
+        0 0 0 4px var(--fff-color-swatch-pill),
+        0 0 0 6px color-mix(in srgb, var(--fff-color-swatch-pill) 35%, transparent);
+}
+
+.fff-color-swatch.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.dark .fff-color-swatch {
+    --fff-color-swatch-header-text: rgb(244 244 245);
+    --fff-color-swatch-header-icon: rgb(161 161 170);
+    --fff-color-swatch-ring-gap: rgb(24 24 27);
+    --fff-color-swatch-light-border: rgb(82 82 91);
+}
+
+.dark .fff-color-swatch__pill {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.12),
+        0 1px 2px rgb(0 0 0 / 0.28);
+}
+
+.dark .fff-color-swatch__pill.is-selected {
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.12),
+        0 0 0 2px var(--fff-color-swatch-ring-gap),
+        0 0 0 4px var(--fff-color-swatch-pill);
+}

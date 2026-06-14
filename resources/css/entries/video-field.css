@@ -1,0 +1,9 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/VideoField.php";
+@source "../views/forms/components/video-field.blade.php";
+@source "../views/forms/components/partials/video-field-controls.blade.php";
+
+@import "../components/video-field.css";

@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
+
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MapPickerField;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
+use Filament\Schemas\Components\Component;
+
+final class MapPickerFieldConfigurator implements FieldConfigurator
+{
+    public function configure(Component $field, array $config): Component
+    {
+        assert($field instanceof MapPickerField);
+
+        return $this->configureMapPickerField($field, $config);
+    }
+
+    public function configureMapPickerField(MapPickerField $field, array $config): MapPickerField
+    {
+        if (array_key_exists('fields', $config) && is_array($config['fields'])) {
+            $field->fields($config['fields']);
+        }
+
+        if (array_key_exists('store_format', $config)) {
+            $field->storeFormat((string) $config['store_format']);
+        }
+
+        if (array_key_exists('string_format', $config)) {
+            $field->stringFormat((string) $config['string_format']);
+        }
+
+        if (array_key_exists('required_fields', $config) && is_array($config['required_fields'])) {
+            $field->requiredFields($config['required_fields']);
+        }
+
+        if (array_key_exists('default_center', $config) && is_array($config['default_center'])) {
+            $field->defaultCenter($config['default_center']);
+        }
+
+        if (array_key_exists('default_zoom', $config)) {
+            $field->defaultZoom((int) $config['default_zoom']);
+        }
+
+        if (array_key_exists('searchable', $config)) {
+            $field->searchable((bool) $config['searchable']);
+        }
+
+        if (array_key_exists('countries', $config)) {
+            $field->countries(is_array($config['countries']) ? $config['countries'] : null);
+        }
+
+        if (array_key_exists('mapbox_token', $config)) {
+            $field->mapboxToken(is_string($config['mapbox_token']) ? $config['mapbox_token'] : null);
+        }
+
+        if (array_key_exists('street_addresses_only', $config)) {
+            $field->streetAddressesOnly((bool) $config['street_addresses_only']);
+        }
+
+        return $field;
+    }
+}

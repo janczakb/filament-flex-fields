@@ -1,0 +1,10 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "./base.css";
+
+@source "../../src/Support/Playground/**/*.php";
+@source "../views/partials/playground/**/*.blade.php";
+@source "../views/pages/flex-fields-playground.blade.php";
+
+@import "./playground/playground.css";
+@import "./playground/user-column-playground.css";

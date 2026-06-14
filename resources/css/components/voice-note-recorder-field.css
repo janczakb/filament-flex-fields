@@ -1,0 +1,463 @@
+.fff-voice-recorder {
+    --fff-voice-rec-max-width: 22rem;
+    --fff-voice-rec-bg: rgb(255 255 255);
+    --fff-voice-rec-border: rgb(228 228 231);
+    --fff-voice-rec-primary-bg: rgb(244 63 94); /* Rose 500 */
+    --fff-voice-rec-primary-hover: rgb(225 29 72); /* Rose 600 */
+    --fff-voice-rec-btn-size: 2.5rem;
+    --fff-voice-rec-icon-size: 0.72rem;
+    --fff-voice-rec-record-icon-size: calc(var(--fff-voice-rec-btn-size) * 0.5);
+    --fff-voice-rec-time-size: 0.84375rem;
+    --fff-voice-rec-text-color: rgb(82 82 91);
+    --fff-voice-rec-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+
+    width: 100%;
+    max-width: var(--fff-voice-rec-max-width);
+}
+
+.fff-voice-recorder [x-cloak] {
+    display: none !important;
+}
+
+.fff-voice-recorder--sm {
+    --fff-voice-rec-max-width: 18rem;
+    --fff-voice-rec-btn-size: 2.125rem;
+    --fff-voice-rec-time-size: 0.73125rem;
+}
+
+.fff-voice-recorder--lg {
+    --fff-voice-rec-max-width: 28rem;
+    --fff-voice-rec-btn-size: 2.875rem;
+    --fff-voice-rec-time-size: 0.9rem;
+}
+
+.fff-voice-recorder__container {
+    @apply w-full;
+}
+
+.fff-voice-recorder__container.is-submitting {
+    @apply relative;
+}
+
+.fff-voice-recorder__container.is-submitting .fff-voice-recorder__uploading {
+    box-shadow: 0 0 0 2px rgb(244 63 94 / 0.15);
+}
+
+/* Tryb Idle */
+.fff-voice-recorder__idle {
+    @apply flex items-center gap-3 w-full;
+    padding: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-voice-rec-border);
+    background-color: var(--fff-voice-rec-bg);
+    box-shadow: var(--fff-voice-rec-shadow);
+}
+
+.fff-voice-recorder__record-btn {
+    @apply flex items-center justify-center shrink-0 text-white outline-none cursor-pointer;
+    width: var(--fff-voice-rec-btn-size);
+    height: var(--fff-voice-rec-btn-size);
+    border-radius: 9999px;
+    border: 0;
+    background-color: var(--fff-voice-rec-primary-bg);
+    box-shadow: 0 4px 10px rgb(244 63 94 / 0.3);
+    transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 160ms ease;
+}
+
+.fff-voice-recorder__record-btn:hover:not(:disabled) {
+    background-color: var(--fff-voice-rec-primary-hover);
+    transform: scale(1.08);
+}
+
+.fff-voice-recorder__record-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.fff-voice-recorder__record-btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+    box-shadow: none;
+}
+
+.fff-voice-recorder__record-btn .fi-icon,
+.fff-voice-recorder__record-btn .fi-icon > svg,
+.fff-voice-recorder__record-btn svg {
+    width: var(--fff-voice-rec-record-icon-size) !important;
+    height: var(--fff-voice-rec-record-icon-size) !important;
+    min-width: var(--fff-voice-rec-record-icon-size);
+    min-height: var(--fff-voice-rec-record-icon-size);
+}
+
+.fff-voice-recorder__icon-mic {
+    @apply inline-flex items-center justify-center leading-none;
+    width: var(--fff-voice-rec-record-icon-size);
+    height: var(--fff-voice-rec-record-icon-size);
+}
+
+.fff-voice-recorder__label {
+    @apply text-sm font-medium cursor-pointer select-none truncate;
+    color: var(--fff-voice-rec-text-color);
+    transition: color 150ms ease;
+}
+
+.fff-voice-recorder__label:hover {
+    color: var(--fff-voice-rec-primary-bg);
+}
+
+/* Tryb Recording */
+.fff-voice-recorder__recording {
+    @apply flex items-center gap-3 w-full justify-between;
+    padding: 0.5rem 0.875rem 0.5rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-voice-rec-border);
+    background-color: var(--fff-voice-rec-bg);
+    box-shadow: var(--fff-voice-rec-shadow);
+}
+
+.fff-voice-recorder__recording-status {
+    @apply flex items-center gap-2 shrink-0;
+}
+
+.fff-voice-recorder__pulse-dot {
+    @apply w-2.5 h-2.5 rounded-full bg-red-500 shrink-0;
+    animation: fff-voice-pulse 1.2s infinite ease-in-out;
+}
+
+@keyframes fff-voice-pulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.5;
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+    70% {
+        transform: scale(1.1);
+        opacity: 1;
+        box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0.5;
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+.fff-voice-recorder__timer {
+    @apply font-mono text-xs font-bold tabular-nums shrink-0;
+    color: rgb(239 68 68);
+}
+
+.fff-voice-recorder__canvas-wrapper {
+    @apply flex-1 min-w-0 h-7 flex items-center overflow-hidden mx-1;
+}
+
+.fff-voice-recorder__canvas {
+    @apply w-full h-full block;
+}
+
+.fff-voice-recorder__actions {
+    @apply flex items-center gap-2 shrink-0;
+}
+
+.fff-voice-recorder__action-btn {
+    @apply flex items-center justify-center outline-none cursor-pointer;
+    width: var(--fff-voice-rec-btn-size);
+    height: var(--fff-voice-rec-btn-size);
+    border-radius: 9999px;
+    border: 1px solid rgb(228 228 231);
+    background-color: rgb(244 244 245);
+    color: rgb(63 63 70);
+    transition: all 160ms ease;
+}
+
+.fff-voice-recorder__action-btn:hover {
+    @apply scale-105;
+}
+
+.fff-voice-recorder__action-btn:active {
+    @apply scale-95;
+}
+
+.fff-voice-recorder__action-btn svg {
+    width: 42%;
+    height: 42%;
+}
+
+.fff-voice-recorder__action-btn--cancel:hover {
+    @apply border-red-200 bg-red-50 text-red-600;
+}
+
+.fff-voice-recorder__action-btn--stop {
+    @apply border-emerald-500 bg-emerald-500 text-white shadow-sm;
+    box-shadow: 0 3px 6px rgb(16 185 129 / 0.2);
+}
+
+.fff-voice-recorder__action-btn--stop:hover {
+    @apply bg-emerald-600 border-emerald-600;
+}
+
+/* Tryb Uploading */
+.fff-voice-recorder__uploading {
+    @apply flex items-center justify-center gap-3 w-full;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-voice-rec-border);
+    background-color: var(--fff-voice-rec-bg);
+    box-shadow: var(--fff-voice-rec-shadow);
+}
+
+.fff-voice-recorder__spinner-wrapper {
+    @apply shrink-0 text-pink-500;
+}
+
+.fff-voice-recorder__spinner {
+    @apply w-5 h-5;
+}
+
+.fff-voice-recorder__upload-label {
+    @apply text-sm font-semibold text-zinc-600 tabular-nums;
+}
+
+/* Tryb Playback (Pill zbieżny z audio-field) */
+.fff-voice-recorder__playback-pill {
+    @apply flex w-full min-w-0 items-center gap-3;
+    padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-voice-rec-border);
+    background-color: var(--fff-voice-rec-bg);
+    box-shadow: var(--fff-voice-rec-shadow);
+}
+
+.fff-voice-recorder__play-btn {
+    @apply inline-flex shrink-0 items-center justify-center outline-none cursor-pointer;
+    width: calc(var(--fff-voice-rec-btn-size) * 0.9);
+    height: calc(var(--fff-voice-rec-btn-size) * 0.9);
+    border-radius: 9999px;
+    border: 0;
+    background-color: rgb(244 244 245);
+    color: rgb(63 63 70);
+    transition: transform 160ms ease, opacity 160ms ease, background-color 160ms ease;
+}
+
+.fff-voice-recorder__play-btn:hover:not(:disabled) {
+    transform: scale(1.05);
+    background-color: rgb(228 228 231);
+}
+
+.fff-voice-recorder__play-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.fff-voice-recorder__play-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.fff-voice-recorder__play-btn svg,
+.fff-voice-recorder__play-btn .fi-icon {
+    width: var(--fff-voice-rec-icon-size);
+    height: var(--fff-voice-rec-icon-size);
+}
+
+.fff-voice-recorder__icon-play {
+    margin-left: 0.0625rem;
+}
+
+.fff-voice-recorder__waveform {
+    @apply relative flex min-w-0 flex-1 items-center;
+    width: 100%;
+    gap: var(--fff-audio-field-bar-gap, 1px);
+    height: 1.75rem;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.fff-voice-recorder__waveform-skeleton {
+    @apply absolute inset-0 flex items-center overflow-hidden;
+    gap: var(--fff-audio-field-bar-gap, 1px);
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 240ms ease, visibility 240ms ease;
+}
+
+.fff-voice-recorder__waveform.is-ready .fff-voice-recorder__waveform-skeleton {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.fff-voice-recorder__skeleton-bar {
+    @apply block min-w-0 rounded-full;
+    flex: 1 1 0;
+    height: 42%;
+    align-self: center;
+    transform-origin: center;
+    background: linear-gradient(
+        180deg,
+        rgb(24 24 24 / 0.1) 0%,
+        rgb(24 24 24 / 0.22) 100%
+    );
+    animation: fff-voice-skeleton-bar 1.15s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: calc(var(--fff-audio-skeleton-i, 0) * 45ms);
+}
+
+.fff-voice-recorder__waveform-skeleton-shimmer {
+    @apply pointer-events-none absolute inset-y-0;
+    left: -45%;
+    width: 45%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.55) 48%,
+        transparent 100%
+    );
+    mix-blend-mode: soft-light;
+    animation: fff-voice-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+@keyframes fff-voice-skeleton-bar {
+    0%, 100% {
+        transform: scaleY(0.32);
+        opacity: 0.38;
+    }
+    50% {
+        transform: scaleY(1);
+        opacity: 0.82;
+    }
+}
+
+@keyframes fff-voice-skeleton-shimmer {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    18% {
+        opacity: 0.85;
+    }
+    82% {
+        opacity: 0.85;
+    }
+    100% {
+        transform: translateX(320%);
+        opacity: 0;
+    }
+}
+
+.fff-voice-recorder__waveform.is-ready .fff-voice-recorder__bar {
+    animation: fff-voice-bar-reveal 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--fff-audio-bar-i, 0) * 8ms);
+}
+
+@keyframes fff-voice-bar-reveal {
+    from {
+        opacity: 0;
+        transform: scaleY(0.55);
+    }
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+.fff-voice-recorder__waveform:not(.is-ready) .fff-voice-recorder__bar {
+    opacity: 0;
+}
+
+.fff-voice-recorder__bar {
+    @apply block min-w-0 rounded-full;
+    flex: 1 1 0;
+    min-height: 0.1875rem;
+    align-self: center;
+    transform-origin: center;
+    background: rgb(24 24 24 / 0.18);
+    transition: background-color 120ms linear;
+}
+
+.fff-voice-recorder__bar.is-played {
+    background: var(--fff-voice-rec-primary-bg);
+}
+
+.fff-voice-recorder__time {
+    @apply shrink-0 tabular-nums text-xs font-semibold;
+    min-width: 2.25rem;
+    text-align: right;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--fff-voice-rec-text-color);
+}
+
+.fff-voice-recorder__bg-upload {
+    @apply shrink-0 tabular-nums text-[0.65rem] font-semibold text-pink-500;
+}
+
+.fff-voice-recorder__delete-btn {
+    @apply flex items-center justify-center outline-none shrink-0 cursor-pointer;
+    width: calc(var(--fff-voice-rec-btn-size) * 0.8);
+    height: calc(var(--fff-voice-rec-btn-size) * 0.8);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: rgb(161 161 170);
+    transition: all 160ms ease;
+}
+
+.fff-voice-recorder__delete-btn:hover:not(:disabled) {
+    @apply border-red-200 bg-red-50 text-red-500 scale-105;
+}
+
+.fff-voice-recorder__delete-btn:active:not(:disabled) {
+    @apply scale-95;
+}
+
+.fff-voice-recorder__delete-btn svg {
+    width: 50%;
+    height: 50%;
+}
+
+/* Dark Mode Overrides */
+.dark .fff-voice-recorder {
+    --fff-voice-rec-bg: rgb(39 39 42);
+    --fff-voice-rec-border: rgb(63 63 70);
+    --fff-voice-rec-text-color: rgb(161 161 170);
+}
+
+.dark .fff-voice-recorder__action-btn {
+    border-color: rgb(63 63 70);
+    background-color: rgb(48 48 52);
+    color: rgb(212 212 216);
+}
+
+.dark .fff-voice-recorder__action-btn--cancel:hover {
+    @apply border-red-900 bg-red-950/40 text-red-400;
+}
+
+.dark .fff-voice-recorder__play-btn {
+    background-color: rgb(63 63 70);
+    color: rgb(228 228 231);
+}
+
+.dark .fff-voice-recorder__play-btn:hover:not(:disabled) {
+    background-color: rgb(82 82 91);
+}
+
+.dark .fff-voice-recorder__skeleton-bar {
+    background: linear-gradient(
+        180deg,
+        rgb(255 255 255 / 0.08) 0%,
+        rgb(255 255 255 / 0.22) 100%
+    );
+}
+
+.dark .fff-voice-recorder__waveform-skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.22) 48%,
+        transparent 100%
+    );
+}
+
+.dark .fff-voice-recorder__bar {
+    background: rgb(255 255 255 / 0.24);
+}
+
+.dark .fff-voice-recorder__delete-btn:hover:not(:disabled) {
+    @apply border-red-900/50 bg-red-950/30 text-red-400;
+}

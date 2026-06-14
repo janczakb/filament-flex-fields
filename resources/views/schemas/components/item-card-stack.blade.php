@@ -1,0 +1,20 @@
+@php
+    $stackGap = $getStackGap();
+@endphp
+
+<div
+    {{
+        $attributes
+            ->merge([
+                'id' => $getId(),
+            ], escape: false)
+            ->merge($getExtraAttributes(), escape: false)
+            ->class([
+                'fff-item-card-stack',
+                'fff-item-card-stack--'.$stackGap,
+            ])
+    }}
+    data-slot="item-card-stack"
+>
+    {{ $getChildSchema() }}
+</div>

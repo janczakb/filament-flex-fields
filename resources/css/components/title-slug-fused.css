@@ -1,0 +1,84 @@
+/* ── Title + slug fused group (no Filament outer ring / dividers) ─────────── */
+
+.fi-sc-fused-group.fff-title-slug-fused-group {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group > .fi-sc {
+    @apply flex w-full min-w-0 flex-col items-stretch gap-3 divide-y-0 rounded-none shadow-none ring-0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group > .fi-sc.fi-grid {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group > .fi-sc > .fi-grid-col,
+.fi-sc-fused-group.fff-title-slug-fused-group > .fi-sc > .fi-sc.fi-inline {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    align-self: stretch;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-sc-component {
+    width: 100%;
+    min-width: 0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-grid-col {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field > .fff-slug-field,
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field > .fff-slug-field__host,
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field > .fff-flex-text-input,
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field > .fff-segment-tabs,
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-fo-field > .fff-translatable-fields {
+    width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active .fi-sc,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active .fi-grid-col,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active .fi-fo-field,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active .fi-fo-field-content-col,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-slug-field,
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-slug-field__shell {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group > .fi-sc:focus-within {
+    @apply ring-0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-input-wrp {
+    @apply rounded-none shadow-none ring-0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fi-input-wrp:focus-within {
+    @apply ring-0;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__panel.is-active {
+    @apply border-0 bg-transparent p-0 shadow-none;
+}
+
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__control {
+    @apply mb-3;
+}

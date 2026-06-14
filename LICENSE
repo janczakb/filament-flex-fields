@@ -1,0 +1,414 @@
+================================================================================
+        SOURCE-AVAILABLE & DUAL-COMMERCIAL LICENSE — VERSION 1.0
+          janczakb/filament-flex-fields (the "Software")
+================================================================================
+
+Copyright (c) 2026 Bartłomiej Janczak. All rights reserved.
+Contact: barek122@gmail.com
+
+IMPORTANT — READ CAREFULLY BEFORE DOWNLOADING, INSTALLING, OR USING THIS
+SOFTWARE. BY TAKING ANY OF THOSE ACTIONS, YOU UNCONDITIONALLY ACCEPT EVERY
+TERM AND CONDITION OF THIS AGREEMENT. IF YOU DO NOT ACCEPT, DO NOT DOWNLOAD,
+INSTALL, OR USE THE SOFTWARE IN ANY WAY.
+
+This License is intended for professional and business use (B2B). You represent
+that You are acquiring the Software for professional purposes and not as a
+consumer acting outside Your trade, business, craft, or profession, to the
+extent such qualification is relevant under applicable law.
+
+================================================================================
+SECTION 1 — DEFINITIONS
+================================================================================
+
+1.1  "Software" means the PHP/Laravel/Filament package published by Bartłomiej
+     Janczak under the identifier janczakb/filament-flex-fields, including all
+     source code, compiled CSS/JS assets, configuration files, documentation,
+     and any future updates, patches, or versions thereof.
+
+1.2  "Copyright Holder" means Bartłomiej Janczak, sole and exclusive author
+     and owner of all intellectual property rights in and to the Software,
+     except for third-party components governed by Section 6.4.
+
+1.3  "You" (or "Your") means the individual or legal entity exercising rights
+     under this License.
+
+1.4  "Official Distribution Channels" means distribution points operated or
+     expressly authorized in writing by the Copyright Holder, including
+     without limitation:
+     (a) the official GitHub repository maintained by the Copyright Holder;
+     (b) the janczakb/filament-flex-fields package listing on Packagist.org;
+     (c) any mirror, release artifact, or update channel explicitly linked
+         from the official repository or Copyright Holder website.
+     Receiving a copy through an Official Distribution Channel at the Copyright
+     Holder's direction is not "redistribution" by You.
+
+1.5  "Software Transfer" means, with respect to the Software or any portion
+     thereof (including unmodified vendor copies, source trees, archives,
+     Composer packages, Docker images, or deployment artifacts from which the
+     Software can be extracted):
+     (a) delivering, disclosing, publishing, or making accessible such copies
+         to any third party;
+     (b) granting any third party the right or practical ability to copy,
+         redistribute, sublicense, republish, or further transfer the Software;
+     (c) placing the Software in a repository, package index, shared drive,
+         client portal, or artifact store where the client or any third party
+         may obtain standalone copies independent of Your controlled runtime;
+     (d) licensing or selling access to the Software itself, rather than to
+         services or outcomes produced using the Software under this License.
+     For the avoidance of doubt, Software Transfer does NOT include:
+     (i)   operating the Software on infrastructure controlled by You or Your
+           client where the client receives no standalone copy and no rights
+           to extract, republish, or sublicense the Software;
+     (ii)  delivering an integrated application to a client under Section
+           1.7(b) when the client receives only runtime access and no rights
+           described in subsections (a) through (d) above.
+
+1.6  "Distinct Client Engagement" means one separately contracted scope of work
+     for one end client identified in writing before deployment begins. Multiple
+     projects, environments, brands, or business units of the same client
+     constitute separate engagements unless expressly covered by one written
+     statement of work.
+
+1.7  "Permitted Free Use" means use that satisfies ALL of Sections 1.7(a) or
+     (b) and every restriction in Section 3:
+     (a) Personal, educational, research, or internal business use by a single
+         natural person or a single legal entity solely for that entity's own
+         internal operations and commercial activities, including staging and
+         non-production environments controlled by that same entity;
+     (b) Deployment of the Software for one Distinct Client Engagement as a
+         work-for-hire or freelance project, provided that:
+         (i)   You remain the sole licensee and operator responsible for
+               compliance with this License;
+         (ii)  You do not perform any Software Transfer to the client or any
+               third party, except that the client may receive compiled or
+               integrated application access without standalone Software copies
+               or redistribution rights as described in Section 1.5;
+         (iii) the client does not resell, license, distribute, or operate the
+               Software as a product for third parties.
+
+1.8  "Commercial Distribution" means any act of selling, renting, leasing,
+     sublicensing, or otherwise transferring — for monetary gain, in-kind
+     consideration, or any other commercial benefit — the Software, or any
+     Derivative Work, or any Bundled Product, to one or more third parties.
+     For the avoidance of doubt, Commercial Distribution includes but is not
+     limited to:
+     (a) selling or licensing a website, web application, theme, template,
+         boilerplate, starter kit, admin panel pack, or codebase that embeds
+         or depends upon the Software, whether the Software is disclosed or
+         concealed;
+     (b) offering form builders, dynamic-field systems, Filament component
+         libraries, or admin UI kits as a paid product, subscription, or
+         multi-tenant SaaS in which the Software's functionality is a material
+         component;
+     (c) providing the Software to a client under a contract where the client
+         subsequently resells, licenses, or distributes the resulting product
+         to end users;
+     (d) performing any Software Transfer for consideration or as part of a
+         commercial deliverable.
+
+1.9  "Derivative Work" means any work that is based upon, incorporates,
+     modifies, adapts, translates, or is otherwise derived from the Software
+     or any substantial part thereof, regardless of the programming language,
+     file format, or packaging used.
+
+1.10 "Bundled Product" means any software application, plugin, extension,
+     theme, template, framework, boilerplate, starter kit, digital product, or
+     service offering in which the Software — in whole or in any part, modified
+     or unmodified — is included, embedded, required as a dependency, or
+     integrated in any manner, irrespective of whether the Software constitutes
+     the primary component or a minor ancillary element.
+
+1.11 "Repository" means any version-control hosting service or platform,
+     including without limitation GitHub, GitLab, Bitbucket, Codeberg, or any
+     self-hosted equivalent, whether public, private, or restricted.
+
+1.12 "Package Registry" means any software distribution index, including
+     without limitation Packagist, npm, PyPI, or any equivalent service.
+
+================================================================================
+SECTION 2 — GRANT OF FREE LICENSE
+================================================================================
+
+Subject strictly to the conditions and restrictions in Sections 3 and 4, the
+Copyright Holder grants You a worldwide, royalty-free, non-exclusive,
+non-sublicensable, non-transferable license to:
+
+2.1  Obtain copies of the Software only through Official Distribution Channels
+     or other channels expressly authorized in writing by the Copyright Holder,
+     and install and use the unmodified Software solely for Permitted Free Use
+     as defined in Section 1.7. Merely downloading or installing a copy from
+     an Official Distribution Channel does not constitute redistribution by You.
+
+2.2  Make a reasonable number of backup copies and deployment artifacts
+     strictly necessary to operate Permitted Free Use, provided such copies
+     remain under Your control, are not modified, and are not subject to
+     Software Transfer.
+
+No rights are granted except those expressly set out in this Section 2.
+All other rights are reserved exclusively by the Copyright Holder.
+
+================================================================================
+SECTION 3 — STRICT RESTRICTIONS AND PROHIBITIONS
+================================================================================
+
+The following acts are CATEGORICALLY AND UNCONDITIONALLY PROHIBITED unless
+You hold a valid, current Commercial License issued by the Copyright Holder
+under Section 5:
+
+3.1  MODIFICATION AND DERIVATIVE WORKS. You may not modify, adapt, translate,
+     reverse engineer (except to the minimum extent mandatory applicable law
+     expressly permits and cannot be waived), decompile, or create any
+     Derivative Work from the Software, in whole or in part, for any purpose.
+
+3.2  REDISTRIBUTION IN ANY FORM. You may not publish, upload, transmit,
+     broadcast, mirror, host, or otherwise make available the Software — in
+     whole or in any part — through any means, including but not limited to:
+     (a) any public or private Repository;
+     (b) any Package Registry, except Official Distribution Channels operated
+         by the Copyright Holder;
+     (c) file-sharing platforms, cloud storage, or peer-to-peer networks;
+     (d) email, instant messaging, or any other communication channel.
+
+3.3  SOFTWARE TRANSFER. You may not perform any Software Transfer except as
+     expressly allowed without transfer in Section 1.5(i)–(ii) and Section
+     1.7(b)(ii).
+
+3.4  BUNDLING AND COMMERCIAL EXPLOITATION. You may not:
+     (a) include, embed, bundle, or integrate the Software, in whole or in any
+         part, into any Bundled Product that is or will be subject to
+         Commercial Distribution;
+     (b) sell, license, rent, or otherwise commercially transfer any
+         application, website, codebase, or digital product that contains or
+         depends upon the Software, even if the Software represents only a
+         minor or incidental component of the total offering;
+     (c) use the Software as a component of any product offered as a template,
+         boilerplate, or starter kit sold or licensed to multiple clients or
+         end users, whether individually priced or as part of a bundle or
+         subscription.
+
+3.5  COMMERCIAL DISTRIBUTION. You may not engage in any act constituting
+     Commercial Distribution as defined in Section 1.8.
+
+3.6  RELABELING AND MISATTRIBUTION. You may not:
+     (a) publish, distribute, or otherwise make available the Software under a
+         different package name, author name, or vendor identity;
+     (b) remove, obscure, alter, or misrepresent the copyright notice, license
+         text, or author attribution in any copy or portion of the Software;
+     (c) represent, imply, or permit others to believe that the Software was
+         created by anyone other than Bartłomiej Janczak.
+
+3.7  SUBLICENSING AND TRANSFER OF LICENSE RIGHTS. You may not grant any
+     sublicense, assign any rights, or otherwise transfer this License or any
+     rights granted hereunder to any third party. Hosting the Software for a
+     client under Section 1.7(b) does not sublicense rights to the client.
+
+3.8  CIRCUMVENTION. You may not structure any transaction, arrangement, or
+     technical implementation with the intent or effect of circumventing any
+     restriction in this Section 3, including without limitation by splitting a
+     Bundled Product into artificially separate components, using an
+     intermediary entity, masking the Software as a different dependency,
+     or separating repositories solely to evade transfer or redistribution
+     prohibitions.
+
+3.9  COMPETING PRODUCTS. You may not use the Software, or any Derivative Work,
+     as the core of a substantially similar dynamic-fields, form-component, or
+     Filament UI kit product offered to third parties, whether open or closed
+     source, except under a Commercial License.
+
+================================================================================
+SECTION 4 — CONTRIBUTOR LICENSE AGREEMENT (CLA)
+================================================================================
+
+4.1  By submitting any contribution (including but not limited to Pull
+     Requests, patches, bug fixes, documentation edits, or any other
+     modification) to the Software or to the official repository, You
+     irrevocably grant to Bartłomiej Janczak a perpetual, worldwide,
+     royalty-free, non-exclusive, sublicensable license to use, reproduce,
+     modify, distribute, and sublicense Your contribution under any license
+     terms the Copyright Holder deems appropriate, including proprietary terms.
+
+4.2  You represent and warrant that:
+     (a) You are the sole author of the contribution or have obtained all
+         rights necessary to grant the license in Section 4.1;
+     (b) the contribution does not infringe any third-party intellectual
+         property rights;
+     (c) the contribution is not subject to any license, agreement, or
+         obligation that would conflict with the grant in Section 4.1;
+     (d) if the contribution includes work created for an employer or client,
+         You have authority to submit it under Section 4.1.
+
+4.3  The Copyright Holder retains the right to reject any contribution without
+     giving reasons and without incurring any obligation to the contributor.
+
+================================================================================
+SECTION 5 — COMMERCIAL LICENSING
+================================================================================
+
+5.1  Any use not expressly permitted by Section 2 — including modification,
+     Commercial Distribution, Software Transfer beyond Section 1.5(i)–(ii),
+     Bundled Product distribution, competing products under Section 3.9, or
+     any other commercial exploitation of the Software — requires a separate
+     Commercial License issued by the Copyright Holder prior to such use.
+
+5.2  To inquire about or obtain a Commercial License, contact:
+
+         Bartłomiej Janczak
+         E-mail: barek122@gmail.com
+
+5.3  Commercial Licenses are issued at the Copyright Holder's sole discretion
+     and may be subject to a one-time fee, recurring royalty, revenue-sharing
+     arrangement, or other terms as agreed in a written instrument signed by
+     the Copyright Holder. No Commercial License is effective until so signed
+     or otherwise authenticated by the Copyright Holder.
+
+5.4  Any act of modification, Commercial Distribution, prohibited Software
+     Transfer, Bundled Product distribution, or competing use under Section 3.9
+     without a valid Commercial License:
+     (a) is null and void ab initio;
+     (b) constitutes a material breach of this License;
+     (c) constitutes direct infringement of the Copyright Holder's exclusive
+         rights under the Act of 4 February 1994 on Copyright and Related
+         Rights (Dz.U. 2022 poz. 2509, as amended) and applicable
+         international copyright treaties;
+     (d) entitles the Copyright Holder to seek all available remedies,
+         including injunctive relief, actual damages, disgorgement of profits,
+         and statutory damages to the maximum extent permitted by applicable law.
+
+================================================================================
+SECTION 6 — INTELLECTUAL PROPERTY
+================================================================================
+
+6.1  The Software is licensed, not sold. Bartłomiej Janczak retains all right,
+     title, and interest in and to the Software, including all copyrights,
+     moral rights, trade secrets, and any other intellectual property rights,
+     worldwide, except as expressly granted in this License.
+
+6.2  This License does not transfer to You any ownership interest in or to the
+     Software, any trademarks, trade names, or service marks of the Copyright
+     Holder, or any goodwill associated therewith.
+
+6.3  You must preserve and reproduce in all permitted copies and portions of
+     the Software:
+     (a) this entire License text, unmodified;
+     (b) the copyright notice: "Copyright (c) 2026 Bartłomiej Janczak."
+
+6.4  The Software incorporates third-party libraries (including but not limited
+     to Laravel, Filament, and their respective dependencies). Those components
+     are governed exclusively by their own licenses. This License applies only
+     to the original code authored by Bartłomiej Janczak within the
+     janczakb/filament-flex-fields package and does not modify or supersede the
+     terms of any third-party license.
+
+6.5  PATENTS. No patent rights are granted except to the minimum extent
+     necessary for You to exercise the copyright permissions expressly granted
+     in Section 2 during Permitted Free Use or under a valid Commercial License.
+     All other patent rights are reserved.
+
+================================================================================
+SECTION 7 — TERMINATION
+================================================================================
+
+7.1  This License and all rights granted hereunder terminate automatically and
+     immediately, without notice and without judicial action, if You breach any
+     term or condition of this License.
+
+7.2  Upon termination, You must:
+     (a) immediately cease all use, reproduction, and distribution of the
+         Software;
+     (b) permanently delete all copies, full or partial, of the Software in
+         Your possession or control, including backups, deployment artifacts,
+         and archived copies;
+     (c) upon request, certify in writing to the Copyright Holder that You have
+         complied with Section 7.2(b).
+
+7.3  Sections 4, 5.4, 6, 7, 8, 9, and 10 survive termination of this License.
+
+================================================================================
+SECTION 8 — DISCLAIMER OF WARRANTIES
+================================================================================
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE COPYRIGHT
+HOLDER DOES NOT WARRANT THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS, OPERATE
+WITHOUT INTERRUPTION, OR BE FREE FROM ERRORS OR SECURITY VULNERABILITIES.
+
+YOU ASSUME THE ENTIRE RISK AS TO THE QUALITY, PERFORMANCE, SECURITY, AND
+RESULTS OF YOUR USE OF THE SOFTWARE. YOU ARE SOLELY RESPONSIBLE FOR ANY DAMAGE
+TO YOUR SYSTEMS, DATA, BUSINESS, OR THIRD PARTIES ARISING FROM YOUR USE OR
+INABILITY TO USE THE SOFTWARE.
+
+================================================================================
+SECTION 9 — LIMITATION OF LIABILITY (LICENSEE CLAIMS AGAINST COPYRIGHT HOLDER)
+================================================================================
+
+This Section limits claims that a Licensee (or any user acting under this
+License) may bring AGAINST the Copyright Holder. It does NOT limit, reduce,
+or cap any remedy, claim, or enforcement action that the Copyright Holder may
+bring against You for breach of this License, copyright infringement, or
+unauthorized use.
+
+9.1  EXCLUSION OF DAMAGES. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW,
+     THE COPYRIGHT HOLDER SHALL NOT BE LIABLE TO YOU FOR ANY DAMAGES OF ANY
+     KIND OR NATURE ARISING OUT OF OR IN CONNECTION WITH THIS LICENSE OR THE
+     SOFTWARE, EVEN IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY
+     OF SUCH DAMAGES.
+
+9.2  ZERO LIABILITY FOR PROFESSIONAL USE. WHERE PERMITTED FOR PROFESSIONAL OR
+     BUSINESS USE (B2B), THE COPYRIGHT HOLDER SHALL HAVE NO LIABILITY
+     WHATSOEVER TO YOU UNDER OR IN CONNECTION WITH THIS LICENSE.
+
+9.3  MANDATORY-LAW FLOOR. IF A COMPETENT COURT FINALLY DETERMINES THAT ANY
+     PART OF SECTIONS 9.1 OR 9.2 CANNOT BE ENFORCED FOR A PARTICULAR CLAIM,
+     THE COPYRIGHT HOLDER'S TOTAL AGGREGATE LIABILITY FOR THAT CLAIM SHALL NOT
+     EXCEED THE GREATER OF EUR 0 (ZERO EURO) OR FEES ACTUALLY PAID BY YOU FOR
+     A VALID COMMERCIAL LICENSE IN THE TWELVE (12) MONTHS PRECEDING THE EVENT,
+     AND ONLY TO THE MINIMUM EXTENT REQUIRED BY MANDATORY APPLICABLE LAW.
+
+9.4  EXCLUSIVE REMEDY. YOUR SOLE AND EXCLUSIVE REMEDY FOR DISSATISFACTION WITH
+     THE SOFTWARE IS TO DISCONTINUE USE AND DELETE ALL COPIES IN YOUR POSSESSION
+     OR CONTROL.
+
+9.5  NO LIMITATION ON COPYRIGHT HOLDER ENFORCEMENT. If You breach this License,
+     the Copyright Holder may pursue all remedies available under this License
+     and applicable law without regard to this Section 9.
+
+================================================================================
+SECTION 10 — GENERAL PROVISIONS
+================================================================================
+
+10.1 GOVERNING LAW. This License is governed by the substantive law of Poland,
+     in particular the Act of 4 February 1994 on Copyright and Related Rights,
+     without regard to conflict-of-laws rules.
+
+10.2 JURISDICTION. Any dispute arising out of or in connection with this
+     License shall be submitted to the exclusive jurisdiction of the competent
+     courts in Warsaw, Poland.
+
+10.3 SEVERABILITY. If any provision is held invalid, illegal, or unenforceable,
+     that provision shall be modified to the minimum extent necessary to make
+     it enforceable, or severed, while the remaining provisions continue in
+     full force and effect.
+
+10.4 ENTIRE AGREEMENT. This License constitutes the entire agreement between
+     the parties with respect to the Software.
+
+10.5 WAIVER. Failure to enforce any provision does not constitute a waiver of
+     the right to enforce that provision in the future.
+
+10.6 MODIFICATIONS TO THIS LICENSE. The Copyright Holder may publish revised
+     versions. The version under which You obtained the Software governs Your
+     use unless expressly stated otherwise. This is version 1.0, effective
+     9 June 2026.
+
+10.7 LANGUAGE. This License is written in English. Any translation is provided
+     for convenience only; the English text prevails.
+
+10.8 AUDIT. Upon reasonable prior written notice, the Copyright Holder may
+     request written confirmation that Your use remains within Permitted Free
+     Use. You must respond within thirty (30) calendar days with good-faith
+     information. Refusal or material misrepresentation constitutes a breach.
+
+================================================================================
+END OF LICENSE
+================================================================================

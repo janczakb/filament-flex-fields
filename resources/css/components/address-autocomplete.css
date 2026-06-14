@@ -1,0 +1,50 @@
+/* Address autocomplete */
+.fff-address-autocomplete {
+    position: relative;
+    width: 100%;
+}
+
+.fff-address-autocomplete__search-wrap {
+    position: relative;
+}
+
+.fff-address-autocomplete .fff-flex-text-input__shell {
+    overflow: visible;
+}
+
+.fff-address-autocomplete.has-focus-outline .fff-flex-text-input__shell:focus-within:not(:has(.fff-flex-text-input__action-btn:focus)) {
+    border-color: var(--fff-field-focus-border);
+    box-shadow: var(--fff-flex-text-input-shadow);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-address-autocomplete .fff-flex-text-input__shell.is-invalid,
+.fi-fo-field:has([data-validation-error]) .fff-address-autocomplete .fff-flex-text-input__shell,
+.fi-fo-field-wrp:has([data-validation-error]) .fff-address-autocomplete .fff-flex-text-input__shell {
+    border-color: var(--fff-phone-field-error) !important;
+    box-shadow: 0 0 0 3px var(--fff-phone-field-error-ring) !important;
+}
+
+.fff-address-autocomplete__search-wrap .fff-map-picker__dropdown-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 30;
+}
+
+.fff-address-autocomplete__token-error,
+.fff-address-autocomplete__selection-error,
+.fff-map-picker__selection-error {
+    margin: 0.375rem 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.25rem;
+    color: rgb(220 38 38);
+}
+
+.fff-map-picker__search-wrap .fff-map-picker__selection-error {
+    position: relative;
+    z-index: 6;
+    margin-top: 0.375rem;
+}

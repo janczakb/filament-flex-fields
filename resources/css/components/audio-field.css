@@ -1,0 +1,279 @@
+.fff-audio-field {
+    --fff-audio-field-max-width: 22rem;
+    --fff-audio-field-pill-bg: rgb(255 255 255);
+    --fff-audio-field-pill-border: rgb(228 228 231);
+    --fff-audio-field-play-bg: rgb(209 213 219 / 0.98);
+    --fff-audio-field-play-size: 2.125rem;
+    --fff-audio-field-bar-w: 0.15625rem;
+    --fff-audio-field-bar-gap: 0.0625rem;
+    --fff-audio-field-time-size: 0.84375rem;
+    width: 100%;
+    max-width: var(--fff-audio-field-max-width);
+}
+
+.fff-audio-field.is-full-width {
+    max-width: none;
+}
+
+.fff-audio-field [x-cloak] {
+    display: none !important;
+}
+
+.fff-audio-field--sm {
+    --fff-audio-field-max-width: 18rem;
+    --fff-audio-field-play-size: 1.875rem;
+    --fff-audio-field-time-size: 0.73125rem;
+}
+
+.fff-audio-field--lg {
+    --fff-audio-field-max-width: 28rem;
+    --fff-audio-field-play-size: 2.375rem;
+    --fff-audio-field-time-size: 0.9rem;
+    --fff-audio-field-bar-gap: 0.15625rem;
+}
+
+.fff-audio-field__player {
+    @apply w-full;
+}
+
+.fff-audio-field__pill {
+    @apply flex w-full min-w-0 items-center gap-3;
+    padding: 0.5rem 0.875rem 0.5rem 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-audio-field-pill-border);
+    background-color: var(--fff-audio-field-pill-bg);
+    box-shadow: none;
+}
+
+.fff-audio-field__play {
+    @apply inline-flex shrink-0 items-center justify-center outline-none;
+    width: var(--fff-audio-field-play-size);
+    height: var(--fff-audio-field-play-size);
+    border-radius: 9999px;
+    border: 0;
+    background-color: var(--fff-audio-field-play-bg);
+    color: rgb(255 255 255 / 0.98);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28);
+    transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.fff-audio-field__play:hover:not(:disabled) {
+    transform: scale(1.04);
+}
+
+.fff-audio-field__play:active:not(:disabled) {
+    transform: scale(0.96);
+}
+
+.fff-audio-field__play:disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.fff-audio-field__play svg,
+.fff-audio-field__play .fi-icon {
+    width: 0.72rem;
+    height: 0.72rem;
+}
+
+.fff-audio-field__icon-play {
+    margin-left: 0.0625rem;
+}
+
+.fff-audio-field__waveform {
+    @apply relative flex min-w-0 flex-1 items-center;
+    width: 100%;
+    gap: var(--fff-audio-field-bar-gap);
+    height: 1.75rem;
+    cursor: pointer;
+    touch-action: none;
+}
+
+.fff-audio-field__waveform.is-disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.fff-audio-field__waveform-skeleton {
+    @apply absolute inset-0 flex items-center overflow-hidden;
+    gap: var(--fff-audio-field-bar-gap);
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity 240ms ease,
+        visibility 240ms ease;
+}
+
+.fff-audio-field__waveform.is-ready .fff-audio-field__waveform-skeleton {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.fff-audio-field__skeleton-bar {
+    @apply block min-w-0 rounded-full;
+    flex: 1 1 0;
+    height: 42%;
+    align-self: center;
+    transform-origin: center;
+    background: linear-gradient(
+        180deg,
+        rgb(24 24 24 / 0.1) 0%,
+        rgb(24 24 24 / 0.22) 100%
+    );
+    animation: fff-audio-skeleton-bar 1.15s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: calc(var(--fff-audio-skeleton-i, 0) * 45ms);
+}
+
+.fff-audio-field__waveform-skeleton-shimmer {
+    @apply pointer-events-none absolute inset-y-0;
+    left: -45%;
+    width: 45%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.55) 48%,
+        transparent 100%
+    );
+    mix-blend-mode: soft-light;
+    animation: fff-audio-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.fff-audio-field__waveform.is-ready .fff-audio-field__bar {
+    animation: fff-audio-bar-reveal 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: calc(var(--fff-audio-bar-i, 0) * 8ms);
+}
+
+@keyframes fff-audio-skeleton-bar {
+    0%,
+    100% {
+        transform: scaleY(0.32);
+        opacity: 0.38;
+    }
+
+    50% {
+        transform: scaleY(1);
+        opacity: 0.82;
+    }
+}
+
+@keyframes fff-audio-skeleton-shimmer {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.85;
+    }
+
+    82% {
+        opacity: 0.85;
+    }
+
+    100% {
+        transform: translateX(320%);
+        opacity: 0;
+    }
+}
+
+@keyframes fff-audio-bar-reveal {
+    from {
+        opacity: 0;
+        transform: scaleY(0.55);
+    }
+
+    to {
+        opacity: 1;
+        transform: scaleY(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-audio-field__skeleton-bar,
+    .fff-audio-field__waveform-skeleton-shimmer,
+    .fff-audio-field__waveform.is-ready .fff-audio-field__bar {
+        animation: none;
+    }
+
+    .fff-audio-field__waveform.is-ready .fff-audio-field__waveform-skeleton {
+        transition: none;
+    }
+}
+
+.fff-audio-field__waveform:not(.is-ready) .fff-audio-field__bar {
+    opacity: 0;
+}
+
+.fff-audio-field__bar {
+    @apply block min-w-0 rounded-full;
+    flex: 1 1 0;
+    min-height: 0.1875rem;
+    align-self: center;
+    transform-origin: center;
+    background: rgb(24 24 24 / 0.18);
+    transition: background-color 120ms linear;
+}
+
+.fff-audio-field__bar.is-played {
+    background: rgb(24 24 24 / 0.92);
+}
+
+.fff-audio-field__time {
+    @apply shrink-0 tabular-nums;
+    min-width: 2.25rem;
+    text-align: right;
+    font-size: var(--fff-audio-field-time-size);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: rgb(82 82 91);
+}
+
+.fff-audio-field__audio {
+    @apply sr-only;
+}
+
+.fff-audio-field.is-disabled,
+.fff-audio-field.is-read-only {
+    @apply opacity-70;
+}
+
+.fff-audio-field.is-empty .fff-audio-field__pill {
+    @apply opacity-60;
+}
+
+.dark .fff-audio-field {
+    --fff-audio-field-pill-bg: rgb(39 39 42);
+    --fff-audio-field-pill-border: rgb(63 63 70);
+    --fff-audio-field-play-bg: rgb(99 99 102 / 0.98);
+}
+
+.dark .fff-audio-field__skeleton-bar {
+    background: linear-gradient(
+        180deg,
+        rgb(255 255 255 / 0.08) 0%,
+        rgb(255 255 255 / 0.22) 100%
+    );
+}
+
+.dark .fff-audio-field__waveform-skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.22) 48%,
+        transparent 100%
+    );
+}
+
+.dark .fff-audio-field__bar {
+    background: rgb(255 255 255 / 0.24);
+}
+
+.dark .fff-audio-field__bar.is-played {
+    background: rgb(255 255 255 / 0.92);
+}
+
+.dark .fff-audio-field__time {
+    color: rgb(161 161 170);
+}
+
+/* Verification code — OTP-style segmented inputs */

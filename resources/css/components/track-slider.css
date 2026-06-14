@@ -1,0 +1,159 @@
+/* Track slider — HeroUI-style inline range bar */
+.fff-track-slider {
+    @apply block w-full select-none;
+}
+
+.fff-track-slider.is-disabled {
+    @apply opacity-50 pointer-events-none;
+}
+
+.fff-track-slider.is-dragging {
+    @apply cursor-grabbing;
+}
+
+.fff-track-slider__track {
+    @apply relative w-full cursor-pointer overflow-hidden rounded-xl outline-none;
+    min-height: var(--fff-track-h-md);
+    background-color: var(--fff-track-slider-track-bg);
+    border: var(--fff-surface-border-width) solid #e4e4e7;
+    box-shadow: var(--fff-surface-shadow) !important;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fff-track-slider:not(.is-disabled):not(.fff-track-slider--secondary) .fff-track-slider__track:hover {
+    background-color: color-mix(in srgb, var(--fff-track-slider-track-bg) calc(100% - var(--fff-track-slider-track-hover-mix)), black);
+}
+
+.fff-track-slider.is-dragging .fff-track-slider__track {
+    @apply cursor-grabbing;
+}
+
+.fff-track-slider--sm .fff-track-slider__track {
+    min-height: var(--fff-track-h-sm);
+}
+
+.fff-track-slider--lg .fff-track-slider__track {
+    min-height: var(--fff-track-h-lg);
+}
+
+.fff-track-slider__track-label {
+    @apply pointer-events-none absolute top-1/2 left-4 z-[2] max-w-[60%] truncate font-medium text-gray-900;
+    font-size: var(--fff-text-md);
+    transform: translateY(-50%);
+}
+
+.fff-track-slider--sm .fff-track-slider__track-label {
+    @apply left-3;
+    font-size: var(--fff-text-sm);
+}
+
+.fff-track-slider--lg .fff-track-slider__track-label {
+    @apply left-5;
+    font-size: var(--fff-text-lg);
+}
+
+.fff-track-slider__output {
+    @apply pointer-events-none absolute top-1/2 right-4 z-[2] font-normal tabular-nums text-gray-500;
+    font-size: var(--fff-text-md);
+    transform: translateY(-50%);
+}
+
+.fff-track-slider--sm .fff-track-slider__output {
+    @apply right-3;
+    font-size: var(--fff-text-sm);
+}
+
+.fff-track-slider--lg .fff-track-slider__output {
+    @apply right-5;
+    font-size: var(--fff-text-lg);
+}
+
+.fff-track-slider__fill {
+    @apply absolute inset-y-0 left-0 z-[1] pointer-events-none;
+    background-color: var(--fff-track-slider-fill-bg);
+}
+
+.fff-track-slider--secondary .fff-track-slider__track {
+    background-color: var(--fff-track-slider-secondary-track-bg);
+}
+
+.fff-track-slider--secondary:not(.is-disabled) .fff-track-slider__track:hover {
+    background-color: color-mix(in srgb, var(--fff-track-slider-secondary-track-bg) calc(100% - var(--fff-track-slider-track-hover-mix)), black);
+}
+
+.fff-track-slider--secondary .fff-track-slider__fill {
+    background-color: var(--fff-track-slider-secondary-fill-bg);
+}
+
+.fff-track-slider__thumb {
+    @apply absolute top-0 z-[3] flex items-center justify-center border-0 bg-transparent outline-none;
+    width: var(--fff-track-slider-thumb-hit);
+    height: 100%;
+    transform: translateX(-50%);
+    cursor: grab;
+    pointer-events: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fff-track-slider__thumb::after {
+    content: '';
+    display: block;
+    width: var(--fff-track-slider-thumb-w);
+    height: var(--fff-track-slider-thumb-h);
+    border-radius: 2px;
+    background-color: rgb(161 161 170);
+    opacity: 0;
+    transition:
+        opacity 0.15s ease,
+        height 0.12s ease,
+        background-color 0.15s ease,
+        transform 0.12s ease;
+}
+
+.fff-track-slider__thumb.is-visible::after {
+    opacity: 1;
+}
+
+.fff-track-slider__thumb.is-dragging {
+    cursor: grabbing;
+}
+
+.fff-track-slider__thumb.is-dragging::after {
+    height: var(--fff-track-slider-thumb-h-active);
+    max-height: 72%;
+    background-color: rgb(24 24 27);
+}
+
+.fff-track-slider.is-dragging .fff-track-slider__track {
+    @apply cursor-grabbing;
+}
+
+.dark .fff-track-slider__track {
+    border: var(--fff-surface-border-width) solid var(--fff-surface-border);
+    box-shadow: var(--fff-surface-shadow) !important;
+}
+
+.dark .fff-track-slider:not(.is-disabled):not(.fff-track-slider--secondary) .fff-track-slider__track:hover {
+    background-color: color-mix(in srgb, var(--fff-track-slider-track-bg) calc(100% - var(--fff-track-slider-track-hover-mix)), white);
+}
+
+.dark .fff-track-slider__track-label {
+    @apply text-white;
+}
+
+.dark .fff-track-slider__output {
+    @apply text-gray-400;
+}
+
+.dark .fff-track-slider--secondary:not(.is-disabled) .fff-track-slider__track:hover {
+    background-color: color-mix(in srgb, var(--fff-track-slider-secondary-track-bg) calc(100% - var(--fff-track-slider-track-hover-mix)), white);
+}
+
+.dark .fff-track-slider__thumb::after {
+    background-color: rgb(113 113 122);
+}
+
+.dark .fff-track-slider__thumb.is-dragging::after {
+    background-color: rgb(244 244 245);
+}

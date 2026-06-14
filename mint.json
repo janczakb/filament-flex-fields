@@ -1,0 +1,109 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "Filament Flex Fields",
+  "logo": {
+    "light": "/logo/logo-light.svg",
+    "dark": "/logo/logo-dark.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#6366f1",
+    "light": "#818cf8",
+    "dark": "#4f46e5"
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/janczakb/filament-flex-fields"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "README",
+        "docs/shared-concepts"
+      ]
+    },
+    {
+      "group": "Text & Input",
+      "pages": [
+        "docs/flextextinput",
+        "docs/flextextareafield",
+        "docs/phonefield",
+        "docs/countryfield",
+        "docs/timezonefield",
+        "docs/slugfield-and-titleslugfield",
+        "docs/addressautocompletefield",
+        "docs/flexverificationcode"
+      ]
+    },
+    {
+      "group": "Number & Range",
+      "pages": [
+        "docs/numberstepper",
+        "docs/currencyfield",
+        "docs/flexslider",
+        "docs/trackslider",
+        "docs/pricerangefield",
+        "docs/trafficsplit"
+      ]
+    },
+    {
+      "group": "Choice & Selection",
+      "pages": [
+        "docs/switchfield",
+        "docs/segmentcontrol",
+        "docs/choicecards",
+        "docs/choicecheckboxcards",
+        "docs/flexchecklist",
+        "docs/flexradiolist",
+        "docs/matrixchoicefield",
+        "docs/selectfield",
+        "docs/userselect",
+        "docs/duallistboxfield"
+      ]
+    },
+    {
+      "group": "Date & Time",
+      "pages": [
+        "docs/date-and-time-fields"
+      ]
+    },
+    {
+      "group": "Media, Color & Location",
+      "pages": [
+        "docs/colorswatchfield",
+        "docs/flexcolorpickerfield",
+        "docs/flexfileupload-and-fleximageupload",
+        "docs/videofield",
+        "docs/audiofield",
+        "docs/voicenoterecorderfield",
+        "docs/mappickerfield",
+        "docs/signaturefield",
+        "docs/creditcardfield"
+      ]
+    },
+    {
+      "group": "Rating & Tables",
+      "pages": [
+        "docs/ratingfield",
+        "docs/ratingcolumn",
+        "docs/usercolumn"
+      ]
+    },
+    {
+      "group": "Layout & Display (Schemas)",
+      "pages": [
+        "docs/itemcard",
+        "docs/itemcardgroup",
+        "docs/itemcardstack",
+        "docs/covercard",
+        "docs/progressbar",
+        "docs/progresscircle",
+        "docs/segmenttabs",
+        "docs/translatablefields"
+      ]
+    }
+  ]
+}

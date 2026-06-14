@@ -1,0 +1,26 @@
+{
+    "private": true,
+    "scripts": {
+        "build:css:core": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --minify",
+        "build:css:playground": "npx @tailwindcss/cli -i ./resources/css/playground.css -o ./resources/dist/css/playground.css --minify",
+        "build:css:components": "node scripts/build-component-css.mjs",
+        "build:css:legacy": "npx @tailwindcss/cli -i ./resources/css/plugin.css -o ./resources/dist/filament-flex-fields.css --minify",
+        "build:css": "npm run build:css:core && npm run build:css:playground && npm run build:css:components",
+        "build:js": "node scripts/build-component-js.mjs",
+        "build": "npm run build:css && npm run build:js",
+        "watch:css": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --watch"
+    },
+    "devDependencies": {
+        "@tailwindcss/cli": "^4.1.0",
+        "esbuild": "^0.25.0",
+        "tailwindcss": "^4.1.0"
+    },
+    "dependencies": {
+        "@gravity-ui/icons": "^2.18.0",
+        "@internationalized/date": "^3.8.2",
+        "emoji-picker-element": "^1.29.1",
+        "libphonenumber-js": "^1.13.6",
+        "nouislider": "^15.8.1",
+        "number-flow": "^0.5.8"
+    }
+}

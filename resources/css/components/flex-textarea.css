@@ -1,0 +1,492 @@
+/* FlexTextareaField — universal styled textarea */
+.fff-flex-textarea {
+    @apply flex w-full flex-col gap-2;
+    overflow: visible;
+    --fff-flex-textarea-bg: var(--fff-field-bg);
+    --fff-flex-textarea-border: var(--fff-field-border);
+    --fff-flex-textarea-border-width: var(--fff-field-border-width);
+    --fff-flex-textarea-shadow: var(--fff-field-shadow);
+    --fff-flex-textarea-toolbar-btn-bg: var(--fff-field-secondary-bg);
+    --fff-flex-textarea-toolbar-btn-bg-hover: rgb(237 237 240);
+    --fff-flex-textarea-toolbar-btn-text-hover: rgb(82 82 91);
+    --fff-flex-textarea-primary: var(--primary-500, rgb(59 130 246));
+    --fff-flex-textarea-text: rgb(24 24 27);
+    --fff-flex-textarea-muted: rgb(113 113 122);
+    --fff-flex-textarea-text-size: var(--fff-text-md);
+    --fff-flex-textarea-min-h: 2.75rem;
+    --fff-flex-textarea-p: 0.75rem;
+    --fff-flex-textarea-btn-size: 2.25rem;
+    --fff-flex-textarea-icon-size: calc(var(--fff-flex-textarea-btn-size) * 5 / 9 * 0.9);
+}
+
+.fff-flex-textarea-field--sm,
+.fff-flex-textarea--sm {
+    --fff-flex-textarea-text-size: var(--fff-text-md);
+    --fff-flex-textarea-min-h: 2.5rem;
+    --fff-flex-textarea-p: 0.625rem;
+    --fff-flex-textarea-btn-size: 2rem;
+    --fff-flex-textarea-icon-size: calc(var(--fff-flex-textarea-btn-size) * 5 / 9 * 0.9);
+}
+
+.fff-flex-textarea-field--md,
+.fff-flex-textarea--md {
+    --fff-flex-textarea-text-size: var(--fff-text-md);
+    --fff-flex-textarea-min-h: 2.75rem;
+    --fff-flex-textarea-p: 0.75rem;
+    --fff-flex-textarea-btn-size: 2.25rem;
+    --fff-flex-textarea-icon-size: calc(var(--fff-flex-textarea-btn-size) * 5 / 9 * 0.9);
+}
+
+.fff-flex-textarea-field--lg,
+.fff-flex-textarea--lg {
+    --fff-flex-textarea-text-size: var(--fff-text-lg);
+    --fff-flex-textarea-min-h: 3.25rem;
+    --fff-flex-textarea-p: 0.875rem;
+    --fff-flex-textarea-btn-size: 2.5rem;
+    --fff-flex-textarea-icon-size: calc(var(--fff-flex-textarea-btn-size) * 5 / 9 * 0.9);
+}
+
+.fff-flex-textarea-field--secondary,
+.fff-flex-textarea--secondary {
+    --fff-flex-textarea-bg: var(--fff-field-secondary-bg);
+    --fff-flex-textarea-border: var(--fff-field-secondary-border);
+    --fff-flex-textarea-border-width: var(--fff-field-secondary-border-width);
+    --fff-flex-textarea-shadow: var(--fff-field-secondary-shadow);
+    --fff-flex-textarea-toolbar-btn-bg: var(--fff-field-bg);
+    --fff-flex-textarea-toolbar-btn-bg-hover: rgb(228 228 231);
+}
+
+.fff-flex-textarea-field--soft,
+.fff-flex-textarea--soft {
+    --fff-flex-textarea-bg: var(--fff-field-soft-bg);
+    --fff-flex-textarea-border: var(--fff-field-soft-border);
+    --fff-flex-textarea-border-width: var(--fff-field-soft-border-width);
+    --fff-flex-textarea-shadow: var(--fff-field-soft-shadow);
+    --fff-flex-textarea-radius: var(--fff-field-soft-radius);
+    --fff-flex-textarea-toolbar-btn-bg: rgb(255 255 255 / 0.72);
+    --fff-flex-textarea-toolbar-btn-bg-hover: rgb(255 255 255 / 0.92);
+}
+
+.fff-flex-textarea-field--flat,
+.fff-flex-textarea--flat {
+    --fff-flex-textarea-bg: transparent;
+    --fff-flex-textarea-border: transparent;
+}
+
+.fff-flex-textarea-field--flat .fff-flex-textarea__shell,
+.fff-flex-textarea--flat .fff-flex-textarea__shell {
+    box-shadow: none;
+}
+
+.fff-flex-textarea__shell {
+    border-radius: var(--fff-flex-textarea-radius, 1rem);
+    @apply transition-[border-color,box-shadow] duration-200 ease-out;
+    overflow: visible;
+    border: var(--fff-flex-textarea-border-width) solid var(--fff-flex-textarea-border);
+    background: var(--fff-flex-textarea-bg);
+    box-shadow: var(--fff-flex-textarea-shadow);
+}
+
+.fff-flex-textarea__content {
+    padding: var(--fff-flex-textarea-p);
+    padding-bottom: 0.375rem;
+    border-top-left-radius: calc(var(--fff-flex-textarea-radius, 1rem) - 0.125rem);
+    border-top-right-radius: calc(var(--fff-flex-textarea-radius, 1rem) - 0.125rem);
+    overflow: visible;
+}
+
+.fff-flex-textarea__emoji-picker {
+    position: relative;
+    z-index: 20;
+}
+
+.fff-emoji-picker__trigger,
+.fff-flex-textarea__emoji-trigger {
+    @apply inline-flex items-center justify-center rounded-full text-zinc-600 shadow-none outline-none ring-0 transition-[background-color,color,transform] duration-200;
+    margin: 0 !important;
+    width: var(--fff-flex-textarea-btn-size);
+    height: var(--fff-flex-textarea-btn-size);
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg);
+}
+
+.fff-emoji-picker__icon {
+    width: calc(var(--fff-flex-textarea-btn-size) * 0.5);
+    height: calc(var(--fff-flex-textarea-btn-size) * 0.5);
+    flex-shrink: 0;
+}
+
+.fff-emoji-picker__trigger:hover:not(:disabled),
+.fff-flex-textarea__emoji-trigger:hover:not(:disabled) {
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg-hover);
+    color: var(--fff-flex-textarea-toolbar-btn-text-hover);
+    transform: scale(1.04);
+}
+
+.fff-flex-textarea__textarea {
+    @apply block w-full resize-none border-0 bg-transparent text-zinc-900 shadow-none outline-none ring-0 focus:outline-none focus:ring-0;
+    field-sizing: content;
+    min-height: var(--fff-flex-textarea-min-h);
+    font-size: var(--fff-flex-textarea-text-size);
+    line-height: 1.5;
+    color: var(--fff-flex-textarea-text);
+}
+
+.fff-flex-textarea__textarea.is-animated {
+    transition: height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fff-flex-textarea__textarea::placeholder {
+    color: rgb(161 161 170);
+}
+
+.fff-flex-textarea__textarea:focus,
+.fff-flex-textarea__textarea:focus-visible {
+    @apply outline-none ring-0;
+    box-shadow: none;
+}
+
+.fff-flex-textarea.has-focus-outline .fff-flex-textarea__shell:focus-within:not(:has(.fi-icon-btn:focus)) {
+    border-color: var(--fff-field-focus-border);
+    box-shadow: var(--fff-flex-textarea-shadow);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-flex-textarea__toolbar {
+    @apply relative z-10 flex items-center gap-3;
+    min-height: calc(var(--fff-flex-textarea-btn-size) + 0.5rem);
+    padding: 0.25rem var(--fff-flex-textarea-p) var(--fff-flex-textarea-p);
+    overflow: visible;
+}
+
+.fff-flex-textarea__toolbar-start,
+.fff-flex-textarea__toolbar-end {
+    @apply flex items-center;
+    gap: 0.375rem;
+}
+
+.fff-flex-textarea__toolbar-start {
+    @apply relative z-10 min-w-0 flex-1 flex-wrap;
+    overflow: visible;
+}
+
+.fff-flex-textarea__toolbar-end {
+    @apply ms-auto shrink-0;
+}
+
+.fff-flex-textarea__toolbar-start > *,
+.fff-flex-textarea__toolbar-end > * {
+    @apply shrink-0;
+}
+
+.fff-flex-textarea__toolbar-start .fi-icon-btn,
+.fff-flex-textarea__toolbar-start .fi-dropdown-trigger .fi-icon-btn,
+.fff-flex-textarea__toolbar-start .fi-ac-btn-group .fi-icon-btn {
+    @apply inline-flex items-center justify-center rounded-full text-zinc-500 shadow-none outline-none ring-0 transition-[background-color,color,transform] duration-200;
+    margin: 0 !important;
+    width: var(--fff-flex-textarea-btn-size);
+    height: var(--fff-flex-textarea-btn-size);
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg);
+}
+
+.fff-flex-textarea__toolbar-start .fi-icon-btn:hover:not(:disabled),
+.fff-flex-textarea__toolbar-start .fi-dropdown-trigger .fi-icon-btn:hover:not(:disabled) {
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg-hover);
+    color: var(--fff-flex-textarea-toolbar-btn-text-hover);
+}
+
+.fff-flex-textarea__toolbar-end .fi-icon-btn {
+    @apply inline-flex items-center justify-center rounded-full text-white shadow-none outline-none ring-0 transition-transform duration-200;
+    margin: 0 !important;
+    width: var(--fff-flex-textarea-btn-size);
+    height: var(--fff-flex-textarea-btn-size);
+    background: var(--fff-flex-textarea-primary);
+}
+
+.fff-flex-textarea__toolbar-end .fi-icon-btn .fi-icon,
+.fff-flex-textarea__toolbar-end .fi-icon-btn svg {
+    width: var(--fff-flex-textarea-icon-size) !important;
+    height: var(--fff-flex-textarea-icon-size) !important;
+    flex-shrink: 0;
+}
+
+.fff-flex-textarea__toolbar-end .fi-icon-btn:hover:not(:disabled) {
+    transform: scale(1.04);
+    filter: brightness(1.05);
+}
+
+.fff-flex-textarea__toolbar-end .fi-icon-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    transform: none;
+    filter: none;
+}
+
+.fff-flex-textarea__toolbar-end .fi-icon-btn:focus,
+.fff-flex-textarea__toolbar-end .fi-icon-btn:focus-visible,
+.fff-flex-textarea__toolbar-start .fi-icon-btn:focus,
+.fff-flex-textarea__toolbar-start .fi-icon-btn:focus-visible,
+.fff-flex-textarea__dictation-btn:focus,
+.fff-flex-textarea__dictation-btn:focus-visible {
+    @apply outline-none ring-0;
+    box-shadow: none;
+}
+
+.fff-flex-textarea__dictation-btn {
+    @apply inline-flex items-center justify-center rounded-full bg-zinc-800 text-white shadow-none outline-none ring-0 transition-[background-color,transform,box-shadow] duration-200;
+    width: var(--fff-flex-textarea-btn-size);
+    height: var(--fff-flex-textarea-btn-size);
+}
+
+.fff-flex-textarea__dictation-btn:hover:not(:disabled) {
+    @apply bg-zinc-700;
+    transform: scale(1.04);
+}
+
+.fff-flex-textarea__dictation-btn.is-listening {
+    @apply bg-red-500 text-white;
+    animation: fff-flex-textarea-dictation-pulse 1.2s ease-in-out infinite;
+}
+
+.fff-flex-textarea__dictation-btn .fi-icon,
+.fff-flex-textarea__dictation-btn svg,
+.fff-flex-textarea__dictation-icon {
+    width: var(--fff-flex-textarea-icon-size) !important;
+    height: var(--fff-flex-textarea-icon-size) !important;
+    flex-shrink: 0;
+}
+
+.fff-flex-textarea__dictation-status {
+    @apply max-w-40 truncate text-xs text-red-500;
+}
+
+@keyframes fff-flex-textarea-dictation-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgb(239 68 68 / 0.45);
+    }
+
+    50% {
+        box-shadow: 0 0 0 0.375rem rgb(239 68 68 / 0);
+    }
+}
+
+.fff-flex-textarea__select {
+    @apply relative z-20 shrink-0;
+}
+
+.fff-flex-textarea__select-trigger {
+    @apply inline-flex max-w-full items-center gap-1 rounded-full border-0 px-2 text-zinc-500 shadow-none outline-none ring-0 transition-[background-color,color] duration-200;
+    height: var(--fff-flex-textarea-btn-size);
+    font-size: calc(var(--fff-flex-textarea-text-size) - 0.0625rem);
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg);
+}
+
+.fff-flex-textarea__select-trigger:hover:not(:disabled) {
+    background-color: var(--fff-flex-textarea-toolbar-btn-bg-hover);
+    color: var(--fff-flex-textarea-toolbar-btn-text-hover);
+}
+
+.fff-flex-textarea__select-icon {
+    @apply inline-flex shrink-0 text-current;
+}
+
+.fff-flex-textarea__select-value {
+    @apply truncate font-medium text-current;
+    max-width: 8.5rem;
+}
+
+.fff-flex-textarea__select-chevron {
+    @apply size-3.5 shrink-0 text-current opacity-70 transition-transform duration-200;
+}
+
+.fff-flex-textarea__select-chevron.is-open {
+    transform: rotate(180deg);
+}
+
+.fff-flex-textarea__select-menu {
+    @apply absolute bottom-[calc(100%+0.5rem)] left-0 z-50 flex flex-col gap-0.5 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-1 shadow-lg;
+    min-width: max(100%, 12rem);
+}
+
+.fff-flex-textarea__select-option {
+    @apply flex w-full items-center justify-between gap-3 rounded-2xl px-2.5 py-2 text-left text-zinc-700 transition-colors duration-150;
+    font-size: calc(var(--fff-flex-textarea-text-size) - 0.0625rem);
+}
+
+.fff-flex-textarea__select-option:hover {
+    @apply bg-zinc-100;
+}
+
+.fff-flex-textarea__select-option.is-active {
+    @apply bg-zinc-100 font-medium text-zinc-900;
+}
+
+.fff-flex-textarea__select-check {
+    @apply size-4 shrink-0 text-zinc-900;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-panel {
+    @apply z-50 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-1 shadow-lg ring-0;
+    max-width: 14rem;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-panel:not(.fi-dropdown-list) {
+    @apply divide-y-0;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-list {
+    @apply flex flex-col gap-0.5 p-0;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item {
+    @apply gap-3 rounded-2xl px-2.5 py-2 text-zinc-700;
+    margin: 0;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item:not(.fi-disabled):not([disabled]):hover,
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item:not(.fi-disabled):not([disabled]):focus-visible {
+    @apply bg-zinc-100;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item.fi-color:not(.fi-disabled):not([disabled]):hover,
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item.fi-color:not(.fi-disabled):not([disabled]):focus-visible {
+    @apply bg-zinc-100;
+}
+
+.fff-flex-textarea-action-dropdown .fi-dropdown-list-item-label {
+    @apply text-zinc-700;
+}
+
+.fff-flex-textarea__counter {
+    @apply inline-block min-w-[4.5rem] px-1 text-right font-medium tabular-nums text-zinc-400 transition-colors duration-200 ease-out;
+    font-size: calc(var(--fff-flex-textarea-text-size) - 0.0625rem);
+}
+
+.fff-flex-textarea__counter.is-warning {
+    @apply text-amber-500;
+}
+
+.fff-flex-textarea__counter.is-danger {
+    @apply text-red-500;
+    animation: fff-flex-textarea-counter-pulse 0.45s ease-out;
+}
+
+@keyframes fff-flex-textarea-counter-pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.08);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.fff-flex-textarea__footer {
+    @apply px-1 text-center text-zinc-400;
+    font-size: calc(var(--fff-flex-textarea-text-size) - 0.125rem);
+}
+
+.fff-flex-textarea.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.fff-flex-textarea.is-read-only .fff-flex-textarea__textarea {
+    @apply cursor-default;
+}
+
+.dark .fff-flex-textarea {
+    --fff-flex-textarea-bg: rgb(39 39 42);
+    --fff-flex-textarea-border: rgb(63 63 70);
+    --fff-flex-textarea-text: rgb(244 244 245);
+    --fff-flex-textarea-muted: rgb(161 161 170);
+}
+
+.dark .fff-flex-textarea__textarea {
+    @apply text-zinc-100;
+}
+
+.dark .fff-flex-textarea__toolbar-start .fi-icon-btn,
+.dark .fff-flex-textarea__toolbar-start .fi-dropdown-trigger .fi-icon-btn {
+    @apply bg-zinc-700 text-zinc-300;
+}
+
+.dark .fff-flex-textarea__toolbar-start .fi-icon-btn:hover:not(:disabled),
+.dark .fff-flex-textarea__toolbar-start .fi-dropdown-trigger .fi-icon-btn:hover:not(:disabled) {
+    @apply bg-zinc-600 text-zinc-100;
+}
+
+.dark .fff-flex-textarea__dictation-btn {
+    @apply bg-zinc-700 text-zinc-100;
+}
+
+.dark .fff-emoji-picker__trigger,
+.dark .fff-flex-textarea__emoji-trigger {
+    @apply bg-zinc-700 text-zinc-100;
+}
+
+.dark .fff-emoji-picker__trigger:hover:not(:disabled),
+.dark .fff-flex-textarea__emoji-trigger:hover:not(:disabled) {
+    @apply bg-zinc-600;
+}
+
+.dark .fff-flex-textarea__dictation-btn:hover:not(:disabled) {
+    @apply bg-zinc-600;
+}
+
+.dark .fff-flex-textarea__select-trigger {
+    @apply bg-zinc-700 text-zinc-300;
+}
+
+.dark .fff-flex-textarea__select-trigger:hover:not(:disabled) {
+    @apply bg-zinc-600 text-zinc-100;
+}
+
+.dark .fff-flex-textarea__select-icon {
+    @apply text-current;
+}
+
+.dark .fff-flex-textarea__select-menu {
+    @apply border-zinc-600 bg-zinc-800;
+}
+
+.dark .fff-flex-textarea__select-option {
+    @apply text-zinc-200;
+}
+
+.dark .fff-flex-textarea__select-option:hover,
+.dark .fff-flex-textarea__select-option.is-active {
+    @apply bg-zinc-700 text-zinc-50;
+}
+
+.dark .fff-flex-textarea__select-check {
+    @apply text-zinc-50;
+}
+
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-panel {
+    @apply border-zinc-600 bg-zinc-800 ring-0;
+}
+
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item {
+    @apply text-zinc-200;
+}
+
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item:not(.fi-disabled):not([disabled]):hover,
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item:not(.fi-disabled):not([disabled]):focus-visible,
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item.fi-color:not(.fi-disabled):not([disabled]):hover,
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item.fi-color:not(.fi-disabled):not([disabled]):focus-visible {
+    @apply bg-zinc-700;
+}
+
+.dark .fff-flex-textarea-action-dropdown .fi-dropdown-list-item-label {
+    @apply text-zinc-200;
+}
+
+.dark .fff-flex-textarea__footer,
+.dark .fff-flex-textarea__counter {
+    @apply text-zinc-500;
+}

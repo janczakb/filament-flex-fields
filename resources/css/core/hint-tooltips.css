@@ -1,0 +1,67 @@
+/* Hint tooltips — glass-style tippy overrides */
+.tippy-box[data-theme~='light'] {
+    --fff-tooltip-bg: #ffffffa3;
+    --fff-tooltip-border: rgb(228 228 231 / 0.65);
+    --fff-tooltip-text: rgb(24 24 27);
+    --fff-tooltip-blur: blur(16px) saturate(180%);
+    --fff-tooltip-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.06),
+        0 12px 28px -6px rgb(0 0 0 / 0.12);
+}
+
+.tippy-box[data-theme~='dark'] {
+    --fff-tooltip-bg: #27272a3d;
+    --fff-tooltip-border: rgb(255 255 255 / 0.12);
+    --fff-tooltip-text: rgb(244 244 245);
+    --fff-tooltip-blur: blur(16px) saturate(180%);
+    --fff-tooltip-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+}
+
+.tippy-box[data-theme~='light'],
+.tippy-box[data-theme~='dark'] {
+    border-radius: 0.625rem;
+    border: 1px solid var(--fff-tooltip-border) !important;
+    background: var(--fff-tooltip-bg) !important;
+    background-color: var(--fff-tooltip-bg) !important;
+    backdrop-filter: var(--fff-tooltip-blur) !important;
+    -webkit-backdrop-filter: var(--fff-tooltip-blur) !important;
+    box-shadow: var(--fff-tooltip-shadow) !important;
+    color: var(--fff-tooltip-text);
+}
+
+.tippy-box[data-theme~='light'] .tippy-content,
+.tippy-box[data-theme~='dark'] .tippy-content {
+    padding: 0.4375rem 0.625rem;
+    background: transparent !important;
+    background-color: transparent !important;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--fff-tooltip-text);
+}
+
+.tippy-box[data-theme~='light'] > .tippy-arrow,
+.tippy-box[data-theme~='dark'] > .tippy-arrow {
+    color: var(--fff-tooltip-bg);
+}
+
+.tippy-box[data-theme~='light'][data-placement^='top'] > .tippy-arrow::before,
+.tippy-box[data-theme~='dark'][data-placement^='top'] > .tippy-arrow::before {
+    border-top-color: var(--fff-tooltip-bg);
+}
+
+.tippy-box[data-theme~='light'][data-placement^='bottom'] > .tippy-arrow::before,
+.tippy-box[data-theme~='dark'][data-placement^='bottom'] > .tippy-arrow::before {
+    border-bottom-color: var(--fff-tooltip-bg);
+}
+
+.tippy-box[data-theme~='light'][data-placement^='left'] > .tippy-arrow::before,
+.tippy-box[data-theme~='dark'][data-placement^='left'] > .tippy-arrow::before {
+    border-left-color: var(--fff-tooltip-bg);
+}
+
+.tippy-box[data-theme~='light'][data-placement^='right'] > .tippy-arrow::before,
+.tippy-box[data-theme~='dark'][data-placement^='right'] > .tippy-arrow::before {
+    border-right-color: var(--fff-tooltip-bg);
+}

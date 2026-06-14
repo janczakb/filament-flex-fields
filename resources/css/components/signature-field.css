@@ -1,0 +1,396 @@
+/* SignatureField */
+.fff-signature {
+    width: 100%;
+}
+
+.fff-signature__pad,
+.fff-signature__modal-pad {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    aspect-ratio: var(--fff-signature-aspect-ratio, 1000 / 320);
+    border: 1px solid rgb(228 228 231);
+    border-radius: 1rem;
+    background-color: rgb(255 255 255);
+}
+
+.fff-signature__modal-pad {
+    width: min(100%, calc(min(70vh, 36rem) * 1000 / 320));
+    max-height: min(70vh, 36rem);
+    margin-inline: auto;
+}
+
+.fff-signature__guidelines {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    --fff-signature-guide-color: rgb(158 197 235 / 0.14);
+    --fff-signature-guide-gap: 14%;
+    --fff-signature-guide-line-1: 2%;
+    --fff-signature-guide-line-2: calc(var(--fff-signature-guide-line-1) + var(--fff-signature-guide-gap));
+    --fff-signature-guide-line-3: calc(var(--fff-signature-guide-line-2) + var(--fff-signature-guide-gap));
+    --fff-signature-guide-line-4: calc(var(--fff-signature-guide-line-3) + var(--fff-signature-guide-gap));
+    --fff-signature-guide-line-5: calc(var(--fff-signature-guide-line-4) + var(--fff-signature-guide-gap));
+    --fff-signature-guide-line-6: calc(var(--fff-signature-guide-line-5) + var(--fff-signature-guide-gap));
+    --fff-signature-guide-line-7: calc(var(--fff-signature-guide-line-6) + var(--fff-signature-guide-gap));
+    background:
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-1) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-2) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-3) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-4) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-5) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-6) / 100% 1px no-repeat,
+        linear-gradient(var(--fff-signature-guide-color), var(--fff-signature-guide-color)) 0 var(--fff-signature-guide-line-7) / 100% 1px no-repeat;
+}
+
+.fff-signature__canvas {
+    position: relative;
+    z-index: 2;
+    display: block;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    cursor: crosshair;
+    background: transparent;
+}
+
+.fff-signature__canvas.is-read-only {
+    cursor: default;
+}
+
+.fff-signature__root.is-trackpad-glide .fff-signature__canvas:not(.is-read-only) {
+    cursor: default;
+}
+
+.fff-signature__glide-pill {
+    position: absolute;
+    top: 0.75rem;
+    left: 50%;
+    z-index: 3;
+    display: inline-flex;
+    max-width: calc(100% - 1.5rem);
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid rgb(228 228 231);
+    border-radius: 9999px;
+    background-color: rgb(250 250 250 / 0.96);
+    color: rgb(82 82 91);
+    font-size: 0.75rem;
+    line-height: 1.2;
+    transform: translateX(-50%);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    appearance: none;
+    font: inherit;
+    text-align: left;
+}
+
+.fff-signature__glide-pill:hover {
+    border-color: rgb(212 212 216);
+    background-color: rgb(255 255 255);
+}
+
+.fff-signature__glide-pill:focus-visible {
+    outline: 2px solid rgb(59 130 246);
+    outline-offset: 2px;
+}
+
+.fff-signature__root:focus {
+    outline: none;
+}
+
+.fff-signature__glide-pill.is-active {
+    border-color: rgb(147 197 253);
+    background-color: rgb(239 246 255 / 0.98);
+    color: rgb(30 64 175);
+}
+
+.fff-signature__glide-pill-key {
+    display: inline-flex;
+    min-width: 1.35rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid rgb(212 212 216);
+    border-radius: 0.35rem;
+    background-color: rgb(255 255 255);
+    color: rgb(39 39 42);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.fff-signature__glide-pill.is-active .fff-signature__glide-pill-key {
+    border-color: rgb(147 197 253);
+    background-color: rgb(255 255 255);
+    color: rgb(30 64 175);
+}
+
+.fff-signature__placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 1rem;
+    pointer-events: none;
+    text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.4;
+    color: rgb(161 161 170);
+}
+
+.fff-signature__toolbar {
+    position: absolute;
+    right: 0.625rem;
+    bottom: 0.625rem;
+    z-index: 2;
+    display: flex;
+    gap: 0.375rem;
+}
+
+.fff-signature__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid rgb(228 228 231);
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 0.92);
+    color: rgb(63 63 70);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.06);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.fff-signature__action:hover:not(:disabled),
+.fff-signature__action:focus-visible:not(:disabled) {
+    background: rgb(244 244 245);
+    outline: none;
+}
+
+.fff-signature__action:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.fff-signature__action-icon,
+.fff-signature__action .fi-icon,
+.fff-signature__action svg {
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+}
+
+.fff-signature__modal {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.fff-signature__modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgb(0 0 0 / 0.45);
+    backdrop-filter: blur(3px);
+}
+
+.fff-signature__modal-panel {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    width: min(100%, 48rem);
+    flex-direction: column;
+    gap: 0.875rem;
+    border-radius: 1.25rem;
+    background: rgb(255 255 255);
+    padding: 1rem;
+    box-shadow: 0 24px 64px rgb(0 0 0 / 0.18);
+}
+
+.fff-signature__modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.fff-signature__modal-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgb(24 24 27);
+}
+
+.fff-signature__modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    color: rgb(113 113 122);
+    cursor: pointer;
+}
+
+.fff-signature__modal-close:hover,
+.fff-signature__modal-close:focus-visible {
+    background: rgb(244 244 245);
+    outline: none;
+}
+
+.fff-signature__modal-close-icon,
+.fff-signature__modal-close .fi-icon,
+.fff-signature__modal-close svg {
+    display: inline-flex;
+    width: 1.125rem;
+    height: 1.125rem;
+}
+
+.fff-signature__modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.fff-signature__modal-button {
+    border: 1px solid rgb(228 228 231);
+    border-radius: 9999px;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.fff-signature__modal-button.is-secondary {
+    background: rgb(255 255 255);
+    color: rgb(63 63 70);
+}
+
+.fff-signature__modal-button.is-secondary:hover:not(:disabled),
+.fff-signature__modal-button.is-secondary:focus-visible:not(:disabled) {
+    background: rgb(244 244 245);
+    outline: none;
+}
+
+.fff-signature__modal-button.is-primary {
+    border-color: rgb(24 24 27);
+    background: rgb(24 24 27);
+    color: rgb(255 255 255);
+}
+
+.fff-signature__modal-button.is-primary:hover,
+.fff-signature__modal-button.is-primary:focus-visible {
+    background: rgb(39 39 42);
+    outline: none;
+}
+
+.fff-signature__modal-button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.fff-signature.is-disabled,
+.fff-signature.is-read-only {
+    opacity: 0.72;
+}
+
+html.fff-signature-field--modal-open,
+html.fff-signature-field--modal-open body {
+    overflow: hidden;
+}
+
+.dark .fff-signature__pad,
+.dark .fff-signature__modal-pad,
+.dark .fff-signature__modal-panel {
+    border-color: rgb(63 63 70);
+    background-color: rgb(24 24 27);
+}
+
+.dark .fff-signature__placeholder {
+    color: rgb(113 113 122);
+}
+
+.dark .fff-signature__glide-pill {
+    border-color: rgb(63 63 70);
+    background-color: rgb(39 39 42 / 0.96);
+    color: rgb(161 161 170);
+}
+
+.dark .fff-signature__glide-pill.is-active {
+    border-color: rgb(37 99 235);
+    background-color: rgb(30 58 138 / 0.35);
+    color: rgb(191 219 254);
+}
+
+.dark .fff-signature__glide-pill-key {
+    border-color: rgb(82 82 91);
+    background-color: rgb(24 24 27);
+    color: rgb(244 244 245);
+}
+
+.dark .fff-signature__glide-pill.is-active .fff-signature__glide-pill-key {
+    border-color: rgb(59 130 246);
+    color: rgb(191 219 254);
+}
+
+.dark .fff-signature__guidelines {
+    --fff-signature-guide-color: rgb(147 197 253 / 0.09);
+}
+
+.dark .fff-signature__action {
+    border-color: rgb(63 63 70);
+    background: rgb(39 39 42 / 0.92);
+    color: rgb(244 244 245);
+}
+
+.dark .fff-signature__action:hover:not(:disabled),
+.dark .fff-signature__action:focus-visible:not(:disabled) {
+    background: rgb(63 63 70);
+}
+
+.dark .fff-signature__modal-title {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-signature__modal-close {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-signature__modal-close:hover,
+.dark .fff-signature__modal-close:focus-visible {
+    background: rgb(39 39 42);
+}
+
+.dark .fff-signature__modal-button.is-secondary {
+    border-color: rgb(63 63 70);
+    background: rgb(39 39 42);
+    color: rgb(244 244 245);
+}
+
+.dark .fff-signature__modal-button.is-secondary:hover:not(:disabled),
+.dark .fff-signature__modal-button.is-secondary:focus-visible:not(:disabled) {
+    background: rgb(63 63 70);
+}
+
+.dark .fff-signature__modal-button.is-primary {
+    border-color: rgb(244 244 245);
+    background: rgb(244 244 245);
+    color: rgb(24 24 27);
+}

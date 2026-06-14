@@ -1,0 +1,532 @@
+/* ── Progress bar ─────────────────────────────────────────────────────────── */
+
+.fff-progress-bar {
+    --fff-progress-bar-rail-h: 0.625rem;
+    --fff-progress-bar-track-gap: 0.75rem;
+    --fff-progress-bar-label-size: 0.875rem;
+    --fff-progress-bar-value-size: 0.875rem;
+    --fff-progress-bar-marker-size: 1.5rem;
+    --fff-progress-bar-segment-count: 3;
+    --fff-progress-bar-pill-width: 4px;
+    --fff-progress-bar-pill-gap: 3px;
+    --fff-progress-bar-pillar-height: 1.375rem;
+    --fff-progress-fill-duration: 240ms;
+    --fff-progress-bar-accent: var(--primary-500, rgb(99 102 241));
+    --fff-progress-bar-rail: rgb(228 228 231);
+    --fff-progress-bar-text: rgb(24 24 27);
+    --fff-progress-bar-text-muted: rgb(113 113 122);
+
+    display: grid;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.fff-progress-bar--sm {
+    --fff-progress-bar-rail-h: 0.375rem;
+    --fff-progress-bar-track-gap: 0.625rem;
+    --fff-progress-bar-label-size: 0.8125rem;
+    --fff-progress-bar-value-size: 0.8125rem;
+    --fff-progress-bar-marker-size: 1.25rem;
+    --fff-progress-bar-pill-width: 3px;
+    --fff-progress-bar-pill-gap: 2px;
+    --fff-progress-bar-pillar-height: 1rem;
+}
+
+.fff-progress-bar--lg {
+    --fff-progress-bar-rail-h: 0.875rem;
+    --fff-progress-bar-track-gap: 0.875rem;
+    --fff-progress-bar-label-size: 1rem;
+    --fff-progress-bar-value-size: 1rem;
+    --fff-progress-bar-marker-size: 1.75rem;
+    --fff-progress-bar-pill-width: 5px;
+    --fff-progress-bar-pill-gap: 4px;
+    --fff-progress-bar-pillar-height: 1.75rem;
+}
+
+.fff-progress-bar.fi-color-primary {
+    --fff-progress-bar-accent: var(--primary-500, rgb(99 102 241));
+}
+
+.fff-progress-bar.fi-color-success {
+    --fff-progress-bar-accent: rgb(34 197 94);
+}
+
+.fff-progress-bar.fi-color-warning {
+    --fff-progress-bar-accent: rgb(245 158 11);
+}
+
+.fff-progress-bar.fi-color-danger {
+    --fff-progress-bar-accent: rgb(239 68 68);
+}
+
+.dark .fff-progress-bar.fi-color-primary {
+    --fff-progress-bar-accent: var(--primary-400, rgb(129 140 248));
+}
+
+.dark .fff-progress-bar {
+    --fff-progress-bar-rail: rgb(63 63 70);
+    --fff-progress-bar-text: rgb(250 250 250);
+    --fff-progress-bar-text-muted: rgb(161 161 170);
+}
+
+.fff-progress-bar__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.fff-progress-bar__label {
+    font-size: var(--fff-progress-bar-label-size);
+    font-weight: 500;
+    color: var(--fff-progress-bar-text);
+}
+
+.fff-progress-bar__value {
+    font-size: var(--fff-progress-bar-value-size);
+    font-weight: 600;
+    color: var(--fff-progress-bar-text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-bar__track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--fff-progress-bar-track-gap);
+    min-height: var(--fff-progress-bar-marker-size);
+}
+
+.fff-progress-bar__rail {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: var(--fff-progress-bar-rail-h);
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--fff-progress-bar-rail);
+}
+
+.fff-progress-bar.has-dashed-remainder .fff-progress-bar__rail:not(.fff-progress-bar__rail--route) {
+    background: transparent;
+    border: 1px dashed var(--fff-progress-bar-rail);
+    box-sizing: border-box;
+}
+
+.fff-progress-bar.has-dashed-remainder .fff-progress-bar__fill {
+    border-radius: 9999px 0 0 9999px;
+}
+
+.fff-progress-bar__fill {
+    display: block;
+    width: var(--fff-progress-bar-fill, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fff-progress-bar-accent);
+    transition: width var(--fff-progress-fill-duration) ease;
+}
+
+.fff-progress-bar.is-fill-static .fff-progress-bar__fill,
+.fff-progress-bar.is-fill-static .fff-progress-bar__rail-fill,
+.fff-progress-bar.is-fill-static .fff-progress-bar__segment-fill,
+.fff-progress-bar.is-fill-static .fff-progress-bar__marker--current,
+.fff-progress-bar.is-fill-static .fff-progress-bar__segment-dot {
+    transition: none;
+}
+
+.fff-progress-bar.is-indeterminate .fff-progress-bar__fill {
+    width: 35%;
+    animation: fff-progress-bar-indeterminate 1.35s ease-in-out infinite;
+}
+
+@keyframes fff-progress-bar-indeterminate {
+    0% {
+        transform: translateX(-120%);
+    }
+
+    100% {
+        transform: translateX(320%);
+    }
+}
+
+.fff-progress-bar__marker {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--fff-progress-bar-marker-size);
+    height: var(--fff-progress-bar-marker-size);
+    border-radius: 9999px;
+    color: var(--fff-progress-bar-text-muted);
+    background: rgb(255 255 255);
+    box-shadow:
+        0 0 0 1px rgb(228 228 231),
+        0 1px 2px rgb(0 0 0 / 0.06);
+}
+
+.dark .fff-progress-bar__marker {
+    background: rgb(39 39 42);
+    box-shadow:
+        0 0 0 1px rgb(63 63 70),
+        0 1px 2px rgb(0 0 0 / 0.24);
+}
+
+.fff-progress-bar__marker--current {
+    position: absolute;
+    top: 50%;
+    left: var(--fff-progress-bar-marker-position, 0%);
+    z-index: 1;
+    color: var(--fff-progress-bar-accent);
+    transform: translate(-50%, -50%);
+    transition: left var(--fff-progress-fill-duration) ease;
+}
+
+.fff-progress-bar__marker--start,
+.fff-progress-bar__marker--end {
+    flex-shrink: 0;
+}
+
+.fff-progress-bar.has-markers .fff-progress-bar__rail {
+    flex: 1 1 auto;
+}
+
+/* ── Route track (solid fill + dashed remainder) ─────────────────────────────── */
+
+.fff-progress-bar.is-route {
+    --fff-progress-bar-rail-h: 0.1875rem;
+}
+
+.fff-progress-bar.is-route .fff-progress-bar__track {
+    min-height: var(--fff-progress-bar-marker-size);
+}
+
+.fff-progress-bar__rail--route {
+    position: relative;
+    display: block;
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    height: var(--fff-progress-bar-marker-size);
+    overflow: visible;
+    border-radius: 0;
+    background: transparent;
+}
+
+.fff-progress-bar__rail-fill,
+.fff-progress-bar__rail-remainder {
+    position: absolute;
+    top: 50%;
+    height: var(--fff-progress-bar-rail-h);
+    transform: translateY(-50%);
+    border-radius: 9999px;
+}
+
+.fff-progress-bar__rail-fill {
+    left: 0;
+    width: var(--fff-progress-bar-fill, 0%);
+    background: var(--fff-progress-bar-accent);
+    transition: width var(--fff-progress-fill-duration) ease;
+}
+
+.fff-progress-bar__rail-remainder {
+    right: 0;
+    left: var(--fff-progress-bar-fill, 0%);
+    background: repeating-linear-gradient(
+        90deg,
+        var(--fff-progress-bar-rail) 0,
+        var(--fff-progress-bar-rail) 0.25rem,
+        transparent 0.25rem,
+        transparent 0.5rem
+    );
+}
+
+/* ── Segmented track (Uber Eats style) ─────────────────────────────────────── */
+
+.fff-progress-bar__segmented {
+    display: grid;
+    gap: 0.625rem;
+}
+
+.fff-progress-bar--sm .fff-progress-bar__segmented {
+    gap: 0.5rem;
+}
+
+.fff-progress-bar--lg .fff-progress-bar__segmented {
+    gap: 0.75rem;
+}
+
+.fff-progress-bar__segment-track {
+    display: grid;
+    grid-template-columns: repeat(var(--fff-progress-bar-segment-count), minmax(0, 1fr));
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.fff-progress-bar--sm .fff-progress-bar__segment-track {
+    gap: 0.1875rem;
+}
+
+.fff-progress-bar--lg .fff-progress-bar__segment-track {
+    gap: 0.3125rem;
+}
+
+.fff-progress-bar__segment {
+    min-width: 0;
+}
+
+.fff-progress-bar__segment-rail {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: var(--fff-progress-bar-rail-h);
+    overflow: visible;
+    border-radius: 9999px;
+    background: var(--fff-progress-bar-rail);
+}
+
+.fff-progress-bar__segment-fill {
+    display: block;
+    width: var(--fff-progress-bar-segment-fill, 0%);
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fff-progress-bar-accent);
+    transition: width var(--fff-progress-fill-duration) ease;
+}
+
+.fff-progress-bar__segment-dot {
+    position: absolute;
+    top: 50%;
+    left: var(--fff-progress-bar-segment-dot-position, 0%);
+    z-index: 1;
+    width: calc(var(--fff-progress-bar-rail-h) + 0.25rem);
+    height: calc(var(--fff-progress-bar-rail-h) + 0.25rem);
+    border-radius: 9999px;
+    background: var(--fff-progress-bar-accent);
+    box-shadow:
+        0 0 0 2px rgb(255 255 255),
+        0 1px 3px rgb(0 0 0 / 0.12);
+    transform: translate(-50%, -50%);
+    transition: left var(--fff-progress-fill-duration) ease;
+}
+
+.dark .fff-progress-bar__segment-dot {
+    box-shadow:
+        0 0 0 2px rgb(24 24 27),
+        0 1px 3px rgb(0 0 0 / 0.28);
+}
+
+.fff-progress-bar__segment-labels {
+    display: grid;
+    grid-template-columns: repeat(var(--fff-progress-bar-segment-count), minmax(0, 1fr));
+    gap: 0.25rem;
+}
+
+.fff-progress-bar__segment-label-column {
+    display: grid;
+    gap: 0.125rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.fff-progress-bar__segment-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-width: 0;
+}
+
+.fff-progress-bar__segment-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    color: var(--fff-progress-bar-text-muted);
+}
+
+.fff-progress-bar__segment-label-column.is-complete .fff-progress-bar__segment-icon,
+.fff-progress-bar__segment-label-column.is-active .fff-progress-bar__segment-icon {
+    color: var(--fff-progress-bar-accent);
+}
+
+.fff-progress-bar__segment-title {
+    font-size: var(--fff-progress-bar-label-size);
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fff-progress-bar-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.fff-progress-bar__segment-label-column.is-active .fff-progress-bar__segment-title,
+.fff-progress-bar__segment-label-column.is-complete .fff-progress-bar__segment-title {
+    color: var(--fff-progress-bar-text);
+}
+
+.fff-progress-bar__segment-description {
+    font-size: calc(var(--fff-progress-bar-label-size) - 0.0625rem);
+    line-height: 1.3;
+    color: var(--fff-progress-bar-text-muted);
+}
+
+.fff-progress-bar__segment-label-column.is-active .fff-progress-bar__segment-description {
+    color: var(--fff-progress-bar-accent);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar {
+    --fff-progress-bar-rail: rgb(63 63 70);
+    --fff-progress-bar-text: rgb(250 250 250);
+    --fff-progress-bar-text-muted: rgb(161 161 170);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar__label,
+.dark .fff-playground-dark-card .fff-progress-bar__value {
+    color: var(--fff-progress-bar-text);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar__value {
+    color: var(--fff-progress-bar-text-muted);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar.is-route {
+    --fff-progress-bar-accent: rgb(255 255 255);
+    --fff-progress-bar-rail: rgb(255 255 255 / 0.45);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar.is-route .fff-progress-bar__marker {
+    color: rgb(24 24 27);
+    background: rgb(255 255 255);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.16);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar.is-route .fff-progress-bar__marker--current {
+    color: rgb(24 24 27);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar__segment-dot {
+    box-shadow:
+        0 0 0 2px rgb(24 24 27),
+        0 1px 3px rgb(0 0 0 / 0.32);
+}
+
+.dark .fff-playground-dark-card .fff-progress-bar__segment-label-column.is-pending .fff-progress-bar__segment-title {
+    color: var(--fff-progress-bar-text);
+}
+
+/* ── Checklist card + pill segments ────────────────────────────────────────── */
+
+.fff-progress-bar.has-shell,
+.fff-progress-bar.has-card-chrome {
+    width: 100%;
+}
+
+.fff-progress-bar__card {
+    display: grid;
+    gap: 0.875rem;
+    width: 100%;
+    padding: 1rem 1.125rem;
+    border-radius: 0.875rem;
+    background: rgb(255 255 255);
+    box-shadow:
+        0 1px 3px rgb(0 0 0 / 0.08),
+        0 4px 16px rgb(0 0 0 / 0.06);
+}
+
+.dark .fff-progress-bar__card {
+    background: rgb(24 24 27);
+    box-shadow:
+        0 1px 3px rgb(0 0 0 / 0.24),
+        0 4px 16px rgb(0 0 0 / 0.18);
+}
+
+.fff-progress-bar__card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.fff-progress-bar__card-heading {
+    font-size: calc(var(--fff-progress-bar-label-size) + 0.0625rem);
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--fff-progress-bar-text);
+}
+
+.fff-progress-bar__value-badge {
+    flex-shrink: 0;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 9999px;
+    font-size: calc(var(--fff-progress-bar-value-size) - 0.0625rem);
+    font-weight: 700;
+    line-height: 1.2;
+    color: rgb(255 255 255);
+    background: var(--fff-progress-bar-accent);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-bar__card-description {
+    margin: 0;
+    font-size: calc(var(--fff-progress-bar-label-size) - 0.0625rem);
+    line-height: 1.45;
+    color: var(--fff-progress-bar-text-muted);
+}
+
+.fff-progress-bar__card-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.6875rem 1rem;
+    border: none;
+    border-radius: 0.625rem;
+    background: rgb(244 244 245);
+    color: rgb(39 39 42);
+    font-size: var(--fff-progress-bar-label-size);
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: background-color 160ms ease;
+}
+
+.fff-progress-bar__card-action:hover {
+    background: rgb(228 228 231);
+}
+
+.dark .fff-progress-bar__card-action {
+    background: rgb(39 39 42);
+    color: rgb(250 250 250);
+}
+
+.dark .fff-progress-bar__card-action:hover {
+    background: rgb(63 63 70);
+}
+
+.fff-progress-bar.is-pills {
+    width: 100%;
+}
+
+.fff-progress-bar__pills {
+    display: flex;
+    align-items: stretch;
+    gap: var(--fff-progress-bar-pill-gap);
+    width: 100%;
+    height: var(--fff-progress-bar-pillar-height);
+}
+
+.fff-progress-bar__pills--auto,
+.fff-progress-bar__pills--fixed {
+    overflow: hidden;
+}
+
+.fff-progress-bar__pill {
+    flex: 0 0 var(--fff-progress-bar-pill-width);
+    width: var(--fff-progress-bar-pill-width);
+    min-width: var(--fff-progress-bar-pill-width);
+    border-radius: 9999px;
+    background: var(--fff-progress-bar-rail);
+}
+
+.fff-progress-bar__pill.is-active {
+    background: var(--fff-progress-bar-pill-color, var(--fff-progress-bar-accent));
+}

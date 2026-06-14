@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Schemas/Components/ProgressBar.php";
+@source "../views/schemas/components/progress-bar.blade.php";
+
+@import "../components/progress-bar.css";

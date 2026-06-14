@@ -1,0 +1,513 @@
+/* ── Credit card ─────────────────────────────────────────────────────────── */
+
+.fff-credit-card {
+    --fff-credit-card-primary: var(--primary-500, rgb(59 130 246));
+    --fff-credit-card-text: rgb(255 255 255);
+    --fff-credit-card-muted: rgb(255 255 255 / 0.72);
+    --fff-credit-card-input-bg: var(--fff-field-bg);
+    --fff-credit-card-input-border: var(--fff-field-border);
+    --fff-credit-card-input-border-width: var(--fff-field-border-width);
+    --fff-credit-card-input-shadow: var(--fff-field-shadow);
+    --fff-credit-card-input-text: rgb(24 24 27);
+    --fff-credit-card-number-tracking: 0.1em;
+    --fff-credit-card-badge-w: 2.875rem;
+    --fff-credit-card-badge-h: 2rem;
+    --fff-credit-card-visa-w: 2.25rem;
+    --fff-credit-card-visa-h: 0.875rem;
+    --fff-credit-card-mastercard-w: 1.75rem;
+    --fff-credit-card-footer-gap: 0.75rem;
+    --fff-credit-card-details-gap: 0.5rem;
+    --fff-credit-card-meta-gap: 0.25rem;
+    --fff-credit-card-mark-size: 1rem;
+    display: grid;
+    gap: 1.25rem;
+}
+
+.fff-credit-card [x-cloak] {
+    display: none !important;
+}
+
+.fff-credit-card-field--sm,
+.fff-credit-card--sm {
+    --fff-credit-card-width: 17.5rem;
+    --fff-credit-card-radius: 1rem;
+    --fff-credit-card-pad: 0.875rem;
+    --fff-credit-card-number-size: 0.8125rem;
+    --fff-credit-card-number-tracking: 0.06em;
+    --fff-credit-card-label-size: 0.5625rem;
+    --fff-credit-card-value-size: 0.625rem;
+    --fff-credit-card-chip-w: 2rem;
+    --fff-credit-card-chip-h: 1.5rem;
+    --fff-credit-card-badge-w: 2.875rem;
+    --fff-credit-card-badge-h: 2rem;
+    --fff-credit-card-visa-w: 1.75rem;
+    --fff-credit-card-visa-h: 0.6875rem;
+    --fff-credit-card-mastercard-w: 1.875rem;
+    --fff-credit-card-footer-gap: 0.75rem;
+    --fff-credit-card-details-gap: 0.5rem;
+    --fff-credit-card-meta-gap: 0.25rem;
+    --fff-credit-card-mark-size: 0.875rem;
+    --fff-credit-card-field-text: var(--fff-text-md);
+    --fff-credit-card-input-h: 2.25rem;
+}
+
+.fff-credit-card-field--md,
+.fff-credit-card--md {
+    --fff-credit-card-width: 21.25rem;
+    --fff-credit-card-radius: 1.125rem;
+    --fff-credit-card-pad: 1.25rem;
+    --fff-credit-card-number-size: 1.125rem;
+    --fff-credit-card-number-tracking: 0.1em;
+    --fff-credit-card-label-size: 0.625rem;
+    --fff-credit-card-value-size: 0.8125rem;
+    --fff-credit-card-chip-w: 2.375rem;
+    --fff-credit-card-chip-h: 1.75rem;
+    --fff-credit-card-badge-w: 2.875rem;
+    --fff-credit-card-badge-h: 2rem;
+    --fff-credit-card-visa-w: 2.25rem;
+    --fff-credit-card-visa-h: 0.875rem;
+    --fff-credit-card-mastercard-w: 1.75rem;
+    --fff-credit-card-footer-gap: 0.75rem;
+    --fff-credit-card-details-gap: 0.5rem;
+    --fff-credit-card-meta-gap: 0.25rem;
+    --fff-credit-card-mark-size: 1rem;
+    --fff-credit-card-field-text: var(--fff-text-md);
+    --fff-credit-card-input-h: 2.5rem;
+}
+
+.fff-credit-card-field--lg,
+.fff-credit-card--lg {
+    --fff-credit-card-width: 25rem;
+    --fff-credit-card-radius: 1.25rem;
+    --fff-credit-card-pad: 1.5rem;
+    --fff-credit-card-number-size: 1.3125rem;
+    --fff-credit-card-number-tracking: 0.1em;
+    --fff-credit-card-label-size: 0.6875rem;
+    --fff-credit-card-value-size: 0.875rem;
+    --fff-credit-card-chip-w: 2.75rem;
+    --fff-credit-card-chip-h: 2rem;
+    --fff-credit-card-badge-w: 2.875rem;
+    --fff-credit-card-badge-h: 2rem;
+    --fff-credit-card-visa-w: 2.5rem;
+    --fff-credit-card-visa-h: 1rem;
+    --fff-credit-card-mastercard-w: 1.875rem;
+    --fff-credit-card-footer-gap: 0.75rem;
+    --fff-credit-card-details-gap: 0.5rem;
+    --fff-credit-card-meta-gap: 0.25rem;
+    --fff-credit-card-mark-size: 1.125rem;
+    --fff-credit-card-field-text: var(--fff-text-lg);
+    --fff-credit-card-input-h: 2.75rem;
+}
+
+.fff-credit-card--midnight {
+    --fff-credit-card-bg: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 27 75) 48%, rgb(67 56 202) 100%);
+    --fff-credit-card-bg-back: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 27 75) 100%);
+}
+
+.fff-credit-card--ocean {
+    --fff-credit-card-bg: linear-gradient(135deg, rgb(8 47 73) 0%, rgb(14 116 144) 52%, rgb(34 211 238) 100%);
+    --fff-credit-card-bg-back: linear-gradient(135deg, rgb(8 47 73) 0%, rgb(21 94 117) 100%);
+}
+
+.fff-credit-card--sunset {
+    --fff-credit-card-bg: linear-gradient(135deg, rgb(76 29 149) 0%, rgb(190 24 93) 52%, rgb(251 146 60) 100%);
+    --fff-credit-card-bg-back: linear-gradient(135deg, rgb(76 29 149) 0%, rgb(157 23 77) 100%);
+}
+
+.fff-credit-card--slate {
+    --fff-credit-card-bg: linear-gradient(135deg, rgb(24 24 27) 0%, rgb(63 63 70) 52%, rgb(113 113 122) 100%);
+    --fff-credit-card-bg-back: linear-gradient(135deg, rgb(24 24 27) 0%, rgb(39 39 42) 100%);
+}
+
+.fff-credit-card--input-secondary {
+    --fff-credit-card-input-bg: var(--fff-field-secondary-bg);
+    --fff-credit-card-input-border: var(--fff-field-secondary-border);
+    --fff-credit-card-input-border-width: var(--fff-field-secondary-border-width);
+    --fff-credit-card-input-shadow: var(--fff-field-secondary-shadow);
+}
+
+.fff-credit-card--input-flat {
+    --fff-credit-card-input-bg: transparent;
+    --fff-credit-card-input-border: transparent;
+    --fff-credit-card-input-shadow: none;
+}
+
+.fff-credit-card__preview {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+    isolation: isolate;
+}
+
+.fff-credit-card__scene {
+    position: relative;
+    z-index: 1;
+    width: var(--fff-credit-card-width);
+    aspect-ratio: 1.586 / 1;
+    perspective: 1400px;
+    filter: drop-shadow(0 20px 40px rgb(15 23 42 / 0.28));
+}
+
+.fff-credit-card__scene.is-flipped .fff-credit-card__inner {
+    transform: rotateY(180deg);
+}
+
+.fff-credit-card__inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fff-credit-card__face {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: var(--fff-credit-card-radius);
+    backface-visibility: hidden;
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.3);
+}
+
+.fff-credit-card__front {
+    background: var(--fff-credit-card-bg);
+    color: var(--fff-credit-card-text);
+    padding: var(--fff-credit-card-pad);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.fff-credit-card__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.25rem 0.25rem 0;
+}
+
+.fff-credit-card__mark {
+    min-width: 0;
+    flex: 1;
+    font-size: var(--fff-credit-card-mark-size);
+    font-weight: 600;
+    line-height: normal;
+    color: rgb(255 255 255);
+}
+
+.fff-credit-card__footer {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--fff-credit-card-footer-gap);
+}
+
+.fff-credit-card__details {
+    display: flex;
+    width: max-content;
+    max-width: calc(100% - var(--fff-credit-card-badge-w) - var(--fff-credit-card-footer-gap));
+    min-width: 0;
+    flex-direction: column;
+    gap: var(--fff-credit-card-details-gap);
+}
+
+.fff-credit-card__meta {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--fff-credit-card-meta-gap);
+    width: 100%;
+    min-width: 0;
+    min-height: 1.25rem;
+}
+
+.fff-credit-card__name,
+.fff-credit-card__expiry {
+    font-size: var(--fff-credit-card-value-size);
+    font-weight: 600;
+    letter-spacing: 0.0375rem;
+    text-transform: uppercase;
+    white-space: nowrap;
+    line-height: 1.25;
+}
+
+.fff-credit-card__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fff-credit-card__expiry {
+    flex-shrink: 0;
+    margin-left: auto;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: rgb(255 255 255);
+}
+
+.fff-credit-card__number {
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Segoe UI Symbol', 'Apple Symbols', monospace;
+    font-size: var(--fff-credit-card-number-size);
+    font-weight: 600;
+    letter-spacing: var(--fff-credit-card-number-tracking);
+    font-variant-numeric: tabular-nums;
+    line-height: normal;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.18);
+    white-space: nowrap;
+}
+
+.fff-credit-card__brand-badge {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--fff-credit-card-badge-w);
+    height: var(--fff-credit-card-badge-h);
+    border-radius: 0.25rem;
+    background: rgb(255 255 255 / 0.1);
+}
+
+.fff-credit-card__brand-logo {
+    display: none;
+}
+
+.fff-credit-card__brand-logo.is-visa {
+    width: var(--fff-credit-card-visa-w);
+    height: var(--fff-credit-card-visa-h);
+    color: rgb(255 255 255);
+}
+
+.fff-credit-card__brand-logo.is-mastercard {
+    width: var(--fff-credit-card-mastercard-w);
+    height: auto;
+}
+
+.is-brand-visa .fff-credit-card__brand-logo.is-visa,
+.is-brand-mastercard .fff-credit-card__brand-logo.is-mastercard {
+    display: block;
+}
+
+.fff-credit-card__back {
+    transform: rotateY(180deg);
+    background: var(--fff-credit-card-bg-back);
+    color: var(--fff-credit-card-text);
+}
+
+.fff-credit-card__shine,
+.fff-credit-card__mesh {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.fff-credit-card__shine {
+    background:
+        radial-gradient(circle at 18% 12%, rgb(255 255 255 / 0.28), transparent 34%),
+        radial-gradient(circle at 88% 82%, rgb(255 255 255 / 0.12), transparent 28%);
+}
+
+.fff-credit-card__mesh {
+    opacity: 0.18;
+    background-image:
+        linear-gradient(rgb(255 255 255 / 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgb(255 255 255 / 0.08) 1px, transparent 1px);
+    background-size: 1rem 1rem;
+    mask-image: linear-gradient(180deg, rgb(0 0 0 / 0.65), transparent);
+}
+
+.fff-credit-card__contactless {
+    width: 1.25rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    margin-left: auto;
+    color: rgb(255 255 255 / 0.82);
+}
+
+.fff-credit-card__label {
+    display: block;
+    font-size: var(--fff-credit-card-label-size);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fff-credit-card-muted);
+}
+
+.fff-credit-card__value {
+    display: block;
+    margin-top: 0.125rem;
+    font-size: var(--fff-credit-card-value-size);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fff-credit-card__brand-fallback {
+    display: none;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    color: rgb(255 255 255 / 0.72);
+}
+
+.is-brand-unknown .fff-credit-card__brand-fallback {
+    display: block;
+}
+
+.fff-credit-card__stripe {
+    height: 18%;
+    margin-top: 1.25rem;
+    background: rgb(9 9 11);
+}
+
+.fff-credit-card__signature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem var(--fff-credit-card-pad) 0;
+}
+
+.fff-credit-card__signature-line {
+    flex: 1;
+    height: 2.25rem;
+    border-radius: 0.375rem;
+    background: repeating-linear-gradient(
+        90deg,
+        rgb(228 228 231) 0,
+        rgb(228 228 231) 0.75rem,
+        rgb(244 244 245) 0.75rem,
+        rgb(244 244 245) 1.5rem
+    );
+}
+
+.fff-credit-card__cvv-box {
+    min-width: 3rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: 0.375rem;
+    background: rgb(255 255 255);
+    color: rgb(24 24 27);
+    text-align: center;
+}
+
+.fff-credit-card__cvv-value {
+    display: block;
+    margin-top: 0.125rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+}
+
+.fff-credit-card__legal {
+    margin: 0.75rem var(--fff-credit-card-pad) 0;
+    font-size: 0.5625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(255 255 255 / 0.55);
+}
+
+.fff-credit-card__flip-btn {
+    position: relative;
+    z-index: 2;
+    @apply inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-zinc-600 shadow-sm transition-[background-color,color,transform] duration-200;
+    font-size: calc(var(--fff-credit-card-field-text) - 0.0625rem);
+}
+
+.fff-credit-card__flip-btn:hover:not(:disabled) {
+    @apply bg-zinc-100 text-zinc-900;
+    transform: translateY(-1px);
+}
+
+.fff-credit-card__fields {
+    display: grid;
+    gap: 0.875rem;
+    max-width: calc(var(--fff-credit-card-width) + 4rem);
+}
+
+.fff-credit-card__field-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.875rem;
+}
+
+.fff-credit-card__field {
+    display: grid;
+    gap: 0.375rem;
+}
+
+.fff-credit-card__field--full {
+    grid-column: 1 / -1;
+}
+
+.fff-credit-card__field-label {
+    @apply font-medium text-zinc-700;
+    font-size: calc(var(--fff-credit-card-field-text) - 0.0625rem);
+}
+
+.fff-credit-card__input {
+    @apply w-full rounded-full px-3 text-zinc-900 outline-none ring-0 transition-[border-color,box-shadow,background-color] duration-200;
+    height: var(--fff-credit-card-input-h);
+    font-size: var(--fff-credit-card-field-text);
+    color: var(--fff-credit-card-input-text);
+    border: var(--fff-credit-card-input-border-width) solid var(--fff-credit-card-input-border);
+    background: var(--fff-credit-card-input-bg);
+    box-shadow: var(--fff-credit-card-input-shadow);
+}
+
+.fff-credit-card__input::placeholder {
+    @apply text-zinc-400;
+}
+
+.fff-credit-card.has-focus-outline .fff-credit-card__input:focus,
+.fff-credit-card.has-focus-outline .fff-credit-card__input:focus-visible {
+    @apply ring-0;
+    border-color: var(--fff-field-focus-border);
+    background: var(--fff-credit-card-input-bg);
+    box-shadow: var(--fff-credit-card-input-shadow);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-credit-card.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.dark .fff-credit-card {
+    --fff-credit-card-input-bg: rgb(39 39 42);
+    --fff-credit-card-input-border: rgb(63 63 70);
+    --fff-credit-card-input-text: rgb(244 244 245);
+}
+
+.dark .fff-credit-card__field-label {
+    @apply text-zinc-300;
+}
+
+.dark .fff-credit-card__input {
+    color: var(--fff-credit-card-input-text);
+    border-color: var(--fff-credit-card-input-border);
+    background: var(--fff-credit-card-input-bg);
+}
+
+.dark .fff-credit-card__input::placeholder {
+    @apply text-zinc-500;
+}
+
+.dark .fff-credit-card.has-focus-outline .fff-credit-card__input:focus,
+.dark .fff-credit-card.has-focus-outline .fff-credit-card__input:focus-visible {
+    border-color: var(--fff-field-focus-border);
+    background: var(--fff-credit-card-input-bg);
+}
+
+.dark .fff-credit-card__flip-btn {
+    @apply border-zinc-700 bg-zinc-800 text-zinc-200;
+}
+
+.dark .fff-credit-card__flip-btn:hover:not(:disabled) {
+    @apply bg-zinc-700 text-zinc-50;
+}
+

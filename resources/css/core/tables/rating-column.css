@@ -1,0 +1,28 @@
+/* RatingColumn (tables) */
+.fff-rating-column {
+    @apply inline-flex max-w-full items-center;
+    min-height: auto;
+}
+
+.fff-rating-column.fff-rating--sm {
+    --fff-rating-gap: var(--fff-rating-column-gap-sm);
+    --fff-rating-icon: var(--fff-rating-column-icon-sm);
+}
+
+.fff-rating-column.fff-rating--md {
+    --fff-rating-gap: var(--fff-rating-column-gap-md);
+    --fff-rating-icon: var(--fff-rating-column-icon-md);
+}
+
+.fff-rating-column.fff-rating--lg {
+    --fff-rating-gap: var(--fff-rating-column-gap-lg);
+    --fff-rating-icon: var(--fff-rating-column-icon-lg);
+}
+
+.fff-rating-column.fff-rating--with-value {
+    @apply justify-start gap-1.5;
+}
+
+.fff-rating-column .fff-rating__value {
+    @apply text-sm text-gray-500;
+}

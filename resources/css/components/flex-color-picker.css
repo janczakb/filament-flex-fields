@@ -1,0 +1,411 @@
+/* Flex color picker */
+
+.fff-flex-color-picker [x-cloak] {
+    display: none !important;
+}
+
+.fff-flex-color-picker {
+    --fff-flex-color-picker-muted: rgb(113 113 122);
+    --fff-flex-color-picker-panel-bg: rgb(255 255 255);
+    --fff-flex-color-picker-panel-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+    --fff-flex-color-picker-swatch-size: 1.25rem;
+    --fff-flex-color-picker-chevron-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22%23a1a1aa%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M2.5%208a5.5%205.5%200%201%201%2011%200%205.5%205.5%200%200%201-11%200M1%208a7%207%200%201%201%2014%200A7%207%200%200%201%201%208m5.03-1.28a.75.75%200%200%200-1.06%201.06l2.5%202.5a.75.75%200%200%200%201.06%200l2.5-2.5a.75.75%200%201%200-1.06-1.06L8%208.69z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+    position: relative;
+    width: 100%;
+}
+
+.fff-flex-color-picker--sm {
+    --fff-flex-color-picker-swatch-size: 1rem;
+}
+
+.fff-flex-color-picker--lg {
+    --fff-flex-color-picker-swatch-size: 1.5rem;
+}
+
+.dark .fff-flex-color-picker {
+    --fff-flex-color-picker-muted: rgb(161 161 170);
+    --fff-flex-color-picker-panel-bg: rgb(24 24 27);
+    --fff-flex-color-picker-panel-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+    --fff-flex-color-picker-chevron-icon: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22%2371717a%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M2.5%208a5.5%205.5%200%201%201%2011%200%205.5%205.5%200%200%201-11%200M1%208a7%207%200%201%201%2014%200A7%207%200%200%201%201%208m5.03-1.28a.75.75%200%200%200-1.06%201.06l2.5%202.5a.75.75%200%200%200%201.06%200l2.5-2.5a.75.75%200%201%200-1.06-1.06L8%208.69z%22%20clip-rule%3D%22evenodd%22%2F%3E%3C%2Fsvg%3E");
+}
+
+.fff-flex-color-picker__shell {
+    position: relative;
+    overflow: visible;
+}
+
+.fff-flex-color-picker__shell.fff-flex-text-input__shell {
+    overflow: visible;
+}
+
+.fff-flex-color-picker.has-focus-outline .fff-flex-text-input__shell:has(.fff-flex-color-picker__trigger:focus-visible) {
+    border-color: var(--fff-field-focus-border);
+    box-shadow: var(--fff-flex-text-input-shadow);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-flex-color-picker__shell.is-invalid,
+.fi-fo-field:has([data-validation-error]) .fff-flex-color-picker__shell,
+.fi-fo-field-wrp:has([data-validation-error]) .fff-flex-color-picker__shell {
+    border-color: var(--fff-phone-field-error) !important;
+    box-shadow: 0 0 0 3px var(--fff-phone-field-error-ring) !important;
+}
+
+.fff-flex-color-picker.is-disabled .fff-flex-color-picker__shell,
+.fff-flex-color-picker.is-read-only .fff-flex-color-picker__shell {
+    opacity: 0.65;
+}
+
+.fff-flex-color-picker__row {
+    min-width: 0;
+}
+
+.fff-flex-color-picker__trigger {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--fff-flex-text-input-text, inherit);
+    text-align: left;
+    cursor: pointer;
+    font: inherit;
+}
+
+.fff-flex-color-picker__trigger:focus,
+.fff-flex-color-picker__trigger:focus-visible {
+    outline: none;
+}
+
+.fff-flex-color-picker.is-disabled .fff-flex-color-picker__trigger,
+.fff-flex-color-picker.is-read-only .fff-flex-color-picker__trigger {
+    cursor: not-allowed;
+}
+
+.fff-flex-color-picker__preview,
+.fff-flex-color-picker__value-preview {
+    width: var(--fff-flex-color-picker-swatch-size);
+    height: var(--fff-flex-color-picker-swatch-size);
+    flex-shrink: 0;
+    border-radius: 9999px;
+    border: 1px solid rgb(0 0 0 / 0.08);
+    background-color: transparent;
+    overflow: hidden;
+}
+
+.fff-flex-color-picker__preview.has-transparency,
+.fff-flex-color-picker__value-preview.has-transparency {
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.fff-flex-color-picker__trigger-value {
+    flex: 1;
+    min-width: 0;
+    font-size: var(--fff-flex-text-input-text-size);
+    line-height: 1.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fff-flex-color-picker__trigger-chevron {
+    flex-shrink: 0;
+    margin-left: auto;
+    width: var(--fff-flex-text-input-icon-size);
+    height: var(--fff-flex-text-input-icon-size);
+    background-image: var(--fff-flex-color-picker-chevron-icon);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: var(--fff-flex-text-input-icon-size) var(--fff-flex-text-input-icon-size);
+    pointer-events: none;
+}
+
+.fff-flex-color-picker__panel {
+    position: absolute;
+    top: calc(100% + 0.375rem);
+    left: 0;
+    z-index: 50;
+    width: min(100%, 17.5rem);
+    padding: 0.75rem;
+    border: var(--fff-flex-text-input-border-width) solid var(--fff-flex-text-input-border);
+    border-radius: 0.75rem;
+    background: var(--fff-flex-color-picker-panel-bg);
+    box-shadow: var(--fff-flex-color-picker-panel-shadow);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.fff-flex-color-picker__controls {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+}
+
+.fff-flex-color-picker__eyedropper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    flex-shrink: 0;
+    border: var(--fff-flex-text-input-border-width) solid var(--fff-flex-text-input-border);
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--fff-flex-color-picker-muted);
+    transition: color 150ms ease, border-color 150ms ease;
+}
+
+.fff-flex-color-picker__eyedropper:hover:not(:disabled) {
+    color: inherit;
+    border-color: var(--fff-field-focus-border, rgb(99 102 241));
+}
+
+.fff-flex-color-picker__sliders {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.625rem;
+    min-width: 0;
+}
+
+.fff-flex-color-picker__saturation {
+    position: relative;
+    width: 100%;
+    height: 9rem;
+    border-radius: 0.5rem;
+    cursor: crosshair;
+    touch-action: none;
+    overflow: hidden;
+}
+
+.fff-flex-color-picker__saturation-handle {
+    position: absolute;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin: -0.4375rem 0 0 -0.4375rem;
+    border: 2px solid #fff;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+    pointer-events: none;
+}
+
+.fff-flex-color-picker__slider-wrap {
+    padding: 0 0.4375rem;
+}
+
+.fff-flex-color-picker__hue,
+.fff-flex-color-picker__alpha-input {
+    display: block;
+    width: 100%;
+    height: 0.75rem;
+    margin: 0;
+    appearance: none;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.fff-flex-color-picker__hue::-webkit-slider-runnable-track,
+.fff-flex-color-picker__alpha-input::-webkit-slider-runnable-track {
+    height: 0.75rem;
+    border-radius: 9999px;
+}
+
+.fff-flex-color-picker__hue::-webkit-slider-thumb,
+.fff-flex-color-picker__alpha-input::-webkit-slider-thumb {
+    appearance: none;
+    width: 0.875rem;
+    height: 0.875rem;
+    margin-top: -0.0625rem;
+    border: 2px solid #fff;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+    background: var(--fff-flex-color-picker-thumb-color, rgb(127 86 217));
+}
+
+.fff-flex-color-picker__hue::-moz-range-track,
+.fff-flex-color-picker__alpha-input::-moz-range-track {
+    height: 0.75rem;
+    border-radius: 9999px;
+    border: 0;
+    background: transparent;
+}
+
+.fff-flex-color-picker__hue::-moz-range-thumb,
+.fff-flex-color-picker__alpha-input::-moz-range-thumb {
+    width: 0.875rem;
+    height: 0.875rem;
+    border: 2px solid #fff;
+    border-radius: 9999px;
+    box-shadow: 0 0 0 1px rgb(0 0 0 / 0.25);
+    background: var(--fff-flex-color-picker-thumb-color, rgb(127 86 217));
+}
+
+.fff-flex-color-picker__alpha {
+    position: relative;
+    height: 0.75rem;
+    border-radius: 9999px;
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 8px 8px;
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0;
+}
+
+.fff-flex-color-picker__alpha-input {
+    position: relative;
+    z-index: 1;
+}
+
+.fff-flex-color-picker--grid .fff-flex-color-picker__panel {
+    width: min(100%, 22rem);
+}
+
+.fff-flex-color-picker__grid-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.fff-flex-color-picker__grid {
+    display: grid;
+    grid-template-columns: repeat(var(--fff-flex-color-picker-grid-columns, 17), minmax(0, 1fr));
+    gap: 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.1);
+}
+
+.fff-flex-color-picker__grid-swatch {
+    aspect-ratio: 1;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    cursor: pointer;
+    transition: box-shadow 120ms ease;
+}
+
+.fff-flex-color-picker__grid-swatch.is-selected {
+    position: relative;
+    z-index: 1;
+    outline: 3px solid #fff;
+    outline-offset: -3px;
+}
+
+.fff-flex-color-picker__opacity-section {
+    margin-top: 0.75rem;
+}
+
+.fff-flex-color-picker__opacity-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+    color: inherit;
+}
+
+.fff-flex-color-picker--grid .fff-flex-color-picker__opacity-section .fff-flex-color-picker__slider-wrap {
+    padding: 0 0.4375rem;
+}
+
+.fff-flex-color-picker__bottom-bar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+    align-items: center;
+}
+
+.fff-flex-color-picker__format-wrap {
+    min-width: 0;
+}
+
+.fff-flex-color-picker__format {
+    width: 4.5rem;
+    height: calc(var(--fff-flex-text-input-h) - 0.25rem);
+    padding: 0 1.5rem 0 0.625rem;
+    border: var(--fff-flex-text-input-border-width) solid var(--fff-flex-text-input-border);
+    border-radius: 9999px;
+    background-color: var(--fff-flex-text-input-bg);
+    box-shadow: var(--fff-flex-text-input-shadow);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    color: inherit;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%2371717a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.375rem center;
+    background-size: 1rem;
+}
+
+.fff-flex-color-picker__value-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    height: calc(var(--fff-flex-text-input-h) - 0.25rem);
+    padding: 0 0.625rem;
+    border: var(--fff-flex-text-input-border-width) solid var(--fff-flex-text-input-border);
+    border-radius: 9999px;
+    background: var(--fff-flex-text-input-bg);
+    box-shadow: var(--fff-flex-text-input-shadow);
+}
+
+.fff-flex-color-picker__panel .fff-flex-color-picker__value-preview {
+    width: 1rem;
+    height: 1rem;
+}
+
+.fff-flex-color-picker__value-input,
+.fff-flex-color-picker__opacity-input {
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    font-size: 0.8125rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: inherit;
+}
+
+.fff-flex-color-picker__value-input {
+    flex: 1;
+}
+
+.fff-flex-color-picker__value-input:focus,
+.fff-flex-color-picker__opacity-input:focus {
+    outline: none;
+}
+
+.fff-flex-color-picker__value-divider {
+    width: 1px;
+    height: 1rem;
+    flex-shrink: 0;
+    background: var(--fff-flex-text-input-border);
+}
+
+.fff-flex-color-picker__opacity-input {
+    width: 2.75rem;
+    flex-shrink: 0;
+    text-align: center;
+}

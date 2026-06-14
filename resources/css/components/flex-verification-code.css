@@ -1,0 +1,205 @@
+.fff-verification-code {
+    --fff-verification-code-accent: var(--primary-500, rgb(59 130 246));
+    --fff-verification-code-bg: rgb(255 255 255);
+    --fff-verification-code-border: rgb(212 212 216);
+    --fff-verification-code-text: rgb(24 24 27);
+    --fff-verification-code-filled-bg: rgb(250 250 250);
+    --fff-verification-code-size: 2.5rem;
+    --fff-verification-code-font-size: var(--fff-text-md);
+    --fff-verification-code-radius: 0.625rem;
+    --fff-verification-code-gap: 0.5rem;
+    --fff-verification-code-group-gap: 0.375rem;
+    --fff-verification-code-separator-gap: 0.75rem;
+    --fff-verification-code-focus-ring: color-mix(in srgb, var(--fff-verification-code-accent) 28%, transparent);
+
+    @apply inline-flex items-center;
+}
+
+.fff-verification-code--sm {
+    --fff-verification-code-size: 2rem;
+    --fff-verification-code-font-size: var(--fff-text-sm);
+    --fff-verification-code-radius: 0.5rem;
+    --fff-verification-code-gap: 0.375rem;
+    --fff-verification-code-group-gap: 0.25rem;
+    --fff-verification-code-separator-gap: 0.5rem;
+}
+
+.fff-verification-code--lg {
+    --fff-verification-code-size: 3rem;
+    --fff-verification-code-font-size: var(--fff-text-lg);
+    --fff-verification-code-radius: 0.75rem;
+    --fff-verification-code-gap: 0.625rem;
+    --fff-verification-code-group-gap: 0.5rem;
+    --fff-verification-code-separator-gap: 1rem;
+}
+
+.fff-verification-code.fi-color-primary {
+    --fff-verification-code-accent: var(--primary-500, rgb(59 130 246));
+}
+
+.fff-verification-code.fi-color-secondary {
+    --fff-verification-code-accent: var(--secondary-500, rgb(100 116 139));
+}
+
+.fff-verification-code.fi-color-success {
+    --fff-verification-code-accent: var(--success-500, rgb(34 197 94));
+}
+
+.fff-verification-code.fi-color-warning {
+    --fff-verification-code-accent: var(--warning-500, rgb(245 158 11));
+}
+
+.fff-verification-code.fi-color-danger {
+    --fff-verification-code-accent: var(--danger-500, rgb(239 68 68));
+}
+
+.fff-verification-code__group {
+    @apply inline-flex items-center;
+    gap: var(--fff-verification-code-group-gap);
+}
+
+.fff-verification-code__separator {
+    @apply pointer-events-none inline-flex shrink-0 items-center justify-center font-medium;
+    margin-inline: calc(var(--fff-verification-code-separator-gap) - var(--fff-verification-code-group-gap));
+    color: rgb(113 113 122);
+    font-size: var(--fff-verification-code-font-size);
+    line-height: 1;
+    user-select: none;
+}
+
+.fff-verification-code__separator--gap {
+    width: var(--fff-verification-code-separator-gap);
+}
+
+.fff-verification-code__input {
+    @apply inline-flex shrink-0 items-center justify-center border text-center font-semibold tabular-nums outline-none transition;
+    width: var(--fff-verification-code-size);
+    height: var(--fff-verification-code-size);
+    border-radius: var(--fff-verification-code-radius);
+    border-color: var(--fff-verification-code-border);
+    background-color: var(--fff-verification-code-bg);
+    color: var(--fff-verification-code-text);
+    font-size: var(--fff-verification-code-font-size);
+    caret-color: var(--fff-verification-code-accent);
+}
+
+.fff-verification-code__input.is-filled {
+    background-color: var(--fff-verification-code-filled-bg);
+}
+
+.fff-verification-code__input:focus {
+    border-color: var(--fff-verification-code-accent);
+    box-shadow: 0 0 0 3px var(--fff-verification-code-focus-ring);
+}
+
+.fff-verification-code__input:disabled {
+    @apply cursor-not-allowed opacity-60;
+}
+
+.fff-verification-code-shell.is-invalid .fff-verification-code__input {
+    border-color: rgb(239 68 68);
+}
+
+.fff-verification-code-shell.is-invalid .fff-verification-code__input:focus {
+    border-color: rgb(239 68 68);
+    box-shadow: 0 0 0 3px rgb(239 68 68 / 0.22);
+}
+
+.dark .fff-verification-code-shell.is-invalid .fff-verification-code__input {
+    border-color: rgb(248 113 113);
+}
+
+.dark .fff-verification-code-shell.is-invalid .fff-verification-code__input:focus {
+    border-color: rgb(248 113 113);
+    box-shadow: 0 0 0 3px rgb(248 113 113 / 0.28);
+}
+
+.dark .fff-verification-code {
+    --fff-verification-code-bg: rgb(39 39 42);
+    --fff-verification-code-border: rgb(63 63 70);
+    --fff-verification-code-text: rgb(244 244 245);
+    --fff-verification-code-filled-bg: rgb(45 45 48);
+    --fff-verification-code-focus-ring: color-mix(in srgb, var(--fff-verification-code-accent) 35%, transparent);
+}
+
+.dark .fff-verification-code.fi-color-primary {
+    --fff-verification-code-accent: var(--primary-400, rgb(96 165 250));
+}
+
+.dark .fff-verification-code__separator {
+    color: rgb(161 161 170);
+}
+
+.fff-verification-code-shell {
+    @apply inline-flex items-center gap-2;
+}
+
+.fff-verification-code-shell.is-loading .fff-verification-code {
+    @apply pointer-events-none opacity-60;
+}
+
+.fff-verification-code__loading {
+    @apply inline-flex shrink-0 items-center justify-center opacity-0 transition-opacity;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.fff-verification-code__loading.is-visible {
+    @apply opacity-100;
+}
+
+.fff-verification-code__loading-spinner,
+.fff-verification-code__loading .fi-loading-indicator,
+.fff-verification-code__loading svg {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.fff-verification-code-layout {
+    @apply flex w-full max-w-md flex-col items-start;
+    gap: 1rem;
+}
+
+.fff-verification-code-layout__header {
+    @apply flex w-full flex-col;
+    gap: 0.375rem;
+}
+
+.fff-verification-code-layout__heading {
+    @apply text-xl font-semibold tracking-tight;
+    color: rgb(24 24 27);
+}
+
+.fff-verification-code-layout__description {
+    @apply text-sm leading-relaxed;
+    color: rgb(113 113 122);
+}
+
+.fff-verification-code-layout__footer {
+    @apply inline-flex flex-wrap items-center;
+    gap: 0.25rem;
+}
+
+.fff-verification-code-layout__footer-text {
+    @apply text-sm;
+    color: rgb(113 113 122);
+}
+
+.fff-verification-code-layout__footer-action .fi-ac-link-action {
+    @apply text-sm font-semibold;
+    color: rgb(24 24 27);
+}
+
+.dark .fff-verification-code-layout__heading,
+.dark .fff-verification-code-layout__footer-action .fi-ac-link-action {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-verification-code-layout__description,
+.dark .fff-verification-code-layout__footer-text {
+    color: rgb(161 161 170);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Flex checklist                                                             */
+/* -------------------------------------------------------------------------- */

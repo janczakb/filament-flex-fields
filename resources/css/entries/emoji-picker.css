@@ -1,0 +1,5 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@import "../components/emoji-picker.css";

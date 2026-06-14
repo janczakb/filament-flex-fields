@@ -1,0 +1,20 @@
+/* Keep hint icon/text beside the label instead of Filament's default align-end. */
+.fff-flex-text-input-field .fi-fo-field-label-ctn {
+    @apply items-center gap-x-1.5;
+}
+
+.fff-flex-text-input-field .fi-fo-field-label-ctn > .fi-sc.fi-inline {
+    flex-grow: 0;
+    justify-content: flex-start;
+}
+
+.fff-flex-text-input-field .fi-fo-field-label-ctn > .fi-sc.fi-inline .fi-sc-icon {
+    @apply shrink-0;
+}
+
+.fff-flex-text-input-field .fi-fo-field-label-ctn .fi-sc-icon.fi-icon,
+.fff-flex-text-input-field .fi-fo-field-label-ctn .fi-sc-icon svg,
+.fff-flex-text-input-field .fi-fo-field-label-ctn .fi-sc-component .fi-icon {
+    width: var(--fff-flex-text-input-hint-icon-size, 0.75rem) !important;
+    height: var(--fff-flex-text-input-hint-icon-size, 0.75rem) !important;
+}

@@ -1,0 +1,254 @@
+/* PriceRangeField — HeroUI-style histogram range slider */
+.fff-price-range {
+    @apply flex w-full flex-col gap-3;
+    --fff-price-range-primary: var(--primary-500, rgb(59 130 246));
+    --fff-price-range-bar-bg: rgb(244 244 245);
+    --fff-price-range-track-bg: rgb(228 228 231 / 0.55);
+    --fff-price-range-input-bg: var(--fff-field-bg);
+    --fff-price-range-input-border: var(--fff-field-border);
+    --fff-price-range-input-border-width: var(--fff-field-border-width);
+    --fff-price-range-input-shadow: var(--fff-field-shadow);
+    --fff-price-range-input-text: rgb(24 24 27);
+    --fff-price-range-input-p: 0.625rem;
+}
+
+.fff-price-range-field--sm,
+.fff-price-range--sm {
+    --fff-price-range-text-size: var(--fff-text-md);
+    --fff-price-range-chart-h: 2rem;
+    --fff-price-range-chart-gap: 0.0625rem;
+    --fff-price-range-chart-px: 0.375rem;
+    --fff-price-range-bar-w: 0.1875rem;
+    --fff-price-range-bar-min-w: 0.125rem;
+    --fff-price-range-track-h: 1rem;
+    --fff-price-range-rail-h: 0.1875rem;
+    --fff-price-range-thumb-size: 1rem;
+    --fff-price-range-input-h: var(--fff-track-h-sm);
+    --fff-price-range-input-p: 0.5rem;
+}
+
+.fff-price-range-field--md,
+.fff-price-range--md {
+    --fff-price-range-text-size: var(--fff-text-md);
+    --fff-price-range-chart-h: 3rem;
+    --fff-price-range-chart-gap: 0.125rem;
+    --fff-price-range-chart-px: 0.5rem;
+    --fff-price-range-bar-w: 0.25rem;
+    --fff-price-range-bar-min-w: 0.1875rem;
+    --fff-price-range-track-h: 1.25rem;
+    --fff-price-range-rail-h: 0.25rem;
+    --fff-price-range-thumb-size: 1.25rem;
+    --fff-price-range-input-h: var(--fff-track-h-md);
+    --fff-price-range-input-p: 0.625rem;
+}
+
+.fff-price-range-field--lg,
+.fff-price-range--lg {
+    --fff-price-range-text-size: var(--fff-text-lg);
+    --fff-price-range-chart-h: 4rem;
+    --fff-price-range-chart-gap: 0.1875rem;
+    --fff-price-range-chart-px: 0.625rem;
+    --fff-price-range-bar-w: 0.3125rem;
+    --fff-price-range-bar-min-w: 0.25rem;
+    --fff-price-range-track-h: 1.5rem;
+    --fff-price-range-rail-h: 0.3125rem;
+    --fff-price-range-thumb-size: 1.5rem;
+    --fff-price-range-input-h: var(--fff-track-h-lg);
+    --fff-price-range-input-p: 0.75rem;
+}
+
+.fff-price-range-field--secondary,
+.fff-price-range--secondary {
+    --fff-price-range-input-bg: var(--fff-field-secondary-bg);
+    --fff-price-range-input-border: var(--fff-field-secondary-border);
+    --fff-price-range-input-border-width: var(--fff-field-secondary-border-width);
+    --fff-price-range-input-shadow: var(--fff-field-secondary-shadow);
+}
+
+.fff-price-range-field--flat,
+.fff-price-range--flat {
+    --fff-price-range-input-bg: transparent;
+    --fff-price-range-input-border: transparent;
+    --fff-price-range-input-shadow: none;
+}
+
+.fff-price-range__chart {
+    @apply flex w-full items-end;
+    height: var(--fff-price-range-chart-h);
+    padding-inline: var(--fff-price-range-chart-px);
+    gap: var(--fff-price-range-chart-gap);
+}
+
+.fff-price-range__bar {
+    @apply relative min-w-0 flex-1 rounded-full;
+    align-self: flex-end;
+    background: var(--fff-price-range-bar-bg);
+}
+
+.fff-price-range__bar::after {
+    @apply absolute bottom-0 left-0 w-full rounded-full content-[''];
+    height: 0;
+    background: var(--fff-price-range-primary);
+    transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fff-price-range__bar.is-in-range::after {
+    height: 100%;
+}
+
+.fff-price-range__slider {
+    padding-inline: var(--fff-price-range-chart-px);
+    @apply w-full;
+}
+
+.fff-price-range__track {
+    @apply relative w-full cursor-pointer touch-none select-none;
+    height: var(--fff-price-range-track-h);
+}
+
+.fff-price-range__track-rail {
+    @apply absolute top-1/2 w-full -translate-y-1/2 rounded-full;
+    height: var(--fff-price-range-rail-h);
+    background: var(--fff-price-range-track-bg);
+}
+
+.fff-price-range__track-fill {
+    @apply absolute top-1/2 -translate-y-1/2 rounded-full;
+    height: var(--fff-price-range-rail-h);
+    background: var(--fff-price-range-primary);
+    transition:
+        left 0.15s ease,
+        width 0.15s ease;
+}
+
+.fff-price-range__thumb {
+    @apply absolute top-1/2 z-[2] -translate-x-1/2 -translate-y-1/2 cursor-grab rounded-full border-0 bg-transparent p-0 outline-none;
+    width: var(--fff-price-range-thumb-size);
+    height: var(--fff-price-range-thumb-size);
+}
+
+.fff-price-range__thumb::after {
+    @apply absolute inset-[0.125rem] rounded-full bg-white shadow-sm content-[''];
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.12);
+    transition: transform 0.15s ease;
+}
+
+.fff-price-range__thumb::before {
+    @apply absolute inset-0 rounded-full content-[''];
+    background: var(--fff-price-range-primary);
+}
+
+.fff-price-range__thumb.is-dragging {
+    @apply cursor-grabbing;
+}
+
+.fff-price-range__thumb.is-dragging::after {
+    transform: scale(0.85);
+}
+
+.fff-price-range__thumb:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--fff-price-range-primary) 45%, white);
+    outline-offset: 2px;
+}
+
+.fff-price-range__inputs {
+    @apply flex items-center gap-2;
+}
+
+.fff-price-range__input-wrap {
+    @apply relative flex min-w-0 flex-1 items-center rounded-full transition-[border-color,box-shadow,outline-color] duration-200 ease-out;
+    height: var(--fff-price-range-input-h);
+    min-height: var(--fff-price-range-input-h);
+    padding-inline: var(--fff-price-range-input-p);
+    border: var(--fff-price-range-input-border-width) solid var(--fff-price-range-input-border);
+    background: var(--fff-price-range-input-bg);
+    box-shadow: var(--fff-price-range-input-shadow);
+}
+
+.fff-price-range__input-wrap:focus-within {
+    border-color: var(--fff-field-focus-border);
+    box-shadow: var(--fff-price-range-input-shadow);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-price-range--flat .fff-price-range__input-wrap:focus-within {
+    box-shadow: none;
+    outline: none;
+}
+
+.fff-price-range__input-wrap--has-prefix {
+    gap: 0.5rem;
+}
+
+.fff-price-range--sm .fff-price-range__input-prefix {
+    font-size: calc(var(--fff-price-range-text-size) - 0.03125rem);
+}
+
+.fff-price-range__input-prefix {
+    @apply shrink-0 font-normal text-zinc-500;
+    font-size: calc(var(--fff-price-range-text-size) - 0.0625rem);
+    line-height: 1.2;
+}
+
+.fff-price-range__input {
+    @apply h-full w-full min-w-0 border-0 bg-transparent px-0 py-0 font-medium tabular-nums shadow-none outline-none ring-0 focus:outline-none focus:ring-0;
+    font-size: var(--fff-price-range-text-size);
+    line-height: 1.2;
+    color: var(--fff-price-range-input-text);
+    caret-color: var(--fff-price-range-primary);
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.fff-price-range__input::-webkit-outer-spin-button,
+.fff-price-range__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.fff-price-range__input:focus {
+    @apply outline-none ring-0;
+}
+
+.fff-price-range__inputs-divider {
+    @apply h-px w-2 shrink-0 bg-zinc-300;
+}
+
+.fff-price-range.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.dark .fff-price-range {
+    --fff-price-range-bar-bg: rgb(63 63 70);
+    --fff-price-range-track-bg: rgb(82 82 91 / 0.55);
+    --fff-price-range-input-text: rgb(244 244 245);
+}
+
+.dark .fff-price-range-field--primary,
+.dark .fff-price-range--primary {
+    --fff-price-range-input-bg: var(--fff-field-bg);
+    --fff-price-range-input-border: var(--fff-field-border);
+}
+
+.dark .fff-price-range-field--secondary,
+.dark .fff-price-range--secondary {
+    --fff-price-range-input-bg: var(--fff-field-secondary-bg);
+    --fff-price-range-input-border: var(--fff-field-secondary-border);
+}
+
+.dark .fff-price-range__input {
+    @apply font-medium;
+}
+
+.dark .fff-price-range__input-prefix {
+    @apply text-zinc-500;
+}
+
+.dark .fff-price-range__thumb::after {
+    @apply bg-zinc-900;
+}
+
+.dark .fff-price-range__inputs-divider {
+    @apply bg-zinc-600;
+}

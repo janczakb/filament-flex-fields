@@ -1,0 +1,83 @@
+{
+  "address-autocomplete": [
+    "flex-fields-mapbox-QQNRJDE5.js"
+  ],
+  "audio-field": [
+    "flex-fields-audio-7IBP5TOY.js",
+    "flex-fields-dynamic-bars-TC53IFLW.js"
+  ],
+  "country-field": [
+    "flex-fields-select-menu-BRVLD3M3.js"
+  ],
+  "credit-card": [],
+  "currency-field": [
+    "flex-fields-select-menu-BRVLD3M3.js"
+  ],
+  "dual-listbox": [],
+  "flex-checklist": [],
+  "flex-color-picker": [],
+  "flex-date-time-field": [],
+  "flex-file-upload": [],
+  "flex-slider": [],
+  "flex-text-input": [
+    "flex-fields-emoji-SUG5HQ4L.js"
+  ],
+  "flex-textarea": [
+    "flex-fields-emoji-SUG5HQ4L.js"
+  ],
+  "flex-verification-code": [],
+  "hold-confirm-action": [],
+  "map-picker": [
+    "flex-fields-mapbox-QQNRJDE5.js"
+  ],
+  "number-stepper": [],
+  "phone-field": [
+    "flex-fields-phone-lib-XIPFB24B.js"
+  ],
+  "price-range": [
+    "flex-fields-dynamic-bars-TC53IFLW.js"
+  ],
+  "rating-field": [],
+  "segment-control": [],
+  "segment-tabs": [],
+  "signature-field": [],
+  "slug-field": [],
+  "tags-field": [],
+  "timezone-field": [
+    "flex-fields-select-menu-BRVLD3M3.js"
+  ],
+  "traffic-split": [],
+  "video-field": [],
+  "voice-note-recorder-field": [
+    "flex-fields-audio-7IBP5TOY.js",
+    "flex-fields-dynamic-bars-TC53IFLW.js"
+  ],
+  "__shared_chunks__": [
+    "flex-fields-audio-7IBP5TOY.js",
+    "flex-fields-dynamic-bars-TC53IFLW.js",
+    "flex-fields-emoji-SUG5HQ4L.js",
+    "flex-fields-mapbox-QQNRJDE5.js",
+    "flex-fields-phone-lib-XIPFB24B.js",
+    "flex-fields-select-menu-BRVLD3M3.js"
+  ],
+  "__chunk_modules__": {
+    "flex-fields-phone-lib-XIPFB24B.js": [],
+    "flex-fields-emoji-SUG5HQ4L.js": [
+      "core/shared-emoji-picker.js"
+    ],
+    "flex-fields-mapbox-QQNRJDE5.js": [
+      "support/mapbox-geocoding.js"
+    ],
+    "flex-fields-audio-7IBP5TOY.js": [
+      "core/audio-waveform.js",
+      "core/format-time.js",
+      "core/waveform-bars.js"
+    ],
+    "flex-fields-dynamic-bars-TC53IFLW.js": [
+      "core/dynamic-bars.js"
+    ],
+    "flex-fields-select-menu-BRVLD3M3.js": [
+      "core/searchable-select-menu.js"
+    ]
+  }
+}

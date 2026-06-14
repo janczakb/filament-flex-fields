@@ -1,0 +1,27 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 8
+    paths:
+        - src
+    tmpDir: build/phpstan
+    treatPhpDocTypesAsCertain: false
+    bootstrapFiles:
+        - tests/phpstan-bootstrap.php
+    ignoreErrors:
+        -
+            message: '#^Trait Bjanczak\\FilamentFlexFields\\Concerns\\HasFlexFields is used zero times#'
+            path: src/Concerns/HasFlexFields.php
+        -
+            message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::check\(\)\.$#'
+            path: src/Filament/Pages/FlexFieldsPlaygroundCluster.php
+        -
+            message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::check\(\)\.$#'
+            path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
+        -
+            message: '#^Access to an undefined property Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldsPlaygroundComponentPage::\$form\.$#'
+            path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
+        -
+            message: '#^Call to an undefined method Filament\\Forms\\Components\\Field::placeholder\(\)\.$#'
+            path: src/Support/FormBuilder/AppliesFieldDefinitionMeta.php

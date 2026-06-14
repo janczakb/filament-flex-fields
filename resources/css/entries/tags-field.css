@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/TagsField.php";
+@source "../views/forms/components/tags-field.blade.php";
+
+@import "../components/tags-field.css";

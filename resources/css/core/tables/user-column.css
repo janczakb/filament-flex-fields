@@ -1,0 +1,55 @@
+/* UserColumn (tables) */
+.fff-user-column {
+    --fff-user-select-avatar-size: 2rem;
+    @apply inline-flex max-w-full items-center;
+}
+
+.fff-user-column--rich .fff-user-select-option--trigger {
+    @apply min-w-0;
+}
+
+.fff-user-column--rich .fff-user-select-option__name {
+    @apply text-sm font-medium text-zinc-900;
+}
+
+.fff-user-column--rich .fff-user-select-option__email {
+    @apply text-xs text-zinc-500;
+}
+
+.fff-user-column__avatar-stack {
+    @apply inline-flex items-center;
+}
+
+.fff-user-column__avatar-stack-item {
+    @apply relative inline-flex shrink-0;
+    margin-inline-start: calc(var(--fff-user-column-stack-overlap, 10px) * -1);
+}
+
+.fff-user-column__avatar-stack-item:first-child {
+    margin-inline-start: 0;
+}
+
+.fff-user-column__avatar-stack-item .fff-user-select__avatar--stack {
+    --fff-user-select-avatar-size: 2rem;
+}
+
+.fff-user-column__avatar-stack-item .fff-user-select__avatar-surface {
+    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) #fff;
+}
+
+.fff-user-column__avatar-stack-overflow {
+    @apply relative inline-flex shrink-0 items-center justify-center rounded-full bg-zinc-100 font-medium text-zinc-700;
+    margin-inline-start: calc(var(--fff-user-column-stack-overlap, 10px) * -1);
+    height: 2rem;
+    width: 2rem;
+    font-size: 0.75rem;
+    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) #fff;
+}
+
+.fff-user-select__avatar--stack {
+    --fff-user-select-avatar-size: 2rem;
+}
+
+.fff-user-select__avatar--stack .fff-user-select__verified-badge {
+    display: none;
+}

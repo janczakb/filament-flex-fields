@@ -1,0 +1,115 @@
+<?php
+
+declare(strict_types=1);
+
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
+
+beforeEach(function () {
+    FlexFieldAlpineQueue::reset();
+});
+
+it('resolves shared alpine chunks for audio components from the build manifest', function () {
+    $manifestPath = FlexFieldAssets::alpineManifestPath();
+
+    expect(is_file($manifestPath))->toBeTrue();
+
+    $audioChunks = FlexFieldAssets::alpineChunksFor('audio-field');
+    $voiceChunks = FlexFieldAssets::alpineChunksFor('voice-note-recorder-field');
+
+    expect($audioChunks)->not->toBeEmpty()
+        ->and($voiceChunks)->not->toBeEmpty()
+        ->and(array_intersect($audioChunks, $voiceChunks))->not->toBeEmpty();
+});
+
+it('deduplicates alpine chunk preloads across multiple fields on one request', function () {
+    $first = FlexFieldAlpineQueue::enqueueChunksFor('audio-field');
+    $second = FlexFieldAlpineQueue::enqueueChunksFor('voice-note-recorder-field');
+
+    expect($first)->not->toBeEmpty();
+
+    foreach ($first as $chunk) {
+        expect(FlexFieldAlpineQueue::has($chunk))->toBeTrue();
+    }
+
+    expect($second)->toBe([]);
+});
+
+it('deduplicates emoji picker chunk preloads across flex text input and textarea', function () {
+    $inputChunks = FlexFieldAlpineQueue::enqueueChunksFor('flex-text-input');
+    $textareaChunks = FlexFieldAlpineQueue::enqueueChunksFor('flex-textarea');
+
+    expect($inputChunks)->not->toBeEmpty()
+        ->and($textareaChunks)->toBe([])
+        ->and($inputChunks)->toBe(FlexFieldAssets::alpineChunksFor('flex-textarea'));
+});
+
+it('deduplicates mapbox chunk preloads across map picker and address autocomplete', function () {
+    FlexFieldAlpineQueue::reset();
+
+    $mapChunks = FlexFieldAlpineQueue::enqueueChunksFor('map-picker');
+    $addressChunks = FlexFieldAlpineQueue::enqueueChunksFor('address-autocomplete');
+
+    expect($mapChunks)->not->toBeEmpty()
+        ->and($addressChunks)->toBe([]);
+});
+
+it('deduplicates searchable select menu chunk preloads across country timezone and currency fields', function () {
+    FlexFieldAlpineQueue::reset();
+
+    $countryChunks = FlexFieldAlpineQueue::enqueueChunksFor('country-field');
+    $timezoneChunks = FlexFieldAlpineQueue::enqueueChunksFor('timezone-field');
+    $currencyChunks = FlexFieldAlpineQueue::enqueueChunksFor('currency-field');
+
+    expect($countryChunks)->not->toBeEmpty()
+        ->and($timezoneChunks)->toBe([])
+        ->and($currencyChunks)->toBe([]);
+});
+
+it('documents shared chunk source modules in the build manifest with semantic chunk names', function () {
+    $manifest = json_decode((string) file_get_contents(FlexFieldAssets::alpineManifestPath()), true);
+
+    $emojiChunk = collect($manifest['__chunk_modules__'] ?? [])
+        ->filter(fn (array $modules): bool => in_array('core/shared-emoji-picker.js', $modules, true))
+        ->keys()
+        ->first();
+
+    expect($emojiChunk)
+        ->toBeString()
+        ->toStartWith('flex-fields-emoji-')
+        ->toEndWith('.js');
+
+    $selectMenuChunk = collect($manifest['__chunk_modules__'] ?? [])
+        ->filter(fn (array $modules): bool => in_array('core/searchable-select-menu.js', $modules, true))
+        ->keys()
+        ->first();
+
+    expect($selectMenuChunk)
+        ->toBeString()
+        ->toStartWith('flex-fields-select-menu-')
+        ->toEndWith('.js');
+});
+
+it('keeps flex text input shell code separate from the shared emoji chunk', function () {
+    $flexTextInputJs = file_get_contents(__DIR__.'/../../resources/dist/components/flex-text-input.js');
+    $sharedChunks = glob(__DIR__.'/../../resources/dist/components/flex-fields-*.js');
+
+    expect($flexTextInputJs)
+        ->toContain('flex-fields-')
+        ->not->toContain('emoji-picker-element');
+
+    expect($sharedChunks)->not->toBeEmpty();
+});
+
+it('rewrites nested chunk imports to semantic names after build', function () {
+    $audioChunk = collect(glob(__DIR__.'/../../resources/dist/components/flex-fields-audio-*.js'))
+        ->first();
+
+    expect($audioChunk)->toBeString();
+
+    $source = file_get_contents($audioChunk);
+
+    expect($source)
+        ->toContain('flex-fields-dynamic-bars-')
+        ->not->toContain('chunk-');
+});

@@ -1,0 +1,39 @@
+.fff-user-column-playground__intro {
+    @apply mb-4 text-sm text-zinc-500;
+}
+
+.fff-user-column-playground__intro code {
+    @apply rounded bg-zinc-100 px-1 py-0.5 text-xs text-zinc-700;
+}
+
+.fff-user-column-playground__table-wrap {
+    @apply overflow-x-auto rounded-xl border border-zinc-200 bg-white;
+}
+
+.fff-user-column-playground__table {
+    @apply w-full min-w-[40rem] border-collapse text-left text-sm;
+}
+
+.fff-user-column-playground__table th {
+    @apply border-b border-zinc-200 bg-zinc-50 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-zinc-500;
+}
+
+.fff-user-column-playground__table td {
+    @apply border-b border-zinc-100 px-4 py-3 align-middle;
+}
+
+.fff-user-column-playground__table tr:last-child td {
+    @apply border-b-0;
+}
+
+.fff-user-column-playground__project {
+    @apply font-medium text-zinc-900;
+}
+
+.fff-user-column-playground__cell {
+    @apply min-w-[12rem];
+}
+
+.fff-user-column-playground__cell .fff-rating-column {
+    @apply whitespace-nowrap;
+}

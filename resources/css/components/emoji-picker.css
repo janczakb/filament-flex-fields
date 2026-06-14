@@ -1,0 +1,47 @@
+/* Shared floating emoji picker panel (flex-text-input + flex-textarea) */
+
+.fff-emoji-picker__panel {
+    @apply fixed z-[9999] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg;
+    width: min(100vw - 2rem, 21rem);
+}
+
+.fff-emoji-picker__loading {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+        linear-gradient(90deg, rgb(244 244 245) 0%, rgb(228 228 231) 50%, rgb(244 244 245) 100%);
+    background-size: 200% 100%;
+    animation: fff-emoji-picker-loading 1.2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes fff-emoji-picker-loading {
+    0% {
+        background-position: 100% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
+}
+
+.fff-emoji-picker__element {
+    --emoji-size: 1.375rem;
+    --num-columns: 8;
+    display: block;
+    width: min(100vw - 2rem, 21rem);
+    height: 22rem;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+.dark .fff-emoji-picker__panel {
+    @apply border-zinc-600 bg-zinc-800;
+}
+
+.dark .fff-emoji-picker__loading {
+    background:
+        linear-gradient(90deg, rgb(63 63 70) 0%, rgb(82 82 91) 50%, rgb(63 63 70) 100%);
+    background-size: 200% 100%;
+}

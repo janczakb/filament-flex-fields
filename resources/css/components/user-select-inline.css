@@ -1,0 +1,507 @@
+/* UserSelect */
+
+.fff-user-select,
+.fff-select-dropdown-panel--user-select {
+    --fff-user-select-avatar-size: 2rem;
+    --fff-user-select-trigger-min-h: calc(var(--fff-select-min-h) + 0.625rem);
+}
+
+.fff-user-select.fff-select-field--sm {
+    --fff-user-select-avatar-size: 1.75rem;
+}
+
+.fff-user-select.fff-select-field--lg {
+    --fff-user-select-avatar-size: 2.25rem;
+}
+
+.fff-user-select-option {
+    @apply inline-flex min-w-0 max-w-full items-center gap-3;
+}
+
+.fff-user-select-option--list {
+    @apply w-full;
+}
+
+.fff-user-select-option--trigger {
+    @apply gap-2.5;
+}
+
+.fff-user-select-option__content {
+    @apply min-w-0 flex flex-col;
+}
+
+.fff-user-select-option__name {
+    @apply truncate text-sm font-medium leading-snug text-zinc-900;
+}
+
+.fff-user-select-option__email {
+    @apply truncate text-xs leading-tight text-zinc-500;
+}
+
+.fff-user-select__avatar {
+    @apply relative inline-flex shrink-0 items-center justify-center overflow-visible;
+    height: var(--fff-user-select-avatar-size);
+    width: var(--fff-user-select-avatar-size);
+}
+
+.fff-user-select__avatar-surface {
+    @apply flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-b from-blue-300 to-blue-500 text-white;
+}
+
+.fff-user-select__avatar-image {
+    @apply block h-full w-full object-cover;
+}
+
+.fff-user-select__avatar-initials {
+    @apply font-semibold uppercase;
+    font-size: calc(var(--fff-user-select-avatar-size) * 0.34);
+}
+
+.fff-user-select__verified-badge {
+    @apply absolute z-[1] inline-flex items-center justify-center rounded-full bg-white text-blue-500 shadow-sm ring-1 ring-white;
+    bottom: -0.0625rem;
+    right: -0.0625rem;
+    height: 0.875rem;
+    width: 0.875rem;
+}
+
+.fff-user-select__verified-badge .fi-icon {
+    height: 0.75rem;
+    width: 0.75rem;
+}
+
+.fff-user-select--single.fff-select-field--rich-list-trigger .fi-select-input-value-label .fff-user-select-option--trigger,
+.fff-select-trigger-ssr--rich-list-trigger .fff-user-select-option--trigger {
+    @apply w-full;
+}
+
+.fff-user-select.fff-select-field--multiple .fi-select-input div[x-ref='select'],
+.fff-user-select.fff-select-field--multiple .fi-select-input-ctn {
+    height: auto !important;
+    min-height: var(--fff-user-select-trigger-min-h) !important;
+    max-height: none !important;
+}
+
+.fff-user-select.fff-select-field--multiple .fi-select-input-btn,
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr__btn {
+    height: auto !important;
+    min-height: var(--fff-user-select-trigger-min-h) !important;
+    max-height: none !important;
+    padding-block: 0.375rem !important;
+    align-items: center !important;
+    overflow: visible !important;
+}
+
+.fff-user-select.fff-select-field--multiple .fi-select-input-value-ctn,
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr__value-ctn {
+    display: flex !important;
+    align-items: center !important;
+    height: auto !important;
+    min-height: 0;
+    overflow: visible !important;
+}
+
+.fff-user-select.fff-select-field--multiple .fi-select-input-value-label,
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr__value-ctn .fi-select-input-value-label {
+    display: flex !important;
+    align-items: center !important;
+    align-self: center;
+    width: 100%;
+    min-height: 0;
+}
+
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr,
+.fff-user-select.fff-select-field--multiple.fff-select-trigger-ssr {
+    height: auto !important;
+    min-height: var(--fff-user-select-trigger-min-h) !important;
+    max-height: none !important;
+}
+
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr--multiple .fff-select-trigger-ssr__btn {
+    min-height: var(--fff-user-select-trigger-min-h) !important;
+    max-height: none !important;
+    overflow: visible !important;
+    align-items: center !important;
+}
+
+.fff-user-select.fff-select-field--multiple .fff-select-trigger-ssr--multiple .fff-select-trigger-ssr__value-ctn {
+    overflow: visible !important;
+    align-items: center !important;
+}
+
+.fff-user-select--single .fi-select-input div[x-ref='select'],
+.fff-user-select--single .fi-select-input-ctn,
+.fff-user-select--single .fi-select-input-btn,
+.fff-user-select--single .fff-select-trigger-ssr,
+.fff-user-select--single .fff-select-trigger-ssr__btn {
+    min-height: var(--fff-user-select-trigger-min-h) !important;
+}
+
+.fff-user-select--single .fi-select-input-btn,
+.fff-user-select--single .fff-select-trigger-ssr__btn {
+    padding-block: 0.375rem !important;
+    align-items: center !important;
+}
+
+.fff-user-select--single .fi-select-input-value-ctn,
+.fff-user-select--single .fff-select-trigger-ssr__value-ctn,
+.fff-user-select--single .fi-select-input-value-label {
+    display: flex !important;
+    align-items: center !important;
+}
+
+.fff-user-select__trigger-names {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: rgb(24 24 27);
+}
+
+.fff-user-select__dropdown-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    padding: 0.25rem;
+}
+
+.fff-user-select__dropdown-skeleton-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.75rem;
+}
+
+.fff-user-select__dropdown-skeleton-avatar {
+    flex-shrink: 0;
+    width: var(--fff-user-select-avatar-size);
+    height: var(--fff-user-select-avatar-size);
+    border-radius: 9999px;
+    background: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0.55) 0%,
+        rgb(212 212 216 / 0.9) 50%,
+        rgb(228 228 231 / 0.55) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-user-select-skeleton-pulse 1.35s ease-in-out infinite;
+    animation-delay: calc(var(--fff-user-select-skeleton-i, 0) * 90ms);
+}
+
+.fff-user-select__dropdown-skeleton-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+    padding-inline-end: 0.25rem;
+}
+
+.fff-user-select__dropdown-skeleton-line {
+    display: block;
+    height: 0.625rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0.65) 0%,
+        rgb(212 212 216 / 0.95) 50%,
+        rgb(228 228 231 / 0.65) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-user-select-skeleton-pulse 1.35s ease-in-out infinite;
+    animation-delay: calc((var(--fff-user-select-skeleton-i, 0) * 90ms) + 45ms);
+}
+
+.fff-user-select__dropdown-skeleton-line.is-primary {
+    width: 72%;
+}
+
+.fff-user-select__dropdown-skeleton-line.is-secondary {
+    width: 48%;
+    height: 0.5rem;
+    opacity: 0.72;
+}
+
+@keyframes fff-user-select-skeleton-pulse {
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-user-select__dropdown-skeleton-avatar,
+    .fff-user-select__dropdown-skeleton-line {
+        animation: none;
+    }
+}
+
+.dark .fff-user-select__dropdown-skeleton-avatar,
+.dark .fff-user-select__dropdown-skeleton-line {
+    background: linear-gradient(
+        90deg,
+        rgb(63 63 70 / 0.75) 0%,
+        rgb(82 82 91 / 0.95) 50%,
+        rgb(63 63 70 / 0.75) 100%
+    );
+    background-size: 200% 100%;
+}
+
+.fff-user-select__dropdown-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.25rem 1rem 1.5rem;
+    text-align: center;
+}
+
+.fff-user-select__dropdown-empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 9999px;
+    background: rgb(244 244 245);
+    color: rgb(161 161 170);
+}
+
+.fff-user-select__dropdown-empty-icon .fi-icon {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+}
+
+.fff-user-select__dropdown-empty-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    color: rgb(39 39 42);
+}
+
+.fff-user-select__dropdown-empty-hint {
+    max-width: 14rem;
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    color: rgb(113 113 122);
+}
+
+.dark .fff-user-select__dropdown-empty-icon {
+    background: rgb(39 39 42);
+    color: rgb(161 161 170);
+}
+
+.dark .fff-user-select__dropdown-empty-title {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-user-select__dropdown-empty-hint {
+    color: rgb(161 161 170);
+}
+
+.fff-user-select__selected-tags {
+    --fff-tags-field-accent: var(--primary-500, rgb(99 102 241));
+    --fff-tags-field-tag-bg: rgb(255 255 255);
+    --fff-tags-field-tag-text: color-mix(in srgb, var(--fff-tags-field-accent) 78%, rgb(24 24 27));
+    --fff-tags-field-tag-border: color-mix(in srgb, var(--fff-tags-field-accent) 32%, rgb(212 212 216));
+    --fff-tags-field-remove-bg: rgb(255 255 255);
+    --fff-tags-field-remove-border: rgb(212 212 216);
+    --fff-tags-field-remove-text: rgb(63 63 70);
+    --fff-tags-field-remove-hover-bg: rgb(254 226 226);
+    --fff-tags-field-remove-hover-border: rgb(252 165 165);
+    --fff-tags-field-remove-hover-text: rgb(185 28 28);
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+    padding-top: 0.125rem;
+}
+
+.fff-user-select__selected-tags[hidden] {
+    display: none !important;
+}
+
+.dark .fff-user-select__selected-tags {
+    --fff-tags-field-tag-bg: color-mix(in srgb, var(--fff-tags-field-accent) 14%, rgb(39 39 42));
+    --fff-tags-field-tag-text: color-mix(in srgb, var(--fff-tags-field-accent) 42%, rgb(244 244 245));
+    --fff-tags-field-tag-border: color-mix(in srgb, var(--fff-tags-field-accent) 34%, rgb(82 82 91));
+    --fff-tags-field-remove-bg: rgb(39 39 42);
+    --fff-tags-field-remove-border: rgb(82 82 91);
+    --fff-tags-field-remove-text: rgb(212 212 216);
+    --fff-tags-field-remove-hover-bg: rgb(127 29 29 / 0.45);
+    --fff-tags-field-remove-hover-border: rgb(248 113 113);
+    --fff-tags-field-remove-hover-text: rgb(254 202 202);
+}
+
+.fff-user-select__selected-tags .fff-tags-field__tag {
+    padding-inline-start: calc(0.75rem - 2px);
+}
+
+.fff-user-select__selected-tag-content {
+    display: inline-flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    align-items: center;
+}
+
+.fff-user-select__selected-tags .fff-user-select-option--tag {
+    @apply inline-flex min-w-0 items-center gap-2;
+}
+
+.fff-user-select__selected-tags .fff-user-select-option--tag .fff-user-select-option__name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--fff-tags-field-tag-text);
+}
+
+.fff-user-select__selected-tags .fff-user-select__avatar--tag {
+    height: 1.25rem;
+    width: 1.25rem;
+}
+
+.fff-user-select__selected-tags .fff-user-select__avatar--tag .fff-user-select__avatar-initials {
+    font-size: 0.4375rem;
+}
+
+.fff-user-select__selected-tags .fff-user-select__avatar--tag .fff-user-select__verified-badge {
+    height: 0.5rem;
+    width: 0.5rem;
+}
+
+.fff-user-select__selected-tags .fff-user-select__avatar--tag .fff-user-select__verified-badge .fi-icon {
+    height: 0.375rem;
+    width: 0.375rem;
+}
+
+.fi-disabled .fff-user-select__selected-tag-remove {
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select-option--list {
+    @apply w-full min-w-0 items-center gap-3;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select__avatar--list {
+    height: 2.25rem;
+    width: 2.25rem;
+    flex-shrink: 0;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select__avatar--list .fff-user-select__avatar-surface {
+    height: 100%;
+    width: 100%;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select__avatar-image {
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select-option__name {
+    @apply font-medium text-zinc-900;
+}
+
+.fff-user-select .fi-dropdown-panel .fff-user-select-option__email {
+    @apply text-zinc-500;
+}
+
+.fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option--list {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+.fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option__content {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    overflow: visible;
+}
+
+.fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option__name,
+.fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option__email {
+    overflow: visible;
+    text-overflow: unset;
+    white-space: normal;
+    word-break: break-word;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select-option--list {
+    display: flex !important;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select__avatar--list {
+    height: 2.25rem !important;
+    width: 2.25rem !important;
+    flex-shrink: 0;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select__avatar--list .fff-user-select__avatar-surface {
+    height: 100%;
+    width: 100%;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select__avatar-image {
+    display: block;
+    height: 100%;
+    width: 100%;
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: cover;
+}
+
+.fff-select-dropdown-panel--user-select .fff-select-option-selected-row__label .fff-user-select-option--list {
+    display: flex !important;
+    grid-template-columns: unset !important;
+}
+
+.fff-user-select--multiple .fi-select-input-value-badges-ctn {
+    display: none;
+}
+
+.fff-user-select .fi-select-input-btn,
+.fff-user-select .fi-select-input-value-ctn,
+.fff-user-select .fi-select-input-value-label,
+.fff-user-select-trigger-ssr .fff-select-trigger-ssr__btn,
+.fff-user-select-trigger-ssr .fff-select-trigger-ssr__value-ctn,
+.fff-user-select-trigger-ssr .fi-select-input-value-label,
+.fff-user-select-trigger-ssr.fff-select-trigger-ssr--multiple .fff-select-trigger-ssr__value-ctn {
+    overflow: visible;
+}
+
+.fff-user-select-option--trigger .fff-user-select__avatar,
+.fff-user-select-option--list .fff-user-select__avatar {
+    margin-block-end: 0.125rem;
+    margin-inline-end: 0.125rem;
+}
+
+.fff-user-select .fff-select-trigger-ssr:not(.is-replaced) {
+    min-height: var(--fff-user-select-trigger-min-h);
+}

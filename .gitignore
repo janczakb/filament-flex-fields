@@ -1,0 +1,51 @@
+# Filament Flex Fields — gitignore
+#
+# Ignored: dependencies, tool caches/output, IDE/OS junk, secrets.
+#
+# Intentionally TRACKED (do not add here):
+#   - phpunit.xml, phpstan.neon, tests/     — dev config & tests for contributors
+#   - src/Support/Playground/, FlexFieldsPlayground page — optional dev UI in the package
+#   - resources/dist/                       — pre-built CSS/JS for consumers without Node
+#
+# Ignored below are caches only — NOT phpunit.xml / phpstan.neon themselves.
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# PHPUnit / Pest
+.phpunit.cache/
+.phpunit.result.cache
+/vendor/pestphp/pest/.temp/
+
+# Coverage
+/coverage/
+*.cov
+.nyc_output/
+
+# PHPStan / build
+/build/
+phpstan.neon.dist.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & environment
+*.log
+.env
+.env.*
+!.env.example
+
+# npm
+.npm-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

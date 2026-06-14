@@ -1,0 +1,337 @@
+/* ── Progress circle ──────────────────────────────────────────────────────── */
+
+@property --fff-progress-circle-fill-ratio {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+.fff-progress-circle {
+    --fff-progress-circle-size: 7.5rem;
+    --fff-progress-circle-display-size: 1.5rem;
+    --fff-progress-circle-fraction-size: 0.875rem;
+    --fff-progress-circle-label-size: 0.8125rem;
+    --fff-progress-fill-duration: 240ms;
+    --fff-progress-circle-accent: var(--primary-500, rgb(99 102 241));
+    --fff-progress-circle-track: rgb(228 228 231);
+    --fff-progress-circle-text: rgb(24 24 27);
+    --fff-progress-circle-text-muted: rgb(113 113 122);
+
+    display: inline-flex;
+    width: var(--fff-progress-circle-size);
+    max-width: 100%;
+}
+
+.fff-progress-circle--sm {
+    --fff-progress-circle-size: 5.5rem;
+    --fff-progress-circle-display-size: 1.125rem;
+    --fff-progress-circle-fraction-size: 0.75rem;
+    --fff-progress-circle-label-size: 0.75rem;
+}
+
+.fff-progress-circle--lg {
+    --fff-progress-circle-size: 10rem;
+    --fff-progress-circle-display-size: 2rem;
+    --fff-progress-circle-fraction-size: 1rem;
+    --fff-progress-circle-label-size: 0.875rem;
+}
+
+.fff-progress-circle.fi-color-primary {
+    --fff-progress-circle-accent: var(--primary-500, rgb(99 102 241));
+}
+
+.fff-progress-circle.fi-color-success {
+    --fff-progress-circle-accent: rgb(34 197 94);
+}
+
+.fff-progress-circle.fi-color-warning {
+    --fff-progress-circle-accent: rgb(245 158 11);
+}
+
+.fff-progress-circle.fi-color-danger {
+    --fff-progress-circle-accent: rgb(239 68 68);
+}
+
+.dark .fff-progress-circle.fi-color-primary {
+    --fff-progress-circle-accent: var(--primary-400, rgb(129 140 248));
+}
+
+.dark .fff-progress-circle {
+    --fff-progress-circle-track: rgb(63 63 70);
+    --fff-progress-circle-text: rgb(250 250 250);
+    --fff-progress-circle-text-muted: rgb(161 161 170);
+}
+
+.fff-progress-circle.has-shell,
+.fff-progress-circle.has-card-chrome {
+    width: 100%;
+}
+
+.fff-progress-circle__card {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    background: rgb(255 255 255);
+    box-shadow:
+        0 1px 3px rgb(0 0 0 / 0.08),
+        0 4px 16px rgb(0 0 0 / 0.06);
+}
+
+.dark .fff-progress-circle__card {
+    background: rgb(24 24 27);
+    box-shadow:
+        0 1px 3px rgb(0 0 0 / 0.24),
+        0 4px 16px rgb(0 0 0 / 0.18);
+}
+
+.fff-progress-circle.has-shell .fff-progress-circle__card {
+    padding: 1.25rem;
+}
+
+.fff-progress-circle__card-heading {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--fff-progress-circle-text);
+}
+
+.fff-progress-circle__card-description {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--fff-progress-circle-text-muted);
+}
+
+.fff-progress-circle__card-footer {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--fff-progress-circle-text-muted);
+    border-top: 1px solid rgb(228 228 231);
+    padding-top: 0.75rem;
+}
+
+.dark .fff-progress-circle__card-footer {
+    border-top-color: rgb(63 63 70);
+}
+
+.fff-progress-circle__body {
+    display: flex;
+    justify-content: center;
+}
+
+.fff-progress-circle__frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.fff-progress-circle--layout-left .fff-progress-circle__frame,
+.fff-progress-circle--layout-right .fff-progress-circle__frame {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.fff-progress-circle--layout-right .fff-progress-circle__frame {
+    flex-direction: row-reverse;
+}
+
+.fff-progress-circle__ring {
+    position: relative;
+    width: var(--fff-progress-circle-size);
+    max-width: 100%;
+    flex-shrink: 0;
+}
+
+.fff-progress-circle--circle .fff-progress-circle__ring {
+    aspect-ratio: 1;
+}
+
+.fff-progress-circle--semicircle .fff-progress-circle__ring {
+    aspect-ratio: 100 / var(--fff-progress-circle-view-height, 64);
+}
+
+.fff-progress-circle__svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.fff-progress-circle__track,
+.fff-progress-circle__fill {
+    stroke-linecap: round;
+}
+
+.fff-progress-circle__track {
+    stroke: var(--fff-progress-circle-track);
+}
+
+.fff-progress-circle__fill {
+    stroke: var(--fff-progress-circle-accent);
+    stroke-dasharray: calc(var(--fff-progress-circle-fill-ratio) * var(--fff-progress-circle-arc-length)) var(--fff-progress-circle-circumference);
+    transition: --fff-progress-circle-fill-ratio var(--fff-progress-fill-duration) ease;
+}
+
+.fff-progress-circle.is-fill-static .fff-progress-circle__fill {
+    transition: none;
+}
+
+.fff-progress-circle__center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    padding: 0.75rem;
+    text-align: center;
+    pointer-events: none;
+}
+
+.fff-progress-circle--semicircle .fff-progress-circle__center {
+    justify-content: flex-end;
+    align-items: center;
+    inset: 0 12% var(--fff-progress-circle-semicircle-floor-inset, 8%) 12%;
+    padding: 0;
+}
+
+.fff-progress-circle--semicircle.has-below-label .fff-progress-circle__frame {
+    gap: 0.375rem;
+}
+
+.fff-progress-circle--circle.has-gap-arc .fff-progress-circle__center {
+    justify-content: center;
+    align-items: center;
+}
+
+.fff-progress-circle.has-gradient .fff-progress-circle__fill {
+    stroke: none;
+}
+
+.fff-progress-circle.has-track-gradient .fff-progress-circle__track {
+    stroke: none;
+}
+
+.fff-progress-circle.has-gradient .fff-progress-circle__display-value {
+    color: var(--fff-progress-circle-accent);
+}
+
+.fff-progress-circle__display-value {
+    font-size: var(--fff-progress-circle-display-size);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--fff-progress-circle-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-circle__fraction {
+    font-size: var(--fff-progress-circle-fraction-size);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--fff-progress-circle-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-circle__label {
+    font-size: var(--fff-progress-circle-label-size);
+    line-height: 1.2;
+    color: var(--fff-progress-circle-text-muted);
+}
+
+.fff-progress-circle__side-content {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.fff-progress-circle__side-content--left {
+    text-align: left;
+}
+
+.fff-progress-circle__side-content--right {
+    text-align: right;
+}
+
+.fff-progress-circle__side-label {
+    font-size: var(--fff-progress-circle-label-size);
+    line-height: 1.3;
+    color: var(--fff-progress-circle-text-muted);
+}
+
+.fff-progress-circle__side-fraction {
+    font-size: var(--fff-progress-circle-fraction-size);
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--fff-progress-circle-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-circle__side-value {
+    font-size: var(--fff-progress-circle-display-size);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--fff-progress-circle-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.fff-progress-circle__above-content {
+    width: 100%;
+    text-align: center;
+}
+
+.fff-progress-circle__above-label {
+    font-size: var(--fff-progress-circle-label-size);
+    line-height: 1.3;
+    color: var(--fff-progress-circle-text-muted);
+}
+
+.fff-progress-circle__below-content {
+    width: 100%;
+    max-width: var(--fff-progress-circle-size);
+    text-align: center;
+}
+
+.fff-progress-circle__below-label {
+    font-size: var(--fff-progress-circle-label-size);
+    line-height: 1.3;
+    color: var(--fff-progress-circle-text-muted);
+}
+
+.fff-progress-circle__paused-stack {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fff-progress-circle__paused-ghost {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    opacity: 0.28;
+    filter: blur(0.5px);
+}
+
+.fff-progress-circle__paused-icon {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fff-progress-circle-accent);
+}
+
+.fff-progress-circle.is-paused .fff-progress-circle__fill {
+    opacity: 0.45;
+}

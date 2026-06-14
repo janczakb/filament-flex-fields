@@ -1,0 +1,550 @@
+.fff-flex-checklist {
+    --fff-flex-checklist-accent: var(--primary-500, rgb(99 102 241));
+    --fff-flex-checklist-border: rgb(228 228 231);
+    --fff-flex-checklist-bg: rgb(255 255 255);
+    --fff-flex-checklist-row-hover: rgb(244 244 245);
+    --fff-flex-checklist-row-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 10%, var(--fff-flex-checklist-bg));
+    --fff-flex-checklist-muted: rgb(113 113 122);
+    --fff-flex-checklist-icon-bg: rgb(244 244 245);
+    --fff-flex-checklist-icon-bg-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 18%, var(--fff-flex-checklist-icon-bg));
+    --fff-flex-checklist-icon-border: rgb(228 228 231);
+    --fff-flex-checklist-icon-border-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 28%, var(--fff-flex-checklist-icon-border));
+    --fff-flex-checklist-icon-color: rgb(39 39 42);
+    --fff-flex-checklist-icon-color-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 68%, rgb(24 24 27));
+    --fff-flex-checklist-lock-color: rgb(161 161 170);
+
+    @apply flex w-full flex-col overflow-hidden;
+    border: var(--fff-surface-border-width) solid var(--fff-flex-checklist-border);
+    border-radius: var(--fff-flex-checklist-radius);
+    background: var(--fff-flex-checklist-bg);
+    box-shadow: var(--fff-surface-shadow);
+}
+
+.fff-flex-checklist--sm {
+    --fff-flex-checklist-radius: 0.625rem;
+    --fff-flex-checklist-row-py: 0.5rem;
+    --fff-flex-checklist-row-px: 0.625rem;
+    --fff-flex-checklist-gap: 0.625rem;
+    --fff-flex-checklist-label-size: 0.8125rem;
+    --fff-flex-checklist-body-size: 0.6875rem;
+    --fff-flex-checklist-icon-size: 0.9375rem;
+    --fff-flex-checklist-icon-box-size: 1.5rem;
+    --fff-flex-checklist-indicator-size: 0.875rem;
+    --fff-flex-checklist-indicator-icon-size: 0.5rem;
+    --fff-flex-checklist-lock-size: 0.875rem;
+}
+
+.fff-flex-checklist--md {
+    --fff-flex-checklist-radius: 0.75rem;
+    --fff-flex-checklist-row-py: 0.625rem;
+    --fff-flex-checklist-row-px: 0.75rem;
+    --fff-flex-checklist-gap: 0.75rem;
+    --fff-flex-checklist-label-size: 0.875rem;
+    --fff-flex-checklist-body-size: 0.75rem;
+    --fff-flex-checklist-icon-size: 1rem;
+    --fff-flex-checklist-icon-box-size: 1.75rem;
+    --fff-flex-checklist-indicator-size: 1rem;
+    --fff-flex-checklist-indicator-icon-size: 0.75rem;
+    --fff-flex-checklist-lock-size: 1rem;
+}
+
+.fff-flex-checklist--lg {
+    --fff-flex-checklist-radius: 1rem;
+    --fff-flex-checklist-row-py: 0.875rem;
+    --fff-flex-checklist-row-px: 1rem;
+    --fff-flex-checklist-gap: 1rem;
+    --fff-flex-checklist-label-size: 1rem;
+    --fff-flex-checklist-body-size: 0.875rem;
+    --fff-flex-checklist-icon-size: 1.125rem;
+    --fff-flex-checklist-icon-box-size: 2.25rem;
+    --fff-flex-checklist-indicator-size: 1.25rem;
+    --fff-flex-checklist-indicator-icon-size: 1rem;
+    --fff-flex-checklist-lock-size: 1.125rem;
+}
+
+.dark .fff-flex-checklist {
+    --fff-flex-checklist-border: rgb(63 63 70);
+    --fff-flex-checklist-bg: rgb(24 24 27);
+    --fff-flex-checklist-row-hover: rgb(39 39 42);
+    --fff-flex-checklist-row-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 16%, var(--fff-flex-checklist-bg));
+    --fff-flex-checklist-muted: rgb(161 161 170);
+    --fff-flex-checklist-icon-bg: rgb(39 39 42);
+    --fff-flex-checklist-icon-bg-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 24%, var(--fff-flex-checklist-icon-bg));
+    --fff-flex-checklist-icon-border: rgb(63 63 70);
+    --fff-flex-checklist-icon-border-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 34%, var(--fff-flex-checklist-icon-border));
+    --fff-flex-checklist-icon-color: rgb(228 228 231);
+    --fff-flex-checklist-icon-color-selected: color-mix(in srgb, var(--fff-flex-checklist-accent) 42%, white);
+    --fff-flex-checklist-lock-color: rgb(113 113 122);
+}
+
+.fff-flex-checklist.fi-color-primary {
+    --fff-flex-checklist-accent: var(--primary-500, rgb(99 102 241));
+}
+
+.fff-flex-checklist.fi-color-secondary {
+    --fff-flex-checklist-accent: var(--secondary-500, rgb(100 116 139));
+}
+
+.fff-flex-checklist.fi-color-success {
+    --fff-flex-checklist-accent: var(--success-500, rgb(34 197 94));
+}
+
+.fff-flex-checklist.fi-color-warning {
+    --fff-flex-checklist-accent: var(--warning-500, rgb(245 158 11));
+}
+
+.fff-flex-checklist.fi-color-danger {
+    --fff-flex-checklist-accent: var(--danger-500, rgb(239 68 68));
+}
+
+.fff-flex-checklist__item {
+    @apply relative flex w-full cursor-pointer items-center outline-none;
+    gap: var(--fff-flex-checklist-gap);
+    padding: var(--fff-flex-checklist-row-py) var(--fff-flex-checklist-row-px);
+    border-bottom: 1px solid var(--fff-flex-checklist-border);
+    transition: background-color 0.18s ease;
+}
+
+.fff-flex-checklist__item:last-child {
+    @apply border-b-0;
+}
+
+.fff-flex-checklist__item:hover:not(.is-disabled):not(.is-selected) {
+    background: var(--fff-flex-checklist-row-hover);
+}
+
+.fff-flex-checklist__item.is-selected {
+    background: var(--fff-flex-checklist-row-selected);
+}
+
+.fff-flex-checklist__item.is-disabled {
+    @apply cursor-not-allowed opacity-55;
+}
+
+.fff-flex-checklist__cell {
+    display: contents;
+}
+
+.fff-flex-checklist__selection-cell {
+    @apply inline-flex shrink-0 items-center;
+}
+
+.fff-flex-checklist__checkbox {
+    @apply inline-flex cursor-pointer items-center;
+}
+
+.fff-flex-checklist__control {
+    @apply pointer-events-none inline-flex items-center justify-center;
+}
+
+.fff-flex-checklist__content {
+    @apply flex min-w-0 flex-1 items-center;
+    gap: var(--fff-flex-checklist-gap);
+}
+
+.fff-flex-checklist.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.fff-flex-checklist__input {
+    @apply sr-only;
+}
+
+.fff-flex-checklist__indicator {
+    @apply inline-flex shrink-0 items-center justify-center rounded-md border-2;
+    width: var(--fff-flex-checklist-indicator-size);
+    height: var(--fff-flex-checklist-indicator-size);
+    border-color: rgb(212 212 216);
+    background: transparent;
+    transition:
+        border-color 0.22s ease,
+        background-color 0.22s ease,
+        color 0.22s ease,
+        transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fff-flex-checklist__item.is-selected .fff-flex-checklist__indicator {
+    border-color: var(--fff-flex-checklist-accent);
+    background: var(--fff-flex-checklist-accent);
+    color: rgb(255 255 255);
+    animation: fff-choice-cards-indicator-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fff-flex-checklist__indicator-icon {
+    width: var(--fff-flex-checklist-indicator-icon-size);
+    height: var(--fff-flex-checklist-indicator-icon-size);
+    flex-shrink: 0;
+    opacity: 0;
+    transform: scale(0.35);
+    transition:
+        opacity 0.16s ease 0.04s,
+        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.04s;
+}
+
+.fff-flex-checklist__item.is-selected .fff-flex-checklist__indicator-icon {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.fff-flex-checklist__icon-box {
+    @apply inline-flex shrink-0 items-center justify-center rounded-lg border;
+    width: var(--fff-flex-checklist-icon-box-size);
+    height: var(--fff-flex-checklist-icon-box-size);
+    border-color: var(--fff-flex-checklist-icon-border);
+    background: var(--fff-flex-checklist-icon-bg);
+    color: var(--fff-flex-checklist-icon-color);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.fff-flex-checklist__item.is-selected .fff-flex-checklist__icon-box {
+    border-color: var(--fff-flex-checklist-icon-border-selected);
+    background: var(--fff-flex-checklist-icon-bg-selected);
+    color: var(--fff-flex-checklist-icon-color-selected);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--fff-flex-checklist-accent) 16%, transparent);
+}
+
+.fff-flex-checklist__icon {
+    width: var(--fff-flex-checklist-icon-size);
+    height: var(--fff-flex-checklist-icon-size);
+}
+
+.fff-flex-checklist__icon svg {
+    @apply shrink-0;
+    width: 100%;
+    height: 100%;
+    stroke-width: 1.75;
+}
+
+.fff-flex-checklist__copy {
+    @apply flex min-w-0 flex-col gap-0.5;
+}
+
+.fff-flex-checklist__label {
+    @apply text-gray-900;
+    font-size: var(--fff-flex-checklist-label-size);
+    font-weight: 500;
+}
+
+.fff-flex-checklist__description {
+    @apply text-gray-500;
+    font-size: var(--fff-flex-checklist-body-size);
+}
+
+.fff-flex-checklist__action {
+    @apply ml-auto inline-flex shrink-0 items-center justify-center;
+    color: var(--fff-flex-checklist-lock-color);
+}
+
+.fff-flex-checklist__action-icon {
+    width: var(--fff-flex-checklist-lock-size);
+    height: var(--fff-flex-checklist-lock-size);
+}
+
+.dark .fff-flex-checklist__label {
+    @apply text-gray-100;
+}
+
+.dark .fff-flex-checklist__description {
+    color: var(--fff-flex-checklist-muted);
+}
+
+.fff-flex-checklist__item:focus,
+.fff-flex-checklist__item:focus-visible,
+.fff-flex-checklist__checkbox:focus-within {
+    @apply outline-none;
+    box-shadow: none;
+}
+
+.fff-flex-checklist__input:focus,
+.fff-flex-checklist__input:focus-visible {
+    @apply outline-none;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-flex-checklist__item,
+    .fff-flex-checklist__indicator,
+    .fff-flex-checklist__indicator-icon {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Flex radiolist                                                             */
+/* -------------------------------------------------------------------------- */
+
+.fff-flex-radiolist {
+    --fff-flex-radiolist-accent: var(--primary-500, rgb(99 102 241));
+    --fff-flex-radiolist-border: rgb(228 228 231);
+    --fff-flex-radiolist-bg: rgb(255 255 255);
+    --fff-flex-radiolist-row-hover: rgb(244 244 245);
+    --fff-flex-radiolist-row-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 10%, var(--fff-flex-radiolist-bg));
+    --fff-flex-radiolist-muted: rgb(113 113 122);
+    --fff-flex-radiolist-icon-bg: rgb(244 244 245);
+    --fff-flex-radiolist-icon-bg-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 18%, var(--fff-flex-radiolist-icon-bg));
+    --fff-flex-radiolist-icon-border: rgb(228 228 231);
+    --fff-flex-radiolist-icon-border-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 28%, var(--fff-flex-radiolist-icon-border));
+    --fff-flex-radiolist-icon-color: rgb(39 39 42);
+    --fff-flex-radiolist-icon-color-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 68%, rgb(24 24 27));
+    --fff-flex-radiolist-lock-color: rgb(161 161 170);
+
+    @apply flex w-full flex-col overflow-hidden;
+    border: var(--fff-surface-border-width) solid var(--fff-flex-radiolist-border);
+    border-radius: var(--fff-flex-radiolist-radius);
+    background: var(--fff-flex-radiolist-bg);
+    box-shadow: var(--fff-surface-shadow);
+}
+
+.fff-flex-radiolist--sm {
+    --fff-flex-radiolist-radius: 0.625rem;
+    --fff-flex-radiolist-row-py: 0.5rem;
+    --fff-flex-radiolist-row-px: 0.625rem;
+    --fff-flex-radiolist-gap: 0.625rem;
+    --fff-flex-radiolist-label-size: 0.8125rem;
+    --fff-flex-radiolist-body-size: 0.6875rem;
+    --fff-flex-radiolist-icon-size: 0.9375rem;
+    --fff-flex-radiolist-icon-box-size: 1.5rem;
+    --fff-flex-radiolist-indicator-size: 0.875rem;
+    --fff-flex-radiolist-lock-size: 0.875rem;
+}
+
+.fff-flex-radiolist--md {
+    --fff-flex-radiolist-radius: 0.75rem;
+    --fff-flex-radiolist-row-py: 0.625rem;
+    --fff-flex-radiolist-row-px: 0.75rem;
+    --fff-flex-radiolist-gap: 0.75rem;
+    --fff-flex-radiolist-label-size: 0.875rem;
+    --fff-flex-radiolist-body-size: 0.75rem;
+    --fff-flex-radiolist-icon-size: 1rem;
+    --fff-flex-radiolist-icon-box-size: 1.75rem;
+    --fff-flex-radiolist-indicator-size: 1rem;
+    --fff-flex-radiolist-lock-size: 1rem;
+}
+
+.fff-flex-radiolist--lg {
+    --fff-flex-radiolist-radius: 1rem;
+    --fff-flex-radiolist-row-py: 0.875rem;
+    --fff-flex-radiolist-row-px: 1rem;
+    --fff-flex-radiolist-gap: 1rem;
+    --fff-flex-radiolist-label-size: 1rem;
+    --fff-flex-radiolist-body-size: 0.875rem;
+    --fff-flex-radiolist-icon-size: 1.125rem;
+    --fff-flex-radiolist-icon-box-size: 2.25rem;
+    --fff-flex-radiolist-indicator-size: 1.25rem;
+    --fff-flex-radiolist-lock-size: 1.125rem;
+}
+
+.dark .fff-flex-radiolist {
+    --fff-flex-radiolist-border: rgb(63 63 70);
+    --fff-flex-radiolist-bg: rgb(24 24 27);
+    --fff-flex-radiolist-row-hover: rgb(39 39 42);
+    --fff-flex-radiolist-row-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 16%, var(--fff-flex-radiolist-bg));
+    --fff-flex-radiolist-muted: rgb(161 161 170);
+    --fff-flex-radiolist-icon-bg: rgb(39 39 42);
+    --fff-flex-radiolist-icon-bg-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 24%, var(--fff-flex-radiolist-icon-bg));
+    --fff-flex-radiolist-icon-border: rgb(63 63 70);
+    --fff-flex-radiolist-icon-border-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 34%, var(--fff-flex-radiolist-icon-border));
+    --fff-flex-radiolist-icon-color: rgb(228 228 231);
+    --fff-flex-radiolist-icon-color-selected: color-mix(in srgb, var(--fff-flex-radiolist-accent) 42%, white);
+    --fff-flex-radiolist-lock-color: rgb(113 113 122);
+}
+
+.fff-flex-radiolist.fi-color-primary {
+    --fff-flex-radiolist-accent: var(--primary-500, rgb(99 102 241));
+}
+
+.fff-flex-radiolist.fi-color-secondary {
+    --fff-flex-radiolist-accent: var(--secondary-500, rgb(100 116 139));
+}
+
+.fff-flex-radiolist.fi-color-success {
+    --fff-flex-radiolist-accent: var(--success-500, rgb(34 197 94));
+}
+
+.fff-flex-radiolist.fi-color-warning {
+    --fff-flex-radiolist-accent: var(--warning-500, rgb(245 158 11));
+}
+
+.fff-flex-radiolist.fi-color-danger {
+    --fff-flex-radiolist-accent: var(--danger-500, rgb(239 68 68));
+}
+
+.fff-flex-radiolist__item {
+    @apply relative flex w-full cursor-pointer items-center outline-none;
+    gap: var(--fff-flex-radiolist-gap);
+    padding: var(--fff-flex-radiolist-row-py) var(--fff-flex-radiolist-row-px);
+    border-bottom: 1px solid var(--fff-flex-radiolist-border);
+    transition: background-color 0.18s ease;
+}
+
+.fff-flex-radiolist__item:last-child {
+    @apply border-b-0;
+}
+
+.fff-flex-radiolist__item:hover:not(.is-disabled):not(.is-selected) {
+    background: var(--fff-flex-radiolist-row-hover);
+}
+
+.fff-flex-radiolist__item.is-selected {
+    background: var(--fff-flex-radiolist-row-selected);
+}
+
+.fff-flex-radiolist__item.is-disabled {
+    @apply cursor-not-allowed opacity-55;
+}
+
+.fff-flex-radiolist__cell {
+    display: contents;
+}
+
+.fff-flex-radiolist__selection-cell {
+    @apply inline-flex shrink-0 items-center;
+}
+
+.fff-flex-radiolist__radio {
+    @apply inline-flex cursor-pointer items-center;
+}
+
+.fff-flex-radiolist__control {
+    @apply pointer-events-none inline-flex items-center justify-center;
+}
+
+.fff-flex-radiolist__content {
+    @apply flex min-w-0 flex-1 items-center;
+    gap: var(--fff-flex-radiolist-gap);
+}
+
+.fff-flex-radiolist.is-disabled {
+    @apply pointer-events-none opacity-60;
+}
+
+.fff-flex-radiolist__input {
+    @apply sr-only;
+}
+
+.fff-flex-radiolist__indicator {
+    @apply inline-flex shrink-0 items-center justify-center;
+    width: var(--fff-flex-radiolist-indicator-size);
+    height: var(--fff-flex-radiolist-indicator-size);
+}
+
+.fff-flex-radiolist__indicator-dot {
+    @apply block rounded-full border-2;
+    width: 100%;
+    height: 100%;
+    border-color: rgb(212 212 216);
+    background: transparent;
+    transition:
+        border-color 0.22s ease,
+        border-width 0.22s ease,
+        transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fff-flex-radiolist__item.is-selected .fff-flex-radiolist__indicator-dot {
+    border-color: var(--fff-flex-radiolist-accent);
+    border-width: 0.3125rem;
+    transform: scale(1.04);
+    animation: fff-choice-cards-indicator-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fff-flex-radiolist__icon-box {
+    @apply inline-flex shrink-0 items-center justify-center rounded-lg border;
+    width: var(--fff-flex-radiolist-icon-box-size);
+    height: var(--fff-flex-radiolist-icon-box-size);
+    border-color: var(--fff-flex-radiolist-icon-border);
+    background: var(--fff-flex-radiolist-icon-bg);
+    color: var(--fff-flex-radiolist-icon-color);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    transition:
+        border-color 0.18s ease,
+        box-shadow 0.18s ease;
+}
+
+.fff-flex-radiolist__item.is-selected .fff-flex-radiolist__icon-box {
+    border-color: var(--fff-flex-radiolist-icon-border-selected);
+    background: var(--fff-flex-radiolist-icon-bg-selected);
+    color: var(--fff-flex-radiolist-icon-color-selected);
+    box-shadow: 0 1px 2px color-mix(in srgb, var(--fff-flex-radiolist-accent) 16%, transparent);
+}
+
+.fff-flex-radiolist__icon {
+    width: var(--fff-flex-radiolist-icon-size);
+    height: var(--fff-flex-radiolist-icon-size);
+}
+
+.fff-flex-radiolist__icon svg {
+    @apply shrink-0;
+    width: 100%;
+    height: 100%;
+    stroke-width: 1.75;
+}
+
+.fff-flex-radiolist__copy {
+    @apply flex min-w-0 flex-col gap-0.5;
+}
+
+.fff-flex-radiolist__label {
+    @apply text-gray-900;
+    font-size: var(--fff-flex-radiolist-label-size);
+    font-weight: 500;
+}
+
+.fff-flex-radiolist__description {
+    @apply text-gray-500;
+    font-size: var(--fff-flex-radiolist-body-size);
+}
+
+.fff-flex-radiolist__action {
+    @apply ml-auto inline-flex shrink-0 items-center justify-center;
+    color: var(--fff-flex-radiolist-lock-color);
+}
+
+.fff-flex-radiolist__action-icon {
+    width: var(--fff-flex-radiolist-lock-size);
+    height: var(--fff-flex-radiolist-lock-size);
+}
+
+.dark .fff-flex-radiolist__label {
+    @apply text-gray-100;
+}
+
+.dark .fff-flex-radiolist__description {
+    color: var(--fff-flex-radiolist-muted);
+}
+
+.fff-flex-radiolist--label-only .fff-flex-radiolist__content {
+    @apply items-center;
+}
+
+.fff-flex-radiolist--label-only .fff-flex-radiolist__copy {
+    @apply gap-0;
+}
+
+.fff-flex-radiolist--label-only .fff-flex-radiolist__label {
+    line-height: 1.25;
+}
+
+.fff-flex-radiolist__item:focus,
+.fff-flex-radiolist__item:focus-visible,
+.fff-flex-radiolist__radio:focus-within {
+    @apply outline-none;
+    box-shadow: none;
+}
+
+.fff-flex-radiolist__input:focus,
+.fff-flex-radiolist__input:focus-visible {
+    @apply outline-none;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-flex-radiolist__item,
+    .fff-flex-radiolist__indicator-dot {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}

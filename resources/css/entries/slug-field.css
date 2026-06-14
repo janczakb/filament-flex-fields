@@ -1,0 +1,10 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/SlugField.php";
+@source "../../src/Filament/Forms/Components/TitleSlugField.php";
+@source "../views/forms/components/slug-field.blade.php";
+
+@import "../components/title-slug-fused.css";
+@import "../components/slug-field.css";

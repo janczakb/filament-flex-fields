@@ -1,0 +1,13 @@
+/art/ export-ignore
+/docs/ export-ignore
+/tests/ export-ignore
+/scripts/ export-ignore
+/.github/ export-ignore
+/phpunit.xml export-ignore
+/phpstan.neon export-ignore
+/phpstan-baseline.neon export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/COMPONENTS.md export-ignore

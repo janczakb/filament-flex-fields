@@ -1,0 +1,201 @@
+/* ── Cover card (HeroUI-style media card) ─────────────────────────────────── */
+
+.fff-cover-card {
+    --fff-cover-card-radius: 1.25rem;
+    --fff-cover-card-pad: 1.25rem;
+    --fff-cover-card-max-width: 20rem;
+    --fff-cover-card-top-title-size: 1.125rem;
+    --fff-cover-card-top-description-size: 0.875rem;
+    --fff-cover-card-footer-title-size: 1rem;
+    --fff-cover-card-footer-description-size: 0.875rem;
+    --fff-cover-card-title-weight: 600;
+    --fff-cover-card-description-weight: 400;
+    --fff-cover-card-text: rgb(24 24 27);
+    --fff-cover-card-text-muted: rgb(82 82 91);
+    --fff-cover-card-scrim: linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0) 0%,
+        rgb(0 0 0 / 0.03) 55%,
+        rgb(0 0 0 / 0.08) 100%
+    );
+    --fff-cover-card-top-overlay: linear-gradient(180deg, #00000036 0%, #00000021 42%, #00000000 100%);
+    --fff-cover-card-footer-overlay: linear-gradient(0deg, #00000036 0%, #00000021 42%, #00000000 100%);
+
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: var(--fff-cover-card-max-width);
+    overflow: hidden;
+    border-radius: var(--fff-cover-card-radius);
+    isolation: isolate;
+}
+
+.fff-cover-card.is-full-width {
+    max-width: none;
+}
+
+.fff-cover-card--radius-md {
+    --fff-cover-card-radius: 0.75rem;
+}
+
+.fff-cover-card--radius-lg {
+    --fff-cover-card-radius: 1rem;
+}
+
+.fff-cover-card--radius-xl {
+    --fff-cover-card-radius: 1.25rem;
+}
+
+.fff-cover-card--radius-2xl {
+    --fff-cover-card-radius: 1.5rem;
+}
+
+.fff-cover-card--tone-light {
+    --fff-cover-card-text: rgb(255 255 255);
+    --fff-cover-card-text-muted: rgb(255 255 255 / 0.78);
+    --fff-cover-card-scrim: linear-gradient(
+        180deg,
+        rgb(0 0 0 / 0.08) 0%,
+        rgb(0 0 0 / 0.18) 55%,
+        rgb(0 0 0 / 0.42) 100%
+    );
+}
+
+.fff-cover-card__background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: rgb(244 244 245);
+}
+
+.fff-cover-card__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: var(--fff-cover-card-scrim);
+}
+
+.fff-cover-card__overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.fff-cover-card__overlay--top {
+    top: 0;
+    height: 40%;
+    background: var(--fff-cover-card-top-overlay);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-mask-image: linear-gradient(180deg, #000 70%, #0000 100%);
+    mask-image: linear-gradient(180deg, #000 50%, #0000 100%);
+}
+
+.fff-cover-card__overlay--bottom {
+    bottom: 0;
+    height: 40%;
+    background: var(--fff-cover-card-footer-overlay);
+    -webkit-backdrop-filter: blur(10px) saturate(1.5);
+    backdrop-filter: blur(10px) saturate(1.5);
+    -webkit-mask-image: linear-gradient(0deg, #000 70%, #0000 100%);
+    mask-image: linear-gradient(0deg, #000 50%, #0000 100%);
+}
+
+.fff-cover-card__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: var(--fff-cover-card-pad);
+}
+
+.fff-cover-card__top,
+.fff-cover-card__footer-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.fff-cover-card__top-title,
+.fff-cover-card__footer-title {
+    font-size: var(--fff-cover-card-top-title-size);
+    font-weight: var(--fff-cover-card-title-weight);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--fff-cover-card-text);
+}
+
+.fff-cover-card__footer-title {
+    font-size: var(--fff-cover-card-footer-title-size);
+}
+
+.fff-cover-card__top-description,
+.fff-cover-card__footer-description {
+    font-size: var(--fff-cover-card-top-description-size);
+    font-weight: var(--fff-cover-card-description-weight);
+    line-height: 1.25;
+    color: var(--fff-cover-card-text-muted);
+}
+
+.fff-cover-card__footer-description {
+    font-size: var(--fff-cover-card-footer-description-size);
+}
+
+.fff-cover-card__footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.fff-cover-card__footer--action-only {
+    justify-content: flex-end;
+}
+
+.fff-cover-card__footer-copy {
+    flex: 1 1 auto;
+}
+
+.fff-cover-card__footer-action {
+    flex-shrink: 0;
+}
+
+.fff-cover-card__footer-action .fi-btn {
+    min-height: 2.25rem;
+    border-radius: 9999px;
+    border: 0;
+    background: rgb(255 255 255);
+    color: rgb(24 24 27);
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.08),
+        0 4px 12px rgb(0 0 0 / 0.08);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding-inline: 1.125rem;
+}
+
+.fff-cover-card__footer-action .fi-btn:hover {
+    background: rgb(250 250 250);
+}
+
+.fff-cover-card--tone-light .fff-cover-card__footer-action .fi-btn {
+    background: rgb(255 255 255);
+    color: rgb(24 24 27);
+}
+
+.dark .fff-cover-card--tone-dark {
+    --fff-cover-card-text: rgb(250 250 250);
+    --fff-cover-card-text-muted: rgb(161 161 170);
+}
+
+.dark .fff-cover-card__background {
+    background-color: rgb(39 39 42);
+}

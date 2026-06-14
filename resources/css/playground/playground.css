@@ -1,0 +1,367 @@
+/* Playground toolbar */
+.fff-playground-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.75rem;
+    background-color: #fff;
+}
+
+.dark .fff-playground-toolbar {
+    border-color: rgb(255 255 255 / 0.1);
+    background-color: rgb(24 24 27);
+}
+
+.fff-playground-toolbar__info {
+    min-width: 0;
+}
+
+.fff-playground-toolbar__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(17 24 39);
+}
+
+.dark .fff-playground-toolbar__title {
+    color: rgb(255 255 255);
+}
+
+.fff-playground-toolbar__text {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: rgb(107 114 128);
+}
+
+.dark .fff-playground-toolbar__text {
+    color: rgb(156 163 175);
+}
+
+.fff-playground-theme-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.75rem;
+    border: 0;
+    border-radius: 9999px;
+    background-color: rgb(243 244 246);
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.dark .fff-playground-theme-toggle {
+    background-color: rgb(255 255 255 / 0.08);
+}
+
+.fff-playground-theme-toggle:hover {
+    background-color: rgb(229 231 235);
+}
+
+.dark .fff-playground-theme-toggle:hover {
+    background-color: rgb(255 255 255 / 0.12);
+}
+
+.fff-playground-theme-toggle__label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(55 65 81);
+    white-space: nowrap;
+}
+
+.dark .fff-playground-theme-toggle__label {
+    color: rgb(229 231 235);
+}
+
+.fff-playground-theme-toggle__control {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 1.5rem;
+    border-radius: 9999px;
+    background-color: rgb(209 213 219);
+    transition: background-color 0.2s ease;
+}
+
+.dark .fff-playground-theme-toggle__control {
+    background-color: rgb(63 63 70);
+}
+
+.fff-playground-theme-toggle__control[data-checked='true'] {
+    background-color: rgb(79 70 229);
+}
+
+.dark .fff-playground-theme-toggle__control[data-checked='true'] {
+    background-color: rgb(99 102 241);
+}
+
+.fff-playground-theme-toggle__thumb {
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: #fff;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+    transition: transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.fff-playground-theme-toggle__control[data-checked='true'] .fff-playground-theme-toggle__thumb {
+    transform: translateX(1.25rem);
+}
+
+/* Playground variant rows */
+.fff-playground-section {
+    margin-bottom: 0.5rem;
+}
+
+.fff-playground-dark-card.fi-sc-section {
+    padding: 0;
+    background: transparent;
+}
+
+.fff-playground-dark-card.fi-sc-section > .fi-section {
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+}
+
+.fff-playground-dark-card .fi-section-header {
+    padding-inline: 0;
+    padding-top: 0;
+}
+
+.fff-playground-dark-card .fi-section-content-ctn {
+    padding-inline: 0;
+    padding-bottom: 0;
+}
+
+.dark .fff-playground-dark-card.fi-sc-section > .fi-section {
+    border-radius: 0.875rem;
+    background-color: rgb(24 24 27);
+    border: none;
+    box-shadow: none;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+.dark .fff-playground-dark-card .fi-section-header-heading {
+    color: rgb(250 250 250);
+}
+
+.dark .fff-playground-dark-card .fi-section-header-description {
+    color: rgb(161 161 170);
+}
+
+.fff-playground-progress-sizes {
+    gap: 1.25rem;
+}
+
+.fff-playground-variants {
+    align-items: start;
+}
+
+.fff-playground-variants .fi-fo-field {
+    margin-bottom: 0;
+}
+
+.fff-playground-variants .fi-fo-field-wrp-label span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgb(107 114 128);
+}
+
+.dark .fff-playground-variants .fi-fo-field-wrp-label span {
+    color: rgb(156 163 175);
+}
+
+.fff-playground-variants--stack {
+    margin-top: 0.75rem;
+}
+
+.fff-playground-variants--stack .fi-fo-field-content-col {
+    width: 100%;
+}
+
+@media (min-width: 1280px) {
+    .fff-playground-variants:not(.fff-playground-variants--stack) {
+        flex-wrap: nowrap;
+    }
+}
+
+/* Modern form layout demos (no Filament Section/Grid inside) */
+.fff-form-layouts-playground .fi-section-content-ctn {
+    gap: 2.5rem;
+}
+
+.fff-form-layout-demo__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+}
+
+.fff-form-layout-demo__header + .fff-item-card-stack,
+.fff-form-layout-demo__header + .item-card-group-host,
+.fff-form-layout-demo__header + .item-card-group {
+    margin-top: 0;
+}
+
+.fff-form-layout-demo__title {
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: rgb(24 24 27);
+}
+
+.dark .fff-form-layout-demo__title {
+    color: rgb(250 250 250);
+}
+
+.fff-form-layout-demo__description {
+    max-width: 42rem;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    color: rgb(113 113 122);
+}
+
+.dark .fff-form-layout-demo__description {
+    color: rgb(161 161 170);
+}
+
+.fff-form-layout {
+    width: 100%;
+    max-width: 42rem;
+}
+
+.fff-form-layout.fff-form-layout--grid {
+    max-width: none;
+}
+
+.fff-form-layout--wide {
+    max-width: none;
+}
+
+.fff-form-layout--grid {
+    max-width: none;
+    width: 100%;
+}
+
+.fff-form-layout--grid.fff-item-card-stack > .fi-sc.fi-grid {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .fff-form-layout--grid.fff-item-card-stack > .fi-sc.fi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .fff-form-layout--grid.fff-item-card-stack > .fi-sc.fi-grid > .fi-grid-col:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+}
+
+.fff-form-layout--grid .fi-grid-col {
+    display: flex;
+    min-width: 0;
+    width: 100%;
+}
+
+.fff-form-layout--grid .fi-grid-col > .fi-sc-component {
+    width: 100%;
+    min-width: 0;
+}
+
+.fff-form-layout--grid .item-card--form-panel {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+}
+
+.fff-form-layout__fields {
+    width: 100%;
+}
+
+.fff-form-layout__fields .fi-fo-field {
+    margin-bottom: 0;
+}
+
+.fff-form-layout__fields .fi-fo-field-wrp-label span {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgb(63 63 70);
+}
+
+.dark .fff-form-layout__fields .fi-fo-field-wrp-label span {
+    color: rgb(212 212 216);
+}
+
+.fff-form-layout .fff-segment-tabs {
+    width: 100%;
+}
+
+/* Playground — Dub-style stacked URL repeater (Linked to Repeater demo) */
+.fff-repeater-stacked-urls.fi-fo-simple-repeater {
+    @apply gap-y-3;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-items {
+    counter-reset: fff-stacked-url-row;
+    @apply flex flex-col gap-0 overflow-hidden rounded-xl bg-white shadow-xs ring-1 ring-gray-950/5 dark:bg-white/5 dark:ring-white/10;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item {
+    counter-increment: fff-stacked-url-row;
+    @apply relative flex items-stretch gap-0 border-b border-gray-200 dark:border-white/10;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item:last-child {
+    @apply border-b-0;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item::before {
+    content: counter(fff-stacked-url-row);
+    @apply flex w-10 shrink-0 items-center justify-center self-stretch border-e border-gray-200 bg-gray-50 text-xs font-semibold tabular-nums text-gray-600 dark:border-white/10 dark:bg-white/5 dark:text-gray-400;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item-content {
+    @apply min-w-0 flex-1;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item-actions {
+    @apply shrink-0 items-center self-stretch px-2;
+}
+
+.fff-repeater-stacked-urls .fi-fo-field {
+    @apply mb-0 gap-y-0;
+}
+
+.fff-repeater-stacked-urls .fff-flex-text-input {
+    @apply gap-0;
+}
+
+.fff-repeater-stacked-urls .fff-flex-text-input__shell {
+    @apply rounded-none border-0 bg-transparent shadow-none ring-0;
+}
+
+.fff-repeater-stacked-urls .fff-flex-text-input__shell:focus-within {
+    @apply ring-0;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-item:focus-within {
+    @apply bg-gray-50/80 dark:bg-white/5;
+}
+
+.fff-repeater-stacked-urls .fi-fo-simple-repeater-add {
+    @apply justify-start;
+}

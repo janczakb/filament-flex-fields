@@ -1,0 +1,508 @@
+.fff-date-time-field {
+    overflow: visible;
+    --fff-date-time-muted: rgb(113 113 122);
+    --fff-date-time-primary: var(--primary-500, var(--fff-flex-text-input-primary, rgb(59 130 246)));
+    --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 14%, transparent);
+    --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 35%, transparent);
+}
+
+.fi-fo-field:has(> .fi-fo-field-content-col .fff-date-time-field) > .fi-fo-field-content-col {
+    justify-items: start;
+}
+
+.fi-fo-field:has(.fff-date-time-field) .fi-fo-field-content-col {
+    overflow: visible;
+    justify-items: start;
+}
+
+.fi-fo-field.fff-date-time-field > .fi-fo-field-content-col {
+    justify-items: start;
+}
+
+.fi-fo-field-content-col > .fff-flex-text-input.fff-date-time-field {
+    @apply shrink-0 justify-self-start;
+    width: auto !important;
+    max-width: none !important;
+}
+
+.fff-flex-text-input.fff-date-time-field {
+    @apply shrink-0 justify-self-start;
+    display: block !important;
+    width: auto !important;
+    max-width: none !important;
+}
+
+.fff-date-time-field .fff-flex-text-input__shell {
+    display: inline-flex;
+    align-items: center;
+    width: auto;
+    max-width: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    vertical-align: top;
+}
+
+.fff-date-time-field--date:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: 16rem;
+    min-width: 16rem;
+}
+
+.fff-date-time-field--dateRange:has(.fff-date-time-field__suffix) {
+    --fff-date-time-range-shell-width: 22rem;
+}
+
+.fff-date-time-field--dateRange:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: var(--fff-date-time-range-shell-width);
+    min-width: var(--fff-date-time-range-shell-width);
+}
+
+.fff-date-time-field--dateTime:has(.fff-date-time-field__suffix) {
+    --fff-date-time-datetime-shell-width: 24rem;
+}
+
+.fff-date-time-field--dateTime:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: var(--fff-date-time-datetime-shell-width);
+    min-width: var(--fff-date-time-datetime-shell-width);
+}
+
+.fff-date-time-field--dateTime.fff-date-time-field--show-seconds:has(.fff-date-time-field__suffix) {
+    --fff-date-time-datetime-shell-width: 25rem;
+}
+
+.fff-date-time-field--month:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: 11rem;
+    min-width: 11rem;
+}
+
+.fff-date-time-field--month.fff-date-time-field--textual-month:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: fit-content;
+    min-width: calc(
+        var(--fff-date-time-month-ch, 9) * 1ch
+        + 2 * var(--fff-flex-text-input-p)
+        + var(--fff-flex-text-input-action-size)
+        + 0.125rem
+        + var(--fff-flex-text-input-group-inset)
+    );
+    max-width: 100%;
+}
+
+.fff-date-time-field--month.fff-date-time-field--textual-month:has([data-segment-part='year']):has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    min-width: calc(
+        var(--fff-date-time-month-ch, 9) * 1ch
+        + 2.75rem
+        + 0.75rem
+        + 2 * var(--fff-flex-text-input-p)
+        + var(--fff-flex-text-input-action-size)
+        + 0.125rem
+        + var(--fff-flex-text-input-group-inset)
+    );
+}
+
+.fff-date-time-field--textual-month:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row {
+    width: auto;
+}
+
+.fff-date-time-field--textual-month:has(.fff-date-time-field__suffix) .fff-date-time-field__segments {
+    flex: 0 0 auto;
+    overflow: visible;
+}
+
+.fff-date-time-field--date.fff-date-time-field--textual-month-long:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell,
+.fff-date-time-field--dateTime.fff-date-time-field--textual-month-long:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: fit-content;
+    min-width: 16rem;
+    max-width: 100%;
+}
+
+.fff-date-time-field--date.fff-date-time-field--textual-month-short:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: auto;
+    min-width: 14rem;
+    max-width: 100%;
+}
+
+.fff-date-time-field--year:has(.fff-date-time-field__suffix) .fff-flex-text-input__shell {
+    width: 9rem;
+    min-width: 9rem;
+}
+
+.fff-date-time-field__input-row {
+    @apply relative flex h-full min-h-full flex-nowrap items-center;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    gap: 0;
+    padding: var(--fff-flex-text-input-p);
+    font-size: var(--fff-flex-text-input-text-size);
+    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+}
+
+.fff-date-time-field__input-row:has(.fff-date-time-field__suffix) {
+    padding-inline-end: var(--fff-flex-text-input-group-inset);
+}
+
+.fff-date-time-field__input-row:not(:has(.fff-date-time-field__suffix)) {
+    display: inline-flex;
+}
+
+.fff-date-time-field--date:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--dateRange:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--dateTime:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--month:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--year:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--duration:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row,
+.fff-date-time-field--timeRange:has(.fff-date-time-field__suffix) .fff-date-time-field__input-row {
+    display: flex;
+    width: 100%;
+}
+
+.fff-date-time-field__calendar-button {
+    @apply inline-flex shrink-0 items-center justify-center rounded-full border-0 bg-transparent text-zinc-500 outline-none transition hover:bg-zinc-100/80 focus-visible:outline-none;
+    width: calc(var(--fff-flex-text-input-action-size) + 0.125rem);
+    height: calc(var(--fff-flex-text-input-action-size) + 0.125rem);
+}
+
+.fff-date-time-field__calendar-button:disabled {
+    @apply cursor-not-allowed opacity-60;
+}
+
+.fff-date-time-field__calendar-icon {
+    width: var(--fff-flex-text-input-icon-size) !important;
+    height: var(--fff-flex-text-input-icon-size) !important;
+}
+
+.fff-date-time-field__segments {
+    @apply inline-flex flex-nowrap items-center;
+    gap: 0;
+    min-width: 0;
+}
+
+.fff-date-time-field__input-row:has(.fff-date-time-field__suffix) .fff-date-time-field__segments {
+    flex: 0 1 auto;
+    overflow: hidden;
+}
+
+.fff-date-time-field--textual-month:has(.fff-date-time-field__suffix) .fff-date-time-field__segments {
+    flex: 0 0 auto;
+    overflow: visible;
+}
+
+.fff-date-time-field__suffix {
+    @apply inline-flex shrink-0 items-center justify-center;
+    flex: 0 0 calc(var(--fff-flex-text-input-action-size) + 0.125rem);
+    margin-inline-start: auto;
+    padding-inline-start: 0;
+}
+
+.fff-date-time-field__range-group {
+    @apply inline-flex shrink-0 flex-nowrap items-center;
+    gap: 0;
+}
+
+.fff-date-time-field__range-separator {
+    @apply inline-flex w-5 shrink-0 justify-center px-0 text-zinc-500;
+}
+
+.fff-date-time-field__segment {
+    @apply shrink-0 border-0 bg-transparent text-center font-normal tabular-nums outline-none ring-0 select-none focus:outline-none focus:ring-0;
+    box-sizing: border-box;
+    height: calc(var(--fff-flex-text-input-group-h) - 0.125rem);
+    line-height: calc(var(--fff-flex-text-input-group-h) - 0.125rem);
+    border-radius: 0.625rem;
+    padding-inline: 0;
+    font-size: inherit;
+    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+}
+
+.fff-date-time-field__segment[data-segment-part='month'],
+.fff-date-time-field__segment[data-segment-part='day'],
+.fff-date-time-field__segment[data-segment-part='hour'],
+.fff-date-time-field__segment[data-segment-part='minute'],
+.fff-date-time-field__segment[data-segment-part='second'] {
+    width: 1.75rem;
+    min-width: 1.75rem;
+    max-width: 1.75rem;
+}
+
+.fff-date-time-field__segment[data-segment-part='month'][data-month-display='short'],
+.fff-date-time-field__segment[data-segment-part='month'][data-month-display='long'] {
+    width: auto;
+    min-width: 0;
+    max-width: calc(var(--fff-date-time-month-ch, 9) * 1ch);
+    padding-inline: 0;
+    text-align: left;
+    font-variant-numeric: normal;
+    tabular-nums: normal;
+    field-sizing: content;
+}
+
+.fff-date-time-field__segment[data-segment-part='year'] {
+    width: 2.75rem;
+    min-width: 2.75rem;
+    max-width: 2.75rem;
+}
+
+.fff-date-time-field__segment[data-segment-part='dayPeriod'] {
+    width: 2rem;
+    min-width: 2rem;
+    max-width: 2rem;
+    text-transform: uppercase;
+}
+
+.fff-date-time-field__segment::placeholder {
+    color: var(--fff-date-time-muted);
+    font-weight: 400;
+}
+
+.fff-date-time-field__segment:focus {
+    background: var(--fff-date-time-segment-active-bg);
+    box-shadow: inset 0 0 0 1px var(--fff-date-time-segment-active-ring);
+    font-weight: 500;
+}
+
+.fff-date-time-field__time-segment:focus {
+    background: var(--fff-date-time-segment-active-bg);
+    box-shadow: inset 0 0 0 1px var(--fff-date-time-segment-active-ring);
+    border-radius: 0.625rem;
+    font-weight: 500;
+}
+
+.fff-date-time-field__segment:disabled {
+    @apply cursor-not-allowed opacity-60;
+}
+
+.fff-date-time-field__separator {
+    @apply inline-flex w-3 shrink-0 items-center justify-center px-0 text-zinc-400 select-none;
+    height: calc(var(--fff-flex-text-input-group-h) - 0.125rem);
+    line-height: 1;
+}
+
+.fff-date-time-field__timezone {
+    @apply ms-1 shrink-0 text-xs text-zinc-500;
+}
+
+.fff-date-time-field__calendar {
+    @apply fixed z-[80] flex flex-col overflow-hidden rounded-2xl border p-3;
+    --fff-date-time-primary: var(--primary-500, rgb(59 130 246));
+    --fff-date-time-range-bg: color-mix(in srgb, var(--fff-date-time-primary) 14%, transparent);
+    visibility: hidden;
+    min-width: 18rem;
+    border-color: var(--fff-date-time-menu-border, rgb(228 228 231 / 0.65)) !important;
+    background-color: var(--fff-date-time-menu-bg, rgb(255 255 255 / 0.9)) !important;
+    box-shadow: var(--fff-date-time-menu-shadow, 0 12px 28px -6px rgb(0 0 0 / 0.12)) !important;
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+.fff-date-time-field__calendar.is-positioned {
+    visibility: visible;
+}
+
+.fff-date-time-field__calendar-header {
+    @apply mb-2 flex items-center justify-between gap-2;
+}
+
+.fff-date-time-field__month-label {
+    @apply min-w-0 flex-1 truncate rounded-lg border-0 bg-transparent px-2 py-1 text-center text-sm font-semibold outline-none transition hover:bg-zinc-100/80;
+}
+
+.fff-date-time-field__nav-button {
+    @apply inline-flex h-8 w-8 items-center justify-center rounded-full border-0 bg-transparent text-zinc-600 outline-none transition hover:bg-zinc-100/80;
+}
+
+.fff-date-time-field__nav-icon {
+    width: 1rem !important;
+    height: 1rem !important;
+}
+
+.fff-date-time-field__weekdays {
+    @apply mb-1 grid grid-cols-7 gap-1 text-center text-xs font-medium text-zinc-500;
+}
+
+.fff-date-time-field__weekday {
+    @apply py-1;
+}
+
+.fff-date-time-field__grid {
+    @apply flex flex-col gap-1;
+}
+
+.fff-date-time-field__picker-grid {
+    @apply grid grid-cols-3 gap-1;
+}
+
+.fff-date-time-field__picker-cell {
+    @apply inline-flex h-9 items-center justify-center rounded-full border-0 bg-transparent px-2 text-sm font-medium text-zinc-700 outline-none transition;
+}
+
+.fff-date-time-field__picker-cell:hover:not(:disabled) {
+    @apply bg-zinc-100/80;
+}
+
+.fff-date-time-field__picker-cell.is-selected {
+    background-color: var(--fff-date-time-primary) !important;
+    color: white !important;
+}
+
+.fff-date-time-field__week {
+    @apply grid grid-cols-7;
+    gap: 0;
+}
+
+.fff-date-time-field__day {
+    @apply relative isolate flex h-9 w-full items-center justify-center border-0 bg-transparent p-0 text-sm font-medium text-zinc-700 outline-none transition;
+}
+
+.fff-date-time-field__day-label {
+    @apply relative z-[1] flex h-9 w-9 shrink-0 items-center justify-center rounded-full;
+}
+
+.fff-date-time-field__day:hover:not(:disabled):not(.is-range-start):not(.is-range-end):not(.is-in-range):not(.is-selected) .fff-date-time-field__day-label {
+    @apply bg-zinc-100/80;
+}
+
+.fff-date-time-field__day.is-selected .fff-date-time-field__day-label {
+    background-color: var(--fff-date-time-primary) !important;
+    color: white !important;
+}
+
+.fff-date-time-field__day.is-range-start:not(.is-range-single)::before,
+.fff-date-time-field__day.is-range-end:not(.is-range-single)::before,
+.fff-date-time-field__day.is-in-range::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    z-index: 0;
+    height: 2.25rem;
+    transform: translateY(-50%);
+    background-color: var(--fff-date-time-range-bg, rgb(59 130 246 / 0.14));
+}
+
+.fff-date-time-field__day.is-in-range::before {
+    left: 0;
+    right: 0;
+}
+
+.fff-date-time-field__day.is-range-start:not(.is-range-single)::before {
+    left: 50%;
+    right: 0;
+}
+
+.fff-date-time-field__day.is-range-end:not(.is-range-single)::before {
+    left: 0;
+    right: 50%;
+}
+
+.fff-date-time-field__day.is-in-range.is-range-row-start::before,
+.fff-date-time-field__day.is-range-end.is-range-row-start:not(.is-range-single)::before {
+    border-top-left-radius: 9999px;
+    border-bottom-left-radius: 9999px;
+}
+
+.fff-date-time-field__day.is-in-range.is-range-row-end::before,
+.fff-date-time-field__day.is-range-start.is-range-row-end:not(.is-range-single)::before {
+    border-top-right-radius: 9999px;
+    border-bottom-right-radius: 9999px;
+}
+
+.fff-date-time-field__day.is-range-start:not(.is-range-single) .fff-date-time-field__day-label,
+.fff-date-time-field__day.is-range-end:not(.is-range-single) .fff-date-time-field__day-label,
+.fff-date-time-field__day.is-range-single .fff-date-time-field__day-label {
+    background-color: var(--fff-date-time-primary) !important;
+    color: white !important;
+}
+
+.fff-date-time-field__day.is-range-start .fff-date-time-field__today-dot,
+.fff-date-time-field__day.is-range-end .fff-date-time-field__today-dot,
+.fff-date-time-field__day.is-range-single .fff-date-time-field__today-dot,
+.fff-date-time-field__day.is-selected .fff-date-time-field__today-dot {
+    background-color: white;
+}
+
+.fff-date-time-field__day.is-disabled,
+.fff-date-time-field__day.is-outside {
+    @apply cursor-default opacity-0;
+}
+
+.fff-date-time-field__day.is-disabled:not(.is-outside) {
+    @apply opacity-35;
+}
+
+.fff-date-time-field__today-dot {
+    @apply absolute bottom-1 h-1 w-1 rounded-full bg-current;
+}
+
+.fff-date-time-field__time-rows {
+    @apply mt-3 flex flex-col gap-2 border-t border-zinc-200/70 pt-3;
+}
+
+.fff-date-time-field__time-row {
+    @apply flex items-center gap-2;
+}
+
+.fff-date-time-field__time-label {
+    @apply w-20 shrink-0 text-xs font-medium text-zinc-500;
+}
+
+.fff-date-time-field__time-segments {
+    @apply inline-flex min-w-0 flex-1 flex-nowrap items-center gap-0 rounded-full bg-zinc-100/80 px-2 py-1;
+}
+
+.fff-date-time-field__time-separator {
+    @apply inline-flex w-3 shrink-0 justify-center text-zinc-400 select-none;
+}
+
+.fff-date-time-field__time-segment {
+    @apply border-0 bg-transparent px-0 py-0 text-center text-sm tabular-nums outline-none select-none;
+    width: 1.75rem;
+    min-width: 1.75rem;
+    max-width: 1.75rem;
+}
+
+.dark .fff-date-time-field {
+    --fff-date-time-muted: rgb(161 161 170);
+    --fff-date-time-primary: var(--primary-400, rgb(96 165 250));
+    --fff-date-time-segment-bg: rgb(63 63 70 / 0.72);
+    --fff-date-time-segment-active-bg: color-mix(in srgb, var(--fff-date-time-primary) 18%, transparent);
+    --fff-date-time-segment-active-ring: color-mix(in srgb, var(--fff-date-time-primary) 40%, transparent);
+}
+
+.dark .fff-date-time-field__calendar-button,
+.dark .fff-date-time-field__nav-button,
+.dark .fff-date-time-field__month-label {
+    @apply hover:bg-zinc-800/80 text-zinc-300;
+}
+
+.dark .fff-date-time-field__picker-cell {
+    @apply text-zinc-200;
+}
+
+.dark .fff-date-time-field__picker-cell:hover:not(:disabled) {
+    @apply bg-zinc-800/80;
+}
+
+.dark .fff-date-time-field__day {
+    @apply text-zinc-200;
+}
+
+.dark .fff-date-time-field__day:hover:not(:disabled):not(.is-range-start):not(.is-range-end):not(.is-in-range):not(.is-selected) .fff-date-time-field__day-label {
+    @apply bg-zinc-800/80;
+}
+
+.dark .fff-date-time-field__time-rows {
+    @apply border-zinc-700/70;
+}
+
+.dark .fff-date-time-field__time-segment {
+    @apply bg-zinc-800/80 text-zinc-100;
+}
+
+.fff-date-time-field--sm .fff-date-time-field__segment {
+    min-width: 2rem;
+    font-size: var(--fff-text-md);
+}
+
+.fff-date-time-field--lg .fff-date-time-field__segment {
+    min-width: 2.5rem;
+    font-size: var(--fff-text-lg);
+}
+

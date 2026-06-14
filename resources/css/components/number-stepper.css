@@ -1,0 +1,292 @@
+/* Number stepper — soft pill with white circular buttons */
+.fff-number-stepper {
+    @apply inline-flex shrink-0 items-center w-fit max-w-max justify-self-start rounded-full bg-gray-100;
+}
+
+.fi-fo-field:has(> .fi-fo-field-content-col .fff-number-stepper) > .fi-fo-field-content-col {
+    justify-items: start;
+}
+
+.fff-number-stepper.is-disabled {
+    @apply opacity-60 pointer-events-none;
+}
+
+.fff-number-stepper--sm {
+    min-height: var(--fff-track-h-sm);
+    padding: var(--fff-track-p-sm);
+    gap: var(--fff-track-gap-sm);
+}
+
+.fff-number-stepper--md {
+    min-height: var(--fff-track-h-md);
+    padding: var(--fff-track-p-md);
+    gap: var(--fff-track-gap-md);
+}
+
+.fff-number-stepper--lg {
+    min-height: var(--fff-track-h-lg);
+    padding: var(--fff-track-p-lg);
+    gap: var(--fff-track-gap-lg);
+}
+
+.fff-number-stepper__button {
+    @apply inline-flex shrink-0 items-center justify-center border-0 rounded-full bg-white cursor-pointer text-gray-700;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.06),
+        0 1px 3px rgb(0 0 0 / 0.08);
+    transition:
+        background-color 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease,
+        transform 0.15s ease;
+}
+
+.fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-gray-50;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.08),
+        0 2px 4px rgb(0 0 0 / 0.06);
+}
+
+.fff-number-stepper__button:active:not(:disabled) {
+    transform: scale(0.96);
+}
+
+.fff-number-stepper__button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.fff-number-stepper--sm .fff-number-stepper__button {
+    width: var(--fff-control-h-sm);
+    height: var(--fff-control-h-sm);
+}
+
+.fff-number-stepper--md .fff-number-stepper__button {
+    width: var(--fff-control-h-md);
+    height: var(--fff-control-h-md);
+}
+
+.fff-number-stepper--lg .fff-number-stepper__button {
+    width: var(--fff-control-h-lg);
+    height: var(--fff-control-h-lg);
+}
+
+.fff-number-stepper__icon {
+    display: block;
+    flex-shrink: 0;
+}
+
+.fff-number-stepper--sm .fff-number-stepper__icon {
+    width: var(--fff-icon-sm);
+    height: var(--fff-icon-sm);
+}
+
+.fff-number-stepper--md .fff-number-stepper__icon {
+    width: var(--fff-icon-md);
+    height: var(--fff-icon-md);
+}
+
+.fff-number-stepper--lg .fff-number-stepper__icon {
+    width: var(--fff-icon-lg);
+    height: var(--fff-icon-lg);
+}
+
+.fff-number-stepper__value {
+    @apply relative inline-grid shrink-0 px-1.5 font-semibold tabular-nums leading-none text-gray-900;
+    font-size: var(--fff-text-md);
+}
+
+.fff-number-stepper--sm .fff-number-stepper__value {
+    font-size: var(--fff-text-sm);
+}
+
+.fff-number-stepper--lg .fff-number-stepper__value {
+    font-size: var(--fff-text-lg);
+}
+
+.fff-number-stepper__value-sizer {
+    grid-area: 1 / 1;
+    visibility: hidden;
+    height: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.fff-number-stepper__value-display {
+    grid-area: 1 / 1;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-width: 0;
+}
+
+.fff-number-stepper__ssr-value,
+.fff-number-stepper__null-label,
+.fff-number-stepper__flow {
+    grid-area: 1 / 1;
+}
+
+.fff-number-stepper__ssr-value {
+    display: inline-block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    font-weight: inherit;
+    color: inherit;
+    white-space: nowrap;
+    opacity: 1;
+    visibility: visible;
+}
+
+.fff-number-stepper__ssr-value.is-replaced {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.fff-number-stepper__ssr-main {
+    display: inline-block;
+    line-height: 1;
+}
+
+.fff-number-stepper__ssr-suffix {
+    display: inline-block;
+    line-height: 1;
+    @apply font-medium text-gray-500;
+    font-size: 0.8125em;
+}
+
+.fff-number-stepper__null-label {
+    display: inline-block;
+    line-height: 1;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.fff-number-stepper__null-label.is-ready {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.fff-number-stepper__flow {
+    display: inline-block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    font-weight: inherit;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.fff-number-stepper__flow.is-ready {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.fff-number-stepper__flow::part(suffix) {
+    @apply font-medium text-gray-500;
+    font-size: 0.8125em;
+}
+
+.dark .fff-number-stepper {
+    @apply bg-white/8;
+}
+
+.dark .fff-number-stepper__button {
+    @apply bg-zinc-800 text-gray-200;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.35),
+        inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+
+.dark .fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-zinc-700;
+}
+
+.dark .fff-number-stepper__value {
+    @apply text-white;
+}
+
+.dark .fff-number-stepper__ssr-value {
+    color: inherit;
+}
+
+.dark .fff-number-stepper__ssr-suffix {
+    @apply text-gray-400;
+}
+
+.dark .fff-number-stepper__flow::part(suffix) {
+    @apply text-gray-400;
+}
+
+.fff-number-stepper--primary .fff-number-stepper__button {
+    @apply text-white;
+    background-color: var(--primary-600, rgb(79 70 229));
+    box-shadow: none;
+}
+
+.fff-number-stepper--primary .fff-number-stepper__button:hover:not(:disabled) {
+    background-color: var(--primary-700, rgb(67 56 202));
+}
+
+.fff-number-stepper--secondary .fff-number-stepper__button {
+    color: var(--primary-700, rgb(67 56 202));
+    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 16%, white);
+    box-shadow: none;
+}
+
+.fff-number-stepper--secondary .fff-number-stepper__button:hover:not(:disabled) {
+    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 24%, white);
+}
+
+.fff-number-stepper--tertiary .fff-number-stepper__button {
+    @apply bg-gray-200 text-gray-800;
+    box-shadow: none;
+}
+
+.fff-number-stepper--tertiary .fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-gray-300;
+}
+
+.fff-number-stepper--outline .fff-number-stepper__button {
+    @apply border border-gray-300 bg-white text-gray-800;
+    box-shadow: none;
+}
+
+.fff-number-stepper--outline .fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-gray-50;
+}
+
+.dark .fff-number-stepper--primary .fff-number-stepper__button {
+    background-color: var(--primary-500, rgb(99 102 241));
+}
+
+.dark .fff-number-stepper--primary .fff-number-stepper__button:hover:not(:disabled) {
+    background-color: var(--primary-400, rgb(129 140 248));
+}
+
+.dark .fff-number-stepper--secondary .fff-number-stepper__button {
+    color: var(--primary-300, rgb(165 180 252));
+    background-color: color-mix(in srgb, var(--primary-500, #6366f1) 22%, transparent);
+}
+
+.dark .fff-number-stepper--tertiary .fff-number-stepper__button {
+    @apply bg-zinc-700 text-gray-100;
+}
+
+.dark .fff-number-stepper--tertiary .fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-zinc-600;
+}
+
+.dark .fff-number-stepper--outline .fff-number-stepper__button {
+    @apply border-white/15 bg-zinc-900 text-gray-100;
+}
+
+.dark .fff-number-stepper--outline .fff-number-stepper__button:hover:not(:disabled) {
+    @apply bg-zinc-800;
+}

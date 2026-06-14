@@ -1,0 +1,537 @@
+.fff-flex-file-upload {
+    --fff-flex-file-upload-bg: var(--fff-field-bg);
+    --fff-flex-file-upload-border: var(--fff-field-border);
+    --fff-flex-file-upload-border-width: var(--fff-field-border-width);
+    --fff-flex-file-upload-shadow: var(--fff-field-shadow);
+    --fff-flex-file-upload-accent: var(--primary-500, rgb(59 130 246));
+    --fff-flex-file-upload-text: rgb(24 24 27);
+    --fff-flex-file-upload-muted: rgb(113 113 122);
+    --fff-flex-file-upload-radius: 1rem;
+    --fff-flex-file-upload-drop-min-h: 7rem;
+    --fff-flex-file-upload-text-size: var(--fff-text-md);
+    --fff-flex-file-upload-icon-size: 2.5rem;
+
+    @apply flex w-full flex-col gap-2;
+}
+
+.fff-flex-file-upload--sm {
+    --fff-flex-file-upload-drop-min-h: 5.5rem;
+    --fff-flex-file-upload-text-size: var(--fff-text-sm);
+    --fff-flex-file-upload-icon-size: 2rem;
+    --fff-flex-file-upload-radius: 0.875rem;
+}
+
+.fff-flex-file-upload--md {
+    --fff-flex-file-upload-drop-min-h: 7rem;
+    --fff-flex-file-upload-text-size: var(--fff-text-md);
+    --fff-flex-file-upload-icon-size: 2.5rem;
+    --fff-flex-file-upload-radius: 1rem;
+}
+
+.fff-flex-file-upload--lg {
+    --fff-flex-file-upload-drop-min-h: 9rem;
+    --fff-flex-file-upload-text-size: var(--fff-text-lg);
+    --fff-flex-file-upload-icon-size: 3rem;
+    --fff-flex-file-upload-radius: 1.125rem;
+}
+
+.fff-flex-file-upload--secondary {
+    --fff-flex-file-upload-bg: var(--fff-field-secondary-bg);
+    --fff-flex-file-upload-border: var(--fff-field-secondary-border);
+    --fff-flex-file-upload-border-width: var(--fff-field-secondary-border-width);
+    --fff-flex-file-upload-shadow: var(--fff-field-secondary-shadow);
+    --fff-flex-file-upload-accent: rgb(82 82 91);
+}
+
+.fff-flex-file-upload--flat {
+    --fff-flex-file-upload-bg: transparent;
+    --fff-flex-file-upload-border: rgb(228 228 231);
+    --fff-flex-file-upload-shadow: none;
+    --fff-flex-file-upload-accent: rgb(113 113 122);
+}
+
+.fff-flex-file-upload__shell {
+    @apply relative flex w-full flex-col gap-2;
+}
+
+.fff-flex-file-upload [x-cloak] {
+    display: none !important;
+}
+
+.fff-flex-file-upload__stage {
+    display: grid;
+    width: 100%;
+    min-height: var(--fff-flex-file-upload-drop-min-h);
+}
+
+.fff-flex-file-upload__stage > .fff-flex-file-upload__skeleton,
+.fff-flex-file-upload__stage > .fff-flex-file-upload__live {
+    grid-area: 1 / 1;
+    width: 100%;
+    min-width: 0;
+}
+
+.fff-flex-file-upload__skeleton {
+    z-index: 1;
+    pointer-events: none;
+    opacity: 1;
+    visibility: visible;
+    transition:
+        opacity 280ms ease,
+        visibility 280ms ease;
+}
+
+.fff-flex-file-upload__shell.is-ready .fff-flex-file-upload__skeleton {
+    opacity: 0;
+    visibility: hidden;
+    animation: none;
+}
+
+.fff-flex-file-upload__skeleton-dropzone {
+    position: relative;
+    display: flex;
+    min-height: var(--fff-flex-file-upload-drop-min-h);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    overflow: hidden;
+    border-radius: var(--fff-flex-file-upload-radius);
+    border: var(--fff-flex-file-upload-border-width) dashed var(--fff-flex-file-upload-border);
+    background: var(--fff-flex-file-upload-bg);
+    box-shadow: var(--fff-flex-file-upload-shadow);
+    padding: 1rem;
+}
+
+.fff-flex-file-upload__skeleton-icon {
+    display: block;
+    width: var(--fff-flex-file-upload-icon-size);
+    height: var(--fff-flex-file-upload-icon-size);
+    border-radius: 9999px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 14%, transparent) 0%,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 28%, transparent) 100%
+    );
+    animation: fff-flex-file-upload-skeleton-pulse 1.35s ease-in-out infinite;
+}
+
+.fff-flex-file-upload__skeleton-line {
+    display: block;
+    height: 0.75rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 12%, transparent) 0%,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 24%, transparent) 100%
+    );
+    animation: fff-flex-file-upload-skeleton-pulse 1.35s ease-in-out infinite;
+}
+
+.fff-flex-file-upload__skeleton-line.is-primary {
+    width: min(12rem, 70%);
+    animation-delay: 80ms;
+}
+
+.fff-flex-file-upload__skeleton-line.is-secondary {
+    width: min(6rem, 42%);
+    animation-delay: 160ms;
+}
+
+.fff-flex-file-upload__skeleton-shimmer {
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -45%;
+    width: 45%;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.5) 48%,
+        transparent 100%
+    );
+    mix-blend-mode: soft-light;
+    animation: fff-flex-file-upload-skeleton-shimmer 1.8s ease-in-out infinite;
+}
+
+.fff-flex-file-upload__skeleton--avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.fff-flex-file-upload__skeleton--avatar .fff-flex-file-upload__skeleton-dropzone {
+    width: 8rem;
+    height: 8rem;
+    min-height: 8rem;
+    aspect-ratio: 1 / 1;
+    border-radius: 9999px;
+    border-style: solid;
+    gap: 0;
+    padding: 0;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 10%, var(--fff-flex-file-upload-bg)) 0%,
+        color-mix(in srgb, var(--fff-flex-file-upload-muted) 24%, var(--fff-flex-file-upload-bg)) 100%
+    );
+    animation: fff-flex-file-upload-skeleton-pulse 1.35s ease-in-out infinite;
+}
+
+.fff-flex-file-upload__skeleton--avatar .fff-flex-file-upload__skeleton-line {
+    display: none;
+}
+
+.fff-flex-file-upload__skeleton--avatar .fff-flex-file-upload__skeleton-shimmer {
+    border-radius: inherit;
+}
+
+.fff-flex-file-upload__skeleton.is-disabled .fff-flex-file-upload__skeleton-dropzone {
+    opacity: 0.6;
+}
+
+.fff-flex-file-upload__live.fi-fo-file-upload {
+    @apply relative w-full;
+    min-height: var(--fff-flex-file-upload-drop-min-h);
+    opacity: 0;
+    transition: opacity 280ms ease 100ms;
+}
+
+.fff-flex-file-upload__shell.is-ready .fff-flex-file-upload__live.fi-fo-file-upload {
+    opacity: 1;
+}
+
+@keyframes fff-flex-file-upload-skeleton-pulse {
+    0%,
+    100% {
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 0.9;
+    }
+}
+
+@keyframes fff-flex-file-upload-skeleton-shimmer {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+
+    18% {
+        opacity: 0.85;
+    }
+
+    82% {
+        opacity: 0.85;
+    }
+
+    100% {
+        transform: translateX(320%);
+        opacity: 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-flex-file-upload__skeleton,
+    .fff-flex-file-upload__live.fi-fo-file-upload {
+        transition: none;
+    }
+
+    .fff-flex-file-upload__shell.is-ready .fff-flex-file-upload__skeleton {
+        display: none;
+    }
+
+    .fff-flex-file-upload__skeleton-icon,
+    .fff-flex-file-upload__skeleton-line,
+    .fff-flex-file-upload__skeleton-shimmer {
+        animation: none;
+    }
+}
+
+.fff-flex-file-upload__live:not(:has(.filepond--root)) .fi-fo-file-upload-input-ctn {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload {
+    @apply w-full;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root {
+    margin-bottom: 0;
+    overflow: hidden;
+    border-radius: var(--fff-flex-file-upload-radius);
+    border: var(--fff-flex-file-upload-border-width) dashed var(--fff-flex-file-upload-border);
+    background: var(--fff-flex-file-upload-bg);
+    box-shadow: var(--fff-flex-file-upload-shadow);
+    font-size: var(--fff-flex-file-upload-text-size);
+    transition:
+        border-color 200ms ease-out,
+        box-shadow 200ms ease-out,
+        outline 200ms ease-out;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-shadow: 0 0 #0000;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-disabled='disabled'] {
+    @apply opacity-60;
+    background: color-mix(in srgb, var(--fff-flex-file-upload-bg) 70%, rgb(244 244 245));
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--panel-root {
+    background: transparent;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--drop-label {
+    min-height: var(--fff-flex-file-upload-drop-min-h);
+    @apply flex cursor-pointer items-center justify-center p-4;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--drop-label label {
+    @apply relative m-0 flex w-full max-w-sm cursor-pointer flex-col items-center justify-center p-0 text-center leading-snug;
+    gap: 0.75rem;
+    color: var(--fff-flex-file-upload-muted) !important;
+    opacity: 1 !important;
+    font-size: var(--fff-flex-file-upload-text-size);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--drop-label label::before {
+    content: '';
+    display: block;
+    width: var(--fff-flex-file-upload-icon-size);
+    height: var(--fff-flex-file-upload-icon-size);
+    border-radius: 9999px;
+    background-color: color-mix(in srgb, var(--fff-flex-file-upload-accent) 12%, transparent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 16V4m0 0l-4 4m4-4l4 4M4 20h16'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 52%;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--label-action {
+    color: var(--fff-flex-file-upload-accent) !important;
+    @apply cursor-pointer font-medium no-underline transition-colors duration-150;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--browser {
+    cursor: pointer;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-disabled='disabled'] .filepond--drop-label,
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-disabled='disabled'] .filepond--drop-label label,
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-disabled='disabled'] .filepond--browser {
+    @apply cursor-not-allowed;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--label-action:hover {
+    color: color-mix(in srgb, var(--fff-flex-file-upload-accent) 82%, black) !important;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--drip-blob {
+    background: color-mix(in srgb, var(--fff-flex-file-upload-accent) 28%, transparent);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--item-panel {
+    border-radius: calc(var(--fff-flex-file-upload-radius) - 0.25rem);
+    background: var(--fff-flex-file-upload-bg);
+    box-shadow: var(--fff-surface-shadow);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file {
+    color: var(--fff-flex-file-upload-text);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file-info-main {
+    @apply relative font-medium;
+    color: var(--fff-flex-file-upload-text);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file-info-sub {
+    color: var(--fff-flex-file-upload-muted);
+    opacity: 1;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file-action-button {
+    @apply cursor-pointer backdrop-blur-sm transition-transform duration-150;
+    border-radius: 9999px;
+    background: color-mix(in srgb, rgb(24 24 27) 55%, transparent);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file-action-button:hover {
+    transform: scale(1.05);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--file-action-button.filepond--action-edit-item {
+    background: color-mix(in srgb, var(--fff-flex-file-upload-accent) 78%, black);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--progress-indicator svg circle:nth-child(2) {
+    stroke: var(--fff-flex-file-upload-accent);
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .fi-fo-file-upload-error-message {
+    @apply text-sm;
+    color: rgb(220 38 38);
+}
+
+.fff-flex-file-upload.has-focus-outline .fi-fo-file-upload .filepond--root:focus-within,
+.fff-flex-file-upload.has-focus-outline .fi-fo-file-upload .filepond--root[data-hopper-state='drag-over'] {
+    border-style: solid;
+    border-color: var(--fff-field-focus-border);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--list {
+    @apply flex flex-col gap-2 p-2;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--item {
+    width: 100%;
+    margin: 0;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--item-panel {
+    border-radius: 9999px;
+    border: var(--fff-flex-file-upload-border-width) solid var(--fff-flex-file-upload-border);
+    box-shadow: none;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+    width: calc(50% - 0.375rem);
+    margin-inline: 0.1875rem;
+}
+
+@media (min-width: 1024px) {
+    .fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='grid'] .filepond--item {
+        width: calc(33.333% - 0.375rem);
+    }
+}
+
+.fff-flex-file-upload--avatar.fff-flex-file-upload__shell {
+    @apply w-fit max-w-full;
+}
+
+.fff-flex-file-upload--avatar .fff-flex-file-upload__stage {
+    min-height: 8rem;
+}
+
+.fff-flex-file-upload--avatar .fff-flex-file-upload__live.fi-fo-file-upload {
+    min-height: 8rem;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload.fi-fo-file-upload-avatar .filepond--root {
+    border-radius: 9999px;
+    border-style: solid;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload.fi-fo-file-upload-avatar .filepond--drop-label {
+    min-height: 8rem;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload.fi-fo-file-upload-avatar .filepond--drop-label label::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a8.25 8.25 0 0115 0'/%3E%3C/svg%3E");
+}
+
+.fff-flex-file-upload__summary,
+.fff-flex-file-upload__remaining-slots {
+    @apply px-1 text-sm leading-snug;
+    color: var(--fff-flex-file-upload-muted);
+}
+
+.fff-flex-file-upload__meta {
+    @apply flex w-full flex-col gap-0.5;
+}
+
+.fff-flex-file-upload--has-meta .fff-flex-file-upload__meta {
+    min-height: 1.375rem;
+}
+
+.fff-flex-file-upload--has-dual-meta .fff-flex-file-upload__meta {
+    min-height: 2.75rem;
+}
+
+.fff-flex-file-upload__shell:not(.is-ready) .fff-flex-file-upload__meta {
+    visibility: hidden;
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main {
+    @apply pl-7;
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main::before {
+    content: '';
+    @apply absolute top-1/2 left-0 h-5 w-5 -translate-y-1/2 rounded-md;
+    background-color: color-mix(in srgb, var(--fff-flex-file-upload-accent) 16%, transparent);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 68%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236366f1' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z'/%3E%3C/svg%3E");
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='pdf']::before {
+    background-color: rgb(254 226 226);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23dc2626' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h.008v.008H8.25v-.008zm0 3h.008v.008H8.25v-.008zm0-6h.008v.008H8.25v-.008zm3-3h.008v.008H11.25v-.008zm0 3h.008v.008H11.25v-.008zm0 3h.008v.008H11.25v-.008z'/%3E%3C/svg%3E");
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='jpg']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='jpeg']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='png']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='webp']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='gif']::before {
+    background-color: rgb(219 234 254);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m2.25 15.75 5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z'/%3E%3C/svg%3E");
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='doc']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='docx']::before {
+    background-color: rgb(219 234 254);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%231d4ed8' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h.008v.008H8.25v-.008z'/%3E%3C/svg%3E");
+}
+
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='xls']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='xlsx']::before,
+.fff-flex-file-upload--show-file-icon .fi-fo-file-upload .filepond--file-info-main[data-file-type='csv']::before {
+    background-color: rgb(220 252 231);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a' stroke-width='1.75'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z'/%3E%3C/svg%3E");
+}
+
+.dark .fff-flex-file-upload {
+    --fff-flex-file-upload-text: rgb(244 244 245);
+    --fff-flex-file-upload-muted: rgb(161 161 170);
+    --fff-flex-file-upload-bg: var(--fff-field-bg);
+    --fff-flex-file-upload-border: rgb(63 63 70);
+}
+
+.dark .fff-flex-file-upload--secondary {
+    --fff-flex-file-upload-bg: var(--fff-field-secondary-bg);
+    --fff-flex-file-upload-border: var(--fff-field-secondary-border);
+}
+
+.dark .fff-flex-file-upload--flat {
+    --fff-flex-file-upload-border: rgb(63 63 70);
+}
+
+.dark .fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-disabled='disabled'] {
+    background: color-mix(in srgb, var(--fff-flex-file-upload-bg) 70%, rgb(39 39 42));
+}
+
+.dark .fff-flex-file-upload__summary,
+.dark .fff-flex-file-upload__remaining-slots {
+    color: var(--fff-flex-file-upload-muted);
+}
+
+.dark .fff-flex-file-upload__skeleton-shimmer {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.08) 48%,
+        transparent 100%
+    );
+    mix-blend-mode: screen;
+}

@@ -1,0 +1,5 @@
+/**
+ * @deprecated Use resources/css/core.css (always loaded) and per-component lazy bundles instead.
+ * Kept for local backward compatibility — re-exports core styles only.
+ */
+@import "./core.css";
