@@ -151,6 +151,12 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">ColorSwatchField — Preset Color Swatches</p>
     </td>
   </tr>
+  <tr>
+    <td colspan="2" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying even more premium form fields, custom layouts, and UI components in Filament Flex Fields">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61+ Premium Components & Visual Playground</p>
+    </td>
+  </tr>
 </table>
 
 
