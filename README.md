@@ -30,104 +30,104 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
 
 ## Screenshots
 
-<div style="display: flex; flex-wrap: wrap; gap: 16px; width: 100%;">
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+<div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-1.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SignatureField — Canvas Handwriting Signature Pad</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-2.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MatrixChoiceField - Dynamic survey matrix choice grid with radio and checkbox modes, reactive disabled cells, and custom validations">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">MatrixChoiceField — Survey & Configurator Grid</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-3.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexTextareaField - Advanced multi-line input with speech dictation, character counter, autosize, and integrated emoji picker">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexTextareaField — Autosize Textarea with Voice & Emoji Input</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-4.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressBar and ProgressCircle - Multi-style visual progress indicators, linear trackers, and circular dashboard widgets for Laravel Filament">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressBar & ProgressCircle — Visual Progress Indicators</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-5.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CurrencyField - Multi-currency localized money input with real-time formatting, automatic decimal separation, and prefix selector">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CurrencyField — Multi-Currency Localized Input</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-6.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MapPickerField - Interactive map coordinate pin picker with marker support, location autofill, and custom layouts for Filament">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">MapPickerField — Interactive Map Pin Selector</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern SaaS-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Premium Card-Based Layout Group</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-8.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="DualListboxField - Highly interactive searchable dual panel transfer list for selecting and reordering multiple options in Filament v5">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">DualListboxField — Reorderable Two-Panel Transfer List</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-9.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PriceRangeField - Dual-handle interactive price filter with histogram slider and minimum/maximum range controls">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">PriceRangeField — Dual-Handle Price Filter</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-10.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CreditCardField - Real-time credit card preview wrapper with Luhn validation and dynamic CVV flip animations">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CreditCardField — Interactive Card Preview</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-11.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexColorPickerField - Premium color picker with preset swatches, opacity slider, visual grid, and eyedropper support">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexColorPickerField — Advanced Color Picker</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-12.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="AudioField and VoiceNoteRecorderField - Web-based audio player with waveform visualizer and in-browser voice note recorder">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">AudioField & VoiceNoteRecorderField — Waveform Audio & Voice Messages</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-13.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NumberStepper - Pill-shaped numeric stepper control with plus/minus buttons and dynamic NumberFlow animation">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">NumberStepper — Animated Numeric Control</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-14.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ChoiceCards - Rich card-based selection list with custom icons, headers, badges, and selected highlight states">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ChoiceCards — Rich Selection Grid</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-15.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="VideoField - Interactive video URL player supporting YouTube, Vimeo, and local HTML5 videos with custom media controls">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">VideoField — Video Player & Embed Component</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-16.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="TrackSlider - Track-style range slider supporting single values, percentage progress, and min/max range handles">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">TrackSlider — Inline Range & Segment Slider</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-17.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SegmentControl - Elegant segmented sliding tab controls with support for icons, disabled states, and dynamic sizing">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SegmentControl — Segmented Button Tab Switcher</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-18.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CoverCard - Beautiful media card component for hero sections, product banners, or settings header blocks">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CoverCard — Media Rich Hero Banner</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-19.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressCircle - Premium circular progress meters and semicircle tracking gauges for visual dashboard analytics">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressCircle — Semicircle & Circular Dashboard Metrics</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-20.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="RatingField - Highly customizable star rating input supporting custom icons, semantic color states, and fractional display">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">RatingField — Visual Star Rating Input</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-21.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="HoldConfirmAction - Custom action button requiring the user to press and hold to confirm high-risk actions like deletion">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">HoldConfirmAction — Press & Hold Button</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-22.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SlugField combined with TranslatableFields showing multi-lingual title fields and live localized URL slug generation">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SlugField & TranslatableFields — Translatable SEO Slugs</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-23.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">PhoneField — International Phone Input</p>
   </div>
-  <div style="flex: 1 1 calc(50% - 8px); min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/sc-24.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ColorSwatchField - Interactive color swatch picker supporting circle/square shapes, size configurations, and focus indicators">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ColorSwatchField — Preset Color Swatches</p>
   </div>
-  <div style="flex: 1 1 100%; text-align: center; box-sizing: border-box; padding: 10px; width: 100%;">
+  <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying even more premium form fields, custom layouts, and UI components in Filament Flex Fields">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61+ Premium Components & Visual Playground</p>
   </div>
