@@ -71,6 +71,36 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">DualListboxField — Reorderable Two-Panel Transfer List</p>
     </td>
   </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-9.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PriceRangeField - Dual-handle interactive price filter with histogram slider and minimum/maximum range controls">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">PriceRangeField — Dual-Handle Price Filter</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-10.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CreditCardField - Real-time credit card preview wrapper with Luhn validation and dynamic CVV flip animations">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">CreditCardField — Interactive Card Preview</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-11.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexColorPickerField - Premium color picker with preset swatches, opacity slider, visual grid, and eyedropper support">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexColorPickerField — Advanced Color Picker</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-12.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="AudioField and VoiceNoteRecorderField - Web-based audio player with waveform visualizer and in-browser voice note recorder">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">AudioField & VoiceNoteRecorderField — Waveform Audio & Voice Messages</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-13.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NumberStepper - Pill-shaped numeric stepper control with plus/minus buttons and dynamic NumberFlow animation">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">NumberStepper — Animated Numeric Control</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-14.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ChoiceCards - Rich card-based selection list with custom icons, headers, badges, and selected highlight states">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">ChoiceCards — Rich Selection Grid</p>
+    </td>
+  </tr>
 </table>
 
 
