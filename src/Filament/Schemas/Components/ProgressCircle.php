@@ -23,6 +23,8 @@ class ProgressCircle extends Component
 
     protected const SEMICIRCLE_ARC_SPAN = 210.0;
 
+    protected ?string $resolvedSvgInstanceId = null;
+
     protected string $view = 'filament-flex-fields::schemas.components.progress-circle';
 
     protected float|int|Closure|null $value = null;
@@ -520,8 +522,8 @@ class ProgressCircle extends Component
             'gapLength' => $gapLength,
             'rotation' => $rotation,
             'viewBox' => $viewBox,
-            'gradientId' => 'fff-progress-circle-gradient-'.$this->getId(),
-            'trackGradientId' => 'fff-progress-circle-track-gradient-'.$this->getId(),
+            'gradientId' => 'fff-progress-circle-gradient-'.$this->resolveSvgInstanceId(),
+            'trackGradientId' => 'fff-progress-circle-track-gradient-'.$this->resolveSvgInstanceId(),
             'gradientX1' => $gradientX1,
             'gradientY1' => $gradientY1,
             'gradientX2' => $gradientX2,
@@ -529,5 +531,26 @@ class ProgressCircle extends Component
             'viewBoxHeight' => $viewBoxHeight,
             'semicircleFloorInsetPercent' => $semicircleFloorInsetPercent,
         ];
+    }
+
+    protected function resolveSvgInstanceId(): string
+    {
+        if ($this->resolvedSvgInstanceId !== null) {
+            return $this->resolvedSvgInstanceId;
+        }
+
+        $id = $this->getId();
+
+        if (filled($id)) {
+            return $this->resolvedSvgInstanceId = (string) $id;
+        }
+
+        $key = $this->getKey(isAbsolute: true);
+
+        if (filled($key)) {
+            return $this->resolvedSvgInstanceId = substr(md5((string) $key), 0, 12);
+        }
+
+        return $this->resolvedSvgInstanceId = substr(md5(spl_object_hash($this)), 0, 12);
     }
 }

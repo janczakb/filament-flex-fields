@@ -111,6 +111,23 @@ it('renders lazy stylesheet include in progress circle blade', function () {
         ->toContain('fff-progress-circle__paused-ghost');
 });
 
+it('generates unique svg gradient ids for anonymous progress circles', function () {
+    $first = ProgressCircle::make()
+        ->gradientFrom('#fde047')
+        ->gradientTo('#eab308');
+    $second = ProgressCircle::make()
+        ->gradientFrom('#6366f1')
+        ->gradientTo('#ec4899');
+
+    $firstMetrics = $first->getSvgMetrics();
+    $secondMetrics = $second->getSvgMetrics();
+
+    expect($firstMetrics['gradientId'])->not->toBe($secondMetrics['gradientId'])
+        ->and($firstMetrics['trackGradientId'])->not->toBe($secondMetrics['trackGradientId'])
+        ->and($firstMetrics['gradientId'])->not->toEndWith('-')
+        ->and($secondMetrics['gradientId'])->not->toEndWith('-');
+});
+
 it('supports gradient strokes on fill and track', function () {
     $circle = ProgressCircle::make()
         ->gradientFrom('rgb(99 102 241)')

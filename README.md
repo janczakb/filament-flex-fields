@@ -63,7 +63,7 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
   </tr>
   <tr>
     <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
-      <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern modern SaaS-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
+      <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern SaaS-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Premium Card-Based Layout Group</p>
     </td>
     <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
@@ -99,6 +99,36 @@ Stop stitching together a dozen separate Filament field plugins. Flex Fields shi
     <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
       <img src="art/sc-14.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ChoiceCards - Rich card-based selection list with custom icons, headers, badges, and selected highlight states">
       <p style="margin-top: 8px; font-weight: 600; color: #374151;">ChoiceCards — Rich Selection Grid</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-15.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="VideoField - Interactive video URL player supporting YouTube, Vimeo, and local HTML5 videos with custom media controls">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">VideoField — Video Player & Embed Component</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-16.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="TrackSlider - Track-style range slider supporting single values, percentage progress, and min/max range handles">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">TrackSlider — Inline Range & Segment Slider</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-17.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SegmentControl - Elegant segmented sliding tab controls with support for icons, disabled states, and dynamic sizing">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">SegmentControl — Segmented Button Tab Switcher</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-18.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CoverCard - Beautiful media card component for hero sections, product banners, or settings header blocks">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">CoverCard — Media Rich Hero Banner</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-19.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressCircle - Premium circular progress meters and semicircle tracking gauges for visual dashboard analytics">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressCircle — Semicircle & Circular Dashboard Metrics</p>
+    </td>
+    <td width="50%" style="padding: 10px; border: none; text-align: center; vertical-align: top;">
+      <img src="art/sc-20.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="RatingField - Highly customizable star rating input supporting custom icons, semantic color states, and fractional display">
+      <p style="margin-top: 8px; font-weight: 600; color: #374151;">RatingField — Visual Star Rating Input</p>
     </td>
   </tr>
 </table>

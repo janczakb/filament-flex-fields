@@ -151,10 +151,10 @@ class ProgressCirclePlayground
                                 ->displayValue('82%')
                                 ->label('Storage used')
                                 ->gapAngle(40)
-                                ->gradientFrom('rgb(99 102 241)')
-                                ->gradientTo('rgb(236 72 153)')
+                                ->gradientFrom('#fde047')
+                                ->gradientTo('#eab308')
                                 ->size('lg')
-                                ->color('primary'),
+                                ->color('warning'),
                             ProgressCircle::make()
                                 ->value(63)
                                 ->max(100)
@@ -162,10 +162,10 @@ class ProgressCirclePlayground
                                 ->label('Uploading file')
                                 ->variant('semicircle')
                                 ->gapAngle(32)
-                                ->gradientFrom('rgb(34 197 94)')
-                                ->gradientTo('rgb(16 185 129)')
+                                ->gradientFrom('#fde047')
+                                ->gradientTo('#eab308')
                                 ->size('lg')
-                                ->color('success'),
+                                ->color('warning'),
                         ]),
                     Section::make('Card layouts')
                         ->description('Elevated shell cards with heading, description, and footer chrome.')
