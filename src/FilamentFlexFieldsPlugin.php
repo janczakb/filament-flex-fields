@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+/**
+ * @author Bartłomiej Janczak <barek122@gmail.com>
+ * @copyright Copyright (c) 2026 Bartłomiej Janczak. All rights reserved.
+ * @license Proprietary
+ */
+
 namespace Bjanczak\FilamentFlexFields;
 
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundCluster;
