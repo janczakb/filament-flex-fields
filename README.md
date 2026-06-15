@@ -30,21 +30,16 @@ Most Filament projects glue together separate plugins for phone, country, map, s
 
 ## What sets Flex Fields apart
 
-| | **Filament Flex Fields** | **Typical Filament field plugins** |
-|---|--------------------------|-------------------------------------|
-| **Scope** | **61** components — one package, one design language | Often many separate packages to install and maintain |
-| **CSS delivery** | Per-field lazy bundles → deduped queue → `<head>` via `@stack('styles')` | One fat global CSS file, or `<link>` tags injected in `<body>` |
-| **JavaScript** | esbuild code splitting + `modulepreload` + `FlexFieldAlpineQueue` (load shared libs once) | Duplicated scripts per field, or a single heavy bundle on every page |
-| **Host app build** | Pre-built `resources/dist/` — **no Node.js / Vite in your project** | Often requires npm build steps in the consumer app |
-| **Bundle regression** | `npm run check:budgets` + `bundle-metrics.json` in CI | Rarely enforced |
-| **Mapbox / geocoding** | **Server proxy by default** — geocoding token stays on Laravel; client + server cache; rate limiting (map tiles still need a public GL token) | Geocoding token often exposed in browser; direct API calls per keystroke |
-| **Dynamic custom fields** | JSON column + schema registry + **version migrator** + **audit trail** (on by default, configurable) | New DB migrations, EAV tables, or ad-hoc JSON without tooling |
-| **Dropdown UX** | Single overlay coordinator — only one searchable menu open at a time | Overlapping popovers, z-index fights with Filament topbar |
-| **Country data** | Shared **country registry** — one ISO/phone pool per page | Repeated fetches or duplicated option lists |
-| **Developer QA** | Built-in **Playground** previews all 61 components | Test each plugin manually in isolation |
-| **Accessibility** | Keyboard navigation on Mapbox geocoding lists (`aria-activedescendant`, Arrow/Home/End) | Often mouse-only suggestion lists |
+| | **Flex Fields** | **Typical field plugins** |
+|---|-----------------|---------------------------|
+| **Scope** | **61** components, one `--fff-*` design system | Many single-purpose packages |
+| **Assets** | Lazy per-field CSS/JS in `<head>`, shared chunks, pre-built dist — **no Node.js in your app** | Global bundle or per-page npm build |
+| **Geocoding** | Server proxy by default (token on Laravel), cache + rate limit | Token in browser, direct API per keystroke |
+| **Custom attributes** | JSON column + schema registry, version migrator, audit trail | Migrations, EAV, or untyped JSON |
+| **Country / phone** | One shared registry per page (`iso` + `phone` pools) | Full country list embedded per field |
+| **Menus** | One overlay coordinator — single open dropdown | Overlapping popovers, z-index issues |
 
-**Bottom line:** one package, lazy per-field assets with CI bundle budgets, server-side geocoding proxy, JSON custom fields with schema migration — and a unified `--fff-*` design system instead of stitching together many third-party field plugins.
+Details below: [Lazy assets](#lazy-assets--shared-chunks) · [Mapbox](#secure-mapbox-geocoding-mappicker--addressautocomplete) · [JSON flex fields](#zero-migration-custom-fields-json--registry).
 
 ---
 
@@ -183,7 +178,7 @@ Most Filament projects glue together separate plugins for phone, country, map, s
 
 ## Why Flex Fields?
 
-Filament Flex Fields replaces many scattered community packages with **one design system** for Filament v5: shared sizes (`sm`/`md`/`lg`), tokens (`--fff-*`), glass searchable menus, and a single overlay coordinator so only one dropdown opens at a time.
+Filament Flex Fields replaces many scattered community packages with **one design system** for Filament v5: shared sizes (`sm`/`md`/`lg`), tokens (`--fff-*`), and glass searchable menus.
 
 ### 📦 61 components in one plugin
 **50 form fields**, **9 layout/schema** components, **2 table columns** — plus **HoldConfirmAction** for press-and-hold destructive actions. Full list: [Custom Components (61)](#custom-components-61).
@@ -205,15 +200,6 @@ Field blade renders
   → @push('styles') <link rel="stylesheet" …>             // no body output
   → Filament layout @stack('styles') in <head>            // browser discovers CSS early
 ```
-
-| Property | Flex Fields | Typical Filament plugin |
-|----------|-------------|------------------------|
-| CSS scope | Per field, on demand | All-or-nothing bundle |
-| Duplicate fields | 1× stylesheet (queue dedup) | Often N× `<link>` or repeated rules |
-| `<link>` placement | `<head>` via `@stack('styles')` | Often `<body>` (late discovery, FOUC risk) |
-| Shared JS (emoji, phone lib, menus) | Semantic esbuild chunks + `modulepreload` in head, deduped via `FlexFieldAlpineQueue` | Duplicated per field or one giant bundle |
-| Consumer build | Pre-built `resources/dist/` — no Node.js in host app | Often requires Vite/npm in consumer project |
-| Regression guard | `npm run check:budgets` + `bundle-metrics.json` | Rare |
 
 **Result:** a form with `PhoneField` + `TagsField` fetches **only** `phone-field.css` + `tags-field.css` (+ shared deps like `flex-text-input.css`), each **once**, from `<head>`, before paint — not styles for the other 59 components.
 
