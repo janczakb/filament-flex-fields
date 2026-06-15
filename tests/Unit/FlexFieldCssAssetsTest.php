@@ -21,21 +21,55 @@ it('builds core and playground css bundles', function () {
         ->and(filesize($playground))->toBeGreaterThan(100);
 });
 
-it('includes table column styles in the core bundle', function () {
+it('keeps the core bundle under the gzip budget', function () {
+    $corePath = __DIR__.'/../../resources/dist/css/core.css';
+    $gzipBytes = strlen((string) gzencode((string) file_get_contents($corePath), 9));
+    $gzipKb = $gzipBytes / 1024;
+
+    expect($gzipKb)->toBeLessThan(50);
+});
+
+it('keeps table column styles in lazy bundles instead of core', function () {
     $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
+    $userColumnCss = file_get_contents(__DIR__.'/../../resources/dist/css/user-column.css');
+    $ratingColumnCss = file_get_contents(__DIR__.'/../../resources/dist/css/rating-column.css');
 
     expect($coreCss)
-        ->toContain('.fff-user-column')
+        ->not->toContain('.fff-user-column')
+        ->not->toContain('.fff-rating-column')
+        ->not->toContain('.fff-rating__icon-clip');
+
+    expect($userColumnCss)->toContain('.fff-user-column');
+    expect($ratingColumnCss)
         ->toContain('.fff-rating-column')
         ->toContain('.fff-rating__icon-clip');
 });
 
-it('includes hold confirm action styles in the core bundle', function () {
+it('keeps hold confirm action styles in the lazy bundle', function () {
+    $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
+    $holdConfirmCss = file_get_contents(__DIR__.'/../../resources/dist/css/hold-confirm-action.css');
+
+    expect($coreCss)
+        ->not->toContain('.fff-hold-confirm-action')
+        ->not->toContain('.fff-hold-confirm-action__overlay');
+
+    expect($holdConfirmCss)
+        ->toContain('.fff-hold-confirm-action')
+        ->toContain('.fff-hold-confirm-action__overlay');
+});
+
+it('keeps moved component styles out of the core bundle', function () {
     $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
 
     expect($coreCss)
-        ->toContain('.fff-hold-confirm-action')
-        ->toContain('.fff-hold-confirm-action__overlay');
+        ->not->toContain('.fff-switch')
+        ->not->toContain('.item-card')
+        ->not->toContain('.fff-choice-cards')
+        ->not->toContain('.fff-rating-field')
+        ->not->toContain('.fff-color-swatch')
+        ->not->toContain('.fff-select-field')
+        ->not->toContain('.fff-track-slider')
+        ->not->toContain('.fff-segment-control');
 });
 
 it('builds cover card overlay styles in the lazy bundle', function () {
@@ -83,13 +117,44 @@ it('registers lazy stylesheets for every lazy component asset id', function () {
         ->map(fn ($asset) => $asset->getId())
         ->all();
 
-    expect($registered)
-        ->toContain(FlexFieldAssets::CORE_STYLESHEET_ID)
-        ->toContain(FlexFieldAssets::PLAYGROUND_STYLESHEET_ID);
+    expect($registered)->toContain(FlexFieldAssets::CORE_STYLESHEET_ID);
 
     foreach (FlexFieldAssets::LAZY_COMPONENT_STYLESHEETS as $component) {
         expect($registered)->toContain(FlexFieldAssets::stylesheetId($component));
     }
+});
+
+it('registers playground css assets only when playground is enabled', function () {
+    $provider = new Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider(app());
+    $method = new ReflectionMethod($provider, 'registeredStylesheets');
+
+    config()->set('filament-flex-fields.playground.enabled', false);
+
+    $disabledIds = array_map(
+        fn (Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss $asset): string => $asset->getId(),
+        $method->invoke($provider),
+    );
+
+    config()->set('filament-flex-fields.playground.enabled', true);
+
+    $enabledIds = array_map(
+        fn (Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss $asset): string => $asset->getId(),
+        $method->invoke($provider),
+    );
+
+    expect($disabledIds)
+        ->not->toContain(FlexFieldAssets::PLAYGROUND_STYLESHEET_ID)
+        ->and($enabledIds)
+        ->toContain(FlexFieldAssets::PLAYGROUND_STYLESHEET_ID)
+        ->toContain(FlexFieldAssets::playgroundBundleStylesheetId('user-column'));
+});
+
+it('registers playground theme hook only when playground is enabled', function () {
+    $providerSource = file_get_contents(__DIR__.'/../../src/FilamentFlexFieldsServiceProvider.php');
+
+    expect($providerSource)
+        ->toContain('if (FlexFieldsConfig::isPlaygroundEnabled())')
+        ->toContain("Blade::render('filament-flex-fields::partials.playground-theme')");
 });
 
 it('renders lazy stylesheet links in form component blades', function () {
@@ -100,7 +165,7 @@ it('renders lazy stylesheet links in form component blades', function () {
 });
 
 it('renders playground stylesheet on the playground page', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/pages/flex-fields-playground-component.blade.php');
+    $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
 
-    expect($blade)->toContain('playgroundStylesheetHref()');
+    expect($stylesPartial)->toContain('playgroundStylesheetHrefForRequest()');
 });

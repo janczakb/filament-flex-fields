@@ -85,4 +85,11 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | `fff-rating__icon-clip` | Partial fill clip for fractional values |
 | `fff-rating__value` | Numeric value label |
 
+### Performance
+
+| Mechanism | What it does |
+|-----------|----------------|
+| **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
+| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). `@pushOnce` + queue deduplication prevent duplicate `<link>` tags; `data-navigate-track` + navigate dedupe script keep SPA navigation clean. |
+
 ---

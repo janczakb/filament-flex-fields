@@ -1,0 +1,9 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/UserColumn.php";
+@source "../views/tables/columns/user-column-rich.blade.php";
+@source "../views/tables/columns/user-column-stack.blade.php";
+
+@import "../core/tables/user-column.css";

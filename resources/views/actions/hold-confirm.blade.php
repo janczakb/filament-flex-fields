@@ -10,6 +10,8 @@
     $url = $action->getUrl();
 @endphp
 
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'hold-confirm-action'])
+
 <span
     class="fff-hold-confirm-action-host"
     data-sweep="{{ $sweep }}"

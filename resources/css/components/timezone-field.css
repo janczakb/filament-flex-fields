@@ -146,7 +146,18 @@
     --fff-select-menu-hover: rgb(244 244 245 / 0.72);
     --fff-select-menu-selected: rgb(228 228 231 / 0.78);
     --fff-select-search-bg: rgb(255 255 255 / 0.55);
+    --fff-select-search-bg-hover: rgb(255 255 255 / 0.78);
+    --fff-select-search-bg-focus: rgb(255 255 255 / 0.82);
     --fff-select-search-border: rgb(228 228 231);
+    --fff-select-search-border-hover: rgb(212 212 216);
+    --fff-select-search-border-focus: rgb(212 212 216);
+    --fff-select-search-text: rgb(113 113 122);
+    --fff-select-search-text-hover: rgb(63 63 70);
+    --fff-select-search-text-focus: rgb(39 39 42);
+    --fff-select-search-placeholder: rgb(161 161 170);
+    --fff-timezone-field-menu-text: rgb(24 24 27);
+    --fff-timezone-field-menu-muted: rgb(113 113 122);
+    --fff-timezone-field-menu-icon: rgb(113 113 122);
     --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
     visibility: hidden;
     min-width: 12rem;
@@ -198,7 +209,7 @@
     background-size: var(--fff-timezone-field-menu-search-icon-size) var(--fff-timezone-field-menu-search-icon-size) !important;
     padding: 0.5rem 1rem 0.5rem var(--fff-timezone-field-menu-search-pad-left) !important;
     font-size: var(--fff-timezone-field-menu-text-size);
-    color: rgb(113 113 122);
+    color: var(--fff-select-search-text);
     appearance: none;
     -webkit-appearance: none;
     outline: none !important;
@@ -207,6 +218,23 @@
 .fff-timezone-field__search::-webkit-search-decoration,
 .fff-timezone-field__search::-webkit-search-cancel-button {
     display: none;
+}
+
+.fff-timezone-field__search::placeholder {
+    color: var(--fff-select-search-placeholder);
+}
+
+.fff-timezone-field__search:hover {
+    background-color: var(--fff-select-search-bg-hover) !important;
+    border-color: var(--fff-select-search-border-hover);
+    color: var(--fff-select-search-text-hover);
+}
+
+.fff-timezone-field__search:focus,
+.fff-timezone-field__search:focus-visible {
+    background-color: var(--fff-select-search-bg-focus) !important;
+    border-color: var(--fff-select-search-border-focus);
+    color: var(--fff-select-search-text-focus);
 }
 
 .fff-timezone-field__list {
@@ -218,7 +246,11 @@
     font-size: var(--fff-timezone-field-menu-text-size, var(--fff-text-md));
     font-weight: inherit;
     line-height: 1.25rem;
-    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+    color: var(--fff-timezone-field-menu-text);
+}
+
+.fff-timezone-field__option-icon-wrap {
+    color: var(--fff-timezone-field-menu-icon);
 }
 
 .fff-timezone-field__option:hover {
@@ -236,7 +268,36 @@
 .fff-timezone-field__option-offset {
     @apply shrink-0 tabular-nums;
     font-size: calc(var(--fff-timezone-field-menu-text-size, var(--fff-text-md)) * 0.857);
-    color: var(--fff-timezone-field-muted);
+    color: var(--fff-timezone-field-menu-muted);
+}
+
+.dark .fff-timezone-field {
+    --fff-timezone-field-muted: rgb(161 161 170);
+}
+
+.dark .fff-timezone-field__menu {
+    --fff-timezone-field-menu-text: rgb(250 250 250);
+    --fff-timezone-field-menu-muted: rgb(161 161 170);
+    --fff-timezone-field-menu-icon: rgb(161 161 170);
+    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-border: rgb(255 255 255 / 0.12);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+    --fff-select-menu-hover: rgb(63 63 70 / 0.82);
+    --fff-select-menu-selected: rgb(82 82 91 / 0.88);
+    --fff-select-search-bg: rgb(39 39 42 / 0.55);
+    --fff-select-search-bg-hover: rgb(39 39 42);
+    --fff-select-search-bg-focus: rgb(39 39 42);
+    --fff-select-search-border: rgb(63 63 70);
+    --fff-select-search-border-hover: rgb(82 82 91);
+    --fff-select-search-border-focus: rgb(82 82 91);
+    --fff-select-search-text: rgb(161 161 170);
+    --fff-select-search-text-hover: rgb(228 228 231);
+    --fff-select-search-text-focus: rgb(250 250 250);
+    --fff-select-search-placeholder: rgb(113 113 122);
+    --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    background-color: var(--fff-select-menu-bg) !important;
 }
 
 .fff-timezone-field.has-focus-outline .fff-flex-text-input__shell:focus-within:not(:has(.fff-timezone-field__trigger:focus)) {

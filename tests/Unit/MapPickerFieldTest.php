@@ -88,6 +88,28 @@ it('validates street addresses only mode requires a street name', function () {
     ]))->toBeNull();
 });
 
+it('limits search types to poi when configured', function () {
+    $field = MapPickerField::make('location')
+        ->searchTypes([\Bjanczak\FilamentFlexFields\Enums\MapboxSearchType::Poi]);
+
+    expect($field->getSearchTypes())->toBe(['poi']);
+});
+
+it('limits search types to address when street addresses only is enabled', function () {
+    $field = MapPickerField::make('location')
+        ->searchTypes([\Bjanczak\FilamentFlexFields\Enums\MapboxSearchType::Poi])
+        ->streetAddressesOnly();
+
+    expect($field->getSearchTypes())->toBe(['address']);
+});
+
+it('rejects unsupported mapbox search types', function () {
+    expect(fn () => MapPickerField::make('location')
+        ->searchTypes(['shop'])
+        ->getSearchTypes())
+        ->toThrow(InvalidArgumentException::class);
+});
+
 it('registers map picker playground defaults', function () {
     $state = app(FlexFieldsPlaygroundBuilder::class)->defaultState();
 
@@ -95,4 +117,35 @@ it('registers map picker playground defaults', function () {
         'map_picker__full',
         'map_picker__city_only',
     ]);
+});
+
+it('exposes server geocoding urls when proxy is enabled', function () {
+    config()->set('filament-flex-fields.mapbox.use_server_proxy', true);
+
+    $field = MapPickerField::make('location');
+
+    expect($field->usesServerGeocoding())->toBeTrue()
+        ->and($field->getGeocodeSearchUrl())->toContain('geocode/search')
+        ->and($field->getGeocodeReverseUrl())->toContain('geocode/reverse');
+});
+
+it('hides server geocoding urls when proxy is disabled', function () {
+    config()->set('filament-flex-fields.mapbox.use_server_proxy', false);
+
+    $field = MapPickerField::make('location');
+
+    expect($field->usesServerGeocoding())->toBeFalse()
+        ->and($field->getGeocodeSearchUrl())->toBeNull()
+        ->and($field->getGeocodeReverseUrl())->toBeNull();
+});
+
+it('supports language min search length and debounce configuration', function () {
+    $field = MapPickerField::make('location')
+        ->language('de')
+        ->minSearchLength(3)
+        ->searchDebounce(500);
+
+    expect($field->getLanguage())->toBe('de')
+        ->and($field->getMinSearchLength())->toBe(3)
+        ->and($field->getSearchDebounce())->toBe(500);
 });

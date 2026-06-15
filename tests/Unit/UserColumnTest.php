@@ -3,10 +3,16 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\UserColumn;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserColumnPlayground;
+use Bjanczak\FilamentFlexFields\Support\UserColumnRenderCache;
+use Bjanczak\FilamentFlexFields\Support\UserColumnSharedStackCache;
+use Bjanczak\FilamentFlexFields\Support\UserColumnStackState;
 use Filament\Schemas\Components\Section;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 function makeUserColumnTestRecord(array $attributes = []): Model
 {
@@ -24,6 +30,19 @@ function makeUserColumnTestRecord(array $attributes = []): Model
         public function getFilamentAvatarUrl(): ?string
         {
             return $this->attributes['avatar_url'] ?? null;
+        }
+    };
+}
+
+function makeUserColumnProjectModel(): Model
+{
+    return new class extends Model
+    {
+        protected $table = 'projects';
+
+        public function members(): BelongsToMany
+        {
+            return $this->belongsToMany(Model::class, 'project_user', 'project_id', 'user_id');
         }
     };
 }
@@ -79,6 +98,92 @@ it('formats multiple users as an overlapping avatar stack with overflow', functi
         ->toContain('fff-user-column__avatar-stack-overflow')
         ->toContain('+4')
         ->not->toContain('fff-user-select-option--trigger');
+});
+
+it('detects multi-user state so filament does not comma-join rich layouts', function () {
+    $column = UserColumn::make('members');
+
+    $method = new ReflectionMethod(UserColumn::class, 'stateContainsMultipleUsers');
+
+    $users = collect([
+        makeUserColumnTestRecord(['id' => 1, 'name' => 'Jane Cooper']),
+        makeUserColumnTestRecord(['id' => 2, 'name' => 'Alex Rivera']),
+    ]);
+
+    expect($method->invoke($column, $users))->toBeTrue()
+        ->and($method->invoke($column, makeUserColumnTestRecord(['id' => 1])))->toBeFalse()
+        ->and($column->formatUserDisplay($users))
+        ->toContain('fff-user-column--stacked')
+        ->not->toContain('fff-user-column--rich');
+});
+
+it('normalizes stack state wrapper objects for multi-user rendering', function () {
+    $column = UserColumn::make('members');
+
+    $users = collect([
+        makeUserColumnTestRecord(['id' => 1, 'name' => 'Jane Cooper']),
+        makeUserColumnTestRecord(['id' => 2, 'name' => 'Alex Rivera']),
+    ]);
+
+    $html = $column->formatUserDisplay(new UserColumnStackState($users));
+
+    expect($html)
+        ->toContain('fff-user-column--stacked')
+        ->not->toContain('fff-user-select-option--trigger');
+});
+
+it('caches identical stack renders within the same request', function () {
+    UserColumnRenderCache::flush();
+
+    $column = UserColumn::make('members');
+
+    $users = [
+        makeUserColumnTestRecord(['id' => 1, 'name' => 'Jane Cooper']),
+        makeUserColumnTestRecord(['id' => 2, 'name' => 'Alex Rivera']),
+    ];
+
+    $column->formatUserDisplay($users);
+    $column->formatUserDisplay($users);
+
+    expect(UserColumnRenderCache::entries())->toHaveCount(1);
+});
+
+it('eager loads direct relationship column names to avoid n plus one queries', function () {
+    $column = UserColumn::make('members');
+    $query = makeUserColumnProjectModel()->newQuery();
+
+    $column->applyEagerLoading($query);
+
+    expect($query->getEagerLoads())->toHaveKey('members');
+});
+
+it('supports explicit eager load relationships via fluent api', function () {
+    $column = UserColumn::make('team_preview')
+        ->eagerLoad(['members', 'owner']);
+    $query = makeUserColumnProjectModel()->newQuery();
+
+    $column->applyEagerLoading($query);
+
+    expect($query->getEagerLoads())
+        ->toHaveKey('members')
+        ->toHaveKey('owner');
+});
+
+it('caches shared stack resolver results by key', function () {
+    UserColumnSharedStackCache::flush();
+
+    $calls = 0;
+    $resolver = function () use (&$calls) {
+        $calls++;
+
+        return ['members'];
+    };
+
+    UserColumnSharedStackCache::remember('team-preview', $resolver);
+    UserColumnSharedStackCache::remember('team-preview', $resolver);
+
+    expect($calls)->toBe(1)
+        ->and(UserColumnSharedStackCache::entries())->toHaveCount(1);
 });
 
 it('uses initials when avatar url is missing in stack mode', function () {
@@ -166,4 +271,65 @@ it('renders user column playground demo rows with rich and stacked layouts', fun
         ->and($rows[0]['author'])->toContain('Jane Cooper')
         ->and($rows[1]['members'])->toContain('fff-user-column--stacked')
         ->and($rows[1]['members'])->toContain('+4');
+});
+
+it('queues user column stylesheets for the playground page styles before hook', function () {
+    config()->set('filament-flex-fields.playground.enabled', true);
+
+    $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
+    $assetsPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-assets.blade.php');
+    $themePartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-theme.blade.php');
+
+    expect($stylesPartial)
+        ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain('rel="stylesheet"')
+        ->toContain('data-fff-playground-bundle')
+        ->and($assetsPartial)
+        ->toContain('fffPrefetchPlaygroundBundle')
+        ->toContain('fffEnsurePlaygroundBundle')
+        ->and($themePartial)
+        ->toContain('window.FffPlaygroundTheme')
+        ->toContain('syncFilamentTheme')
+        ->toContain("localStorage.setItem('theme'")
+        ->toContain('alpine:init');
+
+    app()->instance('request', Illuminate\Http\Request::create('/admin/flex-fields-playground/user-column', 'GET'));
+
+    expect(FlexFieldAssets::playgroundStylesheetHrefForRequest())
+        ->toBe(FlexFieldAssets::playgroundBundleHrefForSlug('user-column'));
+});
+
+it('does not load stylesheets from table column blade partials', function () {
+    $richBlade = file_get_contents(__DIR__.'/../../resources/views/tables/columns/user-column-rich.blade.php');
+    $stackBlade = file_get_contents(__DIR__.'/../../resources/views/tables/columns/user-column-stack.blade.php');
+    $demoBlade = file_get_contents(__DIR__.'/../../resources/views/partials/playground/user-column-demo.blade.php');
+
+    expect($richBlade)->not->toContain('load-stylesheet')
+        ->and($stackBlade)->not->toContain('load-stylesheet')
+        ->and($demoBlade)->not->toContain('load-stylesheet');
+});
+
+it('registers table column stylesheets during column setup', function () {
+    FlexFieldStylesheetQueue::reset();
+
+    UserColumn::make('author');
+
+    expect(FlexFieldStylesheetQueue::registered())
+        ->toBe(['user-display', 'user-column']);
+});
+
+it('loads user display stylesheet for shared avatar primitives', function () {
+    $userDisplayCss = file_get_contents(__DIR__.'/../../resources/dist/css/user-display.css');
+
+    expect(FlexFieldAssets::stylesheetsFor('user-column'))
+        ->toBe(['user-display', 'user-column'])
+        ->and($userDisplayCss)
+        ->toContain('.fff-user-select__avatar');
+});
+
+it('styles user column playground table for dark mode in the playground bundle', function () {
+    $playgroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground.css');
+
+    expect($playgroundCss)
+        ->toMatch('/\.dark\s+\.fff-user-column-playground__table-wrap[\s\S]*zinc-900/');
 });

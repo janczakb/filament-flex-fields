@@ -182,6 +182,7 @@ final class FieldTypeDefaultConfigRegistry
                 'size' => 'md',
                 'variant' => 'primary',
                 'street_addresses_only' => false,
+                'search_types' => null,
             ],
             FieldType::Video => [
                 'size' => 'md',
@@ -216,6 +217,7 @@ final class FieldTypeDefaultConfigRegistry
                 'searchable' => true,
                 'countries' => null,
                 'street_addresses_only' => false,
+                'search_types' => null,
             ],
             FieldType::TrafficSplit => [
                 'segment_count' => 3,

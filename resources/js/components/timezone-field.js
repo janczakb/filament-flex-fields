@@ -7,6 +7,7 @@ export const FFF_TIMEZONE_OVERSCAN = 6
 const selectMenu = createSearchableSelectMenuMixin({
     triggerRef: 'timezoneTrigger',
     menuRef: 'timezoneMenu',
+    ownerIdPrefix: 'fff-timezone-field',
     onMenuClose() {
         this.virtualScrollTop = 0
     },
@@ -190,7 +191,9 @@ export default function timezoneFieldFormComponent({
                 return
             }
 
-            this.menuOpen = ! this.menuOpen
+            const willOpen = ! this.menuOpen
+
+            this.menuOpen = willOpen
 
             if (this.menuOpen && this.searchable) {
                 this.$nextTick(() => {

@@ -30,6 +30,7 @@ class HasFlexFieldsTest extends TestCase
         Schema::create('test_models', function (Blueprint $table): void {
             $table->id();
             $table->json('flex_field_values')->nullable();
+            $table->json('flex_field_audit')->nullable();
         });
     }
 
@@ -111,5 +112,42 @@ class HasFlexFieldsTest extends TestCase
             ->orWhereFlexField('role', '=', 'user')
             ->get();
         $this->assertCount(2, $filtered);
+    }
+
+    public function test_it_records_audit_trail_on_save(): void
+    {
+        $model = TestModel::create([
+            'flex_field_values' => ['bio' => 'Before'],
+        ]);
+
+        $model->initializeHasFlexFields();
+        $model->setAttribute(TestModel::flexFieldAuditColumn(), []);
+        $model->setFlexFieldValue('bio', 'After');
+        $model->save();
+
+        $audit = $model->getFlexFieldAuditTrail();
+
+        $this->assertCount(1, $audit);
+        $this->assertSame('bio', $audit[0]->slug);
+        $this->assertSame('Before', $audit[0]->oldValue);
+        $this->assertSame('After', $audit[0]->newValue);
+        $this->assertNotNull($audit[0]->changedAt);
+    }
+
+    public function test_it_records_bulk_value_changes_on_save(): void
+    {
+        $model = TestModel::create([
+            'flex_field_values' => ['rating' => 3, 'color' => 'red'],
+        ]);
+
+        $model->initializeHasFlexFields();
+        $model->setAttribute(TestModel::flexFieldAuditColumn(), []);
+        $model->setFlexFieldValues(['rating' => 5, 'color' => 'blue', 'status' => 'active']);
+        $model->save();
+
+        $audit = $model->getFlexFieldAuditTrail();
+
+        $this->assertCount(3, $audit);
+        $this->assertSame(['rating', 'color', 'status'], array_map(fn ($entry) => $entry->slug, $audit));
     }
 }

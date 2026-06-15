@@ -580,6 +580,8 @@ const currencySelectMenu = createSearchableSelectMenuMixin({
     triggerRef: 'currencyTrigger',
     menuRef: 'currencyMenu',
     matchTriggerWidth: false,
+    closeMethod: 'closeCurrencyMenu',
+    ownerIdPrefix: 'fff-currency',
 })
 
 export default function currencyFieldFormComponent({
@@ -1107,7 +1109,9 @@ export default function currencyFieldFormComponent({
                 return
             }
 
-            this.currencyOpen = ! this.currencyOpen
+            const willOpen = ! this.currencyOpen
+
+            this.currencyOpen = willOpen
 
             if (! this.currencyOpen) {
                 return

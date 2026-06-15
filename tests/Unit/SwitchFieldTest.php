@@ -139,11 +139,13 @@ it('server renders switch checked state before alpine hydrates', function () {
     $switchFieldBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/switch-field.blade.php');
     $switchControlBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/switch-control.blade.php');
     $cellSwitchBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/cell-switch.blade.php');
+    $switchCss = file_get_contents(__DIR__.'/../../resources/css/core/switch.css');
 
     expect($switchFieldBlade)
         ->toContain('$isChecked = (bool) $getState()')
         ->toContain('$checkedAttribute = $isChecked ? \'true\' : \'false\'')
         ->toContain('\'isChecked\' => $isChecked')
+        ->toContain('\'toggleColorClassBinding\' => $toggleColorClassBinding')
         ->toContain('data-checked="{{ $checkedAttribute }}"')
         ->toContain('aria-checked="{{ $checkedAttribute }}"');
 
@@ -151,10 +153,25 @@ it('server renders switch checked state before alpine hydrates', function () {
         ->toContain('\'isChecked\' => false')
         ->toContain('data-checked="{{ $checkedAttribute }}"')
         ->toContain('aria-checked="{{ $checkedAttribute }}"')
-        ->toContain('$isChecked ? $onColorClasses : $offColorClasses');
+        ->toContain('$isChecked ? $onColorClasses : $offColorClasses')
+        ->toContain('x-bind:class="{ {{ $toggleColorClassBinding }} }"');
 
     expect($cellSwitchBlade)
         ->toContain('$isChecked = (bool) $getState()')
         ->toContain('data-checked="{{ $checkedAttribute }}"')
         ->toContain('aria-checked="{{ $checkedAttribute }}"');
+
+    expect($switchCss)
+        ->toContain('.fff-switch__control.fi-color[data-checked=\'true\']')
+        ->toContain('.fff-switch__control.fi-color[data-checked=\'false\']')
+        ->not->toContain(".fff-switch__control.fi-color,\n.fff-cell-switch__control.fi-color {");
+});
+
+it('binds switch color classes with alpine object syntax so toggles replace stale classes', function () {
+    $switchFieldBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/switch-field.blade.php');
+
+    expect($switchFieldBlade)
+        ->toContain('$toggleColorClassBinding = implode')
+        ->toContain('x-bind:class="{ {{ $toggleColorClassBinding }} }"')
+        ->not->toContain('x-bind:class="Boolean(state) ? @js($onColorClasses) : @js($offColorClasses)"');
 });

@@ -147,9 +147,33 @@ MapPickerField::make('field_name')
 
 Restrict search, map clicks, and pin drags to **full street addresses** only. Uses Mapbox `types=address`, filters autocomplete results client-side, and validates that `street` is present. Cities, regions, postcodes alone, and other area-level results cannot be selected. Default: `false`.
 
+When enabled, this overrides `searchTypes()` and always uses `address`.
+
 ```php
 MapPickerField::make('field_name')
     ->streetAddressesOnly(true);
+```
+#### `searchTypes(array|Closure|null $types)`
+
+
+Limit Mapbox Geocoding API results to specific place types. Pass `null` (default) to search **all** supported types (addresses, POI, cities, regions, etc.).
+
+Use `Bjanczak\FilamentFlexFields\Enums\MapboxSearchType` or string values: `country`, `region`, `postcode`, `district`, `place`, `locality`, `neighborhood`, `address`, `poi`.
+
+```php
+use Bjanczak\FilamentFlexFields\Enums\MapboxSearchType;
+
+// Shops, restaurants, landmarks only
+MapPickerField::make('pickup_point')
+    ->searchTypes([MapboxSearchType::Poi]);
+
+// Streets and POI
+MapPickerField::make('location')
+    ->searchTypes([MapboxSearchType::Address, MapboxSearchType::Poi]);
+
+// Cities only
+MapPickerField::make('city')
+    ->searchTypes([MapboxSearchType::Place]);
 ```
 #### `readOnly(bool|Closure $condition = true)`
 
@@ -174,6 +198,7 @@ MapPickerField::make('field_name')
 | `getDefaultZoom()` | `int` | Zoom level |
 | `isSearchable()` | `bool` | Search enabled |
 | `isStreetAddressesOnly()` | `bool` | Street-address restriction enabled |
+| `getSearchTypes()` | `list<string>\|null` | Mapbox `types` filter (`null` = all types) |
 | `getCountries()` | `list<string>\|null` | Country filter |
 | `hasStreetAddress(array $state)` | `bool` | Whether canonical state has a street name |
 | `getEmptyCanonicalState()` | `array` | All keys `null` |
@@ -200,6 +225,7 @@ MapPickerField::make('field_name')
 | `searchable` | `searchable()` |
 | `countries` | `countries()` |
 | `street_addresses_only` | `streetAddressesOnly()` |
+| `search_types` | `searchTypes()` — e.g. `['poi']`, `['address', 'poi']`, or `null` for all |
 
 ### CSS classes
 
@@ -219,5 +245,6 @@ MapPickerField::make('field_name')
 - When `lat`/`lng` exist but `place_name` is empty, a summary is built from street, postcode, city, and country.
 - Shared geocoding helpers live in `resources/js/support/mapbox-geocoding.js` (also used by `AddressAutocompleteField`).
 - With `streetAddressesOnly()`, a map click or pin drag outside a resolvable street address shows an inline error and does not update state (the pin snaps back on drag).
+- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](shared-concepts.md#livewire-wireignore-strategy-map--heavy-alpine-fields).
 
 ---

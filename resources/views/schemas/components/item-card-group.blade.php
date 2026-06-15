@@ -14,6 +14,8 @@
     ];
 @endphp
 
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'item-card'])
+
 @if ($isOutsideHeader)
     <div
         {{

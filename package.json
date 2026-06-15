@@ -4,13 +4,18 @@
         "build:css:core": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --minify",
         "build:css:playground": "npx @tailwindcss/cli -i ./resources/css/playground.css -o ./resources/dist/css/playground.css --minify",
         "build:css:components": "node scripts/build-component-css.mjs",
+        "build:css:playground-bundles": "node scripts/build-playground-bundles.mjs",
         "build:css:legacy": "npx @tailwindcss/cli -i ./resources/css/plugin.css -o ./resources/dist/filament-flex-fields.css --minify",
-        "build:css": "npm run build:css:core && npm run build:css:playground && npm run build:css:components",
+        "build:css": "npm run build:css:core && npm run build:css:playground && npm run build:css:components && npm run build:css:playground-bundles",
         "build:js": "node scripts/build-component-js.mjs",
+        "test:js": "node --import ./tests/js/register-svg-loader.mjs --test tests/js/**/*.test.mjs",
+        "test:e2e": "playwright test",
         "build": "npm run build:css && npm run build:js",
+        "check:budgets": "node scripts/check-bundle-budgets.mjs",
         "watch:css": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --watch"
     },
     "devDependencies": {
+        "@playwright/test": "^1.52.0",
         "@tailwindcss/cli": "^4.1.0",
         "esbuild": "^0.25.0",
         "tailwindcss": "^4.1.0"

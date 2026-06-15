@@ -1,0 +1,1 @@
+function t(){if(document.documentElement.classList.contains("dark")||document.body.classList.contains("dark"))return!0;try{let e=window.Alpine?.store?.("theme");if(e==="dark")return!0;if(e==="light")return!1}catch{}return window.matchMedia("(prefers-color-scheme: dark)").matches}export{t as a};

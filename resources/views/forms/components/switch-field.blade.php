@@ -25,6 +25,18 @@
     $label = $getLabel();
     $onColorClasses = Arr::toCssClasses(\Filament\Support\get_component_color_classes(ToggleComponent::class, $onColor));
     $offColorClasses = Arr::toCssClasses(\Filament\Support\get_component_color_classes(ToggleComponent::class, $offColor));
+    $onColorClassList = array_values(array_filter(explode(' ', $onColorClasses)));
+    $offColorClassList = array_values(array_filter(explode(' ', $offColorClasses)));
+    $toggleColorClassList = array_values(array_unique([...$onColorClassList, ...$offColorClassList]));
+    $toggleColorClassBinding = implode(', ', array_map(
+        fn (string $class): string => sprintf(
+            '%s: Boolean(state) ? %s : %s',
+            json_encode($class),
+            in_array($class, $onColorClassList, true) ? 'true' : 'false',
+            in_array($class, $offColorClassList, true) ? 'true' : 'false',
+        ),
+        $toggleColorClassList,
+    ));
     $isChecked = (bool) $getState();
     $checkedAttribute = $isChecked ? 'true' : 'false';
     $switchControlAttributes = [
@@ -38,6 +50,7 @@
         'offIcon' => $offIcon,
         'onColorClasses' => $onColorClasses,
         'offColorClasses' => $offColorClasses,
+        'toggleColorClassBinding' => $toggleColorClassBinding,
         'extraAlpineAttributes' => $getExtraAlpineAttributeBag(),
         'labelled' => $showsInlineFieldLabel,
         'isChecked' => $isChecked,
@@ -49,6 +62,7 @@
     :field="$field"
     :inline-label-vertical-alignment="VerticalAlignment::Center"
 >
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'switch'])
     @if ($isInlineToggle && $showsInlineFieldLabel)
         @if ($labelPosition === 'end')
             <x-slot name="labelSuffix">
@@ -233,7 +247,7 @@
                         ])
                         data-checked="{{ $checkedAttribute }}"
                         x-bind:data-checked="Boolean(state) ? 'true' : 'false'"
-                        x-bind:class="Boolean(state) ? @js($onColorClasses) : @js($offColorClasses)"
+                        x-bind:class="{ {{ $toggleColorClassBinding }} }"
                         aria-hidden="true"
                     >
                         <span @class([

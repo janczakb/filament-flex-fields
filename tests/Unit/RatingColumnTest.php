@@ -6,6 +6,7 @@ use Bjanczak\FilamentFlexFields\Enums\ControlSize;
 use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\RatingColumn;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingColumnPlayground;
+use Bjanczak\FilamentFlexFields\Support\RatingColumnRenderCache;
 use Filament\Schemas\Components\Section;
 use Illuminate\Support\HtmlString;
 
@@ -84,6 +85,18 @@ it('shares fill percentage logic with rating field', function () {
         ->and($column->getFillPercentageForValue(3.7, 4))->toEqualWithDelta(0.7, 0.0001)
         ->and($column->getFillPercentageForValue(3.7, 5))->toBe(0.0)
         ->and($column->getFillPercentageForValue(null, 1))->toBe(0.0);
+});
+
+it('caches identical rating renders within the same request', function () {
+    RatingColumnRenderCache::flush();
+
+    $column = RatingColumn::make('score')
+        ->ratingIcon(makeRatingColumnTestIcon());
+
+    $column->formatRatingDisplay(4);
+    $column->formatRatingDisplay(4);
+
+    expect(RatingColumnRenderCache::entries())->toHaveCount(1);
 });
 
 it('registers rating column playground section after rating field', function () {

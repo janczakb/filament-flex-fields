@@ -47,10 +47,22 @@ it('resolves component page definitions from configuration keys', function () {
         ->and($definition['label'])->toBe('Phone field');
 });
 
-it('renders playground stylesheet on component pages', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/pages/flex-fields-playground-component.blade.php');
+it('resolves playground slug from request path for authorization', function () {
+    config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect($blade)->toContain('playgroundStylesheetHref()');
+    $user = new Illuminate\Foundation\Auth\User;
+    $user->forceFill(['id' => 1]);
+    auth()->login($user);
+
+    app()->instance('request', Illuminate\Http\Request::create('/admin/flex-fields-playground/user-column', 'GET'));
+
+    expect(FlexFieldsPlaygroundComponentPage::canAccess())->toBeTrue();
+});
+
+it('renders playground stylesheet on component pages', function () {
+    $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
+
+    expect($stylesPartial)->toContain('playgroundStylesheetHrefForRequest()');
 });
 
 it('uses registry labels for sub-navigation entries', function () {

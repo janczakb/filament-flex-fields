@@ -1,4 +1,5 @@
-import 'emoji-picker-element'
+import { buildCategoryIconStyles, injectPickerChrome } from './emoji-picker-category-icons.js'
+import { resolveIsDark } from './theme-utils.js'
 
 const PICKER_ELEMENT_CLASS = 'fff-emoji-picker__element'
 
@@ -8,6 +9,16 @@ let loadingElement = null
 let hostElement = null
 let activeSession = null
 let listenersBound = false
+let emojiPickerElementPromise = null
+let suppressNextToggleForAnchor = null
+
+function ensureEmojiPickerElementLoaded() {
+    if (! emojiPickerElementPromise) {
+        emojiPickerElementPromise = import('emoji-picker-element')
+    }
+
+    return emojiPickerElementPromise
+}
 
 function resolveLocale(locale) {
     if (locale) {
@@ -15,11 +26,6 @@ function resolveLocale(locale) {
     }
 
     return (navigator.language ?? 'en').split('-')[0]
-}
-
-function resolveIsDark() {
-    return document.documentElement.classList.contains('dark')
-        || document.body.classList.contains('dark')
 }
 
 function resolvePrimaryColor(anchor, fallbackPrimaryColor) {
@@ -131,7 +137,6 @@ function applyPickerShadowStyles(picker, isDark, primaryColor) {
         .search-row {
             align-items: center;
             gap: 0.5rem;
-            padding: 0.75rem 0.75rem 0.625rem !important;
         }
 
         .search-wrapper {
@@ -178,7 +183,11 @@ function applyPickerShadowStyles(picker, isDark, primaryColor) {
         .category {
             color: var(--category-font-color) !important;
         }
+
+        ${buildCategoryIconStyles(isDark, primaryColor)}
     `
+
+    injectPickerChrome(picker)
 }
 
 function syncPickerTheme(picker, anchor, getPrimaryColor) {
@@ -234,12 +243,14 @@ function notifyReady(locale, ready) {
     }
 }
 
-function getOrCreatePicker(locale) {
+async function getOrCreatePicker(locale) {
     const resolvedLocale = resolveLocale(locale)
 
     if (pickersByLocale.has(resolvedLocale)) {
         return pickersByLocale.get(resolvedLocale)
     }
+
+    await ensureEmojiPickerElementLoaded()
 
     const picker = document.createElement('emoji-picker')
     picker.classList.add(PICKER_ELEMENT_CLASS)
@@ -264,6 +275,7 @@ function getOrCreatePicker(locale) {
 
     picker.database.ready()
         .then(() => {
+            injectPickerChrome(picker)
             notifyReady(resolvedLocale, true)
         })
         .catch(() => {
@@ -318,10 +330,6 @@ function isClickInsidePanel(event) {
     return panel?.contains(event.target)
 }
 
-function isClickInsideAnchor(event) {
-    return activeSession?.anchor?.contains(event.target)
-}
-
 function handleDocumentPointerDown(event) {
     if (! activeSession) {
         return
@@ -331,9 +339,9 @@ function handleDocumentPointerDown(event) {
         return
     }
 
-    if (isClickInsideAnchor(event)) {
+    if (activeSession.anchor?.contains(event.target)) {
+        suppressNextToggleForAnchor = activeSession.anchor
         sharedEmojiPicker.close()
-        event.preventDefault()
 
         return
     }
@@ -388,18 +396,36 @@ function handleWindowResize() {
 export const sharedEmojiPicker = {
     preload(locale) {
         ensurePanel()
-        getOrCreatePicker(locale)
+        void getOrCreatePicker(locale)
     },
 
     isOpenFor(context) {
         return activeSession?.context === context
     },
 
+    isOpenForAnchor(anchor) {
+        return activeSession?.anchor === anchor
+    },
+
+    isActive() {
+        return activeSession !== null && panel !== null && ! panel.hidden
+    },
+
+    shouldSuppressToggle(anchor) {
+        if (suppressNextToggleForAnchor !== anchor) {
+            return false
+        }
+
+        suppressNextToggleForAnchor = null
+
+        return true
+    },
+
     isReady(locale) {
         return pickersByLocale.get(resolveLocale(locale))?.ready ?? false
     },
 
-    open({
+    async open({
         context,
         anchor,
         locale,
@@ -412,7 +438,7 @@ export const sharedEmojiPicker = {
         bindGlobalListeners()
 
         const resolvedLocale = resolveLocale(locale)
-        const entry = getOrCreatePicker(resolvedLocale)
+        const entry = await getOrCreatePicker(resolvedLocale)
 
         if (activeSession && activeSession.context !== context) {
             activeSession.onClose?.()

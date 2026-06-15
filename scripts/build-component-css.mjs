@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { collectCssMetrics, fileSizeMetrics, writeBundleMetrics } from './bundle-metrics.mjs';
 
 const packageRoot = path.resolve(import.meta.dirname, '..');
 const entriesRoot = path.join(packageRoot, 'resources/css/entries');
@@ -20,5 +21,17 @@ for (const entry of entries) {
         stdio: 'inherit',
     });
 }
+
+const cssMetrics = collectCssMetrics(distRoot);
+
+if (fs.existsSync(path.join(distRoot, 'core.css'))) {
+    cssMetrics['core.css'] = fileSizeMetrics(path.join(distRoot, 'core.css'));
+}
+
+if (fs.existsSync(path.join(distRoot, 'playground.css'))) {
+    cssMetrics['playground.css'] = fileSizeMetrics(path.join(distRoot, 'playground.css'));
+}
+
+writeBundleMetrics(packageRoot, { css: cssMetrics });
 
 console.log(`Built ${entries.length} component CSS bundles.`);

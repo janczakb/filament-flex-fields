@@ -8,6 +8,8 @@ use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\StateCasts\PhoneFieldStateCast;
+use Bjanczak\FilamentFlexFields\Support\CountryRegistry;
+use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\PhoneCountries;
 use Closure;
@@ -299,7 +301,61 @@ class PhoneField extends Field
         return (bool) $this->evaluate($this->fixedLineOnly);
     }
 
+    public function getCountryPool(): string
+    {
+        return CountryRegistry::POOL_PHONE;
+    }
+
+    public function hasCustomCountryCodeFilter(): bool
+    {
+        return $this->getAllowedCountryCodes() !== null || $this->getExceptCountryCodes() !== [];
+    }
+
+    public function getCountryFilterKey(): ?string
+    {
+        if (! $this->hasCustomCountryCodeFilter()) {
+            return null;
+        }
+
+        return CountryRegistryQueue::registerCountryFilter($this->getResolvedCountryCodes());
+    }
+
     /**
+     * @return list<string>
+     */
+    public function getResolvedCountryCodes(): array
+    {
+        return PhoneCountries::resolve(
+            $this->getAllowedCountryCodes(),
+            $this->getExceptCountryCodes(),
+        );
+    }
+
+    /**
+     * @return array{code: string, name: string, dial_code: string, flag_url: string}|null
+     */
+    public function getSelectedCountryMetadata(): ?array
+    {
+        $stateValue = $this->getState();
+        $selectedCode = is_array($stateValue) && filled($stateValue['country'] ?? null)
+            ? strtoupper((string) $stateValue['country'])
+            : $this->getDefaultCountryCode();
+
+        $allowed = $this->getResolvedCountryCodes();
+
+        if (! in_array($selectedCode, $allowed, true)) {
+            return null;
+        }
+
+        $metadata = PhoneCountries::metadata([$selectedCode], $this->getExceptCountryCodes());
+
+        return $metadata[0] ?? null;
+    }
+
+    /**
+     * Country metadata for the Alpine dropdown. Built from {@see PhoneCountries::metadata()}
+     * which memoizes per allowed/except code-set — only the resolved subset is serialized to @js().
+     *
      * @return list<array{code: string, name: string, dial_code: string, flag_url: string}>
      */
     public function getCountriesMetadata(): array

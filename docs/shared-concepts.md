@@ -172,13 +172,38 @@ All configuration methods accept a `Closure` for dynamic values and support Fila
 
 ---
 
+## Livewire `wire:ignore` strategy (map & heavy Alpine fields)
+
+Several interactive fields (`MapPickerField`, `AddressAutocompleteField`, `SelectField`, `PhoneField`, `CountryField`, and others) wrap third-party or Filament Alpine trees inside `wire:ignore` so Livewire does not destroy DOM that Alpine manages.
+
+| Concern | Strategy |
+|---------|----------|
+| **State sync** | Pass Livewire state through `$wire.$entangle('statePath')` in `x-data` — Alpine owns the UI, Livewire owns persistence. |
+| **Config changes** | Add a `wire:key` hash over read-only/disabled/config props (token, `fields()`, `storeFormat()`, size, variant). When config changes, Livewire remounts the ignored subtree with fresh Alpine boot data. |
+| **Server updates** | Avoid `->set('data.field')` on ignored fragments in tests; change upstream props or entangled state instead. |
+| **Dropdowns / maps** | Teleport menus to `body`, use shared overlay coordinator (`fffOverlays`) so only one menu stays open. |
+
+Example (`MapPickerField` / `AddressAutocompleteField`):
+
+```blade
+<div
+    wire:ignore
+    wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $field->getFields(), ...])), 0, 64) }}"
+    x-data="mapPickerFormComponent({ state: $wire.$entangle('...') })"
+>
+```
+
+When adding new map-like or Mapbox-backed fields, follow the same pattern: `$entangle` for state, `wire:key` for remounts, `x-load` ES module for JS.
+
+---
+
 ## Assets & playground
 
 CSS is split into bundles:
 
 | Asset ID | File | Loading |
 |----------|------|---------|
-| `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, table columns, shared layout) |
+| `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, shared layout) |
 | `flex-fields-playground` | `resources/dist/css/playground.css` | Loaded on the playground page only |
 | `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — injected by form field blades and `CoverCard` via `load-stylesheet` |
 
@@ -220,7 +245,7 @@ npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles (`UserColumn`, `RatingColumn`, etc.) live in **core** and are never lazy-loaded.
+Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). `@pushOnce` + `FlexFieldStylesheetQueue` prevent duplicate `<link>` tags.
 
 After changing package CSS or JS:
 

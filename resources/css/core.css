@@ -5,18 +5,5 @@
 @source "../../src/**/*.php";
 @source "../views/**/*.blade.php";
 
-@import "./core/switch.css";
-@import "./core/item-card.css";
-@import "./core/choice-cards.css";
-@import "./core/rating.css";
 @import "./core/hint-icon.css";
 @import "./core/hint-tooltips.css";
-@import "./core/color-swatch.css";
-@import "./core/tables/user-column.css";
-@import "./core/tables/rating-column.css";
-@import "./components/user-select.css";
-@import "./components/user-select-inline.css";
-@import "./components/tags-field.css";
-@import "./components/track-slider.css";
-@import "./components/segment-control.css";
-@import "./components/hold-confirm-action.css";

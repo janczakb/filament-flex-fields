@@ -143,6 +143,20 @@ it('can enable emoji picker with locale', function () {
         ->and($field->getEmojiPickerLabel())->toBe('Emoji');
 });
 
+it('scopes livewire loading targets to each toolbar action', function () {
+    $field = FlexTextareaField::make('flex_textarea__basic')
+        ->toolbarAction(Action::make('attach'))
+        ->suffixAction(Action::make('send'));
+
+    $attach = $field->getPrefixActions()['attach'];
+    $send = $field->getSuffixActions()['send'];
+
+    expect($attach->getLivewireTarget())
+        ->toBe("mountAction('attach')")
+        ->and($send->getLivewireTarget())
+        ->toBe("mountAction('send')");
+});
+
 it('disables suffix actions when textarea value is empty', function () {
     $field = FlexTextareaField::make('message')
         ->suffixAction(Action::make('send'));

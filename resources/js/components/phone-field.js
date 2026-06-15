@@ -1,3 +1,9 @@
+import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createVirtualizedListMixin } from '../core/virtualized-list.js'
+import { resolveCountriesFromRegistry, resetCountryRegistryCache } from '../core/country-registry.js'
+import { createCountrySearchMixin } from '../core/country-search.js'
+import { createCountryListKeyboardMixin } from '../core/country-list-keyboard.js'
+
 let libPhoneNumberModule = null
 let libPhoneNumberPromise = null
 
@@ -7,7 +13,7 @@ async function loadLibPhoneNumber() {
     }
 
     if (! libPhoneNumberPromise) {
-        libPhoneNumberPromise = import('libphonenumber-js').then((module) => {
+        libPhoneNumberPromise = import('libphonenumber-js/min').then((module) => {
             libPhoneNumberModule = module
 
             return module
@@ -64,10 +70,44 @@ export async function syncPhoneState(rawInput, country) {
     }
 }
 
+const selectMenu = createSearchableSelectMenuMixin({
+    openKey: 'countryOpen',
+    readyKey: 'countryMenuReady',
+    scrollHandlerKey: 'countryMenuScrollHandler',
+    resizeHandlerKey: 'countryMenuResizeHandler',
+    triggerRef: 'countryTrigger',
+    menuRef: 'countryMenu',
+    minMenuWidth: 288,
+    matchTriggerWidth: false,
+    menuGap: 12,
+    closeMethod: 'closeCountryMenu',
+    ownerIdPrefix: 'fff-phone-country',
+    onMenuClose() {
+        this.countrySearch = ''
+        this.countrySearchDebounced = ''
+    },
+})
+
+const virtualList = createVirtualizedListMixin({
+    itemsKey: 'filteredCountries',
+    scrollRef: 'countryListScroll',
+    itemHeight: 40,
+})
+
+const countrySearch = createCountrySearchMixin()
+const countryKeyboard = createCountryListKeyboardMixin({
+    openKey: 'countryOpen',
+    optionIdPrefix: 'fff-phone-field-option',
+})
+
 export default function phoneFieldFormComponent({
     state,
     statePath,
-    countries,
+    countryPool,
+    countryFilterKey,
+    sortPreferredFirst,
+    preferredCountryCode,
+    selectedCountrySeed,
     defaultCountry,
     initialInputValue = '',
     disabled,
@@ -80,7 +120,11 @@ export default function phoneFieldFormComponent({
     return {
         state,
         statePath,
-        countries,
+        countryPool,
+        countryFilterKey,
+        sortPreferredFirst,
+        preferredCountryCode,
+        selectedCountrySeed,
         defaultCountry,
         disabled,
         readOnly,
@@ -88,6 +132,9 @@ export default function phoneFieldFormComponent({
         searchable,
         searchPlaceholder,
         countryLabel,
+        countries: [],
+        countriesLoaded: false,
+        countriesLoading: false,
         countryOpen: false,
         countrySearch: '',
         inputValue: initialInputValue ?? '',
@@ -96,15 +143,22 @@ export default function phoneFieldFormComponent({
         countryMenuResizeHandler: null,
         phoneLibReady: false,
         resolvedDialPrefix: null,
+        ...selectMenu,
+        ...virtualList,
+        ...countrySearch,
+        ...countryKeyboard,
 
         get isLocked() {
             return this.disabled || this.readOnly
         },
 
         init() {
+            this.initCountrySearch()
+            this.initCountryListKeyboard()
             this.ensurePhoneState()
             this.syncInputFromState()
             this.preloadSelectedCountryFlag()
+            this.bindSelectMenuLifecycle()
 
             this.$watch('state.country', () => {
                 this.ensurePhoneState()
@@ -117,17 +171,57 @@ export default function phoneFieldFormComponent({
                 }
             })
 
-            this.$watch('countryOpen', (open) => {
-                if (open) {
-                    this.scheduleCountryMenuPosition()
-                    this.bindCountryMenuListeners()
+            document.addEventListener('livewire:navigated', () => {
+                resetCountryRegistryCache()
+                this.countries = []
+                this.countriesLoaded = false
+            })
+        },
 
-                    return
+        getActiveCountryCode() {
+            return this.state?.country ?? this.defaultCountry
+        },
+
+        async ensureCountriesLoaded() {
+            if (this.countriesLoaded) {
+                return
+            }
+
+            if (this.countriesLoading) {
+                while (this.countriesLoading) {
+                    await new Promise((resolve) => setTimeout(resolve, 16))
                 }
 
-                this.countryMenuReady = false
-                this.unbindCountryMenuListeners()
-            })
+                return
+            }
+
+            this.countriesLoading = true
+
+            try {
+                resetCountryRegistryCache()
+
+                this.countries = await resolveCountriesFromRegistry({
+                    pool: this.countryPool,
+                    countryFilterKey: this.countryFilterKey,
+                    preferredCountryCode: this.preferredCountryCode,
+                    sortPreferredFirst: this.sortPreferredFirst,
+                })
+
+                if (this.countries.length === 0) {
+                    resetCountryRegistryCache()
+
+                    this.countries = await resolveCountriesFromRegistry({
+                        pool: this.countryPool,
+                        countryFilterKey: this.countryFilterKey,
+                        preferredCountryCode: this.preferredCountryCode,
+                        sortPreferredFirst: this.sortPreferredFirst,
+                    })
+                }
+
+                this.countriesLoaded = true
+            } finally {
+                this.countriesLoading = false
+            }
         },
 
         async ensurePhoneLibLoaded() {
@@ -189,27 +283,13 @@ export default function phoneFieldFormComponent({
             const countryCode = this.state?.country ?? this.defaultCountry
 
             return this.countries.find((country) => country.code === countryCode)
-                ?? this.countries[0]
+                ?? (this.selectedCountrySeed?.code === countryCode ? this.selectedCountrySeed : null)
                 ?? {
                     code: this.defaultCountry,
                     name: this.defaultCountry,
                     dial_code: '',
                     flag_url: '',
                 }
-        },
-
-        get filteredCountries() {
-            const query = this.countrySearch.trim().toLowerCase()
-
-            if (! query) {
-                return this.countries
-            }
-
-            return this.countries.filter((country) => {
-                return country.name.toLowerCase().includes(query)
-                    || country.code.toLowerCase().includes(query)
-                    || country.dial_code.includes(query.replace('+', ''))
-            })
         },
 
         async getDialPrefix() {
@@ -281,9 +361,16 @@ export default function phoneFieldFormComponent({
                 return
             }
 
-            await this.ensurePhoneLibLoaded()
+            const willOpen = ! this.countryOpen
 
-            this.countryOpen = ! this.countryOpen
+            if (willOpen) {
+                await Promise.all([
+                    this.ensureCountriesLoaded(),
+                    this.ensurePhoneLibLoaded(),
+                ])
+            }
+
+            this.countryOpen = willOpen
 
             if (this.countryOpen && this.searchable) {
                 this.$nextTick(() => {
@@ -294,7 +381,6 @@ export default function phoneFieldFormComponent({
 
         closeCountryMenu() {
             this.countryOpen = false
-            this.countrySearch = ''
         },
 
         preloadSelectedCountryFlag() {
@@ -306,118 +392,6 @@ export default function phoneFieldFormComponent({
 
             const image = new Image()
             image.src = url
-        },
-
-        scheduleCountryMenuPosition() {
-            this.countryMenuReady = false
-
-            this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    this.updateCountryMenuPosition()
-
-                    requestAnimationFrame(() => {
-                        this.updateCountryMenuPosition()
-                    })
-                })
-            })
-        },
-
-        updateCountryMenuPosition() {
-            const trigger = this.$refs.countryTrigger
-            const menu = this.$refs.countryMenu
-
-            if (! trigger || ! menu) {
-                return
-            }
-
-            this.applyCountryMenuTheme(menu)
-
-            const rect = trigger.getBoundingClientRect()
-            const gap = 12
-            const viewportPadding = 16
-            const menuWidth = Math.min(288, window.innerWidth - (viewportPadding * 2))
-
-            let top = rect.bottom + gap
-            let left = rect.left
-
-            menu.style.position = 'fixed'
-            menu.style.width = `${Math.round(menuWidth)}px`
-            menu.style.zIndex = '80'
-            menu.style.top = `${Math.round(top)}px`
-            menu.style.left = `${Math.round(left)}px`
-
-            const menuRect = menu.getBoundingClientRect()
-
-            if (menuRect.bottom > window.innerHeight - viewportPadding) {
-                const aboveTop = rect.top - menuRect.height - gap
-
-                if (aboveTop >= viewportPadding) {
-                    top = aboveTop
-                }
-            }
-
-            if (left + menuRect.width > window.innerWidth - viewportPadding) {
-                left = window.innerWidth - menuRect.width - viewportPadding
-            }
-
-            if (left < viewportPadding) {
-                left = viewportPadding
-            }
-
-            menu.style.top = `${Math.round(top)}px`
-            menu.style.left = `${Math.round(left)}px`
-            this.countryMenuReady = true
-        },
-
-        applyCountryMenuTheme(menu) {
-            const isDark = document.documentElement.classList.contains('dark')
-            const blur = 'blur(16px) saturate(180%)'
-
-            if (isDark) {
-                menu.style.setProperty('--fff-select-menu-bg', '#27272a3d')
-                menu.style.setProperty('--fff-select-menu-border', 'rgb(255 255 255 / 0.12)')
-                menu.style.setProperty('--fff-select-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.28), 0 12px 28px -6px rgb(0 0 0 / 0.5)')
-                menu.style.setProperty('--fff-select-menu-hover', 'rgb(63 63 70 / 0.82)')
-                menu.style.setProperty('--fff-select-menu-selected', 'rgb(82 82 91 / 0.88)')
-                menu.style.setProperty('--fff-select-search-bg', 'rgb(39 39 42 / 0.55)')
-                menu.style.setProperty('--fff-select-search-border', 'rgb(63 63 70)')
-            } else {
-                menu.style.setProperty('--fff-select-menu-bg', '#ffffffa3')
-                menu.style.setProperty('--fff-select-menu-border', 'rgb(228 228 231 / 0.65)')
-                menu.style.setProperty('--fff-select-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 12px 28px -6px rgb(0 0 0 / 0.12)')
-                menu.style.setProperty('--fff-select-menu-hover', 'rgb(244 244 245 / 0.72)')
-                menu.style.setProperty('--fff-select-menu-selected', 'rgb(228 228 231 / 0.78)')
-                menu.style.setProperty('--fff-select-search-bg', 'rgb(255 255 255 / 0.55)')
-                menu.style.setProperty('--fff-select-search-border', 'rgb(228 228 231)')
-            }
-
-            menu.style.backgroundColor = isDark ? '#27272a3d' : '#ffffffa3'
-            menu.style.setProperty('backdrop-filter', blur)
-            menu.style.setProperty('-webkit-backdrop-filter', blur)
-        },
-
-        bindCountryMenuListeners() {
-            if (this.countryMenuScrollHandler) {
-                return
-            }
-
-            this.countryMenuScrollHandler = () => this.updateCountryMenuPosition()
-            this.countryMenuResizeHandler = () => this.updateCountryMenuPosition()
-
-            window.addEventListener('scroll', this.countryMenuScrollHandler, true)
-            window.addEventListener('resize', this.countryMenuResizeHandler)
-        },
-
-        unbindCountryMenuListeners() {
-            if (! this.countryMenuScrollHandler) {
-                return
-            }
-
-            window.removeEventListener('scroll', this.countryMenuScrollHandler, true)
-            window.removeEventListener('resize', this.countryMenuResizeHandler)
-
-            this.countryMenuScrollHandler = null
-            this.countryMenuResizeHandler = null
         },
     }
 }

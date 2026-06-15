@@ -8,6 +8,13 @@ import {
     parseColor,
     rgbToHsv,
 } from '../support/color-math.js'
+import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+
+const exclusiveDropdown = createExclusiveDropdownMixin({
+    openKey: 'panelOpen',
+    closeMethod: 'closePanel',
+    ownerIdPrefix: 'fff-flex-color-picker',
+})
 
 export default function flexColorPickerFormComponent({
     state,
@@ -22,6 +29,7 @@ export default function flexColorPickerFormComponent({
     labels,
 }) {
     return {
+        ...exclusiveDropdown,
         state,
         layout,
         format,
@@ -42,6 +50,7 @@ export default function flexColorPickerFormComponent({
         isDraggingSaturation: false,
 
         init() {
+            this.wireExclusiveFlexDropdown()
             this.gridPalette = this.gridColors?.length
                 ? this.gridColors
                 : getDefaultColorGrid()
@@ -121,24 +130,6 @@ export default function flexColorPickerFormComponent({
             }
         },
 
-        closeSiblingPanels() {
-            if (typeof window.Alpine?.$data !== 'function') {
-                return
-            }
-
-            document.querySelectorAll('.fff-flex-color-picker').forEach((root) => {
-                if (root === this.$el) {
-                    return
-                }
-
-                const data = window.Alpine.$data(root)
-
-                if (data?.panelOpen) {
-                    data.panelOpen = false
-                }
-            })
-        },
-
         togglePanel() {
             if (this.readOnly) {
                 return
@@ -150,7 +141,6 @@ export default function flexColorPickerFormComponent({
                 return
             }
 
-            this.closeSiblingPanels()
             this.panelOpen = true
         },
 

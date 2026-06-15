@@ -119,3 +119,11 @@ it('allows overriding min search length and search debounce', function () {
     expect($field->getMinSearchLength())->toBe(3)
         ->and($field->getSearchDebounce())->toBe(500);
 });
+
+it('defaults address autocomplete language to polish', function () {
+    config()->set('filament-flex-fields.mapbox.default_language', null);
+
+    $field = AddressAutocompleteField::make('address');
+
+    expect($field->getLanguage())->toBe('pl');
+});

@@ -136,6 +136,8 @@
 .fff-country-field__menu {
     @apply fixed z-[80] flex flex-col overflow-hidden;
     --fff-country-field-menu-flag-size: 1.125rem;
+    --fff-phone-field-menu-text: rgb(24 24 27);
+    --fff-phone-field-menu-muted: rgb(113 113 122);
     --fff-select-menu-bg: rgb(255 255 255 / 0.9);
     --fff-select-menu-border: rgb(228 228 231 / 0.65);
     --fff-select-menu-blur: blur(16px) saturate(180%);
@@ -145,7 +147,15 @@
     --fff-select-menu-hover: rgb(244 244 245 / 0.72);
     --fff-select-menu-selected: rgb(228 228 231 / 0.78);
     --fff-select-search-bg: rgb(255 255 255 / 0.55);
+    --fff-select-search-bg-hover: rgb(255 255 255 / 0.78);
+    --fff-select-search-bg-focus: rgb(255 255 255 / 0.82);
     --fff-select-search-border: rgb(228 228 231);
+    --fff-select-search-border-hover: rgb(212 212 216);
+    --fff-select-search-border-focus: rgb(212 212 216);
+    --fff-select-search-text: rgb(113 113 122);
+    --fff-select-search-text-hover: rgb(63 63 70);
+    --fff-select-search-text-focus: rgb(39 39 42);
+    --fff-select-search-placeholder: rgb(161 161 170);
     --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
     visibility: hidden;
     min-width: 12rem;
@@ -211,7 +221,7 @@
     font-size: var(--fff-country-field-menu-text-size);
     font-weight: inherit;
     line-height: 1.25rem;
-    color: rgb(113 113 122);
+    color: var(--fff-select-search-text);
     appearance: none;
     -webkit-appearance: none;
     outline: none !important;
@@ -222,8 +232,35 @@
     display: none;
 }
 
+.fff-country-field__search::placeholder {
+    color: var(--fff-select-search-placeholder);
+}
+
+.fff-country-field__search:hover {
+    background-color: var(--fff-select-search-bg-hover) !important;
+    border-color: var(--fff-select-search-border-hover);
+    color: var(--fff-select-search-text-hover);
+}
+
+.fff-country-field__search:focus,
+.fff-country-field__search:focus-visible {
+    background-color: var(--fff-select-search-bg-focus) !important;
+    border-color: var(--fff-select-search-border-focus);
+    color: var(--fff-select-search-text-focus);
+}
+
 .fff-country-field__list {
     @apply m-0 min-h-0 flex-1 list-none overflow-x-hidden overflow-y-auto p-0.5;
+}
+
+.fff-country-field__list-virtual,
+.fff-country-field__list-item,
+.fff-country-field__virtual-spacer {
+    @apply m-0 list-none p-0;
+}
+
+.fff-country-field__option.is-active {
+    background: var(--fff-select-menu-hover);
 }
 
 .fff-country-field__menu .fff-country-field__flag-wrap {
@@ -238,7 +275,7 @@
     font-size: var(--fff-country-field-menu-text-size, var(--fff-text-md));
     font-weight: inherit;
     line-height: 1.25rem;
-    color: var(--fff-flex-text-input-text, rgb(24 24 27));
+    color: var(--fff-phone-field-menu-text, var(--fff-flex-text-input-text, rgb(24 24 27)));
 }
 
 .fff-country-field__option:hover {
@@ -257,7 +294,39 @@
 .fff-country-field__option-dial {
     @apply shrink-0 tabular-nums;
     font-size: calc(var(--fff-country-field-menu-text-size, var(--fff-text-md)) * 0.857);
-    color: var(--fff-country-field-muted);
+    color: var(--fff-phone-field-menu-muted, var(--fff-country-field-muted));
+}
+
+.dark .fff-country-field {
+    --fff-country-field-muted: rgb(161 161 170);
+}
+
+.dark .fff-country-field__menu {
+    --fff-phone-field-menu-text: rgb(250 250 250);
+    --fff-phone-field-menu-muted: rgb(161 161 170);
+    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-border: rgb(255 255 255 / 0.12);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+    --fff-select-menu-hover: rgb(63 63 70 / 0.82);
+    --fff-select-menu-selected: rgb(82 82 91 / 0.88);
+    --fff-select-search-bg: rgb(39 39 42 / 0.55);
+    --fff-select-search-bg-hover: rgb(39 39 42);
+    --fff-select-search-bg-focus: rgb(39 39 42);
+    --fff-select-search-border: rgb(63 63 70);
+    --fff-select-search-border-hover: rgb(82 82 91);
+    --fff-select-search-border-focus: rgb(82 82 91);
+    --fff-select-search-text: rgb(161 161 170);
+    --fff-select-search-text-hover: rgb(228 228 231);
+    --fff-select-search-text-focus: rgb(250 250 250);
+    --fff-select-search-placeholder: rgb(113 113 122);
+    background-color: var(--fff-select-menu-bg) !important;
+}
+
+.dark .fff-country-field__search:focus,
+.dark .fff-country-field__search:focus-visible {
+    box-shadow: none;
 }
 
 .fff-country-field.has-focus-outline .fff-flex-text-input__shell:focus-within:not(:has(.fff-country-field__trigger:focus)) {

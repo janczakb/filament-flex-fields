@@ -37,3 +37,27 @@
 .fff-user-column-playground__cell .fff-rating-column {
     @apply whitespace-nowrap;
 }
+
+.dark .fff-user-column-playground__intro {
+    @apply text-zinc-400;
+}
+
+.dark .fff-user-column-playground__intro code {
+    @apply bg-zinc-800 text-zinc-200;
+}
+
+.dark .fff-user-column-playground__table-wrap {
+    @apply border-zinc-700 bg-zinc-900;
+}
+
+.dark .fff-user-column-playground__table th {
+    @apply border-zinc-700 bg-zinc-800/80 text-zinc-400;
+}
+
+.dark .fff-user-column-playground__table td {
+    @apply border-zinc-800;
+}
+
+.dark .fff-user-column-playground__project {
+    @apply text-zinc-100;
+}

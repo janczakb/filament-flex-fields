@@ -200,6 +200,11 @@ return [
         'close' => 'Close',
     ],
 
+    'geocoding' => [
+        'failed' => 'Geocoding request failed. Please try again.',
+        'rate_limited' => 'Too many geocoding requests. Please wait a moment and try again.',
+    ],
+
     'address_autocomplete' => [
         'search_placeholder' => 'Search for an address…',
         'missing_token' => 'Mapbox access token is missing. Set MAPBOX_ACCESS_TOKEN in your .env file.',

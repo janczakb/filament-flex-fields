@@ -60,8 +60,23 @@ On hydrate, strings set `place_name`; arrays merge into canonical state.
 | `requiredFields()` | Listed fields must be filled when any value present |
 | `countries()` | `country` must be in whitelist when set |
 | `streetAddressesOnly()` | `street` must be filled; cities, regions, and other non-address results are rejected |
+| `searchTypes()` | Limits autocomplete (and reverse geocode on `MapPickerField`) to given Mapbox place types; does not add extra validation beyond `requiredFields()` unless combined with `streetAddressesOnly()` |
 
 ### Configuration API
+
+Shared with `MapPickerField` (via `InteractsWithGeocodedAddress`): `fields()`, `storeFormat()`, `stringFormat()`, `requiredFields()`, `mapboxToken()`, `countries()`, `streetAddressesOnly()`, `searchTypes()`.
+
+#### `searchTypes(array|Closure|null $types)`
+
+
+Limit Mapbox results to specific place types. `null` (default) = all types. See `MapboxSearchType` enum in MapPickerField docs.
+
+```php
+use Bjanczak\FilamentFlexFields\Enums\MapboxSearchType;
+
+AddressAutocompleteField::make('store')
+    ->searchTypes([MapboxSearchType::Poi]);
+```
 
 #### `minSearchLength(int|Closure $length)`
 
@@ -98,6 +113,7 @@ Same geocoded-address helpers as `MapPickerField` (`hydrateToCanonical`, `dehydr
 | `searchable` | `searchable()` |
 | `countries` | `countries()` |
 | `street_addresses_only` | `streetAddressesOnly()` |
+| `search_types` | `searchTypes()` — e.g. `['poi']` or `null` for all |
 | `language` | `language()` |
 | `size` | `size()` |
 | `variant` | `variant()` |
@@ -130,5 +146,6 @@ Config defaults (`config/filament-flex-fields.php` → `ui`):
 - UI matches `FlexTextInput` (`primary` / `secondary` / `flat` variants, Gravity UI icons).
 - Autocomplete dropdown reuses MapPicker dropdown styles, including skeleton loading states.
 - Unlike `MapPickerField`, coordinates are not stored; only address fields from `fields()` are dehydrated.
+- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](shared-concepts.md#livewire-wireignore-strategy-map--heavy-alpine-fields).
 
 ---

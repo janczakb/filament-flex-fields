@@ -79,7 +79,7 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
 
     public function getPlaygroundSlug(): ?string
     {
-        return Filament::getCurrentPageConfigurationKey();
+        return Filament::getCurrentPageConfigurationKey() ?? static::resolveSlugFromRequest();
     }
 
     /**
@@ -166,6 +166,21 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
      */
     protected static function resolveDefinition(): ?array
     {
-        return FlexFieldsPlaygroundRegistry::find(Filament::getCurrentPageConfigurationKey());
+        $slug = Filament::getCurrentPageConfigurationKey() ?? static::resolveSlugFromRequest();
+
+        if (blank($slug)) {
+            return null;
+        }
+
+        return FlexFieldsPlaygroundRegistry::find($slug);
+    }
+
+    protected static function resolveSlugFromRequest(): ?string
+    {
+        if (preg_match('#flex-fields-playground/([^/]+)#', request()->path(), $matches) === 1) {
+            return $matches[1];
+        }
+
+        return null;
     }
 }

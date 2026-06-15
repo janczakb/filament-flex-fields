@@ -481,3 +481,59 @@ it('stores select field search results in request cache', function () {
 
     expect($cache->getValue($field))->toHaveKey($key);
 });
+
+it('loads select field stylesheet for enhanced select fields to coordinate ssr and alpine trigger', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain('! $isNative')
+        ->toContain("'component' => 'select-field'")
+        ->toContain('fff-select-trigger-ssr');
+});
+
+it('loads user select stylesheet only for user select fields', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain('$isUserSelectField')
+        ->toContain("'component' => 'user-select'");
+});
+
+it('styles grid layout trigger chips for dark mode in the select field bundle', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toContain('--fff-select-trigger-chip-bg')
+        ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-trigger-chip-bg:#27272aeb/');
+});
+
+it('styles grid selected checkmarks with a circular badge in the select field bundle', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toContain('--fff-select-grid-check-bg')
+        ->toContain('--fff-select-selected-check-fg')
+        ->toContain('.fff-select-field--layout-grid .fff-select-option-selected-check')
+        ->toMatch('/\.fff-select-field--layout-grid\s+\.fff-select-option-selected-check[\s\S]*border-radius:9999px/')
+        ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-grid-check-bg:#52525bfa/')
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-selected-check-fg:#f4f4f5/');
+});
+
+it('styles dark dropdown search input with glass backdrop in the select field bundle', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*background-color:#40404573!important/')
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*-webkit-backdrop-filter:blur\(15px\)saturate\(2\.5\)/')
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*backdrop-filter:blur\(15px\)saturate\(2\.5\)/');
+});
+
+it('styles grouped option headers distinctly from selectable options in the select field bundle', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toContain('--fff-select-group-label')
+        ->toContain('.fi-dropdown-panel.fff-select-dropdown-panel .fi-select-input-option-group .fi-dropdown-header')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-option-group\s+\.fi-dropdown-header[\s\S]*text-transform:uppercase/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-option-group:not\(:first-child\)\s+\.fi-dropdown-header[\s\S]*border-top:1px solid var\(--fff-select-group-divider\)/');
+});

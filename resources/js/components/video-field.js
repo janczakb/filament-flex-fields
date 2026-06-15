@@ -1,3 +1,5 @@
+import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+
 export function formatVideoTime(seconds) {
     if (! Number.isFinite(seconds) || seconds < 0) {
         return '0:00'
@@ -42,6 +44,12 @@ function loadYoutubeIframeApi() {
     return youtubeApiPromise
 }
 
+const exclusiveDropdown = createExclusiveDropdownMixin({
+    openKey: 'volumeOpen',
+    closeMethod: 'closeVolumePanel',
+    ownerIdPrefix: 'fff-video-field',
+})
+
 export default function videoFieldFormComponent({
     state,
     staticSrc = null,
@@ -67,6 +75,7 @@ export default function videoFieldFormComponent({
     labels = {},
 }) {
     return {
+        ...exclusiveDropdown,
         state,
         staticSrc,
         provider,
@@ -113,6 +122,8 @@ export default function videoFieldFormComponent({
         youtubeReady: false,
 
         init() {
+            this.wireExclusiveFlexDropdown()
+
             this.fullscreenListener = () => {
                 this.isFullscreen = document.fullscreenElement === this.$refs.frame
             }

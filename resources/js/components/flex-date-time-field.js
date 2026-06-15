@@ -40,6 +40,13 @@ import {
     segmentsToCalendarDate,
     segmentsToTime,
 } from '../core/date-time/segmented-input.js'
+import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+
+const exclusiveDropdown = createExclusiveDropdownMixin({
+    openKey: 'calendarOpen',
+    closeMethod: 'closeCalendar',
+    ownerIdPrefix: 'fff-flex-date-time',
+})
 
 export default function flexDateTimeFieldFormComponent({
     state,
@@ -52,6 +59,7 @@ export default function flexDateTimeFieldFormComponent({
     ...config
 }) {
     return {
+        ...exclusiveDropdown,
         state,
         statePath,
         disabled,
@@ -231,6 +239,8 @@ export default function flexDateTimeFieldFormComponent({
         },
 
         init() {
+            this.wireExclusiveFlexDropdown()
+
             if (this.hasHydratedState()) {
                 this.bootstrapFromState()
             }

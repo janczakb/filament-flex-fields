@@ -22,6 +22,21 @@ class FlexFieldsConfig
         return (string) config('filament-flex-fields.values_column', 'flex_field_values');
     }
 
+    public static function isAuditEnabled(): bool
+    {
+        return (bool) config('filament-flex-fields.audit.enabled', true);
+    }
+
+    public static function getAuditColumn(): string
+    {
+        return (string) config('filament-flex-fields.audit.column', 'flex_field_audit');
+    }
+
+    public static function getAuditMaxEntries(): int
+    {
+        return max(1, (int) config('filament-flex-fields.audit.max_entries', 500));
+    }
+
     public static function allowHttpMedia(): bool
     {
         return (bool) config('filament-flex-fields.security.allow_http_media', false);

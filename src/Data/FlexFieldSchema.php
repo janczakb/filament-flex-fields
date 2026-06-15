@@ -6,6 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Data;
 
 class FlexFieldSchema
 {
+    public const CURRENT_VERSION = 1;
+
     /** @var list<FlexFieldDefinition> */
     protected array $fields = [];
 
@@ -15,6 +17,7 @@ class FlexFieldSchema
         public ?string $label = null,
         public bool $isActive = true,
         public int $sort = 0,
+        public int $version = self::CURRENT_VERSION,
     ) {}
 
     public static function make(string $key, string $targetType): self
@@ -39,6 +42,13 @@ class FlexFieldSchema
     public function sort(int $sort): static
     {
         $this->sort = $sort;
+
+        return $this;
+    }
+
+    public function version(int $version): static
+    {
+        $this->version = $version;
 
         return $this;
     }

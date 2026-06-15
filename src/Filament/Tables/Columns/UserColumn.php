@@ -5,10 +5,17 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesUserDisplay;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
+use Bjanczak\FilamentFlexFields\Support\UserColumnRenderCache;
+use Bjanczak\FilamentFlexFields\Support\UserColumnSharedStackCache;
+use Bjanczak\FilamentFlexFields\Support\UserColumnStackState;
 use Closure;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class UserColumn extends TextColumn
@@ -23,13 +30,82 @@ class UserColumn extends TextColumn
 
     protected bool|Closure $stackTooltips = true;
 
+    /** @var string|array<int, string>|Closure|null */
+    protected string|array|Closure|null $eagerLoad = null;
+
+    protected ?Closure $sharedStackUsing = null;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        FlexFieldStylesheetQueue::enqueueFor('user-column');
+
         $this->html();
 
         $this->formatStateUsing(fn (mixed $state, UserColumn $column): string => $column->formatUserDisplay($state));
+    }
+
+    public function getState(): mixed
+    {
+        $state = parent::getState();
+
+        if ($this->stateContainsMultipleUsers($state)) {
+            return new UserColumnStackState($state);
+        }
+
+        return $state;
+    }
+
+    /**
+     * @param  string|array<int, string>|Closure  $relationships
+     */
+    public function eagerLoad(string|array|Closure $relationships): static
+    {
+        $this->eagerLoad = $relationships;
+
+        return $this;
+    }
+
+    /**
+     * Resolve the same multi-user stack once per table page instead of per row.
+     * Ideal for preview/demo columns that show identical members on every record.
+     */
+    public function sharedStackUsing(Closure $resolver): static
+    {
+        $this->sharedStackUsing = $resolver;
+
+        $this->getStateUsing(fn (): mixed => $this->resolveSharedStackState());
+
+        return $this;
+    }
+
+    public function applyEagerLoading(EloquentBuilder | Relation $query): EloquentBuilder | Relation
+    {
+        if ($this->eagerLoad !== null) {
+            foreach (Arr::wrap($this->evaluate($this->eagerLoad)) as $relationship) {
+                if (! is_string($relationship) || $relationship === '') {
+                    continue;
+                }
+
+                if (array_key_exists($relationship, $query->getEagerLoads())) {
+                    continue;
+                }
+
+                $query = $query->with([$relationship]);
+            }
+        }
+
+        $relationshipName = $this->resolveDirectRelationshipName($query->getModel());
+
+        if (
+            filled($relationshipName)
+            && ! array_key_exists($relationshipName, $query->getEagerLoads())
+        ) {
+            $query = $query->with([$relationshipName]);
+        }
+
+        return parent::applyEagerLoading($query);
     }
 
     public function maxVisibleAvatars(int|Closure $limit): static
@@ -106,6 +182,10 @@ class UserColumn extends TextColumn
      */
     public function normalizeUsersFromState(mixed $state): array
     {
+        if ($state instanceof UserColumnStackState) {
+            $state = $state->users;
+        }
+
         if ($state === null || $state === '' || $state === []) {
             return [];
         }
@@ -144,12 +224,16 @@ class UserColumn extends TextColumn
      */
     public function renderRichUser(array $user): string
     {
-        /** @var View $view */
-        $view = view('filament-flex-fields::tables.columns.user-column-rich', [
-            'user' => $user,
-        ]);
+        $cacheKey = $this->renderCacheKey('rich', [$user]);
 
-        return $view->render();
+        return UserColumnRenderCache::remember($cacheKey, function () use ($user): string {
+            /** @var View $view */
+            $view = view('filament-flex-fields::tables.columns.user-column-rich', [
+                'user' => $user,
+            ]);
+
+            return $view->render();
+        });
     }
 
     /**
@@ -167,15 +251,108 @@ class UserColumn extends TextColumn
         $overflow = max(0, count($users) - $limit);
         $visibleUsers = $overflow > 0 ? array_slice($users, 0, $limit) : $users;
 
-        /** @var View $view */
-        $view = view('filament-flex-fields::tables.columns.user-column-stack', [
+        $cacheKey = $this->renderCacheKey('stack', [
             'users' => $visibleUsers,
             'overflow' => $overflow,
-            'ring' => $this->getStackedRing(),
-            'overlap' => $this->getStackedOverlap(),
-            'showTooltips' => $this->shouldShowStackTooltips(),
         ]);
 
-        return $view->render();
+        return UserColumnRenderCache::remember($cacheKey, function () use ($visibleUsers, $overflow): string {
+            /** @var View $view */
+            $view = view('filament-flex-fields::tables.columns.user-column-stack', [
+                'users' => $visibleUsers,
+                'overflow' => $overflow,
+                'ring' => $this->getStackedRing(),
+                'overlap' => $this->getStackedOverlap(),
+                'showTooltips' => $this->shouldShowStackTooltips(),
+            ]);
+
+            return $view->render();
+        });
+    }
+
+    protected function stateContainsMultipleUsers(mixed $state): bool
+    {
+        if ($state instanceof UserColumnStackState) {
+            return true;
+        }
+
+        if ($state instanceof Collection) {
+            $state = $state->all();
+        }
+
+        if (! is_array($state)) {
+            return false;
+        }
+
+        $modelCount = 0;
+
+        foreach ($state as $item) {
+            if ($item instanceof Model) {
+                $modelCount++;
+            }
+        }
+
+        return $modelCount > 1;
+    }
+
+    protected function resolveDirectRelationshipName(Model $record): ?string
+    {
+        $name = $this->getName();
+
+        if (! filled($name) || str($name)->contains('.')) {
+            return null;
+        }
+
+        if ($record->hasAttribute($name)) {
+            return null;
+        }
+
+        if (! $record->isRelation($name)) {
+            return null;
+        }
+
+        return $name;
+    }
+
+    protected function resolveSharedStackState(): mixed
+    {
+        if ($this->sharedStackUsing === null) {
+            return null;
+        }
+
+        return UserColumnSharedStackCache::remember(
+            $this->sharedStackCacheKey(),
+            fn (): mixed => $this->evaluate($this->sharedStackUsing),
+        );
+    }
+
+    protected function sharedStackCacheKey(): string
+    {
+        $livewire = $this->getLivewire();
+
+        return hash('xxh128', implode('|', [
+            $livewire::class,
+            spl_object_id($livewire),
+            $this->getName(),
+        ]));
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    protected function renderCacheKey(string $type, array $payload): string
+    {
+        return hash('xxh128', json_encode([
+            'column' => $this->getName(),
+            'type' => $type,
+            'payload' => $payload,
+            'ring' => $this->getStackedRing(),
+            'overlap' => $this->getStackedOverlap(),
+            'tooltips' => $this->shouldShowStackTooltips(),
+            'nameColumn' => $this->getNameColumn(),
+            'emailColumn' => $this->getEmailColumn(),
+            'avatarColumn' => $this->getAvatarColumn(),
+            'verificationColumn' => $this->getVerificationColumn(),
+        ], JSON_THROW_ON_ERROR));
     }
 }

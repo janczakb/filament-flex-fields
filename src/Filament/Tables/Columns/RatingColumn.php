@@ -7,6 +7,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\CalculatesRatingFill;
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
+use Bjanczak\FilamentFlexFields\Support\RatingColumnRenderCache;
 use Closure;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -31,6 +33,8 @@ class RatingColumn extends TextColumn
     protected function setUp(): void
     {
         parent::setUp();
+
+        FlexFieldStylesheetQueue::enqueueFor('rating-column');
 
         $this->html();
 
@@ -143,19 +147,51 @@ class RatingColumn extends TextColumn
             return '';
         }
 
-        /** @var View $view */
-        $view = view('filament-flex-fields::tables.columns.rating-column', [
+        $cacheKey = $this->renderCacheKey($value);
+
+        return RatingColumnRenderCache::remember($cacheKey, function () use ($value): string {
+            /** @var View $view */
+            $view = view('filament-flex-fields::tables.columns.rating-column', [
+                'value' => $value,
+                'max' => $this->getMax(),
+                'size' => $this->getRatingDisplaySize(),
+                'color' => $this->getRatingColor(),
+                'icon' => $this->getRatingIcon(),
+                'items' => $this->getItemIndexes(),
+                'showValue' => $this->shouldShowValue(),
+                'fillPercentageFor' => fn (int $index): float => $this->getFillPercentageForValue($value, $index),
+            ]);
+
+            return $view->render();
+        });
+    }
+
+    protected function renderCacheKey(float $value): string
+    {
+        return hash('xxh128', json_encode([
+            'column' => $this->getName(),
             'value' => $value,
             'max' => $this->getMax(),
             'size' => $this->getRatingDisplaySize(),
             'color' => $this->getRatingColor(),
-            'icon' => $this->getRatingIcon(),
-            'items' => $this->getItemIndexes(),
+            'icon' => $this->ratingIconCacheToken(),
             'showValue' => $this->shouldShowValue(),
-            'fillPercentageFor' => fn (int $index): float => $this->getFillPercentageForValue($value, $index),
-        ]);
+        ], JSON_THROW_ON_ERROR));
+    }
 
-        return $view->render();
+    protected function ratingIconCacheToken(): string
+    {
+        $icon = $this->getRatingIcon();
+
+        if ($icon instanceof Htmlable) {
+            return 'html:'.hash('xxh128', (string) $icon);
+        }
+
+        if ($icon instanceof BackedEnum) {
+            return 'enum:'.$icon::class.':'.$icon->value;
+        }
+
+        return 'string:'.(string) $icon;
     }
 
     public function normalizeRatingFromState(mixed $state): ?float

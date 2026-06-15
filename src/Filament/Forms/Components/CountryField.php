@@ -8,6 +8,8 @@ use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\StateCasts\CountryFieldStateCast;
 use Bjanczak\FilamentFlexFields\Support\Countries;
+use Bjanczak\FilamentFlexFields\Support\CountryRegistry;
+use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasPlaceholder;
@@ -261,7 +263,52 @@ class CountryField extends Field
         return $allowed[0] ?? null;
     }
 
+    public function getCountryPool(): string
+    {
+        return CountryRegistry::POOL_ISO;
+    }
+
+    public function hasCustomCountryCodeFilter(): bool
+    {
+        return $this->getAllowedCountryCodes() !== null || $this->getExceptCountryCodes() !== [];
+    }
+
+    public function getCountryFilterKey(): ?string
+    {
+        if (! $this->hasCustomCountryCodeFilter()) {
+            return null;
+        }
+
+        return CountryRegistryQueue::registerCountryFilter($this->getResolvedCountryCodes());
+    }
+
     /**
+     * @return array{code: string, name: string, dial_code: string|null, flag_url: string}|null
+     */
+    public function getSelectedCountryMetadata(): ?array
+    {
+        $stateValue = $this->getState();
+        $selectedCode = filled($stateValue) ? strtoupper((string) $stateValue) : null;
+
+        if ($selectedCode === null) {
+            return null;
+        }
+
+        $allowed = $this->getResolvedCountryCodes();
+
+        if (! in_array($selectedCode, $allowed, true)) {
+            return null;
+        }
+
+        $metadata = Countries::metadata([$selectedCode], $this->getExceptCountryCodes());
+
+        return $metadata[0] ?? null;
+    }
+
+    /**
+     * Country metadata for the Alpine dropdown. Built from {@see Countries::metadata()}
+     * which memoizes per allowed/except code-set — only the resolved subset is serialized to @js().
+     *
      * @return list<array{code: string, name: string, dial_code: string|null, flag_url: string}>
      */
     public function getCountriesMetadata(): array

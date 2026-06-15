@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Concerns;
 
+use Bjanczak\FilamentFlexFields\Enums\MapboxSearchType;
 use Closure;
 use Filament\Forms\Components\Field;
 use InvalidArgumentException;
@@ -36,6 +37,17 @@ trait InteractsWithGeocodedAddress
     protected array|Closure|null $geocodedAddressCountries = null;
 
     protected bool|Closure $streetAddressesOnly = false;
+
+    /**
+     * @var list<string>|Closure|null
+     */
+    protected array|Closure|null $geocodedAddressSearchTypes = null;
+
+    protected string|Closure|null $geocodedLanguage = null;
+
+    protected int|Closure $geocodedMinSearchLength = 2;
+
+    protected int|Closure $geocodedSearchDebounce = 350;
 
     protected function setUpGeocodedAddress(): void
     {
@@ -143,9 +155,86 @@ trait InteractsWithGeocodedAddress
         return $this;
     }
 
+    /**
+     * @param  list<MapboxSearchType|string>|Closure|null  $types  null searches all Mapbox place types
+     */
+    public function searchTypes(array|Closure|null $types): static
+    {
+        $this->geocodedAddressSearchTypes = $types;
+
+        return $this;
+    }
+
+    public function language(string|Closure|null $language): static
+    {
+        $this->geocodedLanguage = $language;
+
+        return $this;
+    }
+
+    public function minSearchLength(int|Closure $length): static
+    {
+        $this->geocodedMinSearchLength = $length;
+
+        return $this;
+    }
+
+    public function searchDebounce(int|Closure $milliseconds): static
+    {
+        $this->geocodedSearchDebounce = $milliseconds;
+
+        return $this;
+    }
+
     public function isStreetAddressesOnly(): bool
     {
         return (bool) $this->evaluate($this->streetAddressesOnly);
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getSearchTypes(): ?array
+    {
+        if ($this->isStreetAddressesOnly()) {
+            return [MapboxSearchType::Address->value];
+        }
+
+        return $this->normalizeSearchTypes($this->evaluate($this->geocodedAddressSearchTypes));
+    }
+
+    /**
+     * @param  list<MapboxSearchType|string>|null  $types
+     * @return list<string>|null
+     */
+    protected function normalizeSearchTypes(mixed $types): ?array
+    {
+        if ($types === null) {
+            return null;
+        }
+
+        if (! is_array($types) || $types === []) {
+            return null;
+        }
+
+        $allowed = MapboxSearchType::values();
+        $normalized = [];
+
+        foreach ($types as $type) {
+            $value = $type instanceof MapboxSearchType ? $type->value : strtolower(trim((string) $type));
+
+            if ($value === '') {
+                continue;
+            }
+
+            if (! in_array($value, $allowed, true)) {
+                throw new InvalidArgumentException("Mapbox search type [{$value}] is not supported.");
+            }
+
+            $normalized[] = $value;
+        }
+
+        return $normalized === [] ? null : array_values(array_unique($normalized));
     }
 
     /**
@@ -220,6 +309,58 @@ trait InteractsWithGeocodedAddress
         $configured = config('filament-flex-fields.mapbox.access_token');
 
         return is_string($configured) && filled($configured) ? $configured : null;
+    }
+
+    public function usesServerGeocoding(): bool
+    {
+        return (bool) config('filament-flex-fields.mapbox.use_server_proxy', true);
+    }
+
+    public function getGeocodeSearchUrl(): ?string
+    {
+        if (! $this->usesServerGeocoding()) {
+            return null;
+        }
+
+        return route('filament-flex-fields.geocode.search');
+    }
+
+    public function getGeocodeReverseUrl(): ?string
+    {
+        if (! $this->usesServerGeocoding()) {
+            return null;
+        }
+
+        return route('filament-flex-fields.geocode.reverse');
+    }
+
+    public function getLanguage(): string
+    {
+        $language = $this->evaluate($this->geocodedLanguage);
+
+        if (is_string($language) && $language !== '') {
+            return $language;
+        }
+
+        $configured = config('filament-flex-fields.mapbox.default_language');
+
+        if (is_string($configured) && $configured !== '') {
+            return $configured;
+        }
+
+        $locale = (string) app()->getLocale();
+
+        return $locale !== '' ? str_replace('_', '-', $locale) : 'en';
+    }
+
+    public function getMinSearchLength(): int
+    {
+        return max(0, (int) $this->evaluate($this->geocodedMinSearchLength));
+    }
+
+    public function getSearchDebounce(): int
+    {
+        return max(0, (int) $this->evaluate($this->geocodedSearchDebounce));
     }
 
     /**

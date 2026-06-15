@@ -67,6 +67,8 @@
     }
 @endphp
 
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'item-card'])
+
 <{{ $tag }} {{ $attributes }} data-slot="item-card">
     @if (filled($image))
         <div

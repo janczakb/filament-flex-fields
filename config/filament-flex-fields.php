@@ -29,6 +29,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Flex field audit trail
+    |--------------------------------------------------------------------------
+    | When enabled, value changes are appended to a JSON audit column.
+    */
+    'audit' => [
+        'enabled' => env('FLEX_FIELDS_AUDIT_ENABLED', true),
+        'column' => env('FLEX_FIELDS_AUDIT_COLUMN', 'flex_field_audit'),
+        'max_entries' => (int) env('FLEX_FIELDS_AUDIT_MAX_ENTRIES', 500),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Field Schemas (no database)
     |--------------------------------------------------------------------------
     | Define form fields in PHP config or register schemas programmatically
@@ -36,6 +48,7 @@ return [
     |
     | Example:
     | 'user_profile' => [
+    |     'version' => 1,
     |     'target' => App\Models\User::class,
     |     'label' => 'User profile',
     |     'fields' => [
@@ -70,6 +83,12 @@ return [
     */
     'mapbox' => [
         'access_token' => env('MAPBOX_ACCESS_TOKEN'),
+        'use_server_proxy' => env('FLEX_FIELDS_MAPBOX_SERVER_PROXY', true),
+        'default_language' => env('FLEX_FIELDS_MAPBOX_LANGUAGE', null),
+        'cache_ttl_seconds' => (int) env('FLEX_FIELDS_MAPBOX_CACHE_TTL', 3600),
+        'rate_limit_per_minute' => (int) env('FLEX_FIELDS_MAPBOX_RATE_LIMIT', 60),
+        'proxy_prefix' => 'flex-fields',
+        'proxy_middleware' => ['web', 'auth'],
     ],
 
     /*

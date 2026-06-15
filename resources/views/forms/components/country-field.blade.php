@@ -3,18 +3,14 @@
     $isDisabled = $isDisabled();
     $isReadOnly = $isReadOnly();
     $wrapperClasses = $getWrapperClasses();
-    $countries = $getCountriesMetadata();
+    $selectedCountry = $getSelectedCountryMetadata();
     $defaultCountry = $getDefaultCountryCode();
-    $stateValue = $getState();
-    $selectedCode = filled($stateValue) ? strtoupper((string) $stateValue) : null;
-    $selectedCountry = $selectedCode
-        ? collect($countries)->firstWhere('code', $selectedCode)
-        : null;
     $placeholder = filled($getPlaceholder())
         ? $getPlaceholder()
         : __('filament-flex-fields::default.country.placeholder');
     $hasError = filled($statePath) && $errors->has($statePath);
     $livewireKey = $getLivewireKey();
+    $selectedCode = filled($getState()) ? strtoupper((string) $getState()) : null;
 @endphp
 
 <x-dynamic-component
@@ -34,7 +30,11 @@
         x-data="countryFieldFormComponent({
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             statePath: @js($statePath),
-            countries: @js($countries),
+            countryPool: @js($field->getCountryPool()),
+            countryFilterKey: @js($field->getCountryFilterKey()),
+            sortPreferredFirst: @js($shouldSortCountriesByBrowserLocale()),
+            preferredCountryCode: @js($shouldSortCountriesByBrowserLocale() ? $getBrowserLocaleCountryCode() : null),
+            selectedCountrySeed: @js($selectedCountry),
             defaultCountry: @js($defaultCountry),
             disabled: @js($isDisabled),
             readOnly: @js($isReadOnly),
@@ -45,7 +45,6 @@
             placeholder: @js($placeholder),
             browserLocaleDefault: @js($shouldUseBrowserLocaleDefault()),
             languageCountryMap: @js(\Bjanczak\FilamentFlexFields\Support\Countries::browserLanguageCountryMap()),
-            allowedCountryCodes: @js($field->getResolvedCountryCodes()),
             initialState: @js($selectedCode),
         })"
         x-init="init()"
@@ -65,6 +64,7 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
+        {!! \Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue::renderScriptOnce() !!}
         <div @class([
             'fff-country-field__shell fff-flex-text-input__shell',
             'is-invalid' => $hasError,
@@ -187,8 +187,10 @@
                     x-transition.opacity.duration.150ms
                     x-bind:class="{ 'is-positioned': menuReady }"
                     x-on:click.stop
+                    x-on:keydown="onCountryMenuKeydown($event)"
                     role="listbox"
                     x-bind:aria-label="{{ json_encode($getLabel()) }}"
+                    x-bind:aria-activedescendant="activeCountryIndex >= 0 ? countryOptionId(activeCountryIndex) : null"
                 >
                     @if ($isSearchable())
                         <div class="fff-country-field__search-wrap">
@@ -198,27 +200,44 @@
                                 x-model="countrySearch"
                                 x-ref="countrySearch"
                                 x-bind:placeholder="searchPlaceholder"
-                                x-on:keydown.stop
+                                x-on:keydown.stop="onCountrySearchKeydown($event)"
                             />
                         </div>
                     @endif
 
-                    <ul class="fff-country-field__list">
-                        <template x-for="country in filteredCountries" :key="country.code">
-                            <li>
+                    <ul
+                        class="fff-country-field__list"
+                        x-ref="countryListScroll"
+                        x-on:scroll.passive="onVirtualListScroll($event)"
+                        x-on:keydown="onCountryListKeydown($event)"
+                    >
+                        <li
+                            x-show="usesVirtualList()"
+                            class="fff-country-field__virtual-spacer"
+                            x-bind:style="`height: ${virtualSpacerTop()}px`"
+                            aria-hidden="true"
+                        ></li>
+                        <template x-for="entry in countryListEntries()" :key="entry.item.code">
+                            <li class="fff-country-field__list-item">
                                 <button
                                     type="button"
                                     class="fff-country-field__option"
-                                    x-on:click="selectCountry(country.code)"
-                                    x-bind:class="{ 'is-selected': country.code === state }"
+                                    x-bind:id="countryOptionId(entry.index)"
+                                    x-on:click="selectCountry(entry.item.code)"
+                                    x-bind:class="{
+                                        'is-selected': entry.item.code === state,
+                                        'is-active': entry.index === activeCountryIndex,
+                                    }"
                                     role="option"
-                                    x-bind:aria-selected="country.code === state ? 'true' : 'false'"
+                                    x-bind:aria-selected="entry.item.code === state ? 'true' : 'false'"
+                                    x-bind:aria-posinset="entry.index + 1"
+                                    x-bind:aria-setsize="filteredCountries().length"
                                 >
                                     <span class="fff-country-field__flag-wrap" aria-hidden="true">
                                         <img
                                             class="fff-country-field__flag"
-                                            x-bind:src="country.flag_url"
-                                            x-bind:alt="country.name"
+                                            x-bind:src="entry.item.flag_url"
+                                            x-bind:alt="entry.item.name"
                                             alt=""
                                             loading="lazy"
                                             decoding="async"
@@ -227,20 +246,26 @@
                                             x-on:error="$el.classList.remove('is-loaded')"
                                         />
                                     </span>
-                                    <span class="fff-country-field__option-name" x-text="country.name"></span>
+                                    <span class="fff-country-field__option-name" x-text="entry.item.name"></span>
                                     <span
                                         class="fff-country-field__option-code"
                                         x-show="showCountryCode"
-                                        x-text="country.code"
+                                        x-text="entry.item.code"
                                     ></span>
                                     <span
                                         class="fff-country-field__option-dial"
                                         x-show="showDialCode"
-                                        x-text="country.dial_code"
+                                        x-text="entry.item.dial_code"
                                     ></span>
                                 </button>
                             </li>
                         </template>
+                        <li
+                            x-show="usesVirtualList()"
+                            class="fff-country-field__virtual-spacer"
+                            x-bind:style="`height: ${virtualSpacerBottom()}px`"
+                            aria-hidden="true"
+                        ></li>
                     </ul>
                 </div>
             </template>

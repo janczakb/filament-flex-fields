@@ -1,4 +1,11 @@
 import { sharedEmojiPicker } from '../core/shared-emoji-picker.js'
+import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+
+const exclusiveDropdown = createExclusiveDropdownMixin({
+    openKey: 'emojiPickerOpen',
+    closeMethod: 'closeEmojiPicker',
+    ownerIdPrefix: 'fff-emoji-picker',
+})
 
 export default function flexTextInputFormComponent({
     state,
@@ -28,6 +35,7 @@ export default function flexTextInputFormComponent({
     }
 
     return {
+        ...exclusiveDropdown,
         state,
         statePath,
         initialState: initialState ?? '',
@@ -309,6 +317,8 @@ export default function flexTextInputFormComponent({
         },
 
         init() {
+            this.wireExclusiveFlexDropdown()
+
             if (this.speechDictation && ! this.speechSupported) {
                 this.speechSupported = Boolean(
                     window.SpeechRecognition || window.webkitSpeechRecognition,
@@ -643,7 +653,15 @@ export default function flexTextInputFormComponent({
         },
 
         toggleEmojiPicker() {
-            if (this.emojiPickerOpen) {
+            const anchor = this.$refs.emojiTrigger
+
+            if (sharedEmojiPicker.shouldSuppressToggle(anchor)) {
+                this.emojiPickerOpen = false
+
+                return
+            }
+
+            if (sharedEmojiPicker.isOpenForAnchor(anchor) || this.emojiPickerOpen) {
                 this.closeEmojiPicker()
 
                 return
@@ -651,7 +669,7 @@ export default function flexTextInputFormComponent({
 
             sharedEmojiPicker.open({
                 context: this,
-                anchor: this.$refs.emojiTrigger,
+                anchor,
                 locale: this.emojiPickerLocale,
                 getPrimaryColor: () => this.resolvePrimaryColor(),
                 onSelect: (unicode) => this.insertAtCursor(unicode),
@@ -668,7 +686,9 @@ export default function flexTextInputFormComponent({
         },
 
         closeEmojiPicker() {
-            if (sharedEmojiPicker.isOpenFor(this)) {
+            const anchor = this.$refs.emojiTrigger
+
+            if (sharedEmojiPicker.isOpenForAnchor(anchor)) {
                 sharedEmojiPicker.close()
             }
 

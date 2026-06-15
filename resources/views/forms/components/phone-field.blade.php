@@ -7,14 +7,12 @@
     $isDisabled = $isDisabled();
     $isReadOnly = $isReadOnly();
     $wrapperClasses = $getWrapperClasses();
-    $countries = $getCountriesMetadata();
+    $selectedCountry = $getSelectedCountryMetadata();
     $defaultCountry = $getDefaultCountryCode();
     $stateValue = $getState();
     $initialCountryCode = is_array($stateValue) && filled($stateValue['country'] ?? null)
         ? strtoupper((string) $stateValue['country'])
         : $defaultCountry;
-    $initialCountry = collect($countries)->firstWhere('code', $initialCountryCode)
-        ?? ($countries[0] ?? null);
     $placeholder = filled($getPlaceholder())
         ? $getPlaceholder()
         : __('filament-flex-fields::default.phone.placeholder');
@@ -42,7 +40,11 @@
         x-data="phoneFieldFormComponent({
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             statePath: @js($statePath),
-            countries: @js($countries),
+            countryPool: @js($field->getCountryPool()),
+            countryFilterKey: @js($field->getCountryFilterKey()),
+            sortPreferredFirst: @js($shouldSortCountriesByBrowserLocale()),
+            preferredCountryCode: @js($shouldSortCountriesByBrowserLocale() ? $getBrowserLocaleCountryCode() : null),
+            selectedCountrySeed: @js($selectedCountry),
             defaultCountry: @js($defaultCountry),
             initialInputValue: @js($initialInputValue),
             disabled: @js($isDisabled),
@@ -69,6 +71,7 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
+        {!! \Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue::renderScriptOnce() !!}
         <div @class([
             'fff-phone-field__shell fff-flex-text-input__shell',
             'is-invalid' => $hasError,
@@ -88,9 +91,9 @@
                         <span class="fff-phone-field__flag-wrap" aria-hidden="true">
                             <img
                                 class="fff-phone-field__flag is-loaded"
-                                @if ($initialCountry)
-                                    src="{{ $initialCountry['flag_url'] }}"
-                                    alt="{{ e($initialCountry['name']) }}"
+                                @if ($selectedCountry)
+                                    src="{{ $selectedCountry['flag_url'] }}"
+                                    alt="{{ e($selectedCountry['name']) }}"
                                 @endif
                                 x-bind:src="selectedCountry.flag_url"
                                 x-bind:alt="selectedCountry.name"
@@ -127,8 +130,10 @@
                             x-transition.opacity.duration.150ms
                             x-bind:class="{ 'is-positioned': countryMenuReady }"
                             x-on:click.stop
+                            x-on:keydown="onCountryMenuKeydown($event)"
                             role="listbox"
                             x-bind:aria-label="countryLabel"
+                            x-bind:aria-activedescendant="activeCountryIndex >= 0 ? countryOptionId(activeCountryIndex) : null"
                         >
                             @if ($isSearchable())
                                 <div class="fff-phone-field__country-search-wrap">
@@ -138,27 +143,44 @@
                                         x-model="countrySearch"
                                         x-ref="countrySearch"
                                         placeholder="{{ __('filament-flex-fields::default.phone.search_countries') }}"
-                                        x-on:keydown.stop
+                                        x-on:keydown.stop="onCountrySearchKeydown($event)"
                                     />
                                 </div>
                             @endif
 
-                            <ul class="fff-phone-field__country-list">
-                                <template x-for="country in filteredCountries" :key="country.code">
-                                    <li>
+                            <ul
+                                class="fff-phone-field__country-list"
+                                x-ref="countryListScroll"
+                                x-on:scroll.passive="onVirtualListScroll($event)"
+                                x-on:keydown="onCountryListKeydown($event)"
+                            >
+                                <li
+                                    x-show="usesVirtualList()"
+                                    class="fff-phone-field__country-virtual-spacer"
+                                    x-bind:style="`height: ${virtualSpacerTop()}px`"
+                                    aria-hidden="true"
+                                ></li>
+                                <template x-for="entry in countryListEntries()" :key="entry.item.code">
+                                    <li class="fff-phone-field__country-list-item">
                                         <button
                                             type="button"
                                             class="fff-phone-field__country-option"
-                                            x-on:click="selectCountry(country.code)"
-                                            x-bind:class="{ 'is-selected': country.code === state.country }"
+                                            x-bind:id="countryOptionId(entry.index)"
+                                            x-on:click="selectCountry(entry.item.code)"
+                                            x-bind:class="{
+                                                'is-selected': entry.item.code === state.country,
+                                                'is-active': entry.index === activeCountryIndex,
+                                            }"
                                             role="option"
-                                            x-bind:aria-selected="country.code === state.country ? 'true' : 'false'"
+                                            x-bind:aria-selected="entry.item.code === state.country ? 'true' : 'false'"
+                                            x-bind:aria-posinset="entry.index + 1"
+                                            x-bind:aria-setsize="filteredCountries().length"
                                         >
                                             <span class="fff-phone-field__flag-wrap" aria-hidden="true">
                                                 <img
                                                     class="fff-phone-field__flag"
-                                                    x-bind:src="country.flag_url"
-                                                    x-bind:alt="country.name"
+                                                    x-bind:src="entry.item.flag_url"
+                                                    x-bind:alt="entry.item.name"
                                                     alt=""
                                                     loading="lazy"
                                                     decoding="async"
@@ -167,11 +189,17 @@
                                                     x-on:error="$el.classList.remove('is-loaded')"
                                                 />
                                             </span>
-                                            <span class="fff-phone-field__country-name" x-text="country.name"></span>
-                                            <span class="fff-phone-field__country-dial" x-text="country.dial_code"></span>
+                                            <span class="fff-phone-field__country-name" x-text="entry.item.name"></span>
+                                            <span class="fff-phone-field__country-dial" x-text="entry.item.dial_code"></span>
                                         </button>
                                     </li>
                                 </template>
+                                <li
+                                    x-show="usesVirtualList()"
+                                    class="fff-phone-field__country-virtual-spacer"
+                                    x-bind:style="`height: ${virtualSpacerBottom()}px`"
+                                    aria-hidden="true"
+                                ></li>
                             </ul>
                         </div>
                     </template>

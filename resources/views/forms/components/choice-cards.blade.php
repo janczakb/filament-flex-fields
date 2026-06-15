@@ -18,6 +18,7 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'choice-cards'])
     <div
         x-data="{
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},

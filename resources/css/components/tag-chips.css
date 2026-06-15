@@ -1,0 +1,120 @@
+/* Shared removable tag chips (TagsField + UserSelect) */
+
+:where(.fff-tags-field, .fff-user-select__selected-tags) {
+    --fff-tags-field-accent: var(--primary-500, rgb(99 102 241));
+    --fff-tags-field-tag-bg: rgb(255 255 255);
+    --fff-tags-field-tag-text: color-mix(in srgb, var(--fff-tags-field-accent) 78%, rgb(24 24 27));
+    --fff-tags-field-tag-border: color-mix(in srgb, var(--fff-tags-field-accent) 32%, rgb(212 212 216));
+    --fff-tags-field-remove-bg: rgb(255 255 255);
+    --fff-tags-field-remove-border: rgb(212 212 216);
+    --fff-tags-field-remove-text: rgb(63 63 70);
+    --fff-tags-field-remove-hover-bg: rgb(254 226 226);
+    --fff-tags-field-remove-hover-border: rgb(252 165 165);
+    --fff-tags-field-remove-hover-text: rgb(185 28 28);
+}
+
+.dark :where(.fff-tags-field, .fff-user-select__selected-tags) {
+    --fff-tags-field-tag-bg: color-mix(in srgb, var(--fff-tags-field-accent) 14%, rgb(39 39 42));
+    --fff-tags-field-tag-text: color-mix(in srgb, var(--fff-tags-field-accent) 42%, rgb(244 244 245));
+    --fff-tags-field-tag-border: color-mix(in srgb, var(--fff-tags-field-accent) 34%, rgb(82 82 91));
+    --fff-tags-field-remove-bg: rgb(39 39 42);
+    --fff-tags-field-remove-border: rgb(82 82 91);
+    --fff-tags-field-remove-text: rgb(212 212 216);
+    --fff-tags-field-remove-hover-bg: rgb(127 29 29 / 0.45);
+    --fff-tags-field-remove-hover-border: rgb(248 113 113);
+    --fff-tags-field-remove-hover-text: rgb(254 202 202);
+}
+
+.fff-tags-field__tag {
+    display: inline-flex;
+    max-width: 100%;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    border: 1px solid var(--fff-tags-field-tag-border);
+    background: var(--fff-tags-field-tag-bg);
+    padding-block: 0.3125rem;
+    padding-inline: 0.75rem 0.4375rem;
+    color: var(--fff-tags-field-tag-text);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+}
+
+.fff-tags-field--sm .fff-tags-field__tag {
+    font-size: 0.75rem;
+    padding-block: 0.25rem;
+    padding-inline: 0.625rem 0.375rem;
+}
+
+.fff-tags-field--lg .fff-tags-field__tag {
+    font-size: 0.875rem;
+    padding-block: 0.375rem;
+    padding-inline: 0.875rem 0.5rem;
+}
+
+.fff-tags-field__tag.is-reorderable {
+    cursor: grab;
+}
+
+.fff-tags-field__tag-label {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fff-tags-field__tag-remove {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--fff-tags-field-remove-border);
+    border-radius: 9999px;
+    background: var(--fff-tags-field-remove-bg);
+    color: var(--fff-tags-field-remove-text);
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
+}
+
+.fff-tags-field__tag-remove:hover {
+    background: var(--fff-tags-field-remove-hover-bg);
+    border-color: var(--fff-tags-field-remove-hover-border);
+    color: var(--fff-tags-field-remove-hover-text);
+    transform: scale(1.04);
+}
+
+.fff-tags-field__tag-remove:focus-visible {
+    outline: 2px solid var(--fff-tags-field-accent);
+    outline-offset: 1px;
+}
+
+.fff-tags-field__tag-remove svg {
+    width: 0.875rem;
+    height: 0.875rem;
+}
+
+.fff-tags-field--sm .fff-tags-field__tag-remove {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.fff-tags-field--sm .fff-tags-field__tag-remove svg {
+    width: 0.75rem;
+    height: 0.75rem;
+}
+
+.fff-tags-field--lg .fff-tags-field__tag-remove {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.fff-tags-field--lg .fff-tags-field__tag-remove svg {
+    width: 1rem;
+    height: 1rem;
+}

@@ -1,6 +1,7 @@
 import esbuild from 'esbuild';
 import fs from 'node:fs';
 import path from 'node:path';
+import { collectJsMetrics, writeBundleMetrics } from './bundle-metrics.mjs';
 
 const packageRoot = path.resolve(import.meta.dirname, '..');
 const componentsRoot = path.join(packageRoot, 'resources/js/components');
@@ -34,8 +35,24 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (modules) => modules.includes('core/searchable-select-menu.js'),
     },
     {
+        slug: 'flex-fields-virtualized-list',
+        matches: (modules) => modules.includes('core/virtualized-list.js'),
+    },
+    {
+        slug: 'flex-fields-country-registry',
+        matches: (modules) => modules.includes('core/country-registry.js'),
+    },
+    {
+        slug: 'flex-fields-country-search',
+        matches: (modules) => modules.includes('core/country-search.js'),
+    },
+    {
+        slug: 'flex-fields-country-keyboard',
+        matches: (modules) => modules.includes('core/country-list-keyboard.js'),
+    },
+    {
         slug: 'flex-fields-phone-lib',
-        matches: (modules) => modules.length === 0,
+        matches: (_modules, inputs) => inputs.some((input) => input.includes('libphonenumber-js')),
     },
 ];
 
@@ -66,11 +83,14 @@ const result = await esbuild.build({
     entryNames: '[name]',
     chunkNames: 'chunk-[hash]',
     metafile: true,
+    loader: {
+        '.svg': 'text',
+    },
 });
 
-function resolveSemanticChunkSlug(modules) {
+function resolveSemanticChunkSlug(modules, inputs = []) {
     for (const rule of SEMANTIC_CHUNK_RULES) {
-        if (rule.matches(modules)) {
+        if (rule.matches(modules, inputs)) {
             return rule.slug;
         }
     }
@@ -94,10 +114,13 @@ function buildChunkModules(metafile) {
             continue;
         }
 
-        chunkModules[fileName] = Object.keys(output.inputs)
-            .map((inputPath) => path.relative(jsRoot, inputPath))
-            .filter((relativePath) => ! relativePath.startsWith('..'))
-            .sort();
+        chunkModules[fileName] = {
+            modules: Object.keys(output.inputs)
+                .map((inputPath) => path.relative(jsRoot, inputPath))
+                .filter((relativePath) => ! relativePath.startsWith('..'))
+                .sort(),
+            inputs: Object.keys(output.inputs),
+        };
     }
 
     return chunkModules;
@@ -106,9 +129,9 @@ function buildChunkModules(metafile) {
 function renameChunksToSemanticNames(chunkModules) {
     const renameMap = {};
 
-    for (const [originalName, modules] of Object.entries(chunkModules)) {
+    for (const [originalName, chunk] of Object.entries(chunkModules)) {
         const hash = originalName.replace(/^chunk-/, '').replace(/\.js$/, '');
-        const slug = resolveSemanticChunkSlug(modules);
+        const slug = resolveSemanticChunkSlug(chunk.modules, chunk.inputs);
         const semanticName = `${slug}-${hash}.js`;
 
         renameMap[originalName] = semanticName;
@@ -150,8 +173,8 @@ function renameChunksToSemanticNames(chunkModules) {
 
     const semanticChunkModules = {};
 
-    for (const [originalName, modules] of Object.entries(chunkModules)) {
-        semanticChunkModules[renameMap[originalName] ?? originalName] = modules;
+    for (const [originalName, chunk] of Object.entries(chunkModules)) {
+        semanticChunkModules[renameMap[originalName] ?? originalName] = chunk.modules;
     }
 
     return { renameMap, semanticChunkModules };
@@ -201,6 +224,8 @@ fs.writeFileSync(
     path.join(distRoot, 'alpine-manifest.json'),
     `${JSON.stringify(manifest, null, 2)}\n`,
 );
+
+writeBundleMetrics(packageRoot, { js: collectJsMetrics(distRoot) });
 
 const outputCount = Object.keys(result.metafile.outputs).length;
 

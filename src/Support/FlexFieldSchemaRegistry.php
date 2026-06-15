@@ -12,6 +12,7 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldSchema;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaMigrator;
 
 class FlexFieldSchemaRegistry
 {
@@ -23,6 +24,10 @@ class FlexFieldSchemaRegistry
 
     /** @var array<string, list<FlexFieldDefinition>> */
     protected array $targetFieldsCache = [];
+
+    public function __construct(
+        protected FlexFieldSchemaMigrator $migrator = new FlexFieldSchemaMigrator,
+    ) {}
 
     public function register(FlexFieldSchema $schema): self
     {
@@ -40,11 +45,14 @@ class FlexFieldSchemaRegistry
     public function registerFromConfig(array $schemas): self
     {
         foreach ($schemas as $key => $schema) {
+            $schema = $this->migrator->migrate($schema);
+
             $this->register(
                 FlexFieldSchema::make($key, (string) $schema['target'])
                     ->label($schema['label'] ?? null)
                     ->active((bool) ($schema['active'] ?? true))
                     ->sort((int) ($schema['sort'] ?? 0))
+                    ->version((int) ($schema['version'] ?? FlexFieldSchema::CURRENT_VERSION))
                     ->fields($schema['fields'] ?? []),
             );
         }

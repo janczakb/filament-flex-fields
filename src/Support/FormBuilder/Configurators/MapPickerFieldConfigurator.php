@@ -59,6 +59,22 @@ final class MapPickerFieldConfigurator implements FieldConfigurator
             $field->streetAddressesOnly((bool) $config['street_addresses_only']);
         }
 
+        if (array_key_exists('search_types', $config)) {
+            $field->searchTypes(is_array($config['search_types']) ? $config['search_types'] : null);
+        }
+
+        if (array_key_exists('language', $config)) {
+            $field->language((string) $config['language']);
+        }
+
+        if (array_key_exists('min_search_length', $config)) {
+            $field->minSearchLength((int) $config['min_search_length']);
+        }
+
+        if (array_key_exists('search_debounce', $config)) {
+            $field->searchDebounce((int) $config['search_debounce']);
+        }
+
         return $field;
     }
 }

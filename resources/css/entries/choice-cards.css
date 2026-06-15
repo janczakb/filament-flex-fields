@@ -1,0 +1,10 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/ChoiceCards.php";
+@source "../../src/Filament/Forms/Components/ChoiceCheckboxCards.php";
+@source "../views/forms/components/choice-cards.blade.php";
+@source "../views/forms/components/choice-checkbox-cards.blade.php";
+
+@import "../core/choice-cards.css";

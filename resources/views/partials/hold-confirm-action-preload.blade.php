@@ -3,7 +3,10 @@
     use Filament\Support\Facades\FilamentAsset;
 @endphp
 
-<link
-    rel="modulepreload"
-    href="{{ FilamentAsset::getAlpineComponentSrc('hold-confirm-action', FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
-/>
+@push('styles')
+    <link
+        rel="modulepreload"
+        href="{{ FilamentAsset::getAlpineComponentSrc('hold-confirm-action', FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+        data-navigate-track
+    />
+@endpush

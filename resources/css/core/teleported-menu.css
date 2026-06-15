@@ -1,0 +1,27 @@
+.fff-teleported-menu {
+    --fff-select-menu-bg: rgb(255 255 255 / 0.9);
+    --fff-select-menu-border: rgb(228 228 231 / 0.65);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.06),
+        0 12px 28px -6px rgb(0 0 0 / 0.12);
+    --fff-select-menu-hover: rgb(244 244 245 / 0.72);
+    --fff-select-menu-selected: rgb(228 228 231 / 0.78);
+    --fff-select-search-bg: rgb(255 255 255 / 0.55);
+    --fff-select-search-border: rgb(228 228 231);
+    --fff-phone-field-menu-text: rgb(24 24 27);
+    --fff-phone-field-menu-muted: rgb(113 113 122);
+}
+
+.dark .fff-teleported-menu {
+    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-border: rgb(255 255 255 / 0.12);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+    --fff-select-menu-hover: rgb(63 63 70 / 0.82);
+    --fff-select-menu-selected: rgb(82 82 91 / 0.88);
+    --fff-select-search-bg: rgb(39 39 42 / 0.55);
+    --fff-select-search-border: rgb(63 63 70);
+    --fff-phone-field-menu-text: rgb(250 250 250);
+    --fff-phone-field-menu-muted: rgb(161 161 170);
+}

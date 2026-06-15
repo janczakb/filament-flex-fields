@@ -31,10 +31,13 @@
         x-data="addressAutocompleteFormComponent({
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             accessToken: @js($accessToken),
+            geocodeSearchUrl: @js($field->getGeocodeSearchUrl()),
+            geocodeReverseUrl: @js($field->getGeocodeReverseUrl()),
             searchable: @js($field->isSearchable() && ! $isDisabled && ! $isReadOnly),
             countries: @js($field->getCountries()),
             language: @js($field->getLanguage()),
             streetAddressesOnly: @js($field->isStreetAddressesOnly()),
+            searchTypes: @js($field->getSearchTypes()),
             readOnly: @js($isDisabled || $isReadOnly),
             minSearchLength: @js($field->getMinSearchLength()),
             searchDebounce: @js($field->getSearchDebounce()),
@@ -46,6 +49,7 @@
                 searchNoResults: @js(__('filament-flex-fields::default.address_autocomplete.search_no_results')),
                 clear: @js(__('filament-flex-fields::default.address_autocomplete.clear')),
                 streetAddressRequired: @js(__('filament-flex-fields::default.address_autocomplete.street_address_required')),
+                geocodeFailed: @js(__('filament-flex-fields::default.geocoding.failed')),
             },
         })"
         x-init="init()"
@@ -97,6 +101,7 @@
                                 x-bind:disabled="readOnly"
                                 x-bind:readonly="readOnly"
                                 x-bind:aria-expanded="searchOpen"
+                                x-bind:aria-activedescendant="highlightedIndex >= 0 ? geocodingOptionId(highlightedIndex) : null"
                                 aria-autocomplete="list"
                                 aria-controls="{{ $statePath }}__search-listbox"
                                 autocomplete="off"
@@ -126,14 +131,18 @@
                 </div>
             </div>
 
-            <div
-                id="{{ $statePath }}__search-listbox"
-                role="listbox"
-                class="fff-map-picker__dropdown-panel"
-                x-show="searchable && searchOpen && ! readOnly"
-                x-cloak
-            >
-                <div class="fff-map-picker__dropdown-options">
+            <template x-teleport="body">
+                <div
+                    id="{{ $statePath }}__search-listbox"
+                    role="listbox"
+                    class="fff-map-picker__dropdown-panel fff-select-dropdown-panel fff-teleported-menu"
+                    x-ref="searchDropdown"
+                    x-show="searchable && searchOpen && ! readOnly"
+                    x-cloak
+                    x-bind:class="{ 'is-positioned': searchDropdownReady }"
+                    x-on:mousedown.stop
+                >
+                    <div class="fff-map-picker__dropdown-options">
                     <p
                         class="fff-map-picker__dropdown-hint"
                         x-show="! searchHasMinQuery && ! searchLoading"
@@ -174,6 +183,7 @@
                                 type="button"
                                 role="option"
                                 class="fff-map-picker__dropdown-option"
+                                x-bind:id="geocodingOptionId(index)"
                                 x-bind:class="{ 'is-active': highlightedIndex === index }"
                                 x-bind:aria-selected="highlightedIndex === index"
                                 x-on:mousedown.prevent="selectSearchResult(result)"
@@ -182,8 +192,9 @@
                             </button>
                         </template>
                     </div>
+                    </div>
                 </div>
-            </div>
+            </template>
         </div>
 
         <p
@@ -197,6 +208,12 @@
             class="fff-address-autocomplete__selection-error"
             x-show="selectionError"
             x-text="selectionError"
+            x-cloak
+        ></p>
+        <p
+            class="fff-address-autocomplete__selection-error"
+            x-show="geocodeError"
+            x-text="geocodeError"
             x-cloak
         ></p>
     </div>

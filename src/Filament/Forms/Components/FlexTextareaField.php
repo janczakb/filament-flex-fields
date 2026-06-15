@@ -268,13 +268,46 @@ class FlexTextareaField extends Textarea implements HasAffixActions
         });
     }
 
+    public function prepareAction(Action $action): Action
+    {
+        $prepared = parent::prepareAction($action);
+
+        $target = $this->resolveActionLivewireTarget($prepared);
+
+        if (filled($target)) {
+            $prepared->livewireTarget($target);
+        }
+
+        return $prepared;
+    }
+
+    protected function resolveActionLivewireTarget(Action $action): ?string
+    {
+        if (! $this->isMountedInContainer()) {
+            return "mountAction('{$action->getName()}')";
+        }
+
+        return $action->getLivewireClickHandler() ?? "mountAction('{$action->getName()}')";
+    }
+
     public function prepareActionGroup(ActionGroup $group): ActionGroup
     {
-        return parent::prepareActionGroup($group)
+        $preparedGroup = parent::prepareActionGroup($group)
             ->dropdownTeleport(false)
             ->extraDropdownAttributes([
                 'class' => 'fff-flex-textarea-action-dropdown',
+            ], merge: true)
+            ->extraAttributes([
+                'wire:loading.attr' => null,
             ], merge: true);
+
+        $preparedGroup->actions(
+            collect($preparedGroup->getActions())
+                ->map(fn (Action $action): Action => $this->prepareAction($action))
+                ->all(),
+        );
+
+        return $preparedGroup;
     }
 
     protected function prepareSubmitAction(Action $action): Action

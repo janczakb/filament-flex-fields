@@ -1,40 +1,12 @@
 <x-filament-panels::page>
-    <link
-        rel="stylesheet"
-        href="{{ \Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::playgroundStylesheetHref() }}"
-        data-navigate-track
-    />
-
-    @if ($slug = $this->getPlaygroundSlug())
-        @php($stylesheetComponent = \Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::resolveStylesheetComponent($slug))
-        @if (\Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::shouldLoadStylesheetsFor($stylesheetComponent))
-            @foreach (\Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue::enqueueFor($stylesheetComponent) as $stylesheet)
-                <link
-                    rel="stylesheet"
-                    href="{{ \Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::stylesheetHref($stylesheet) }}"
-                    data-navigate-track
-                />
-            @endforeach
-        @endif
-    @endif
-
     <div
         x-data="{
-            dark: localStorage.getItem('fff-playground-dark-mode') === 'true',
-            init() {
-                this.apply();
-            },
+            dark: window.FffPlaygroundTheme.isDark(),
             toggle() {
-                this.dark = ! this.dark;
-                localStorage.setItem('fff-playground-dark-mode', this.dark ? 'true' : 'false');
-                this.apply();
-            },
-            apply() {
-                document.documentElement.classList.toggle('dark', this.dark);
+                window.FffPlaygroundTheme.toggle();
+                this.dark = window.FffPlaygroundTheme.isDark();
             },
         }"
-        x-init="init()"
-        x-on:destroy.window="document.documentElement.classList.remove('dark')"
     >
         <div class="fff-playground-toolbar">
             <div class="fff-playground-toolbar__info">
@@ -72,10 +44,18 @@
     </div>
 
     <script>
-        document.addEventListener('livewire:navigating', () => {
+        document.addEventListener('livewire:navigating', (event) => {
             if (! window.location.pathname.includes('flex-fields-playground')) {
-                document.documentElement.classList.remove('dark');
+                return;
             }
+
+            const destination = event.detail?.destination?.url ?? event.detail?.url ?? '';
+
+            if (destination.includes('flex-fields-playground')) {
+                return;
+            }
+
+            window.FffPlaygroundTheme?.reset();
         });
     </script>
 </x-filament-panels::page>

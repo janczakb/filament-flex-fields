@@ -560,8 +560,10 @@
     padding: var(--fff-switch-pad);
 }
 
-.fff-switch__control.fi-color,
-.fff-cell-switch__control.fi-color {
+.fff-switch__control.fi-color[data-checked='true'],
+.fff-cell-switch__control.fi-color[data-checked='true'],
+.fff-switch__control.fi-color[data-checked='false'],
+.fff-cell-switch__control.fi-color[data-checked='false'] {
     @apply bg-(--bg) dark:bg-(--dark-bg);
 }
 

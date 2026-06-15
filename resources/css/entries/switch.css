@@ -1,0 +1,11 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/SwitchField.php";
+@source "../../src/Filament/Forms/Components/CellSwitch.php";
+@source "../views/forms/components/switch-field.blade.php";
+@source "../views/forms/components/cell-switch.blade.php";
+@source "../views/forms/components/partials/switch-control.blade.php";
+
+@import "../core/switch.css";

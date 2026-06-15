@@ -5,4 +5,5 @@
 @source "../../src/Filament/Forms/Components/TimezoneField.php";
 @source "../views/forms/components/timezone-field.blade.php";
 
+@import "../core/teleported-menu.css";
 @import "../components/timezone-field.css";

@@ -33,11 +33,17 @@
             x-data="mapPickerFormComponent({
                 state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                 accessToken: @js($accessToken),
+                geocodeSearchUrl: @js($field->getGeocodeSearchUrl()),
+                geocodeReverseUrl: @js($field->getGeocodeReverseUrl()),
                 defaultCenter: @js($defaultCenter),
                 defaultZoom: @js($field->getDefaultZoom()),
                 searchable: @js($field->isSearchable() && ! $isDisabled && ! $isReadOnly),
                 countries: @js($field->getCountries()),
+                language: @js($field->getLanguage()),
                 streetAddressesOnly: @js($field->isStreetAddressesOnly()),
+                searchTypes: @js($field->getSearchTypes()),
+                minSearchLength: @js($field->getMinSearchLength()),
+                searchDebounce: @js($field->getSearchDebounce()),
                 readOnly: @js($isDisabled || $isReadOnly),
                 labels: {
                     search: @js(__('filament-flex-fields::default.map_picker.search_placeholder')),
@@ -49,6 +55,7 @@
                     searchMinChars: @js(__('filament-flex-fields::default.map_picker.search_min_chars')),
                     searchNoResults: @js(__('filament-flex-fields::default.map_picker.search_no_results')),
                     streetAddressRequired: @js(__('filament-flex-fields::default.map_picker.street_address_required')),
+                    geocodeFailed: @js(__('filament-flex-fields::default.geocoding.failed')),
                 },
             })"
             x-init="init()"
@@ -71,19 +78,24 @@
                             x-on:keydown="onSearchKeydown($event)"
                             x-bind:placeholder="labels.search"
                             x-bind:aria-expanded="searchOpen"
+                            x-bind:aria-activedescendant="highlightedIndex >= 0 ? geocodingOptionId(highlightedIndex) : null"
                             aria-autocomplete="list"
                             aria-controls="{{ $statePath }}__search-listbox"
                             autocomplete="off"
                         />
 
-                        <div
-                            id="{{ $statePath }}__search-listbox"
-                            role="listbox"
-                            class="fff-map-picker__dropdown-panel"
-                            x-show="searchable && searchOpen && ! readOnly"
-                            x-cloak
-                        >
-                            <div class="fff-map-picker__dropdown-options">
+                        <template x-teleport="body">
+                            <div
+                                id="{{ $statePath }}__search-listbox"
+                                role="listbox"
+                                class="fff-map-picker__dropdown-panel fff-map-picker__dropdown-panel--map-context fff-select-dropdown-panel fff-teleported-menu"
+                                x-ref="searchDropdown"
+                                x-show="searchable && searchOpen && ! readOnly"
+                                x-cloak
+                                x-bind:class="{ 'is-positioned': searchDropdownReady }"
+                                x-on:mousedown.stop
+                            >
+                                <div class="fff-map-picker__dropdown-options">
                                 <p
                                     class="fff-map-picker__dropdown-hint"
                                     x-show="! searchHasMinQuery && ! searchLoading"
@@ -124,6 +136,7 @@
                                             type="button"
                                             role="option"
                                             class="fff-map-picker__dropdown-option"
+                                            x-bind:id="geocodingOptionId(index)"
                                             x-bind:class="{ 'is-active': highlightedIndex === index }"
                                             x-bind:aria-selected="highlightedIndex === index"
                                             x-on:mousedown.prevent="selectSearchResult(result)"
@@ -132,13 +145,20 @@
                                         </button>
                                     </template>
                                 </div>
+                                </div>
                             </div>
-                        </div>
+                        </template>
 
                         <p
                             class="fff-map-picker__selection-error"
                             x-show="selectionError"
                             x-text="selectionError"
+                            x-cloak
+                        ></p>
+                        <p
+                            class="fff-map-picker__selection-error"
+                            x-show="geocodeError"
+                            x-text="geocodeError"
                             x-cloak
                         ></p>
                     </div>

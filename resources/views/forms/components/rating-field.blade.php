@@ -26,6 +26,7 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'rating-field'])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('rating-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

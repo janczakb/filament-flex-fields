@@ -1,0 +1,12 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Schemas/Components/ItemCard.php";
+@source "../../src/Filament/Schemas/Components/ItemCardStack.php";
+@source "../../src/Filament/Schemas/Components/ItemCardGroup.php";
+@source "../views/schemas/components/item-card.blade.php";
+@source "../views/schemas/components/item-card-stack.blade.php";
+@source "../views/schemas/components/item-card-group.blade.php";
+
+@import "../core/item-card.css";

@@ -431,7 +431,7 @@
 
 .dark .fff-emoji-picker__trigger:hover:not(:disabled),
 .dark .fff-flex-textarea__emoji-trigger:hover:not(:disabled) {
-    @apply bg-zinc-600;
+    @apply bg-zinc-600 text-zinc-100;
 }
 
 .dark .fff-flex-textarea__dictation-btn:hover:not(:disabled) {

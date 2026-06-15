@@ -42,6 +42,10 @@
     --fff-gap-md: 0.5rem;
     --fff-gap-lg: 0.5rem;
 
+    --fff-z-dropdown: 20;
+    --fff-z-overlay: 30;
+    --fff-z-modal: 40;
+
     --fff-surface-border: rgb(229 231 235);
     --fff-surface-border-width: 0.5px;
     --fff-surface-shadow:

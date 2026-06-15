@@ -8,10 +8,6 @@
     position: relative;
 }
 
-.fff-address-autocomplete .fff-flex-text-input__shell {
-    overflow: visible;
-}
-
 .fff-address-autocomplete.has-focus-outline .fff-flex-text-input__shell:focus-within:not(:has(.fff-flex-text-input__action-btn:focus)) {
     border-color: var(--fff-field-focus-border);
     box-shadow: var(--fff-flex-text-input-shadow);
@@ -26,13 +22,6 @@
     box-shadow: 0 0 0 3px var(--fff-phone-field-error-ring) !important;
 }
 
-.fff-address-autocomplete__search-wrap .fff-map-picker__dropdown-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    z-index: 30;
-}
 
 .fff-address-autocomplete__token-error,
 .fff-address-autocomplete__selection-error,

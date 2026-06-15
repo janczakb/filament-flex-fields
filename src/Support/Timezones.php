@@ -14,7 +14,14 @@ class Timezones
      */
     protected static array $metadataCache = [];
 
+    /**
+     * @var array<string, array<string, string>>
+     */
+    protected static array $displayNameCache = [];
+
     protected static ?string $cachedDate = null;
+
+    protected static ?string $cachedLocale = null;
 
     /**
      * @return list<string>
@@ -22,6 +29,11 @@ class Timezones
     public static function allIdentifiers(): array
     {
         return timezone_identifiers_list();
+    }
+
+    public static function translationKey(string $identifier): string
+    {
+        return str_replace('/', '__', $identifier);
     }
 
     public static function formatOffset(string $timezone): string
@@ -53,9 +65,58 @@ class Timezones
         return $parts[0] ?? $timezone;
     }
 
-    public static function label(string $timezone): string
+    public static function displayName(string $timezone, ?string $locale = null): string
     {
-        return $timezone.' ('.self::formatOffset($timezone).')';
+        $locale ??= app()->getLocale();
+
+        if ($timezone === 'UTC') {
+            return self::$displayNameCache[$locale][$timezone] = 'UTC';
+        }
+
+        if (isset(self::$displayNameCache[$locale][$timezone])) {
+            return self::$displayNameCache[$locale][$timezone];
+        }
+
+        $translationKey = 'filament-flex-fields::timezones.'.self::translationKey($timezone);
+        $translated = __($translationKey);
+
+        if (is_string($translated) && $translated !== $translationKey) {
+            return self::$displayNameCache[$locale][$timezone] = $translated;
+        }
+
+        if (class_exists(\IntlTimeZone::class)) {
+            $intlTimezone = \IntlTimeZone::createTimeZone($timezone);
+
+            if ($intlTimezone->getID() !== 'Etc/Unknown') {
+                $display = $intlTimezone->getDisplayName(false, \IntlTimeZone::DISPLAY_GENERIC_LOCATION, $locale);
+
+                if (is_string($display) && $display !== '') {
+                    return self::$displayNameCache[$locale][$timezone] = $display;
+                }
+            }
+        }
+
+        return self::$displayNameCache[$locale][$timezone] = self::humanizeIdentifier($timezone);
+    }
+
+    public static function humanizeIdentifier(string $timezone): string
+    {
+        if ($timezone === 'UTC') {
+            return 'UTC';
+        }
+
+        $parts = explode('/', $timezone, 2);
+
+        if (count($parts) === 2) {
+            return str_replace('_', ' ', $parts[1]);
+        }
+
+        return $timezone;
+    }
+
+    public static function label(string $timezone, ?string $locale = null): string
+    {
+        return self::displayName($timezone, $locale).' ('.self::formatOffset($timezone).')';
     }
 
     /**
@@ -172,11 +233,14 @@ class Timezones
      */
     public static function metadata(?array $only = null, array $except = []): array
     {
+        $locale = app()->getLocale();
         $today = date('Y-m-d');
 
-        if (self::$cachedDate !== $today) {
+        if (self::$cachedDate !== $today || self::$cachedLocale !== $locale) {
             self::$metadataCache = [];
+            self::$displayNameCache = [];
             self::$cachedDate = $today;
+            self::$cachedLocale = $locale;
         }
 
         $resolved = self::resolve($only, $except);
@@ -194,7 +258,7 @@ class Timezones
 
                 self::$metadataCache[$identifier] = [
                     'id' => $identifier,
-                    'label' => $identifier.' ('.$offset.')',
+                    'label' => self::label($identifier, $locale),
                     'offset' => $offset,
                     'offset_seconds' => $offsetSeconds,
                     'region' => self::region($identifier),

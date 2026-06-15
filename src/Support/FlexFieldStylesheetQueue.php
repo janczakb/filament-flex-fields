@@ -11,7 +11,9 @@ class FlexFieldStylesheetQueue
 
     /**
      * Queue a component and its declared dependencies, returning only stylesheets
-     * that have not been output yet during the current request.
+     * that have not been registered yet during the current request.
+     *
+     * Blade partials push returned stylesheets to Filament's @stack('styles') in <head>.
      *
      * @return list<string>
      */
@@ -52,6 +54,14 @@ class FlexFieldStylesheetQueue
     /**
      * @return list<string>
      */
+    public function enqueuedStylesheets(): array
+    {
+        return array_keys($this->enqueued);
+    }
+
+    /**
+     * @return list<string>
+     */
     public static function enqueueFor(string $component): array
     {
         return app(self::class)->queueFor($component);
@@ -70,5 +80,13 @@ class FlexFieldStylesheetQueue
     public static function reset(): void
     {
         app(self::class)->clear();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function registered(): array
+    {
+        return app(self::class)->enqueuedStylesheets();
     }
 }

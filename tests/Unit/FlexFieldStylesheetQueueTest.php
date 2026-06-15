@@ -76,6 +76,15 @@ it('scopes phone country dropdown text tokens on the teleported menu for dark mo
         ->toMatch('/\.dark\s+\.fff-phone-field__country-menu[\s\S]*--fff-phone-field-menu-text:#fafafa/');
 });
 
+it('scopes country field dropdown text tokens on the teleported menu for dark mode', function () {
+    $countryCss = file_get_contents(__DIR__.'/../../resources/dist/css/country-field.css');
+
+    expect($countryCss)
+        ->toContain('--fff-phone-field-menu-text')
+        ->toContain('.fff-country-field__option')
+        ->toMatch('/\.dark\s+\.fff-country-field__menu[\s\S]*--fff-phone-field-menu-text:#fafafa/');
+});
+
 it('keeps flex text input shell styles separate from date time field bundle', function () {
     $dateTimeCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-date-time-field.css');
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-text-input.css');
@@ -87,14 +96,26 @@ it('keeps flex text input shell styles separate from date time field bundle', fu
     expect($flexTextInputCss)->toContain('.fff-flex-text-input__shell');
 });
 
-it('uses the stylesheet queue partial for css and alpine chunk preloads', function () {
+it('pushes lazy stylesheets and alpine chunk preloads to the head styles stack', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/load-stylesheet.blade.php');
 
     expect($blade)
+        ->toContain('@pushOnce')
+        ->toContain('bjanczak-flex-fields:stylesheet:')
         ->toContain('FlexFieldStylesheetQueue::enqueueFor')
         ->toContain('FlexFieldAlpineQueue::enqueueChunksFor')
+        ->toContain('rel="stylesheet"')
         ->toContain('modulepreload')
+        ->toContain('data-navigate-track')
         ->toContain('alpineChunkSrc');
+});
+
+it('registers navigate dedupe script for flex fields lazy assets', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/lazy-assets-navigate-dedupe.blade.php');
+
+    expect($blade)
+        ->toContain('livewire:navigated')
+        ->toContain('filament-flex-fields');
 });
 
 it('loads flex text input and map picker dropdown before address autocomplete stylesheet', function () {
@@ -111,6 +132,80 @@ it('loads map picker dropdown before map picker stylesheet', function () {
         ->toBe(['map-picker-dropdown', 'map-picker']);
 });
 
+it('loads select field, tag chips, and user display stylesheets before user select stylesheet', function () {
+    expect(FlexFieldAssets::stylesheetsFor('user-select'))
+        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select'])
+        ->and(FlexFieldStylesheetQueue::enqueueFor('user-select'))
+        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select']);
+});
+
+it('loads user display stylesheet before user column stylesheet', function () {
+    expect(FlexFieldAssets::stylesheetsFor('user-column'))
+        ->toBe(['user-display', 'user-column'])
+        ->and(FlexFieldStylesheetQueue::enqueueFor('user-column'))
+        ->toBe(['user-display', 'user-column']);
+});
+
+it('loads rating column stylesheet as a dedicated lazy bundle', function () {
+    expect(FlexFieldAssets::stylesheetsFor('rating-column'))
+        ->toBe(['rating-column'])
+        ->and(FlexFieldStylesheetQueue::enqueueFor('rating-column'))
+        ->toBe(['rating-column']);
+});
+
+it('keeps shared user display primitives in source bundles', function () {
+    $userDisplayCss = file_get_contents(__DIR__.'/../../resources/css/components/user-display.css');
+    $userColumnCss = file_get_contents(__DIR__.'/../../resources/css/core/tables/user-column.css');
+    $userSelectCss = file_get_contents(__DIR__.'/../../resources/css/components/user-select-inline.css');
+
+    expect($userDisplayCss)
+        ->toContain('.fff-user-select__avatar-surface')
+        ->toContain('.fff-user-select-option__name');
+
+    expect($userColumnCss)
+        ->toContain('.fff-user-column__avatar-stack')
+        ->not->toContain('bg-gradient-to-b from-blue-300 to-blue-500');
+
+    expect($userSelectCss)
+        ->toContain('.fff-user-select__dropdown-skeleton')
+        ->not->toContain('bg-gradient-to-b from-blue-300 to-blue-500');
+});
+
+it('loads tag chips stylesheet before tags field stylesheet', function () {
+    expect(FlexFieldAssets::stylesheetsFor('tags-field'))
+        ->toBe(['flex-text-input', 'tag-chips', 'tags-field'])
+        ->and(FlexFieldStylesheetQueue::enqueueFor('tags-field'))
+        ->toBe(['flex-text-input', 'tag-chips', 'tags-field']);
+});
+
+it('keeps shared tag chip styles in a separate bundle', function () {
+    $tagChipsCss = file_get_contents(__DIR__.'/../../resources/dist/css/tag-chips.css');
+    $tagsFieldCss = file_get_contents(__DIR__.'/../../resources/dist/css/tags-field.css');
+    $userSelectCss = file_get_contents(__DIR__.'/../../resources/dist/css/user-select.css');
+
+    expect($tagChipsCss)
+        ->toContain('.fff-tags-field__tag')
+        ->toContain('.fff-tags-field__tag-remove');
+
+    expect($tagsFieldCss)
+        ->toContain('.fff-tags-field__suggestion')
+        ->not->toContain('.fff-tags-field__tag-remove:hover');
+
+    expect($userSelectCss)
+        ->toContain('.fff-user-select__selected-tags')
+        ->not->toContain('.fff-tags-field__tag-remove:hover');
+});
+
+it('keeps select field core styles separate from the user select bundle', function () {
+    $selectFieldCss = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+    $userSelectCss = file_get_contents(__DIR__.'/../../resources/dist/css/user-select.css');
+
+    expect($selectFieldCss)->toContain('.fff-select-field--layout-grid');
+    expect($userSelectCss)
+        ->toContain('.fff-user-select-option--list')
+        ->not->toContain('.fff-select-field--layout-grid');
+});
+
 it('keeps shared map picker dropdown styles in a separate bundle', function () {
     $dropdownCss = file_get_contents(__DIR__.'/../../resources/dist/css/map-picker-dropdown.css');
     $mapPickerCss = file_get_contents(__DIR__.'/../../resources/dist/css/map-picker.css');
@@ -124,8 +219,7 @@ it('keeps shared map picker dropdown styles in a separate bundle', function () {
         ->not->toContain('.fff-map-picker__dropdown-hint');
 
     expect($addressAutocompleteCss)
-        ->not->toContain('.fff-map-picker__dropdown-hint')
-        ->toContain('.fff-address-autocomplete__search-wrap .fff-map-picker__dropdown-panel');
+        ->not->toContain('.fff-map-picker__dropdown-hint');
 });
 
 it('resolves flex radiolist playground slug to flex checklist stylesheet', function () {
@@ -144,19 +238,21 @@ it('keeps flex radiolist styles in the flex checklist bundle', function () {
         ->toContain('.fff-flex-radiolist__indicator-dot');
 });
 
-it('preloads hold confirm alpine module on panel pages', function () {
+it('preloads hold confirm alpine module on panel pages through the head styles stack', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/hold-confirm-action-preload.blade.php');
 
     expect($blade)
+        ->toContain("@push('styles')")
         ->toContain('modulepreload')
-        ->toContain('hold-confirm-action');
+        ->toContain('hold-confirm-action')
+        ->toContain('data-navigate-track');
 });
 
-it('preloads deduplicated component stylesheets on playground pages', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/pages/flex-fields-playground-component.blade.php');
+it('renders queued playground component stylesheets in the page push block', function () {
+    $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
 
-    expect($blade)
-        ->toContain('FlexFieldStylesheetQueue::enqueueFor')
-        ->toContain('shouldLoadStylesheetsFor')
-        ->toContain('resolveStylesheetComponent');
+    expect($stylesPartial)
+        ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain('data-fff-playground-bundle')
+        ->toContain('data-navigate-track');
 });

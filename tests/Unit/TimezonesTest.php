@@ -14,6 +14,56 @@ it('formats timezone labels with utc offset', function () {
         ->and(Timezones::formatOffset('Europe/Warsaw'))->toMatch('/^UTC[+-]\d{2}:\d{2}$/');
 });
 
+it('resolves localized timezone display names via intl when available', function () {
+    if (! extension_loaded('intl')) {
+        expect(Timezones::displayName('Europe/Warsaw'))->toBe('Warsaw');
+
+        return;
+    }
+
+    app()->setLocale('en');
+
+    expect(Timezones::displayName('Europe/Warsaw'))->toContain('Poland')
+        ->and(Timezones::displayName('America/New_York'))->not->toBe('America/New_York');
+
+    app()->setLocale('pl');
+
+    expect(Timezones::displayName('Europe/Warsaw'))->toContain('Polska');
+});
+
+it('prefers published translation overrides over intl', function () {
+    app()->setLocale('en');
+
+    expect(Timezones::translationKey('Europe/Warsaw'))->toBe('Europe__Warsaw')
+        ->and(Timezones::displayName('UTC'))->toBe('UTC');
+
+    app('translator')->addLines([
+        'timezones.America__Chicago' => 'Custom Chicago',
+    ], 'en', 'filament-flex-fields');
+
+    expect(Timezones::displayName('America/Chicago'))->toBe('Custom Chicago')
+        ->and(Timezones::label('America/Chicago'))->toMatch('/^Custom Chicago \(UTC[+-]\d{2}:\d{2}\)$/');
+});
+
+it('invalidates timezone metadata cache when locale changes', function () {
+    if (! extension_loaded('intl')) {
+        expect(true)->toBeTrue();
+
+        return;
+    }
+
+    app()->setLocale('en');
+
+    $english = Timezones::metadata(['Europe/Warsaw'])[0]['label'];
+
+    app()->setLocale('pl');
+
+    $polish = Timezones::metadata(['Europe/Warsaw'])[0]['label'];
+
+    expect($polish)->not->toBe($english)
+        ->and($polish)->toMatch('/\(UTC[+-]\d{2}:\d{2}\)$/');
+});
+
 it('resolves timezone whitelist and blacklist', function () {
     expect(Timezones::resolve(['Europe/Warsaw', 'UTC', 'Invalid/Zone']))
         ->toBe(['Europe/Warsaw', 'UTC']);

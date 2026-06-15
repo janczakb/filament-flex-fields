@@ -43,21 +43,16 @@ class AddressAutocompleteField extends Field
 
     protected bool|Closure $searchable = true;
 
-    protected string|Closure $language = 'pl';
-
     protected string|BackedEnum|Htmlable|Closure|null $prefixIcon = null;
 
     protected string|BackedEnum|Htmlable|Closure|null $clearIcon = null;
-
-    protected int|Closure $minSearchLength = 2;
-
-    protected int|Closure $searchDebounce = 350;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->geocodedAddressFields = ['street', 'city', 'postcode', 'country', 'country_name', 'place_name'];
+        $this->language('pl');
 
         $this->setUpGeocodedAddress();
     }
@@ -90,13 +85,6 @@ class AddressAutocompleteField extends Field
     public function isSearchable(): bool
     {
         return (bool) $this->evaluate($this->searchable);
-    }
-
-    public function language(string|Closure $language): static
-    {
-        $this->language = $language;
-
-        return $this;
     }
 
     public function prefixIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
@@ -147,37 +135,6 @@ class AddressAutocompleteField extends Field
         $icon = $this->evaluate($this->clearIcon);
 
         return $icon ?? $this->getDefaultClearIcon();
-    }
-
-    public function getLanguage(): string
-    {
-        $language = (string) $this->evaluate($this->language);
-
-        return $language !== '' ? $language : 'pl';
-    }
-
-    public function minSearchLength(int|Closure $length): static
-    {
-        $this->minSearchLength = $length;
-
-        return $this;
-    }
-
-    public function getMinSearchLength(): int
-    {
-        return max(0, (int) $this->evaluate($this->minSearchLength));
-    }
-
-    public function searchDebounce(int|Closure $milliseconds): static
-    {
-        $this->searchDebounce = $milliseconds;
-
-        return $this;
-    }
-
-    public function getSearchDebounce(): int
-    {
-        return max(0, (int) $this->evaluate($this->searchDebounce));
     }
 
     /**

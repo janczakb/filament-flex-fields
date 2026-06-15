@@ -113,3 +113,28 @@ it('rewrites nested chunk imports to semantic names after build', function () {
         ->toContain('flex-fields-dynamic-bars-')
         ->not->toContain('chunk-');
 });
+
+it('uses a registry-only overlay coordinator without legacy window event bus', function () {
+    $coordinatorChunk = collect(glob(__DIR__.'/../../resources/dist/components/flex-fields-flex-dropdown-coordinator-*.js'))
+        ->first();
+
+    expect($coordinatorChunk)->toBeString();
+
+    $source = file_get_contents($coordinatorChunk);
+
+    expect($source)
+        ->toContain('fffOverlays')
+        ->not->toContain('fff:flex-dropdown-open')
+        ->not->toContain('__fffFlexDropdownCoordinator');
+});
+
+it('preloads the overlay coordinator chunk for select field dropdown exclusivity', function () {
+    $overlayChunk = FlexFieldAssets::overlayCoordinatorChunk();
+
+    expect($overlayChunk)
+        ->toBeString()
+        ->toStartWith('flex-fields-flex-dropdown-coordinator-');
+
+    expect(FlexFieldAssets::alpineChunksFor('select-field'))
+        ->toContain($overlayChunk);
+});

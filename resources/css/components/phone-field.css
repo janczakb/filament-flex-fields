@@ -123,7 +123,15 @@
     --fff-select-menu-hover: rgb(244 244 245 / 0.72);
     --fff-select-menu-selected: rgb(228 228 231 / 0.78);
     --fff-select-search-bg: rgb(255 255 255 / 0.55);
+    --fff-select-search-bg-hover: rgb(255 255 255 / 0.78);
+    --fff-select-search-bg-focus: rgb(255 255 255 / 0.82);
     --fff-select-search-border: rgb(228 228 231);
+    --fff-select-search-border-hover: rgb(212 212 216);
+    --fff-select-search-border-focus: rgb(212 212 216);
+    --fff-select-search-text: rgb(113 113 122);
+    --fff-select-search-text-hover: rgb(63 63 70);
+    --fff-select-search-text-focus: rgb(39 39 42);
+    --fff-select-search-placeholder: rgb(161 161 170);
     --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
     visibility: hidden;
     min-width: 12rem;
@@ -194,7 +202,7 @@
     font-size: var(--fff-phone-field-menu-text-size);
     font-weight: inherit;
     line-height: 1.25rem;
-    color: rgb(113 113 122);
+    color: var(--fff-select-search-text);
     box-shadow: 0 1px 2px rgb(0 0 0 / 0.04) !important;
     appearance: none;
     -webkit-appearance: none;
@@ -216,26 +224,36 @@
 }
 
 .fff-phone-field__country-search::placeholder {
-    color: rgb(161 161 170);
+    color: var(--fff-select-search-placeholder);
 }
 
 .fff-phone-field__country-search:hover {
-    background-color: rgb(255 255 255 / 0.78) !important;
-    border-color: rgb(212 212 216);
-    color: rgb(63 63 70);
+    background-color: var(--fff-select-search-bg-hover) !important;
+    border-color: var(--fff-select-search-border-hover);
+    color: var(--fff-select-search-text-hover);
 }
 
 .fff-phone-field__country-search:focus,
 .fff-phone-field__country-search:focus-visible {
     outline: none !important;
-    border-color: rgb(212 212 216);
-    background-color: rgb(255 255 255 / 0.82) !important;
-    color: rgb(39 39 42);
+    border-color: var(--fff-select-search-border-focus);
+    background-color: var(--fff-select-search-bg-focus) !important;
+    color: var(--fff-select-search-text-focus);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
 }
 
 .fff-phone-field__country-list {
     @apply m-0 min-h-0 flex-1 list-none overflow-x-hidden overflow-y-auto p-0.5;
+}
+
+.fff-phone-field__country-list-virtual,
+.fff-phone-field__country-list-item,
+.fff-phone-field__country-virtual-spacer {
+    @apply m-0 list-none p-0;
+}
+
+.fff-phone-field__country-option.is-active {
+    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
 }
 
 .fff-phone-field__country-menu .fff-phone-field__flag-wrap {
@@ -391,7 +409,15 @@
     --fff-select-menu-hover: rgb(63 63 70 / 0.82);
     --fff-select-menu-selected: rgb(82 82 91 / 0.88);
     --fff-select-search-bg: rgb(39 39 42 / 0.55);
+    --fff-select-search-bg-hover: rgb(39 39 42);
+    --fff-select-search-bg-focus: rgb(39 39 42);
     --fff-select-search-border: rgb(63 63 70);
+    --fff-select-search-border-hover: rgb(82 82 91);
+    --fff-select-search-border-focus: rgb(82 82 91);
+    --fff-select-search-text: rgb(161 161 170);
+    --fff-select-search-text-hover: rgb(228 228 231);
+    --fff-select-search-text-focus: rgb(250 250 250);
+    --fff-select-search-placeholder: rgb(113 113 122);
     --fff-select-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
     background-color: var(--fff-select-menu-bg) !important;
     backdrop-filter: blur(16px) !important;
@@ -399,16 +425,12 @@
 }
 
 .dark .fff-phone-field__country-search {
-    background-color: var(--fff-select-search-bg);
-    border-color: var(--fff-select-search-border);
     box-shadow: none;
 }
 
-.dark .fff-phone-field__country-search:hover,
-.dark .fff-phone-field__country-search:focus {
-    background-color: rgb(39 39 42);
-    border-color: rgb(82 82 91);
-    color: rgb(228 228 231);
+.dark .fff-phone-field__country-search:focus,
+.dark .fff-phone-field__country-search:focus-visible {
+    box-shadow: none;
 }
 
 .dark .fff-phone-field__suffix {

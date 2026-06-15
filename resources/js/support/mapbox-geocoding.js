@@ -1,3 +1,103 @@
+import {
+    geocodingCacheKey,
+    readGeocodingCache,
+    writeGeocodingCache,
+} from '../core/geocoding-cache.js'
+
+export class GeocodingApiError extends Error {
+    constructor(message, { status = null, payload = null } = {}) {
+        super(message)
+        this.name = 'GeocodingApiError'
+        this.status = status
+        this.payload = payload
+    }
+}
+
+function readCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? ''
+}
+
+function buildDirectSearchUrl({ query, accessToken, countries, language, limit, autocomplete, types }) {
+    const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json`)
+    url.searchParams.set('access_token', accessToken)
+    url.searchParams.set('limit', String(limit))
+    url.searchParams.set('language', language)
+
+    if (autocomplete) {
+        url.searchParams.set('autocomplete', 'true')
+    }
+
+    if (types) {
+        url.searchParams.set('types', types)
+    }
+
+    if (Array.isArray(countries) && countries.length > 0) {
+        url.searchParams.set('country', countries.join(',').toLowerCase())
+    }
+
+    return url
+}
+
+function buildDirectReverseUrl({ lng, lat, accessToken, countries, language, types }) {
+    const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json`)
+    url.searchParams.set('access_token', accessToken)
+    url.searchParams.set('language', language)
+
+    if (types) {
+        url.searchParams.set('types', types)
+    }
+
+    if (Array.isArray(countries) && countries.length > 0) {
+        url.searchParams.set('country', countries.join(',').toLowerCase())
+    }
+
+    return url
+}
+
+async function postGeocodeProxy(url, body) {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': readCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify(body),
+    })
+
+    const payload = await response.json().catch(() => ({}))
+
+    if (! response.ok) {
+        const message = payload?.message
+            ?? payload?.errors?.geocode?.[0]
+            ?? `Geocoding request failed (${response.status}).`
+
+        throw new GeocodingApiError(message, { status: response.status, payload })
+    }
+
+    if (payload?.error) {
+        throw new GeocodingApiError(String(payload.error))
+    }
+
+    return payload
+}
+
+async function fetchDirect(url) {
+    const response = await fetch(url)
+    const payload = await response.json().catch(() => ({}))
+
+    if (! response.ok) {
+        throw new GeocodingApiError(payload?.message ?? `Geocoding request failed (${response.status}).`, {
+            status: response.status,
+            payload,
+        })
+    }
+
+    return payload
+}
+
 export function parseGeocodeFeature(feature) {
     const center = feature?.center ?? feature?.geometry?.coordinates ?? []
     const lng = Number(center[0])
@@ -116,8 +216,24 @@ export function filterStreetLevelFeatures(features) {
     return (features ?? []).filter(isStreetLevelFeature)
 }
 
+export function resolveMapboxSearchTypes({ types = null, streetAddressesOnly = false } = {}) {
+    if (streetAddressesOnly) {
+        return STREET_ADDRESS_MAPBOX_TYPES
+    }
+
+    if (Array.isArray(types) && types.length > 0) {
+        return types.filter(Boolean).join(',')
+    }
+
+    if (typeof types === 'string' && types.trim() !== '') {
+        return types.trim()
+    }
+
+    return null
+}
+
 export function mapboxSearchTypes(streetAddressesOnly) {
-    return streetAddressesOnly ? STREET_ADDRESS_MAPBOX_TYPES : null
+    return resolveMapboxSearchTypes({ streetAddressesOnly })
 }
 
 export function hasCoordinates(state) {
@@ -134,7 +250,8 @@ export function hasCoordinates(state) {
 /**
  * @param {{
  *   query: string,
- *   accessToken: string,
+ *   accessToken?: string|null,
+ *   geocodeSearchUrl?: string|null,
  *   countries?: string[]|null,
  *   language?: string,
  *   limit?: number,
@@ -145,49 +262,78 @@ export function hasCoordinates(state) {
  */
 export async function searchMapboxPlaces({
     query,
-    accessToken,
+    accessToken = null,
+    geocodeSearchUrl = null,
     countries = null,
-    language = 'pl',
+    language = 'en',
     limit = 6,
     autocomplete = true,
     types = null,
     streetAddressesOnly = false,
 }) {
-    const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json`)
-    url.searchParams.set('access_token', accessToken)
-    url.searchParams.set('limit', String(limit))
-    url.searchParams.set('language', language)
+    const resolvedTypes = resolveMapboxSearchTypes({ types, streetAddressesOnly })
+    const cacheKey = geocodingCacheKey('search', {
+        query,
+        geocodeSearchUrl,
+        countries,
+        language,
+        limit,
+        autocomplete,
+        types: resolvedTypes,
+        streetAddressesOnly,
+    })
 
-    if (autocomplete) {
-        url.searchParams.set('autocomplete', 'true')
+    const cached = readGeocodingCache(cacheKey)
+
+    if (cached) {
+        return cached
     }
 
-    const resolvedTypes = types ?? mapboxSearchTypes(streetAddressesOnly)
+    let features = []
 
-    if (resolvedTypes) {
-        url.searchParams.set('types', resolvedTypes)
+    if (geocodeSearchUrl) {
+        const payload = await postGeocodeProxy(geocodeSearchUrl, {
+            query,
+            language,
+            limit,
+            autocomplete,
+            types: resolvedTypes,
+            countries,
+            street_addresses_only: streetAddressesOnly,
+        })
+
+        features = payload?.features ?? []
+    } else {
+        if (! accessToken) {
+            throw new GeocodingApiError('Mapbox access token is missing.')
+        }
+
+        const payload = await fetchDirect(buildDirectSearchUrl({
+            query,
+            accessToken,
+            countries,
+            language,
+            limit,
+            autocomplete,
+            types: resolvedTypes,
+        }))
+
+        features = payload?.features ?? []
     }
 
-    if (Array.isArray(countries) && countries.length > 0) {
-        url.searchParams.set('country', countries.join(',').toLowerCase())
-    }
+    const results = streetAddressesOnly ? filterStreetLevelFeatures(features) : features
 
-    const response = await fetch(url)
-    const payload = await response.json()
-    const features = payload?.features ?? []
+    writeGeocodingCache(cacheKey, results)
 
-    if (streetAddressesOnly) {
-        return filterStreetLevelFeatures(features)
-    }
-
-    return features
+    return results
 }
 
 /**
  * @param {{
  *   lng: number,
  *   lat: number,
- *   accessToken: string,
+ *   accessToken?: string|null,
+ *   geocodeReverseUrl?: string|null,
  *   countries?: string[]|null,
  *   language?: string,
  *   types?: string|null,
@@ -197,37 +343,69 @@ export async function searchMapboxPlaces({
 export async function reverseGeocodeMapbox({
     lng,
     lat,
-    accessToken,
+    accessToken = null,
+    geocodeReverseUrl = null,
     countries = null,
-    language = 'pl',
+    language = 'en',
     types = null,
     streetAddressesOnly = false,
 }) {
-    const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json`)
-    url.searchParams.set('access_token', accessToken)
-    url.searchParams.set('language', language)
+    const resolvedTypes = resolveMapboxSearchTypes({ types, streetAddressesOnly })
+    const cacheKey = geocodingCacheKey('reverse', {
+        lng,
+        lat,
+        geocodeReverseUrl,
+        countries,
+        language,
+        types: resolvedTypes,
+        streetAddressesOnly,
+    })
 
-    const resolvedTypes = types ?? mapboxSearchTypes(streetAddressesOnly)
+    const cached = readGeocodingCache(cacheKey)
 
-    if (resolvedTypes) {
-        url.searchParams.set('types', resolvedTypes)
+    if (cached !== null) {
+        return cached
     }
 
-    if (Array.isArray(countries) && countries.length > 0) {
-        url.searchParams.set('country', countries.join(',').toLowerCase())
+    let feature = null
+
+    if (geocodeReverseUrl) {
+        const payload = await postGeocodeProxy(geocodeReverseUrl, {
+            lng,
+            lat,
+            language,
+            types: resolvedTypes,
+            countries,
+            street_addresses_only: streetAddressesOnly,
+        })
+
+        feature = payload?.feature ?? null
+    } else {
+        if (! accessToken) {
+            throw new GeocodingApiError('Mapbox access token is missing.')
+        }
+
+        const payload = await fetchDirect(buildDirectReverseUrl({
+            lng,
+            lat,
+            accessToken,
+            countries,
+            language,
+            types: resolvedTypes,
+        }))
+
+        const features = payload?.features ?? []
+
+        if (streetAddressesOnly) {
+            feature = filterStreetLevelFeatures(features)[0] ?? null
+        } else {
+            feature = features[0] ?? null
+        }
     }
 
-    const response = await fetch(url)
-    const payload = await response.json()
-    const features = payload?.features ?? []
+    const parsed = feature ? parseGeocodeFeature(feature) : null
 
-    if (streetAddressesOnly) {
-        const feature = filterStreetLevelFeatures(features)[0]
+    writeGeocodingCache(cacheKey, parsed)
 
-        return feature ? parseGeocodeFeature(feature) : null
-    }
-
-    const feature = features[0]
-
-    return feature ? parseGeocodeFeature(feature) : null
+    return parsed
 }

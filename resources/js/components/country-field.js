@@ -1,14 +1,39 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createVirtualizedListMixin } from '../core/virtualized-list.js'
+import { resolveCountriesFromRegistry, resetCountryRegistryCache } from '../core/country-registry.js'
+import { createCountrySearchMixin } from '../core/country-search.js'
+import { createCountryListKeyboardMixin } from '../core/country-list-keyboard.js'
 
 const selectMenu = createSearchableSelectMenuMixin({
     triggerRef: 'countryTrigger',
     menuRef: 'countryMenu',
+    ownerIdPrefix: 'fff-country-field',
+    onMenuClose() {
+        this.countrySearch = ''
+        this.countrySearchDebounced = ''
+    },
+})
+
+const virtualList = createVirtualizedListMixin({
+    itemsKey: 'filteredCountries',
+    scrollRef: 'countryListScroll',
+    itemHeight: 40,
+})
+
+const countrySearch = createCountrySearchMixin()
+const countryKeyboard = createCountryListKeyboardMixin({
+    openKey: 'menuOpen',
+    optionIdPrefix: 'fff-country-field-option',
 })
 
 export default function countryFieldFormComponent({
     state,
     statePath,
-    countries,
+    countryPool,
+    countryFilterKey,
+    sortPreferredFirst,
+    preferredCountryCode,
+    selectedCountrySeed,
     defaultCountry,
     disabled,
     readOnly,
@@ -19,13 +44,16 @@ export default function countryFieldFormComponent({
     placeholder,
     browserLocaleDefault,
     languageCountryMap,
-    allowedCountryCodes,
     initialState = null,
 }) {
     return {
         state,
         statePath,
-        countries,
+        countryPool,
+        countryFilterKey,
+        sortPreferredFirst,
+        preferredCountryCode,
+        selectedCountrySeed,
         defaultCountry,
         disabled,
         readOnly,
@@ -36,8 +64,10 @@ export default function countryFieldFormComponent({
         placeholder,
         browserLocaleDefault,
         languageCountryMap,
-        allowedCountryCodes,
         initialState,
+        countries: [],
+        countriesLoaded: false,
+        countriesLoading: false,
         displayReady: false,
         menuOpen: false,
         countrySearch: '',
@@ -45,14 +75,20 @@ export default function countryFieldFormComponent({
         menuScrollHandler: null,
         menuResizeHandler: null,
         ...selectMenu,
+        ...virtualList,
+        ...countrySearch,
+        ...countryKeyboard,
 
         get isLocked() {
             return this.disabled || this.readOnly
         },
 
         init() {
-            this.applyBrowserLocaleDefault()
+            this.initCountrySearch()
+            this.initCountryListKeyboard()
+            void this.bootstrapBrowserLocaleDefault()
             this.preloadSelectedCountryFlag()
+            this.bindSelectMenuLifecycle()
 
             this.$nextTick(() => {
                 this.displayReady = true
@@ -62,7 +98,66 @@ export default function countryFieldFormComponent({
                 this.preloadSelectedCountryFlag()
             })
 
-            this.bindSelectMenuLifecycle()
+            document.addEventListener('livewire:navigated', () => {
+                resetCountryRegistryCache()
+                this.countries = []
+                this.countriesLoaded = false
+            })
+        },
+
+        getActiveCountryCode() {
+            return this.state ?? this.defaultCountry
+        },
+
+        async ensureCountriesLoaded() {
+            if (this.countriesLoaded) {
+                return
+            }
+
+            if (this.countriesLoading) {
+                while (this.countriesLoading) {
+                    await new Promise((resolve) => setTimeout(resolve, 16))
+                }
+
+                return
+            }
+
+            this.countriesLoading = true
+
+            try {
+                resetCountryRegistryCache()
+
+                this.countries = await resolveCountriesFromRegistry({
+                    pool: this.countryPool,
+                    countryFilterKey: this.countryFilterKey,
+                    preferredCountryCode: this.preferredCountryCode,
+                    sortPreferredFirst: this.sortPreferredFirst,
+                })
+
+                if (this.countries.length === 0) {
+                    resetCountryRegistryCache()
+
+                    this.countries = await resolveCountriesFromRegistry({
+                        pool: this.countryPool,
+                        countryFilterKey: this.countryFilterKey,
+                        preferredCountryCode: this.preferredCountryCode,
+                        sortPreferredFirst: this.sortPreferredFirst,
+                    })
+                }
+
+                this.countriesLoaded = true
+            } finally {
+                this.countriesLoading = false
+            }
+        },
+
+        async bootstrapBrowserLocaleDefault() {
+            if (! this.browserLocaleDefault || this.isLocked || this.state || this.initialState) {
+                return
+            }
+
+            await this.ensureCountriesLoaded()
+            this.applyBrowserLocaleDefault()
         },
 
         applyBrowserLocaleDefault() {
@@ -78,7 +173,7 @@ export default function countryFieldFormComponent({
         },
 
         detectBrowserCountry() {
-            const allowed = new Set(this.allowedCountryCodes ?? this.countries.map((country) => country.code))
+            const allowed = new Set(this.countries.map((country) => country.code))
             const languages = Array.isArray(navigator.languages) && navigator.languages.length > 0
                 ? navigator.languages
                 : [navigator.language].filter(Boolean)
@@ -123,28 +218,12 @@ export default function countryFieldFormComponent({
             }
 
             return this.countries.find((country) => country.code === countryCode)
-                ?? this.countries[0]
+                ?? (this.selectedCountrySeed?.code === countryCode ? this.selectedCountrySeed : null)
                 ?? null
         },
 
         get isEmpty() {
             return ! this.state
-        },
-
-        get filteredCountries() {
-            const query = this.countrySearch.trim().toLowerCase()
-
-            if (! query) {
-                return this.countries
-            }
-
-            return this.countries.filter((country) => {
-                const dialCode = country.dial_code ?? ''
-
-                return country.name.toLowerCase().includes(query)
-                    || country.code.toLowerCase().includes(query)
-                    || dialCode.includes(query.replace('+', ''))
-            })
         },
 
         selectCountry(code) {
@@ -156,12 +235,18 @@ export default function countryFieldFormComponent({
             this.closeMenu()
         },
 
-        toggleMenu() {
+        async toggleMenu() {
             if (this.isLocked) {
                 return
             }
 
-            this.menuOpen = ! this.menuOpen
+            const willOpen = ! this.menuOpen
+
+            if (willOpen) {
+                await this.ensureCountriesLoaded()
+            }
+
+            this.menuOpen = willOpen
 
             if (this.menuOpen && this.searchable) {
                 this.$nextTick(() => {
@@ -172,7 +257,6 @@ export default function countryFieldFormComponent({
 
         closeMenu() {
             this.menuOpen = false
-            this.countrySearch = ''
         },
 
         preloadSelectedCountryFlag() {

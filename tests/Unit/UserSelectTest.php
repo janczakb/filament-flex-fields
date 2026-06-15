@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserSelectPlayground;
 use Filament\Schemas\Components\Section;
@@ -649,4 +650,13 @@ it('caches duplicate user select queries at the request level', function () {
 
     expect($firstQueryCount)->toBeGreaterThan(0)
         ->and($secondQueryCount)->toBe(0);
+});
+
+it('loads tag chips stylesheet for removable selected user tag chips', function () {
+    $tagChipsCss = file_get_contents(__DIR__.'/../../resources/dist/css/tag-chips.css');
+
+    expect(FlexFieldAssets::stylesheetsFor('user-select'))
+        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select'])
+        ->and($tagChipsCss)
+        ->toContain('.fff-tags-field__tag-remove');
 });

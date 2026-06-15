@@ -9,6 +9,7 @@
     'offIcon',
     'onColorClasses',
     'offColorClasses',
+    'toggleColorClassBinding',
     'extraAlpineAttributes' => '',
     'labelled' => false,
     'isChecked' => false,
@@ -34,7 +35,7 @@
     data-checked="{{ $checkedAttribute }}"
     x-bind:aria-checked="Boolean(state) ? 'true' : 'false'"
     x-bind:disabled="disabled"
-    x-bind:class="Boolean(state) ? @js($onColorClasses) : @js($offColorClasses)"
+    x-bind:class="{ {{ $toggleColorClassBinding }} }"
     x-bind:data-checked="Boolean(state) ? 'true' : 'false'"
     x-on:click="ripple($event); toggle()"
     wire:loading.attr="disabled"

@@ -174,9 +174,9 @@ CSS is split into bundles:
 
 | Asset ID | File | Loading |
 |----------|------|---------|
-| `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, table columns, shared layout) |
+| `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, shared layout) |
 | `flex-fields-playground` | `resources/dist/css/playground.css` | Loaded on the playground page only |
-| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — injected by form field blades and `CoverCard` via `load-stylesheet` |
+| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — queued when a field renders, pushed to Filament `<head>` via `@stack('styles')` (`load-stylesheet`) |
 
 ### JavaScript (tiered chunks)
 
@@ -205,7 +205,7 @@ Moduły używane tylko przez jedno pole (np. `core/date-time/*` → tylko `flex-
 
 #### Preload
 
-Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` automatycznie robi też `modulepreload` chunków z manifestu (`FlexFieldAlpineQueue` deduplikuje między polami na stronie).
+Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` rejestruje CSS i `modulepreload` chunków w `<head>` (Filament `@stack('styles')`). `FlexFieldStylesheetQueue` i `FlexFieldAlpineQueue` deduplikują między polami na stronie.
 
 Komponenty bez własnego CSS ale z JS (np. `rating-field`) ładują chunki przez ESM `import` przy `x-load` — bez osobnego preloadu, bo manifest jest pusty.
 
@@ -216,7 +216,7 @@ npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles (`UserColumn`, `RatingColumn`, etc.) live in **core** and are never lazy-loaded.
+Table column styles are **lazy-loaded per column** where possible (`UserColumn` → `user-display` + `user-column`; other table columns may use dedicated bundles). Playground-only CSS stays in `playground.css`.
 
 After changing package CSS or JS:
 
@@ -1066,7 +1066,23 @@ UserColumn::make('members')
     ->stackedOverlap(10);
 ```
 
-Filament resolves `$record->author` or `$record->members` as column state when the relationship is eager-loaded. Ensure the relation is loaded in the table query to avoid N+1 queries.
+Filament resolves `$record->author` or `$record->members` as column state. `UserColumn` automatically calls `with()` for direct relationship column names (for example `members`, `author`) and any extra relations declared via `eagerLoad()`.
+
+#### `eagerLoad(string|array|Closure $relationships)`
+
+Register extra relationships to eager-load for this column. Direct relationship column names such as `members` or `author` are eager-loaded automatically when they match an Eloquent relation on the table model.
+
+#### `sharedStackUsing(Closure $resolver)`
+
+Resolve the same multi-user stack once per table page instead of per row. Preferred for preview/demo columns with identical members on every record.
+
+### Performance
+
+- **Auto eager-load** — `applyEagerLoading()` adds `with()` for relation column names and `eagerLoad()` extras.
+- **Stack state wrapper** — multi-user cells render as one stack, not comma-joined rich rows.
+- **Render cache** — identical rich/stack HTML is reused within the same request.
+- **Shared stack cache** — `sharedStackUsing()` runs resolver once per Livewire table page.
+- **Lazy CSS** — `user-display` + `user-column` bundles load when the column renders; `@pushOnce` + queue prevent duplicate `<link>` tags.
 
 Custom avatar via Filament convention:
 
@@ -1099,6 +1115,10 @@ Horizontal overlap (px) between stacked avatars. Default: `10`.
 #### `stackTooltips(bool|Closure $condition = true)`
 
 Show each user's name in a native `title` tooltip on stack avatars. Default: `true`.
+
+#### `eagerLoad(string|array|Closure $relationships)`
+
+Register extra relationships to eager-load for this column. Direct relationship column names such as `members` or `author` are eager-loaded automatically when they match an Eloquent relation on the table model.
 
 ### Shared user display API
 
@@ -1148,9 +1168,10 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 
 ### Implementation notes
 
-- Requires package **core CSS** (`flex-fields-core` / `resources/dist/css/core.css`) — table column styles are always included there.
+- Lazy-loads **`user-display`** + **`user-column`** CSS bundles when the column renders.
+- Multi-user state is wrapped internally so Filament does not comma-join multiple rich user rows.
 - Stack mode hides the verified badge on individual avatars (names are available via tooltip when `stackTooltips()` is enabled).
-- Only Eloquent `Model` instances in state are rendered; scalar IDs are not resolved automatically — eager-load the relationship or use a custom `getStateUsing()` that returns models.
+- Only Eloquent `Model` instances in state are rendered; scalar IDs are not resolved automatically — use a relationship column with auto eager-load, or a cached custom `getStateUsing()` that returns models.
 
 ---
 
@@ -1952,6 +1973,7 @@ On hydrate, strings set `place_name`; arrays merge into canonical state. Coordin
 | Longitude | Must be −180…180 when `lng` is in `fields()` |
 | `countries()` | `country` must be in whitelist when set |
 | `streetAddressesOnly()` | `street` must be filled; cities, regions, and other non-address results are rejected |
+| `searchTypes()` | Limits geocoding to given Mapbox place types; no extra validation unless combined with `streetAddressesOnly()` |
 
 ### Configuration API
 
@@ -1993,7 +2015,11 @@ Restrict geocoding results to ISO country codes. `null` = worldwide.
 
 #### `streetAddressesOnly(bool|Closure $condition = true)`
 
-Restrict search, map clicks, and pin drags to **full street addresses** only. Uses Mapbox `types=address`, filters autocomplete results client-side, and validates that `street` is present. Cities, regions, postcodes alone, and other area-level results cannot be selected. Default: `false`.
+Restrict search, map clicks, and pin drags to **full street addresses** only. Uses Mapbox `types=address`, filters autocomplete results client-side, and validates that `street` is present. Cities, regions, postcodes alone, and other area-level results cannot be selected. Default: `false`. When enabled, overrides `searchTypes()` and always uses `address`.
+
+#### `searchTypes(array|Closure|null $types)`
+
+Limit Mapbox Geocoding API results to specific place types. Pass `null` (default) to search all supported types. Use `MapboxSearchType` enum or strings: `country`, `region`, `postcode`, `district`, `place`, `locality`, `neighborhood`, `address`, `poi`. Examples: `[MapboxSearchType::Poi]` for shops/landmarks only; `[MapboxSearchType::Address, MapboxSearchType::Poi]` for streets and POI.
 
 #### `readOnly(bool|Closure $condition = true)`
 
@@ -2012,6 +2038,7 @@ Disable map interaction.
 | `getDefaultZoom()` | `int` | Zoom level |
 | `isSearchable()` | `bool` | Search enabled |
 | `isStreetAddressesOnly()` | `bool` | Street-address restriction enabled |
+| `getSearchTypes()` | `list<string>\|null` | Mapbox `types` filter (`null` = all types) |
 | `getCountries()` | `list<string>\|null` | Country filter |
 | `hasStreetAddress(array $state)` | `bool` | Whether canonical state has a street name |
 | `getEmptyCanonicalState()` | `array` | All keys `null` |
@@ -2038,6 +2065,7 @@ Disable map interaction.
 | `searchable` | `searchable()` |
 | `countries` | `countries()` |
 | `street_addresses_only` | `streetAddressesOnly()` |
+| `search_types` | `searchTypes()` — e.g. `['poi']`, `['address', 'poi']`, or `null` for all |
 
 ### CSS classes
 
@@ -2119,6 +2147,7 @@ On hydrate, strings set `place_name`; arrays merge into canonical state.
 | `requiredFields()` | Listed fields must be filled when any value present |
 | `countries()` | `country` must be in whitelist when set |
 | `streetAddressesOnly()` | `street` must be filled; cities, regions, and other non-address results are rejected |
+| `searchTypes()` | Limits geocoding to given Mapbox place types; no extra validation unless combined with `streetAddressesOnly()` |
 
 ### Configuration API
 
@@ -2152,7 +2181,11 @@ Restrict geocoding results to ISO country codes. `null` = worldwide.
 
 #### `streetAddressesOnly(bool|Closure $condition = true)`
 
-Restrict autocomplete to **full street addresses** only. Uses Mapbox `types=address`, filters results client-side, and validates that `street` is present. Cities, regions, and other area-level results cannot be selected. Default: `false`.
+Restrict autocomplete to **full street addresses** only. Uses Mapbox `types=address`, filters results client-side, and validates that `street` is present. Cities, regions, and other area-level results cannot be selected. Default: `false`. When enabled, overrides `searchTypes()`.
+
+#### `searchTypes(array|Closure|null $types)`
+
+Limit Mapbox results to specific place types. `null` (default) = all types. See `MapboxSearchType` enum and MapPickerField docs.
 
 #### `language(string|Closure $language)`
 
@@ -2198,6 +2231,7 @@ Same geocoded-address helpers as `MapPickerField` (`hydrateToCanonical`, `dehydr
 | `searchable` | `searchable()` |
 | `countries` | `countries()` |
 | `street_addresses_only` | `streetAddressesOnly()` |
+| `search_types` | `searchTypes()` — e.g. `['poi']` or `null` for all |
 | `language` | `language()` |
 | `size` | `size()` |
 | `variant` | `variant()` |
@@ -6874,6 +6908,13 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | `fff-rating__items` | Icon row |
 | `fff-rating__icon-clip` | Partial fill clip for fractional values |
 | `fff-rating__value` | Numeric value label |
+
+### Performance
+
+| Mechanism | What it does |
+|-----------|----------------|
+| **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
+| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). `@pushOnce` + queue deduplication prevent duplicate `<link>` tags; `data-navigate-track` + navigate dedupe script keep SPA navigation clean. |
 
 ---
 

@@ -12,10 +12,12 @@ namespace Bjanczak\FilamentFlexFields;
 
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsAlpineComponent;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
+use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaRegistry;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\FieldComponentFactory;
@@ -51,6 +53,7 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->app->singleton(FlexFieldsPlaygroundBuilder::class);
         $this->app->scoped(FlexFieldStylesheetQueue::class);
         $this->app->scoped(FlexFieldAlpineQueue::class);
+        $this->app->scoped(CountryRegistryQueue::class);
         $this->app->scoped(UserSelectQueryCache::class);
     }
 
@@ -59,6 +62,10 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/filament-flex-fields.php' => config_path('filament-flex-fields.php'),
         ], 'filament-flex-fields-config');
+
+        $this->publishes([
+            __DIR__.'/../resources/lang' => lang_path('vendor/filament-flex-fields'),
+        ], 'filament-flex-fields-translations');
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'filament-flex-fields');
 
@@ -75,10 +82,12 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         $this->publishStalePackageAssets();
 
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_END,
-            fn (): string => Blade::render('filament-flex-fields::partials.playground-dark-mode-script'),
-        );
+        if (FlexFieldsConfig::isPlaygroundEnabled()) {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::HEAD_END,
+                fn (): string => Blade::render('filament-flex-fields::partials.playground-theme'),
+            );
+        }
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
@@ -87,15 +96,41 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::STYLES_AFTER,
+            fn (): string => view('filament-flex-fields::partials.queued-stylesheets')->render(),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::STYLES_AFTER,
             fn (): string => view('filament-flex-fields::partials.tooltip-overrides')->render(),
         );
+
+        if (FlexFieldsConfig::isPlaygroundEnabled()) {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::STYLES_BEFORE,
+                fn (): string => request()->is('*flex-fields-playground*')
+                    ? view('filament-flex-fields::partials.playground-page-stylesheets')->render()
+                    : '',
+            );
+
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::SCRIPTS_AFTER,
+                fn (): string => view('filament-flex-fields::partials.playground-assets')->render(),
+            );
+        }
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,
             fn (): string => view('filament-flex-fields::partials.tooltip-glass-script')->render(),
         );
 
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::SCRIPTS_AFTER,
+            fn (): string => view('filament-flex-fields::partials.lazy-assets-navigate-dedupe')->render(),
+        );
+
         RegistersTranslatableFieldMacros::boot();
+
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }
 
     /**
@@ -108,8 +143,20 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $assets = [
             FlexFieldsCss::make(FlexFieldAssets::CORE_STYLESHEET_ID, $distPath.'/core.css'),
             FlexFieldsCss::make('filament-flex-fields', $distPath.'/core.css'),
-            FlexFieldsCss::make(FlexFieldAssets::PLAYGROUND_STYLESHEET_ID, $distPath.'/playground.css')->loadedOnRequest(),
         ];
+
+        if (FlexFieldsConfig::isPlaygroundEnabled()) {
+            $assets[] = FlexFieldsCss::make(FlexFieldAssets::PLAYGROUND_STYLESHEET_ID, $distPath.'/playground.css')->loadedOnRequest();
+
+            foreach (glob($distPath.'/playground-*.css') ?: [] as $bundlePath) {
+                $slug = str_replace('playground-', '', basename($bundlePath, '.css'));
+
+                $assets[] = FlexFieldsCss::make(
+                    FlexFieldAssets::playgroundBundleStylesheetId($slug),
+                    $bundlePath,
+                )->loadedOnRequest();
+            }
+        }
 
         foreach (FlexFieldAssets::LAZY_COMPONENT_STYLESHEETS as $component) {
             $assets[] = FlexFieldsCss::make(

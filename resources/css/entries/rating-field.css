@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/RatingField.php";
+@source "../views/forms/components/rating-field.blade.php";
+
+@import "../core/rating.css";

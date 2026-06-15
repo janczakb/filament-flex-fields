@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 
 it('exposes segment tabs configuration via fluent api', function () {
@@ -51,6 +52,15 @@ it('exposes segment tabs configuration via fluent api', function () {
         ->and($general->getIcon())->toBe(GravityIcon::Person)
         ->and($general->getTooltip())->toBe('General settings')
         ->and($general->canConcealComponents())->toBeTrue();
+});
+
+it('loads segment control styles for segment tabs', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/schemas/components/segment-tabs.blade.php');
+
+    expect($blade)
+        ->toContain('partials.load-stylesheet')
+        ->and($blade)->toContain("'component' => 'segment-tabs'")
+        ->and(FlexFieldAssets::stylesheetsFor('segment-tabs'))->toBe(['segment-control']);
 });
 
 it('defaults ghost variant color to primary for segment tabs', function () {

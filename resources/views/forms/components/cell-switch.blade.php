@@ -14,6 +14,7 @@
     :field="$field"
     :has-inline-label="true"
 >
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'switch'])
     <div
         x-data="{
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},

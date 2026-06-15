@@ -83,6 +83,11 @@ return [
         'delete' => 'Usuń nagranie',
     ],
 
+    'geocoding' => [
+        'failed' => 'Zapytanie geokodowania nie powiodlo sie. Sprobuj ponownie.',
+        'rate_limited' => 'Zbyt wiele zapytan geokodowania. Odczekaj chwile i sprobuj ponownie.',
+    ],
+
     'address_autocomplete' => [
         'search_placeholder' => 'Szukaj adresu…',
         'missing_token' => 'Brak tokenu Mapbox. Ustaw MAPBOX_ACCESS_TOKEN w pliku .env.',

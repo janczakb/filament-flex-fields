@@ -13,6 +13,7 @@ use Filament\FilamentServiceProvider;
 use Filament\Forms\FormsServiceProvider;
 use Filament\Schemas\SchemasServiceProvider;
 use Filament\Support\SupportServiceProvider;
+use Filament\Tables\TablesServiceProvider;
 use Illuminate\Translation\TranslationServiceProvider;
 use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
@@ -23,6 +24,8 @@ abstract class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
+
+        config()->set('cache.default', 'array');
     }
 
     protected function getPackageProviders($app): array
@@ -39,6 +42,7 @@ abstract class TestCase extends Orchestra
             SchemasServiceProvider::class,
             SupportServiceProvider::class,
             ActionsServiceProvider::class,
+            TablesServiceProvider::class,
             SluggableServiceProvider::class,
         ];
     }
@@ -55,6 +59,7 @@ abstract class TestCase extends Orchestra
             'database' => ':memory:',
             'prefix' => '',
         ]);
+        $app['config']->set('cache.default', 'array');
         $app['config']->set('filament-flex-fields.enabled', true);
         $app['config']->set('filament-flex-fields.slug.url_host', null);
         $app['config']->set('filament-flex-fields.values_column', 'flex_field_values');

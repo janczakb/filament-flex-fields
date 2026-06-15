@@ -1,0 +1,71 @@
+/* Shared user avatar + option display (UserSelect + UserColumn) */
+
+:where(.fff-user-select, .fff-user-column) {
+    --fff-user-select-avatar-size: 2rem;
+}
+
+.fff-user-select-option {
+    @apply inline-flex min-w-0 max-w-full items-center gap-3;
+}
+
+.fff-user-select-option--list {
+    @apply w-full;
+}
+
+.fff-user-select-option--trigger {
+    @apply gap-2.5;
+}
+
+.fff-user-select-option__content {
+    @apply min-w-0 flex flex-col;
+}
+
+.fff-user-select-option__name {
+    @apply truncate text-sm font-medium leading-snug;
+    color: var(--fff-select-text, rgb(24 24 27));
+}
+
+.fff-user-select-option__email {
+    @apply truncate text-xs leading-tight;
+    color: var(--fff-select-placeholder, rgb(113 113 122));
+}
+
+.fff-user-select__avatar {
+    @apply relative inline-flex shrink-0 items-center justify-center overflow-visible;
+    height: var(--fff-user-select-avatar-size);
+    width: var(--fff-user-select-avatar-size);
+}
+
+.fff-user-select__avatar-surface {
+    @apply flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-gradient-to-b from-blue-300 to-blue-500 text-white;
+}
+
+.fff-user-select__avatar-image {
+    @apply block h-full w-full object-cover;
+}
+
+.fff-user-select__avatar-initials {
+    @apply font-semibold uppercase;
+    font-size: calc(var(--fff-user-select-avatar-size) * 0.34);
+}
+
+.fff-user-select__verified-badge {
+    @apply absolute z-[1] inline-flex items-center justify-center rounded-full bg-white text-blue-500 shadow-sm ring-1 ring-white;
+    bottom: -0.0625rem;
+    right: -0.0625rem;
+    height: 0.875rem;
+    width: 0.875rem;
+}
+
+.fff-user-select__verified-badge .fi-icon {
+    height: 0.75rem;
+    width: 0.75rem;
+}
+
+.dark .fff-user-select-option__name {
+    color: var(--fff-select-text, rgb(244 244 245));
+}
+
+.dark .fff-user-select-option__email {
+    color: var(--fff-select-placeholder, rgb(161 161 170));
+}

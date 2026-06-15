@@ -1,0 +1,9 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/RatingColumn.php";
+@source "../views/tables/columns/rating-column.blade.php";
+
+@import "../core/rating.css";
+@import "../core/tables/rating-column.css";

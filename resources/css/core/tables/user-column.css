@@ -1,6 +1,5 @@
 /* UserColumn (tables) */
 .fff-user-column {
-    --fff-user-select-avatar-size: 2rem;
     @apply inline-flex max-w-full items-center;
 }
 
@@ -34,7 +33,7 @@
 }
 
 .fff-user-column__avatar-stack-item .fff-user-select__avatar-surface {
-    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) #fff;
+    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) rgb(255 255 255);
 }
 
 .fff-user-column__avatar-stack-overflow {
@@ -43,7 +42,7 @@
     height: 2rem;
     width: 2rem;
     font-size: 0.75rem;
-    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) #fff;
+    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) rgb(255 255 255);
 }
 
 .fff-user-select__avatar--stack {
@@ -52,4 +51,21 @@
 
 .fff-user-select__avatar--stack .fff-user-select__verified-badge {
     display: none;
+}
+
+.dark .fff-user-column--rich .fff-user-select-option__name {
+    @apply text-zinc-100;
+}
+
+.dark .fff-user-column--rich .fff-user-select-option__email {
+    @apply text-zinc-400;
+}
+
+.dark .fff-user-column__avatar-stack-item .fff-user-select__avatar-surface,
+.dark .fff-user-column__avatar-stack-overflow {
+    box-shadow: 0 0 0 var(--fff-user-column-stack-ring, 2px) rgb(24 24 27);
+}
+
+.dark .fff-user-column__avatar-stack-overflow {
+    @apply bg-zinc-800 text-zinc-200;
 }

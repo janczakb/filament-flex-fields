@@ -59,6 +59,10 @@ final class AddressAutocompleteFieldConfigurator implements FieldConfigurator
             $field->streetAddressesOnly((bool) $config['street_addresses_only']);
         }
 
+        if (array_key_exists('search_types', $config)) {
+            $field->searchTypes(is_array($config['search_types']) ? $config['search_types'] : null);
+        }
+
         if (array_key_exists('min_search_length', $config)) {
             $field->minSearchLength((int) $config['min_search_length']);
         }

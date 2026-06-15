@@ -1,0 +1,10 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/SelectField.php";
+@source "../views/forms/components/select-field.blade.php";
+@source "../views/forms/components/partials/select-rich-option.blade.php";
+@source "../views/forms/components/partials/select-option-media.blade.php";
+
+@import "../components/select-field.css";

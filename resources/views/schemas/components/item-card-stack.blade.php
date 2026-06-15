@@ -2,6 +2,8 @@
     $stackGap = $getStackGap();
 @endphp
 
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'item-card'])
+
 <div
     {{
         $attributes

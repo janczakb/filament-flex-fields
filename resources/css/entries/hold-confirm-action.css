@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Actions/Concerns/CanRequireHoldConfirm.php";
+@source "../views/actions/hold-confirm.blade.php";
+
+@import "../components/hold-confirm-action.css";

@@ -47,7 +47,9 @@ UserColumn::make('members')
     ->stackedOverlap(10);
 ```
 
-Filament resolves `$record->author` or `$record->members` as column state when the relationship is eager-loaded. Ensure the relation is loaded in the table query to avoid N+1 queries.
+Filament resolves `$record->author` or `$record->members` as column state. `UserColumn` automatically calls `with()` for direct relationship column names (for example `members`, `author`) and any extra relations declared via `eagerLoad()`.
+
+Custom `getStateUsing()` that returns the same users on every row should use `sharedStackUsing()` (preferred) or resolve models once per request on the page/resource.
 
 Custom avatar via Filament convention:
 
@@ -101,6 +103,34 @@ Show each user's name in a native `title` tooltip on stack avatars. Default: `tr
 UserColumn::make('field_name')
     ->stackTooltips(true);
 ```
+#### `eagerLoad(string|array|Closure $relationships)`
+
+
+Register extra relationships to eager-load for this column. Direct relationship column names such as `members` or `author` are eager-loaded automatically when they match an Eloquent relation on the table model.
+
+```php
+UserColumn::make('team_preview')
+    ->eagerLoad('assignees');
+```
+#### `sharedStackUsing(Closure $resolver)`
+
+
+Resolve the same multi-user stack **once per table page** instead of querying or building state on every row. Use for preview/demo columns that show identical members on each record.
+
+```php
+UserColumn::make('team_preview')
+    ->sharedStackUsing(fn () => User::query()->orderBy('id')->limit(8)->get());
+```
+
+### Performance
+
+| Mechanism | What it does |
+|-----------|----------------|
+| **`applyEagerLoading()`** | During table query build, adds `with()` for the column name when it matches an Eloquent relation (`members`, `author`, …) plus any `eagerLoad()` relations. |
+| **`UserColumnStackState`** | Wraps multi-user state so Filament `TextColumn` treats it as one HTML cell (avoids comma-joined rich rows). |
+| **`UserColumnRenderCache`** | Per-request cache of rendered rich/stack HTML keyed by normalized display data and column options. Identical stacks across rows reuse one Blade render. |
+| **`sharedStackUsing()`** | Per-page cache of shared multi-user state — resolver runs once per Livewire table, not once per row. |
+| **Lazy CSS** | Loads `flex-fields-user-display.css` + `flex-fields-user-column.css` only when a `UserColumn` cell renders (via `load-stylesheet` partial). `@pushOnce` + queue deduplication prevent duplicate `<link>` tags; `data-navigate-track` + navigate dedupe script keep SPA navigation clean. |
 
 ### Shared user display API
 
@@ -150,8 +180,9 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 
 ### Implementation notes
 
-- Requires package **core CSS** (`flex-fields-core` / `resources/dist/css/core.css`) — table column styles are always included there.
+- Lazy-loads **`user-display`** + **`user-column`** CSS bundles when the column renders (not part of `flex-fields-core.css`).
+- Multi-user state is wrapped internally so Filament does not comma-join multiple rich user rows.
 - Stack mode hides the verified badge on individual avatars (names are available via tooltip when `stackTooltips()` is enabled).
-- Only Eloquent `Model` instances in state are rendered; scalar IDs are not resolved automatically — eager-load the relationship or use a custom `getStateUsing()` that returns models.
+- Only Eloquent `Model` instances in state are rendered; scalar IDs are not resolved automatically — use a relationship column with auto eager-load, or a custom `getStateUsing()` that returns models (cached when shared across rows).
 
 ---

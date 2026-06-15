@@ -1,17 +1,32 @@
-/* Shared Mapbox geocoding autocomplete dropdown (MapPicker + AddressAutocomplete) */
+/* Shared Mapbox geocoding autocomplete dropdown — matches SelectField glass menu */
 .fff-map-picker__dropdown-panel {
-    margin-top: var(--fff-select-dropdown-gap, calc(0.25rem + 6px));
+    @apply fixed z-[20];
+    --fff-select-menu-bg: rgb(255 255 255 / 0.9);
+    --fff-select-menu-border: rgb(228 228 231 / 0.65);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-radius: 1.5rem;
+    --fff-select-menu-shadow:
+        0 2px 8px 0 #0000000f,
+        0 -6px 12px 0 #00000008,
+        0 14px 28px 0 #00000014;
+    --fff-select-menu-hover: rgb(244 244 245 / 0.72);
+    --fff-select-menu-selected: rgb(228 228 231 / 0.78);
+    visibility: hidden;
     overflow-x: hidden;
     overflow-y: auto;
     max-height: 14rem;
-    border-radius: var(--fff-select-menu-radius, 1.5rem);
-    border: none;
-    background: var(--fff-select-menu-bg, rgb(255 255 255 / 0.9));
-    backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%));
-    -webkit-backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%));
-    box-shadow: var(--fff-select-menu-shadow, 0 10px 30px rgb(0 0 0 / 0.08));
+    border-radius: var(--fff-select-menu-radius);
+    border: none !important;
+    background: var(--fff-select-menu-bg) !important;
+    backdrop-filter: var(--fff-select-menu-blur) !important;
+    -webkit-backdrop-filter: var(--fff-select-menu-blur) !important;
+    box-shadow: var(--fff-select-menu-shadow) !important;
     padding: 0.375rem;
     box-sizing: border-box;
+}
+
+.fff-map-picker__dropdown-panel.is-positioned {
+    visibility: visible;
 }
 
 .fff-map-picker__dropdown-options {
@@ -26,7 +41,7 @@
     padding: 0.5rem 0.625rem;
     font-size: 0.8125rem;
     line-height: 1.25rem;
-    color: rgb(113 113 122);
+    color: var(--fff-phone-field-menu-muted, rgb(113 113 122));
 }
 
 .fff-map-picker__dropdown-skeleton {
@@ -116,7 +131,7 @@
     box-sizing: border-box;
     font-size: 0.875rem;
     line-height: 1.25rem;
-    color: rgb(39 39 42);
+    color: var(--fff-phone-field-menu-text, rgb(39 39 42));
     white-space: normal;
     transition: background-color 0.15s ease;
 }
@@ -124,12 +139,12 @@
 .fff-map-picker__dropdown-option:hover > span,
 .fff-map-picker__dropdown-option:focus-visible > span,
 .fff-map-picker__dropdown-option.is-active > span {
-    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background: var(--fff-select-menu-hover) !important;
     outline: none;
 }
 
 .fff-map-picker__dropdown-option.is-active > span {
-    background: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+    background: var(--fff-select-menu-selected) !important;
     font-weight: 500;
 }
 
@@ -147,41 +162,42 @@
 }
 
 .dark .fff-map-picker__dropdown-panel {
-    --fff-select-menu-bg: rgb(255 255 255 / 0.98);
-    --fff-select-menu-hover: rgb(244 244 245);
-    --fff-select-menu-selected: rgb(228 228 231);
-    --fff-select-menu-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
-    background: rgb(255 255 255 / 0.98);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.28);
+    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-border: rgb(255 255 255 / 0.12);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+    --fff-select-menu-hover: rgb(63 63 70 / 0.82);
+    --fff-select-menu-selected: rgb(82 82 91 / 0.88);
+    --fff-phone-field-menu-text: rgb(250 250 250);
+    --fff-phone-field-menu-muted: rgb(212 212 216);
+}
+
+.dark .fff-map-picker__dropdown-panel--map-context {
+    --fff-select-menu-bg: rgb(39 39 42 / 0.9);
 }
 
 .dark .fff-map-picker__dropdown-hint {
-    color: rgb(113 113 122);
+    color: var(--fff-phone-field-menu-muted, rgb(212 212 216));
 }
 
 .dark .fff-map-picker__dropdown-skeleton-icon,
 .dark .fff-map-picker__dropdown-skeleton-line {
     background: linear-gradient(
         90deg,
-        rgb(228 228 231 / 0.75) 0%,
-        rgb(212 212 216 / 0.95) 50%,
-        rgb(228 228 231 / 0.75) 100%
+        rgb(63 63 70 / 0.75) 0%,
+        rgb(82 82 91 / 0.95) 50%,
+        rgb(63 63 70 / 0.75) 100%
     );
     background-size: 200% 100%;
 }
 
 .dark .fff-map-picker__dropdown-option > span {
-    color: rgb(39 39 42);
+    color: var(--fff-phone-field-menu-text, rgb(250 250 250));
 }
 
 .dark .fff-map-picker__dropdown-option:hover > span,
-.dark .fff-map-picker__dropdown-option:focus-visible > span {
-    background: rgb(244 244 245);
-    color: rgb(24 24 27);
-}
-
+.dark .fff-map-picker__dropdown-option:focus-visible > span,
 .dark .fff-map-picker__dropdown-option.is-active > span {
-    background: rgb(228 228 231);
-    color: rgb(24 24 27);
-    font-weight: 500;
+    color: var(--fff-phone-field-menu-text, rgb(250 250 250));
 }

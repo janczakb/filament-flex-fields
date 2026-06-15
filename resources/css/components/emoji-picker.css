@@ -2,7 +2,7 @@
 
 .fff-emoji-picker__panel {
     @apply fixed z-[9999] overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-lg;
-    width: min(100vw - 2rem, 21rem);
+    width: min(100vw - 2rem, 22rem);
 }
 
 .fff-emoji-picker__loading {
@@ -28,9 +28,10 @@
 
 .fff-emoji-picker__element {
     --emoji-size: 1.375rem;
-    --num-columns: 8;
+    --num-columns: 9;
+    --category-emoji-size: 1.125rem;
     display: block;
-    width: min(100vw - 2rem, 21rem);
+    width: min(100vw - 2rem, 22rem);
     height: 22rem;
     border: 0 !important;
     background: transparent !important;
