@@ -5,5 +5,4 @@
 @source "../../src/Filament/Forms/Components/PhoneField.php";
 @source "../views/forms/components/phone-field.blade.php";
 
-@import "../core/teleported-menu.css";
 @import "../components/phone-field.css";

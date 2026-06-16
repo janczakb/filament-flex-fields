@@ -61,8 +61,13 @@ it('deduplicates searchable select menu chunk preloads across country timezone a
     $timezoneChunks = FlexFieldAlpineQueue::enqueueChunksFor('timezone-field');
     $currencyChunks = FlexFieldAlpineQueue::enqueueChunksFor('currency-field');
 
+    $selectMenuChunk = collect(FlexFieldAssets::alpineChunksFor('country-field'))
+        ->first(fn (string $chunk): bool => str_contains($chunk, 'flex-fields-select-menu-'));
+
     expect($countryChunks)->not->toBeEmpty()
-        ->and($timezoneChunks)->toBe([])
+        ->and($selectMenuChunk)->toBeString()
+        ->and($countryChunks)->toContain($selectMenuChunk)
+        ->and($timezoneChunks)->not->toContain($selectMenuChunk)
         ->and($currencyChunks)->toBe([]);
 });
 

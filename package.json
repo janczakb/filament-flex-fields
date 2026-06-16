@@ -10,7 +10,10 @@
         "build:js": "node scripts/build-component-js.mjs",
         "test:js": "node --import ./tests/js/register-svg-loader.mjs --test tests/js/**/*.test.mjs",
         "test:e2e": "playwright test",
-        "build": "npm run build:css && npm run build:js",
+        "test:e2e:coordinator": "playwright test tests/e2e/select-field-coordinator.spec.mjs",
+        "test:e2e:playground": "playwright test tests/e2e/playground-select.spec.mjs",
+        "test:assets": "npm run build && npm run test:js && npm run test:e2e:coordinator",
+        "build": "npm run build:css && npm run build:js && node scripts/generate-bundle-summary.mjs",
         "check:budgets": "node scripts/check-bundle-budgets.mjs",
         "watch:css": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --watch"
     },

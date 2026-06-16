@@ -582,6 +582,9 @@ const currencySelectMenu = createSearchableSelectMenuMixin({
     matchTriggerWidth: false,
     closeMethod: 'closeCurrencyMenu',
     ownerIdPrefix: 'fff-currency',
+    onMenuClose() {
+        this.currencySearch = ''
+    },
 })
 
 export default function currencyFieldFormComponent({
@@ -1125,8 +1128,7 @@ export default function currencyFieldFormComponent({
         },
 
         closeCurrencyMenu() {
-            this.currencyOpen = false
-            this.currencySearch = ''
+            this.closeTeleportedMenu()
         },
 
         shouldAnimateDigit(segment) {

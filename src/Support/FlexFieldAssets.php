@@ -29,11 +29,14 @@ class FlexFieldAssets
         'price-range',
         'flex-textarea',
         'flex-text-input',
+        'link-preview-field',
+        'schedule-field',
         'credit-card',
         'phone-field',
         'country-field',
         'timezone-field',
         'flex-date-time-field',
+        'flex-time-segments',
         'flex-file-upload',
         'currency-field',
         'slug-field',
@@ -66,6 +69,7 @@ class FlexFieldAssets
         'hold-confirm-action',
         'track-slider',
         'segment-control',
+        'teleported-menu',
     ];
 
     public static function stylesheetId(string $component): string
@@ -100,17 +104,22 @@ class FlexFieldAssets
     public const STYLESHEET_DEPENDENCIES = [
         'flex-text-input' => ['emoji-picker'],
         'flex-textarea' => ['emoji-picker'],
-        'phone-field' => ['flex-text-input'],
-        'country-field' => ['flex-text-input'],
-        'timezone-field' => ['flex-text-input'],
-        'currency-field' => ['flex-text-input'],
-        'address-autocomplete' => ['flex-text-input', 'map-picker-dropdown'],
+        'phone-field' => ['flex-text-input', 'teleported-menu'],
+        'country-field' => ['flex-text-input', 'teleported-menu'],
+        'timezone-field' => ['flex-text-input', 'teleported-menu'],
+        'currency-field' => ['flex-text-input', 'teleported-menu'],
+        'address-autocomplete' => ['flex-text-input', 'teleported-menu', 'map-picker-dropdown'],
         'flex-color-picker' => ['flex-text-input'],
         'slug-field' => ['flex-text-input'],
+        'link-preview-field' => ['flex-text-input'],
+        'schedule-field' => ['flex-text-input', 'switch', 'teleported-menu', 'timezone-field', 'flex-time-segments'],
         'tags-field' => ['flex-text-input', 'tag-chips'],
         'flex-date-time-field' => ['flex-text-input'],
-        'map-picker' => ['map-picker-dropdown'],
-        'user-select' => ['select-field', 'tag-chips', 'user-display'],
+        'flex-time-segments' => ['flex-text-input', 'teleported-menu'],
+        'map-picker-dropdown' => ['teleported-menu'],
+        'map-picker' => ['teleported-menu', 'map-picker-dropdown'],
+        'select-field' => ['teleported-menu'],
+        'user-select' => ['teleported-menu', 'select-field', 'tag-chips', 'user-display'],
         'user-column' => ['user-display'],
         'voice-note-recorder-field' => ['emoji-picker'],
         'segment-tabs' => ['segment-control'],
@@ -129,6 +138,15 @@ class FlexFieldAssets
     ];
 
     /**
+     * Extra lazy stylesheets bundled into playground slug CSS beyond the resolved alias component.
+     *
+     * @var array<string, list<string>>
+     */
+    public const PLAYGROUND_EXTRA_STYLESHEETS = [
+        'date-time-fields' => ['flex-time-segments'],
+    ];
+
+    /**
      * @return list<string>
      */
     public static function stylesheetsFor(string $component): array
@@ -142,6 +160,25 @@ class FlexFieldAssets
         ] as $stylesheet) {
             if (! in_array($stylesheet, $stylesheets, true)) {
                 $stylesheets[] = $stylesheet;
+            }
+        }
+
+        return $stylesheets;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function playgroundStylesheetsFor(string $slug): array
+    {
+        $component = self::resolveStylesheetComponent($slug);
+        $stylesheets = self::stylesheetsFor($component);
+
+        foreach (self::PLAYGROUND_EXTRA_STYLESHEETS[$slug] ?? [] as $extra) {
+            foreach (self::stylesheetsFor($extra) as $stylesheet) {
+                if (! in_array($stylesheet, $stylesheets, true)) {
+                    $stylesheets[] = $stylesheet;
+                }
             }
         }
 

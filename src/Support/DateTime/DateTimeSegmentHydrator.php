@@ -309,6 +309,37 @@ class DateTimeSegmentHydrator
     }
 
     /**
+     * @return array{hour: string, minute: string}
+     */
+    public static function segmentsFromScheduleTime(?string $value): array
+    {
+        $empty = [
+            'hour' => '',
+            'minute' => '',
+        ];
+
+        if ($value === null || trim($value) === '') {
+            return $empty;
+        }
+
+        if (! preg_match('/^(\d{1,2}):(\d{2})$/', trim($value), $matches)) {
+            return $empty;
+        }
+
+        $hour = (int) $matches[1];
+        $minute = (int) $matches[2];
+
+        if ($hour < 0 || $hour > 23 || $minute < 0 || $minute > 59) {
+            return $empty;
+        }
+
+        return [
+            'hour' => str_pad((string) $hour, 2, '0', STR_PAD_LEFT),
+            'minute' => str_pad((string) $minute, 2, '0', STR_PAD_LEFT),
+        ];
+    }
+
+    /**
      * @param  list<string>  $parts
      * @return array<string, string>
      */

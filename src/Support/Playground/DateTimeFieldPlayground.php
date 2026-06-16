@@ -13,6 +13,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDateTimePicker;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDurationField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexMonthPicker;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeSegmentsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeRangeField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexYearPicker;
 use Carbon\Carbon;
@@ -35,6 +36,8 @@ class DateTimeFieldPlayground
             ],
             'date_time__time_field' => '14:30',
             'date_time__time_field_24h' => '14:30',
+            'date_time__time_segments' => '09:30',
+            'date_time__time_segments_step' => '14:07',
             'date_time__date_time_field' => '2026-06-15T14:30:00',
             'date_time__hour_granularity' => '2026-02-03T08:00:00',
             'date_time__second_granularity' => '2026-02-03T08:45:00',
@@ -99,6 +102,17 @@ class DateTimeFieldPlayground
                         ->hideTimeZone()
                         ->granularity(DateTimeGranularity::Minute)
                         ->helperText('24-hour segmented time with min/max constraints.'),
+                    FlexTimeSegmentsField::make('date_time__time_segments')
+                        ->label('Time segments (dropdown)')
+                        ->minuteStep(15)
+                        ->withRecommendedDefaults()
+                        ->helperText('Dropdown hour/minute picker in flex-text-input shell. Stores HH:MM (24h). Reused by ScheduleField.'),
+                    FlexTimeSegmentsField::make('date_time__time_segments_step')
+                        ->label('Time segments · 5 min step')
+                        ->minuteStep(5)
+                        ->variant('soft')
+                        ->size('sm')
+                        ->helperText('minuteStep(5) snaps minutes to 00, 05, 10, … 55.'),
                     FlexDateTimePicker::make('date_time__date_time_field')
                         ->label('Date & time')
                         ->hourCycle(24)

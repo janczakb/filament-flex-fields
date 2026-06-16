@@ -1,0 +1,1 @@
+function f(r,...c){let o={};for(let e of Reflect.ownKeys(r)){let t=Object.getOwnPropertyDescriptor(r,e);t&&Object.defineProperty(o,e,t)}for(let e of c)for(let t of Reflect.ownKeys(e)){let n=Object.getOwnPropertyDescriptor(e,t);n&&Object.defineProperty(o,t,n)}return o}export{f as a};

@@ -74,6 +74,7 @@
             || ($isMultiple && filled($getPlaceholder()))
         );
     $selectFieldPatchConfig = [
+        'statePath' => $statePath,
         'isInlineSearch' => $isInlineSearch,
         'isGridLayout' => $isGridLayout,
         'useRichListTriggerDisplay' => $useRichListTriggerDisplay,
@@ -192,29 +193,31 @@
                 @include('filament-flex-fields::forms.components.partials.user-select-scripts')
             @endif
             <div
-                class="fi-hidden"
-                x-data="{
-                    isDisabled: @js($isDisabled),
-                    init() {
-                        const container = $el.nextElementSibling
-                        container.dispatchEvent(
-                            new CustomEvent('set-select-property', {
-                                detail: { isDisabled: this.isDisabled },
-                            }),
-                        )
-                    },
-                }"
-            ></div>
-            <div
-                class="fi-hidden"
                 x-load
                 x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
-                x-data="selectFieldPreload()"
-            ></div>
-            <div
-                x-load
-                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select', 'filament/forms') }}"
-                x-data="selectFormComponent({
+                x-data="fffSelectFieldCoordinator({ patchConfig: @js($selectFieldPatchConfig) })"
+                x-init="init()"
+                class="fff-select-field__shell"
+            >
+                <div
+                    class="fi-hidden"
+                    x-data="{
+                        isDisabled: @js($isDisabled),
+                        init() {
+                            const container = $el.nextElementSibling
+                            container.dispatchEvent(
+                                new CustomEvent('set-select-property', {
+                                    detail: { isDisabled: this.isDisabled },
+                                }),
+                            )
+                        },
+                    }"
+                ></div>
+                <div
+                    data-fff-select-root
+                    x-load
+                    x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select', 'filament/forms') }}"
+                    x-data="selectFormComponent({
                             canOptionLabelsWrap: @js($canOptionLabelsWrap),
                             canSelectPlaceholder: @js($canSelectPlaceholder),
                             getOptionLabelUsing: @if ($hasClientSideOptionList)
@@ -308,7 +311,6 @@
                 }}"
                 x-on:keydown.esc="select.dropdown.isActive && $event.stopPropagation()"
                 x-on:set-select-property="$event.detail.isDisabled ? select.disable() : select.enable()"
-                x-init="return bootSelectFieldPatches(select, $data, @js($selectFieldPatchConfig))"
                 {{
                     $attributes
                         ->merge($getExtraAlpineAttributes(), escape: false)
@@ -393,6 +395,7 @@
                 @endif
 
                 <div x-ref="select"></div>
+                </div>
             </div>
         @endif
     </x-filament::input.wrapper>

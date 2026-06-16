@@ -112,10 +112,6 @@
     --fff-currency-field-menu-text-size: var(--fff-text-md);
     position: fixed;
     overflow: hidden;
-    border-radius: 0.875rem;
-    border: 1px solid var(--fff-select-menu-border, rgb(228 228 231 / 0.65));
-    background-color: var(--fff-select-menu-bg, #ffffffa3);
-    box-shadow: var(--fff-select-menu-shadow, 0 4px 6px -1px rgb(0 0 0 / 0.06), 0 12px 28px -6px rgb(0 0 0 / 0.12));
     opacity: 0;
     pointer-events: none;
 }
@@ -135,21 +131,6 @@
 
 .fff-currency-field__currency-menu--lg {
     --fff-currency-field-menu-text-size: var(--fff-text-lg);
-}
-
-.fff-currency-field__currency-search-wrap {
-    padding: 0.5rem;
-    border-bottom: 1px solid var(--fff-select-menu-border, rgb(228 228 231 / 0.65));
-}
-
-.fff-currency-field__currency-search {
-    width: 100%;
-    min-height: 2.375rem;
-    padding: 0.5rem 1rem;
-    border-radius: 0.625rem;
-    border: 1px solid var(--fff-select-search-border, rgb(228 228 231));
-    background-color: var(--fff-select-search-bg, rgb(255 255 255 / 0.55));
-    font-size: var(--fff-currency-field-menu-text-size);
 }
 
 .fff-currency-field__currency-list {
@@ -363,10 +344,6 @@
 .dark .fff-currency-field {
     --fff-currency-field-muted: rgb(161 161 170);
     --fff-currency-field-chip-bg: rgb(63 63 70);
-}
-
-.dark .fff-currency-field__currency-menu {
-    border-color: rgb(255 255 255 / 0.12);
 }
 
 @keyframes fff-currency-digit-roll {

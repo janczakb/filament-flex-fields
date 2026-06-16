@@ -156,6 +156,8 @@ final class FieldTypeDefaultConfigRegistry
                 'variant' => 'primary',
                 'granularity' => 'day',
                 'hour_cycle' => 24,
+                'time_picker' => 'segmented',
+                'minute_step' => 15,
                 'show_seconds' => false,
                 'min_value' => null,
                 'max_value' => null,

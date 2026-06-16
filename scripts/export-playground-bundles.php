@@ -30,15 +30,7 @@ $map = [];
 foreach (FlexFieldsPlaygroundRegistry::definitions() as $slug => $definition) {
     unset($definition);
 
-    $component = FlexFieldAssets::resolveStylesheetComponent($slug);
-
-    if (! FlexFieldAssets::shouldLoadStylesheetsFor($component)) {
-        $map[$slug] = [];
-
-        continue;
-    }
-
-    $map[$slug] = FlexFieldAssets::stylesheetsFor($component);
+    $map[$slug] = FlexFieldAssets::playgroundStylesheetsFor($slug);
 }
 
 echo json_encode($map, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);

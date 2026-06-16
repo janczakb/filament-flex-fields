@@ -5,5 +5,4 @@
 @source "../../src/Filament/Forms/Components/CountryField.php";
 @source "../views/forms/components/country-field.blade.php";
 
-@import "../core/teleported-menu.css";
 @import "../components/country-field.css";

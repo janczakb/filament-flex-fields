@@ -11,17 +11,18 @@ beforeEach(function () {
 
 it('deduplicates stylesheet links across multiple fields on one request', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['flex-text-input', 'phone-field'])
+        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('country-field'))
         ->toBe(['country-field'])
         ->and(FlexFieldStylesheetQueue::has('flex-text-input'))->toBeTrue()
+        ->and(FlexFieldStylesheetQueue::has('teleported-menu'))->toBeTrue()
         ->and(FlexFieldStylesheetQueue::has('phone-field'))->toBeTrue()
         ->and(FlexFieldStylesheetQueue::has('country-field'))->toBeTrue();
 });
 
 it('deduplicates repeated enqueue calls for the same component', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['flex-text-input', 'phone-field'])
+        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
         ->toBe([]);
 });
@@ -35,7 +36,7 @@ it('deduplicates emoji picker stylesheet across flex text input and textarea fie
 
 it('resolves stylesheet dependencies without duplication inside one component', function () {
     expect(FlexFieldAssets::stylesheetsFor('phone-field'))
-        ->toBe(['flex-text-input', 'phone-field']);
+        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field']);
 });
 
 it('loads flex text input styles before date time field stylesheet', function () {
@@ -49,6 +50,8 @@ it('resolves playground slug aliases to lazy stylesheet component ids', function
     expect(FlexFieldAssets::resolveStylesheetComponent('date-time-fields'))
         ->toBe('flex-date-time-field')
         ->and(FlexFieldAssets::shouldLoadStylesheetsFor('date-time-fields'))->toBeTrue()
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('date-time-fields'))
+        ->toBe(['flex-text-input', 'flex-date-time-field', 'teleported-menu', 'flex-time-segments'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('date-time-fields'))
         ->toBe(['flex-text-input', 'flex-date-time-field']);
 });
@@ -78,11 +81,15 @@ it('scopes phone country dropdown text tokens on the teleported menu for dark mo
 
 it('scopes country field dropdown text tokens on the teleported menu for dark mode', function () {
     $countryCss = file_get_contents(__DIR__.'/../../resources/dist/css/country-field.css');
+    $teleportedMenuCss = file_get_contents(__DIR__.'/../../resources/dist/css/teleported-menu.css');
 
     expect($countryCss)
         ->toContain('--fff-phone-field-menu-text')
-        ->toContain('.fff-country-field__option')
-        ->toMatch('/\.dark\s+\.fff-country-field__menu[\s\S]*--fff-phone-field-menu-text:#fafafa/');
+        ->toContain('.fff-country-field__option');
+
+    expect($teleportedMenuCss)
+        ->toContain('.dark .fff-teleported-menu')
+        ->toContain('--fff-phone-field-menu-text:#fafafa');
 });
 
 it('keeps flex text input shell styles separate from date time field bundle', function () {
@@ -120,23 +127,23 @@ it('registers navigate dedupe script for flex fields lazy assets', function () {
 
 it('loads flex text input and map picker dropdown before address autocomplete stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('address-autocomplete'))
-        ->toBe(['flex-text-input', 'map-picker-dropdown', 'address-autocomplete'])
+        ->toBe(['flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('address-autocomplete'))
-        ->toBe(['flex-text-input', 'map-picker-dropdown', 'address-autocomplete']);
+        ->toBe(['flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete']);
 });
 
 it('loads map picker dropdown before map picker stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('map-picker'))
-        ->toBe(['map-picker-dropdown', 'map-picker'])
+        ->toBe(['teleported-menu', 'map-picker-dropdown', 'map-picker'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('map-picker'))
-        ->toBe(['map-picker-dropdown', 'map-picker']);
+        ->toBe(['teleported-menu', 'map-picker-dropdown', 'map-picker']);
 });
 
 it('loads select field, tag chips, and user display stylesheets before user select stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('user-select'))
-        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select'])
+        ->toBe(['teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('user-select'))
-        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select']);
+        ->toBe(['teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select']);
 });
 
 it('loads user display stylesheet before user column stylesheet', function () {
@@ -210,16 +217,44 @@ it('keeps shared map picker dropdown styles in a separate bundle', function () {
     $dropdownCss = file_get_contents(__DIR__.'/../../resources/dist/css/map-picker-dropdown.css');
     $mapPickerCss = file_get_contents(__DIR__.'/../../resources/dist/css/map-picker.css');
     $addressAutocompleteCss = file_get_contents(__DIR__.'/../../resources/dist/css/address-autocomplete.css');
+    $teleportedMenuCss = file_get_contents(__DIR__.'/../../resources/dist/css/teleported-menu.css');
 
     expect($dropdownCss)
         ->toContain('.fff-map-picker__dropdown-panel')
-        ->toContain('.fff-map-picker__dropdown-hint');
+        ->toContain('.fff-map-picker__dropdown-hint')
+        ->not->toContain('#40404573');
+
+    expect($teleportedMenuCss)->toContain('.fff-teleported-menu');
 
     expect($mapPickerCss)
         ->not->toContain('.fff-map-picker__dropdown-hint');
 
     expect($addressAutocompleteCss)
         ->not->toContain('.fff-map-picker__dropdown-hint');
+});
+
+it('keeps shared teleported menu styles in a separate bundle', function () {
+    $teleportedMenuCss = file_get_contents(__DIR__.'/../../resources/dist/css/teleported-menu.css');
+    $countryCss = file_get_contents(__DIR__.'/../../resources/dist/css/country-field.css');
+    $timezoneCss = file_get_contents(__DIR__.'/../../resources/dist/css/timezone-field.css');
+    $selectCss = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($teleportedMenuCss)
+        ->toContain('.fff-teleported-menu')
+        ->toContain('.fff-teleported-menu__search')
+        ->toContain('#40404573');
+
+    expect($countryCss)
+        ->toContain('.fff-country-field__menu')
+        ->not->toContain('.fff-teleported-menu__search');
+
+    expect($timezoneCss)
+        ->toContain('.fff-timezone-field__menu')
+        ->not->toContain('.fff-teleported-menu__search');
+
+    expect($selectCss)
+        ->toContain('.fff-select-field')
+        ->not->toContain('.fff-teleported-menu__search');
 });
 
 it('resolves flex radiolist playground slug to flex checklist stylesheet', function () {

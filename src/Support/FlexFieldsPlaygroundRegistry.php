@@ -27,6 +27,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\FlexVerificationCodePlaygroun
 use Bjanczak\FilamentFlexFields\Support\Playground\FocusOutlinePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FormLayoutPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ItemCardGroupPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\LinkPreviewFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MapPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MatrixChoiceFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\NumberStepperPlayground;
@@ -36,6 +37,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\ProgressBarPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ProgressCirclePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\ScheduleFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SegmentControlPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SegmentTabsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SelectPlayground;
@@ -105,6 +107,8 @@ class FlexFieldsPlaygroundRegistry
                 'video-field' => ['label' => 'Video field', 'playground' => VideoFieldPlayground::class, 'sort' => 320, 'icon' => GravityIcon::Video],
                 'audio-field' => ['label' => 'Audio field', 'playground' => AudioFieldPlayground::class, 'sort' => 330, 'icon' => GravityIcon::VolumeFill],
                 'map-picker' => ['label' => 'Map picker', 'playground' => MapPickerPlayground::class, 'sort' => 340, 'icon' => GravityIcon::MapPin],
+                'link-preview-field' => ['label' => 'Link preview', 'playground' => LinkPreviewFieldPlayground::class, 'sort' => 345, 'icon' => GravityIcon::Link],
+                'schedule-field' => ['label' => 'Schedule field', 'playground' => ScheduleFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::Calendar],
                 'address-autocomplete' => ['label' => 'Address autocomplete', 'playground' => AddressAutocompletePlayground::class, 'sort' => 350, 'icon' => GravityIcon::MapPin],
                 'signature-field' => ['label' => 'Signature', 'playground' => SignatureFieldPlayground::class, 'sort' => 360, 'icon' => GravityIcon::Pencil],
                 'verification-code' => ['label' => 'Verification Code', 'playground' => FlexVerificationCodePlayground::class, 'sort' => 370, 'icon' => GravityIcon::ShieldCheck],

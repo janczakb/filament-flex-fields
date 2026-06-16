@@ -380,7 +380,7 @@ export default function phoneFieldFormComponent({
         },
 
         closeCountryMenu() {
-            this.countryOpen = false
+            this.closeTeleportedMenu()
         },
 
         preloadSelectedCountryFlag() {

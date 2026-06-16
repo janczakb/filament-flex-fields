@@ -7,7 +7,9 @@ use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDatePicker;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDurationField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexMonthPicker;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeRangeField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeSegmentsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexYearPicker;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TimezoneField;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
@@ -36,6 +38,42 @@ it('maps date field type to flex date picker with config', function () {
         ->and($field->getAlpineConfiguration()['minValue'])->toBe('2026-06-01')
         ->and($field->getAlpineConfiguration()['maxValue'])->toBe('2026-06-30')
         ->and($field->getDisplayFormat())->toBe('d/m/Y');
+});
+
+it('maps time field type to segmented or dropdown pickers', function () {
+    $builder = new FlexFieldFormBuilder;
+
+    $segmented = $builder->makeComponent(
+        FlexFieldDefinition::fromArray([
+            'slug' => 'opens_at',
+            'label' => 'Opens at',
+            'type' => FieldType::Time->value,
+            'config' => [
+                'hour_cycle' => 12,
+            ],
+        ]),
+    );
+
+    $dropdown = $builder->makeComponent(
+        FlexFieldDefinition::fromArray([
+            'slug' => 'slot_start',
+            'label' => 'Slot start',
+            'type' => FieldType::Time->value,
+            'config' => [
+                'time_picker' => 'dropdown',
+                'minute_step' => 5,
+                'min_value' => '09:00',
+                'max_value' => '18:00',
+            ],
+        ]),
+    );
+
+    expect($segmented)->toBeInstanceOf(FlexTimeField::class)
+        ->and($segmented->getHourCycle())->toBe(12)
+        ->and($dropdown)->toBeInstanceOf(FlexTimeSegmentsField::class)
+        ->and($dropdown->getMinuteStep())->toBe(5)
+        ->and($dropdown->getResolvedMinValue())->toBe('09:00')
+        ->and($dropdown->getResolvedMaxValue())->toBe('18:00');
 });
 
 it('maps duration and time range field types to dedicated components', function () {

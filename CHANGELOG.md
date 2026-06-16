@@ -5,6 +5,66 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-06-16
+
+Quality, security, accessibility, and test hardening for **LinkPreviewField** and **ScheduleField** (both introduced in 2.4.5).
+
+### Added
+
+- **`LinkPreviewField`** — URL input with live Open Graph preview cards (`horizontal`, `vertical`, `card` layouts), server-side `UrlMetaScraper`, client debounce/cache/preload pipeline, and optional SSR initial preview.
+- **`ScheduleField`** — weekly schedule editor with day toggles, from/to time slots, add break, copy-to-weekdays, optional timezone selector, and overlap validation.
+- **Tests** — comprehensive SSRF unit tests for `UrlMetaScraper`; JS unit tests for `link-preview-field`, `url-meta-scrape`, `schedule-field`, and `schedule-validation`; PHP↔JS contract fixtures for overlap/min/max validation; Livewire feature test (`ScheduleFieldRenderTest`); Playwright playground smoke tests for link preview and schedule field.
+
+### Changed
+
+- **`ScheduleField`** default control size is `sm`; timezone selector renders at `md` independent of field size.
+- **Schedule toolbar** — compact add-slot / add-break buttons; copy-to-weekdays uses a confirm dialog before overwriting weekday schedules.
+- **`flex-time-segments`** — teleported time picker menu styling; `from`/`to` pickers constrain options so start ≤ end within each slot; time options expose `role="option"` and `aria-selected`.
+- **Link preview** — image preload timeout (5s) aligned with scrape timeout constants; `@media (prefers-reduced-motion: reduce)` disables card/shimmer transitions.
+
+### Fixed
+
+- **`ScheduleField::required()`** — `isEmptyState()` now treats schedules with no enabled days containing slots as empty (normalization no longer bypasses required validation).
+- **Schedule inline validation** — client overlap/range errors block form submit and sync the first error to Livewire via `$wire.addError`.
+- **Link preview client scrape** — `isScrapeCandidate()` blocks localhost, loopback, private IPs, and metadata hostnames (matching server-side SSRF rules).
+- **Prefixed URL display**, dark-mode card colors, and horizontal skeleton width (carried from 2.4.5 polish).
+
+### Security
+
+- **SSRF** — expanded `UrlMetaScraper::isScrapableUrl()` test coverage for localhost, private/link-local IPs, `.local`/`.internal` hostnames, and cloud metadata endpoints; redirect targets re-validated on each hop.
+- **Rate limit** — `link_preview.rate_limit_per_minute` default changed from `0` (disabled) to `30` per user per minute.
+- **OG images** — `normalizeImageUrl()` rejects `data:` URIs; only `http://` and `https://` images are returned.
+
+## [2.4.5] - 2026-06-16
+
+### Added
+
+- **`ScheduleField`** — weekly schedule editor with day toggles, from/to time slots, add break, copy-to-weekdays, optional timezone selector, and overlap validation.
+- **Playground** — `schedule-field` page with variants, sizes, weekdays-only, and split-shift demos.
+- **Documentation** — [docs/schedule-field.md](docs/schedule-field.md) and `ScheduleField` section in [COMPONENTS.md](COMPONENTS.md).
+- **Tests** — PHP unit tests for validation, API, and config; JS unit tests for schedule overlap validation helpers.
+
+- **`LinkPreviewField`** — URL input with live Open Graph preview cards on the FlexTextInput shell (`primary`, `secondary`, `soft`, `flat`, `ghost` variants; prefix/suffix affixes).
+- **Three preview layouts** — `horizontal` (compact row, square edge-to-edge thumb), `vertical` (narrow card), and `card` (full-width social card, max 500px).
+- **Server-side URL meta scraper** — `UrlMetaScraper` with SSRF-safe fetching (stream until `</head>`, redirect handling, server cache), `GET /flex-fields/url-meta/scrape` route, and configurable cache TTL / rate limit.
+- **Client-side preview pipeline** — debounced scrape, in-memory cache, in-flight deduplication, abort on type, skeleton shimmer, image preload, and minimum skeleton duration on page load (`previewMinSkeletonMs`, default 500ms).
+- **Optional SSR initial preview** — `resolveInitialPreviewOnServer()` (default `true`) hydrates prefilled URLs on first render; disable to avoid server scrape on mount.
+- **`showVisitLink()`** — toggles domain as link vs plain text; visit icon uses Gravity `paperclip` by default (`visitIcon()` / `visitLabel()` overridable).
+- **Playground** — `link-preview-field` page with stacked layout demos.
+- **Documentation** — [docs/link-preview-field.md](docs/link-preview-field.md) and `LinkPreviewField` section in [COMPONENTS.md](COMPONENTS.md).
+- **Tests** — PHP unit/feature coverage (`LinkPreviewFieldTest`, `UrlMetaScraperTest`, `UrlMetaScrapeControllerTest`) and JS unit tests for `url-meta-scrape.js` (prefix resolution, skeleton timing, visibility helpers).
+
+### Changed
+
+- Link preview stylesheets declare `flex-text-input` as a lazy dependency — input shell CSS is not duplicated in the preview bundle.
+- Horizontal preview cards use full available width up to 500px; thumb is 1:1 and flush to the card edge.
+
+### Fixed
+
+- Prefixed URL fields no longer show duplicate `https://` in the input (display value strips the prefix; state stores the full URL).
+- Card layout text colors in dark mode use FlexTextInput theme tokens instead of hardcoded light-mode fallbacks.
+- Preview skeleton on horizontal / soft + prefix layouts stretches to the card’s max width instead of shrinking to content.
+
 ## [2.4.0] - 2026-06-16
 
 ### Added

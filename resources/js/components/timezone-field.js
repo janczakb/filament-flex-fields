@@ -1,16 +1,15 @@
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { mergeAlpineComponentData } from '../support/merge-alpine-component-data.js'
+import {
+    createTimezonePickerMixin,
+    FFF_TIMEZONE_VIRTUAL_THRESHOLD,
+} from '../support/timezone-picker-mixin.js'
 
-export const FFF_TIMEZONE_VIRTUAL_THRESHOLD = 50
-export const FFF_TIMEZONE_ROW_HEIGHT = 40
-export const FFF_TIMEZONE_OVERSCAN = 6
+export { FFF_TIMEZONE_VIRTUAL_THRESHOLD }
 
-const selectMenu = createSearchableSelectMenuMixin({
+const timezonePicker = createTimezonePickerMixin({
     triggerRef: 'timezoneTrigger',
     menuRef: 'timezoneMenu',
     ownerIdPrefix: 'fff-timezone-field',
-    onMenuClose() {
-        this.virtualScrollTop = 0
-    },
 })
 
 export default function timezoneFieldFormComponent({
@@ -29,7 +28,7 @@ export default function timezoneFieldFormComponent({
     initialState = null,
     virtualScrollThreshold = FFF_TIMEZONE_VIRTUAL_THRESHOLD,
 }) {
-    return {
+    return mergeAlpineComponentData({
         state,
         statePath,
         timezones,
@@ -44,67 +43,18 @@ export default function timezoneFieldFormComponent({
         allowedTimezoneIdentifiers,
         initialState,
         virtualScrollThreshold,
-        displayReady: false,
-        menuOpen: false,
-        timezoneSearch: '',
-        menuReady: false,
-        menuScrollHandler: null,
-        menuResizeHandler: null,
-        virtualScrollTop: 0,
-        ...selectMenu,
 
         get isLocked() {
             return this.disabled || this.readOnly
         },
 
-        get usesVirtualScroll() {
-            return this.filteredTimezones.length > this.virtualScrollThreshold
-        },
-
-        get visibleTimezones() {
-            if (! this.usesVirtualScroll) {
-                return this.filteredTimezones
-            }
-
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-            const viewportHeight = 320
-            const visibleCount = Math.ceil(viewportHeight / FFF_TIMEZONE_ROW_HEIGHT) + (FFF_TIMEZONE_OVERSCAN * 2)
-            const endIndex = Math.min(this.filteredTimezones.length, startIndex + visibleCount)
-
-            return this.filteredTimezones.slice(startIndex, endIndex)
-        },
-
-        get virtualSpacerTop() {
-            if (! this.usesVirtualScroll) {
-                return 0
-            }
-
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-
-            return startIndex * FFF_TIMEZONE_ROW_HEIGHT
-        },
-
-        get virtualSpacerBottom() {
-            if (! this.usesVirtualScroll) {
-                return 0
-            }
-
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-            const viewportHeight = 320
-            const visibleCount = Math.ceil(viewportHeight / FFF_TIMEZONE_ROW_HEIGHT) + (FFF_TIMEZONE_OVERSCAN * 2)
-            const endIndex = Math.min(this.filteredTimezones.length, startIndex + visibleCount)
-
-            return Math.max(0, (this.filteredTimezones.length - endIndex) * FFF_TIMEZONE_ROW_HEIGHT)
+        get isEmpty() {
+            return ! this.state
         },
 
         init() {
             this.applyBrowserTimezoneDefault()
-
-            this.$nextTick(() => {
-                this.displayReady = true
-            })
-
-            this.bindSelectMenuLifecycle()
+            this.initTimezonePicker()
         },
 
         applyBrowserTimezoneDefault() {
@@ -142,70 +92,12 @@ export default function timezoneFieldFormComponent({
             return null
         },
 
-        get selectedTimezone() {
-            const timezoneId = this.state ?? this.defaultTimezone
-
-            if (! timezoneId) {
-                return null
-            }
-
-            return this.timezones.find((timezone) => timezone.id === timezoneId)
-                ?? this.timezones[0]
-                ?? null
-        },
-
-        get isEmpty() {
-            return ! this.state
-        },
-
-        get filteredTimezones() {
-            const query = this.timezoneSearch.trim().toLowerCase()
-
-            if (! query) {
-                return this.timezones
-            }
-
-            return this.timezones.filter((timezone) => {
-                return timezone.label.toLowerCase().includes(query)
-                    || timezone.id.toLowerCase().includes(query)
-                    || String(timezone.region ?? '').toLowerCase().includes(query)
-                    || timezone.offset.toLowerCase().includes(query)
-            })
-        },
-
-        onTimezoneListScroll(event) {
-            this.virtualScrollTop = event.target.scrollTop
-        },
-
-        selectTimezone(id) {
-            if (this.isLocked) {
-                return
-            }
-
-            this.state = id
-            this.closeMenu()
-        },
-
         toggleMenu() {
-            if (this.isLocked) {
-                return
-            }
-
-            const willOpen = ! this.menuOpen
-
-            this.menuOpen = willOpen
-
-            if (this.menuOpen && this.searchable) {
-                this.$nextTick(() => {
-                    this.$refs.timezoneSearch?.focus()
-                })
-            }
+            this.toggleTimezoneMenu()
         },
 
         closeMenu() {
-            this.menuOpen = false
-            this.timezoneSearch = ''
+            this.closeTimezoneMenu()
         },
-
-    }
+    }, timezonePicker)
 }

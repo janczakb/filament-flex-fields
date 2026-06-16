@@ -30,44 +30,46 @@ This document covers **custom UI components** (form fields, table columns, and l
 15. [PriceRangeField](#pricerangefield)
 16. [CreditCardField](#creditcardfield)
 17. [PhoneField](#phonefield)
-18. [SignatureField](#signaturefield)
-19. [MapPickerField](#mappickerfield)
-20. [AddressAutocompleteField](#addressautocompletefield)
-21. [ChoiceCards](#choicecards)
-22. [ChoiceCheckboxCards](#choicecheckboxcards)
-23. [FlexChecklist](#flexchecklist)
-24. [FlexRadiolist](#flexradiolist)
-25. [MatrixChoiceField](#matrixchoicefield)
-26. [SwitchField](#switchfield)
-27. [CurrencyField](#currencyfield)
-28. [CountryField](#countryfield)
-29. [TimezoneField](#timezonefield)
-30. [Date & time fields](#date--time-fields)
-31. [FlexVerificationCode](#flexverificationcode)
-32. [AudioField](#audiofield)
-33. [VoiceNoteRecorderField](#voicenoterecorderfield)
-34. [VideoField](#videofield)
-35. [FlexFileUpload & FlexImageUpload](#flexfileupload--fleximageupload)
-36. [ColorSwatchField](#colorswatchfield)
-37. [FlexColorPickerField](#flexcolorpickerfield)
-38. [NumberStepper](#numberstepper)
-39. [FlexSlider](#flexslider)
-40. [SegmentTabs](#segmenttabs)
-41. [SegmentControl](#segmentcontrol)
-42. [TrackSlider](#trackslider)
-43. [TrafficSplit](#trafficsplit)
-44. [RatingField](#ratingfield)
-45. [RatingColumn](#ratingcolumn)
-46. [CoverCard](#covercard)
-47. [ProgressBar](#progressbar)
-48. [ProgressCircle](#progresscircle)
-49. [ItemCard](#itemcard)
-50. [ItemCardGroup](#itemcardgroup)
-51. [ItemCardStack](#itemcardstack)
-52. [Layout components — quick comparison](#layout-components--quick-comparison)
-53. [Form layout patterns](#form-layout-patterns)
-54. [SlugField & TitleSlugField](#slugfield--titleslugfield)
-55. [TranslatableFields](#translatablefields)
+18. [LinkPreviewField](#linkpreviewfield)
+19. [SignatureField](#signaturefield)
+20. [MapPickerField](#mappickerfield)
+21. [AddressAutocompleteField](#addressautocompletefield)
+22. [ChoiceCards](#choicecards)
+23. [ChoiceCheckboxCards](#choicecheckboxcards)
+24. [FlexChecklist](#flexchecklist)
+25. [FlexRadiolist](#flexradiolist)
+26. [MatrixChoiceField](#matrixchoicefield)
+27. [SwitchField](#switchfield)
+28. [CurrencyField](#currencyfield)
+29. [CountryField](#countryfield)
+30. [TimezoneField](#timezonefield)
+31. [ScheduleField](#schedulefield)
+32. [Date & time fields](#date--time-fields)
+33. [FlexVerificationCode](#flexverificationcode)
+34. [AudioField](#audiofield)
+35. [VoiceNoteRecorderField](#voicenoterecorderfield)
+36. [VideoField](#videofield)
+37. [FlexFileUpload & FlexImageUpload](#flexfileupload--fleximageupload)
+38. [ColorSwatchField](#colorswatchfield)
+39. [FlexColorPickerField](#flexcolorpickerfield)
+40. [NumberStepper](#numberstepper)
+41. [FlexSlider](#flexslider)
+42. [SegmentTabs](#segmenttabs)
+43. [SegmentControl](#segmentcontrol)
+44. [TrackSlider](#trackslider)
+45. [TrafficSplit](#trafficsplit)
+46. [RatingField](#ratingfield)
+47. [RatingColumn](#ratingcolumn)
+48. [CoverCard](#covercard)
+49. [ProgressBar](#progressbar)
+50. [ProgressCircle](#progresscircle)
+51. [ItemCard](#itemcard)
+52. [ItemCardGroup](#itemcardgroup)
+53. [ItemCardStack](#itemcardstack)
+54. [Layout components — quick comparison](#layout-components--quick-comparison)
+55. [Form layout patterns](#form-layout-patterns)
+56. [SlugField & TitleSlugField](#slugfield--titleslugfield)
+57. [TranslatableFields](#translatablefields)
 
 # Part I — Shared concepts
 
@@ -1733,6 +1735,109 @@ Shares FlexTextInput shell classes (`fff-flex-text-input-field`, variant modifie
 - Country dropdown uses `x-teleport="body"` to avoid overflow clipping.
 - Depends on `giggsey/libphonenumber-for-php` for parsing and validation.
 - Empty national number dehydrates to `e164: ''` regardless of partial dial prefix.
+
+---
+
+## LinkPreviewField
+
+### Summary
+
+URL input with live Open Graph / meta preview cards. Uses the FlexTextInput pill shell and a server-side scrape endpoint (cached, rate-limitable).
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\LinkPreviewField` |
+| **State type** | `string\|null` (full URL, including prefix) |
+| **Playground** | `link-preview-field` |
+
+### Basic usage
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\LinkPreviewField;
+
+LinkPreviewField::make('article_url')
+    ->label('Article URL')
+    ->required();
+
+LinkPreviewField::make('landing_page')
+    ->previewLayout('card')
+    ->previewDebounce(750)
+    ->placeholder('https://example.com');
+```
+
+### State format
+
+Stored value is a trimmed absolute URL or `null`. With `prefix('https://')`, state is always the **full** URL while the input shows the suffix only.
+
+### Preview layouts
+
+| Layout | Description |
+|--------|-------------|
+| `horizontal` (default) | Square thumb + title / description / domain |
+| `vertical` | Wide thumb on top |
+| `card` | Full-width 16:9 social card |
+
+```php
+LinkPreviewField::make('url')->previewLayout('horizontal');
+LinkPreviewField::make('url')->previewLayout('vertical');
+LinkPreviewField::make('url')->previewLayout('card');
+```
+
+### Configuration API
+
+| Method | Default | Description |
+|--------|---------|-------------|
+| `variant()` | `primary` | `primary`, `secondary`, `soft`, `flat`, `ghost` |
+| `size()` | `md` | `sm`, `md`, `lg` |
+| `preview()` | `true` | Enable preview card |
+| `previewDebounce()` | `500` | Scrape delay after typing (ms) |
+| `previewMinUrlLength()` | `10` | Min resolved URL length (min enforced: 4) |
+| `previewMinSkeletonMs()` | `500` | Min skeleton time on first reveal |
+| `previewLayout()` | `horizontal` | Card layout |
+| `resolveInitialPreviewOnServer()` | `true` | SSR metadata via `resolveInitialPreview()` |
+| `showVisitLink()` | `true` | Domain row as external link |
+| `visitLabel()` | translated | Visit link `aria-label` |
+| `visitIcon()` | `GravityIcon::Paperclip` | Domain row icon |
+| `prefix()` / `suffix()` | `null` | Input affixes |
+| `placeholder()` | translated | Input placeholder |
+| `readOnly()` / `disabled()` | — | Filament interaction states |
+| `focusOutline()` | `false` | Shared focus ring on shell |
+
+```php
+use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+
+LinkPreviewField::make('path')
+    ->prefix('https://')
+    ->variant('soft')
+    ->preview(false);
+
+LinkPreviewField::make('url')
+    ->showVisitLink(false)
+    ->visitIcon(GravityIcon::Link)
+    ->resolveInitialPreviewOnServer(false);
+```
+
+### Public helper methods
+
+`getScrapeUrl()`, `resolveInitialPreview(?string $url)`, `getAlpineConfiguration()`, `getWrapperClasses()`, plus getters for each configured option.
+
+### Package configuration
+
+| Config key | Env | Default |
+|------------|-----|---------|
+| `link_preview.cache_ttl_seconds` | `FLEX_FIELDS_LINK_PREVIEW_CACHE_TTL` | `86400` |
+| `link_preview.rate_limit_per_minute` | `FLEX_FIELDS_LINK_PREVIEW_RATE_LIMIT` | `30` |
+| `link_preview.timeout_seconds` | `FLEX_FIELDS_LINK_PREVIEW_TIMEOUT` | `8` |
+
+### Validation
+
+Built-in: `nullable`, `url`. Trims whitespace; empty dehydrates to `null`.
+
+### Assets
+
+Stylesheets: `flex-text-input`, `link-preview-field`. Alpine: `link-preview-field`. Route: `filament-flex-fields.url-meta.scrape`.
+
+**Full documentation:** [docs/link-preview-field.md](docs/link-preview-field.md) — recipes, accessibility, CSS classes, model examples.
 
 ---
 
@@ -3893,6 +3998,111 @@ Shares FlexTextInput shell classes (`fff-flex-text-input-field`, variant modifie
 - Dropdown uses `x-teleport="body"` to avoid overflow clipping.
 - SSR label is rendered server-side; Alpine `displayReady` swaps to live state without layout flash on reload.
 - Browser timezone detection runs client-side on empty fields; server hydrate uses `config('app.timezone')` as a fallback when not in console.
+
+---
+
+## ScheduleField
+
+### Summary
+
+Weekly availability editor: day toggles, from/to time slots, breaks, copy-to-weekdays, timezone selector, locked days. Time pickers use **FlexTimeSegmentsField** (dropdown hour/minute columns). Default size **`sm`**; timezone selector always **`md`**.
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField` |
+| **State type** | `array{timezone?: string, days: …}` |
+| **Model cast** | `'opening_hours' => 'array'` or `'json'` |
+| **Playground** | `schedule-field` |
+
+### Basic usage
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField;
+
+ScheduleField::make('opening_hours')
+    ->label('Opening hours')
+    ->timezone('Europe/Warsaw')
+    ->timeStep(15)
+    ->required();
+```
+
+### State format
+
+```json
+{
+  "timezone": "Europe/Warsaw",
+  "days": {
+    "mon": {
+      "enabled": true,
+      "slots": [
+        { "from": "09:00", "to": "12:00", "type": "slot" },
+        { "from": "12:00", "to": "13:00", "type": "break" },
+        { "from": "13:00", "to": "17:00", "type": "slot" }
+      ]
+    },
+    "sat": { "enabled": false, "slots": [] }
+  }
+}
+```
+
+Day keys: `mon` … `sun`. Times: `HH:MM` 24h. Slot `type`: `slot` (default) or `break`.
+
+### Default state
+
+```php
+ScheduleField::defaultSchedule('UTC');
+// Mon–Fri 09:00–17:00 enabled, weekends disabled
+
+ScheduleField::defaultSchedule(null); // no timezone key
+ScheduleField::defaultSchedule('Europe/Warsaw', ['mon', 'tue', 'wed', 'thu', 'fri']);
+```
+
+The field default uses `defaultSchedule()` automatically when no `->default()` is set.
+
+### Configuration API
+
+| Method | Default | Description |
+|--------|---------|-------------|
+| `days()` | all 7 | Which days to render |
+| `timezone()` | `'UTC'` | Default timezone; `null` hides selector |
+| `timeStep()` | `5` | Minute step (1–60) for time dropdowns |
+| `minSlots()` / `maxSlots()` | `1` / `10` | Per-day slot limits |
+| `requireSlotsForEnabledDays()` | `true` | Enabled days need ≥ minSlots |
+| `allowCopyToWeekdays()` | `true` | Show copy button on source day |
+| `copySourceDay()` | `mon` | Copy source day |
+| `workdays()` | Mon–Fri | Copy targets |
+| `lockedDays()` | `[]` | Lock icon instead of switch |
+| `variant()` | `primary` | `primary`, `secondary`, `soft`, `flat` |
+| `size()` | `sm` | Time input size (`timezone` stays `md`) |
+| `readOnly()` / `disabled()` | — | Filament interaction states |
+| `focusOutline()` | `false` | Focus ring on time shells |
+
+```php
+ScheduleField::make('hours')
+    ->days(['mon', 'tue', 'wed', 'thu', 'fri'])
+    ->timezone(null)
+    ->lockedDays(['sat', 'sun'])
+    ->copySourceDay('mon')
+    ->workdays(['mon', 'tue', 'wed', 'thu', 'fri'])
+    ->minSlots(1)
+    ->maxSlots(6)
+    ->timeStep(5)
+    ->variant('soft');
+```
+
+### Public helper methods
+
+`normalizeState()`, `defaultSchedule()`, `getDays()`, `getLockedDays()`, `isDayLocked()`, `showsTimezoneSelector()`, `getAlpineConfiguration()`, `getWrapperClasses()`, plus getters for limits and copy settings.
+
+### Validation
+
+Valid `HH:MM`, `from < to`, no overlapping slots, min/max slots on enabled days, timezone required/valid when selector shown. Disabled days skip slot checks.
+
+### Assets
+
+Stylesheets: `flex-text-input`, `switch`, `teleported-menu`, `timezone-field`, `flex-time-segments`. Alpine: `schedule-field`, `flex-time-segments`. Uses `wire:ignore` + `$entangle`.
+
+**Full documentation:** [docs/schedule-field.md](docs/schedule-field.md) — recipes, UI behaviour, CSS classes, model persistence.
 
 ---
 

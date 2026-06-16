@@ -215,6 +215,14 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <img src="art/sc-26.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexDateRangeField - Dark-themed calendar date picker with date range selection and custom calendar rendering">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexDateRangeField — Dark Mode Calendar & Date Range Picker</p>
   </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <img src="art/sc-27.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ScheduleField - Weekly schedule editor with day toggles, multiple time slots, breaks, and copy-to-weekdays functionality">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">ScheduleField — Weekly Schedule Editor</p>
+  </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <img src="art/sc-28.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="LinkPreviewField - URL input field with live Open Graph / meta tag preview cards and server-side scraping">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">LinkPreviewField — Open Graph Link Preview Card</p>
+  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61 Components & Visual Playground</p>
@@ -229,7 +237,7 @@ Every item below is a **custom class shipped by this package** — own Blade vie
 
 Full API for each component: **[docs/index.md](docs/index.md)**.
 
-### Text & input (9)
+### Text & input (10)
 
 | Component | Description |
 |-----------|-------------|
@@ -238,6 +246,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`PhoneField`](docs/phonefield.md) | International phone input with libphonenumber validation |
 | [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
 | [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
+| [`LinkPreviewField`](docs/link-preview-field.md) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
 | [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
 | [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
 | [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox-powered address search with structured storage |
@@ -272,13 +281,15 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`TagsField`](docs/tags-field.md) | Tag input — pills below the field with inline remove buttons |
 | [`FlexSpatieTagsField`](docs/tags-field.md) | Spatie Tags integration for `TagsField` |
 
-### Date & time (9)
+### Date & time (11)
 
 | Component | Description |
 |-----------|-------------|
 | [`FlexDateField`](docs/date-and-time-fields.md) | Segmented date input without calendar popover |
 | [`FlexDatePicker`](docs/date-and-time-fields.md) | Date picker with calendar popover |
-| [`FlexTimeField`](docs/date-and-time-fields.md) | Time picker (12h / 24h, seconds optional) |
+| [`FlexTimeField`](docs/date-and-time-fields.md) | Segmented time input (12h / 24h, seconds optional) |
+| [`FlexTimeSegmentsField`](docs/date-and-time-fields.md) | Dropdown time picker (hour / minute columns, `HH:MM`) |
+| [`ScheduleField`](docs/schedule-field.md) | Weekly opening-hours editor — day toggles, slots, breaks, copy-to-weekdays, timezone |
 | [`FlexDateTimePicker`](docs/date-and-time-fields.md) | Combined date + time picker |
 | [`FlexDateRangeField`](docs/date-and-time-fields.md) | Start/end date range |
 | [`FlexDurationField`](docs/date-and-time-fields.md) | Duration input (hours / minutes) |
@@ -739,19 +750,22 @@ npm run build          # CSS + JS → resources/dist/
 npm run check:budgets  # fail if any bundle exceeds limits
 ```
 
+<!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| PhoneField | 4.7 + phone-lib 185 (gzip 43) | 25.9 |
-| CountryField | 2.6 | 25.9 |
-| TagsField | — | 22.0 |
-| FlexTextInput | 10.1 + emoji 6.4 lazy | 28.4 |
-| RatingField | — | 19.3 |
-| SwitchField | — | 18.5 |
-| UserSelect | — | 52.0 |
-| SegmentControl | — | 19.8 |
-| core (always) | — | 19.9 (gzip 4.5) |
+| core (always) | — | 20.6 (gzip 4.6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.1 (gzip 5.9) + deps 61.8 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.4 (gzip 5.4) + deps 61.8 |
+| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 37 (gzip 6.7) + deps 19.3 |
+| TagsField | 3.1 (gzip 1.1) | 20.2 (gzip 4.6) + deps 59 |
+| RatingField | 0.7 (gzip 0.3) | 22.3 (gzip 5) |
+| SwitchField | Alpine inline | 40.8 (gzip 7) |
+| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.6 (gzip 5.8) + deps 146.9 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 26.4 (gzip 6) + deps 46.1 |
+| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 78.9 (gzip 12.1) + deps 24.8 |
 
-Full per-file metrics: `resources/dist/bundle-metrics.json`.
+Sample bundles (10 of **50** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+<!-- bundle-summary:end -->
 
 ---
 

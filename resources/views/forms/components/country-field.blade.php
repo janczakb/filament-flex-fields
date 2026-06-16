@@ -179,12 +179,13 @@
                 <div
                     @class([
                         'fff-country-field__menu',
+                        'fff-teleported-menu',
                         'fff-country-field__menu--'.$getSize(),
+                        'fff-teleported-menu--'.$getSize(),
                     ])
                     x-ref="countryMenu"
                     x-show="menuOpen"
                     x-cloak
-                    x-transition.opacity.duration.150ms
                     x-bind:class="{ 'is-positioned': menuReady }"
                     x-on:click.stop
                     x-on:keydown="onCountryMenuKeydown($event)"
@@ -193,10 +194,10 @@
                     x-bind:aria-activedescendant="activeCountryIndex >= 0 ? countryOptionId(activeCountryIndex) : null"
                 >
                     @if ($isSearchable())
-                        <div class="fff-country-field__search-wrap">
+                        <div class="fff-country-field__search-wrap fff-teleported-menu__search-wrap">
                             <input
                                 type="search"
-                                class="fff-country-field__search"
+                                class="fff-country-field__search fff-teleported-menu__search"
                                 x-model="countrySearch"
                                 x-ref="countrySearch"
                                 x-bind:placeholder="searchPlaceholder"

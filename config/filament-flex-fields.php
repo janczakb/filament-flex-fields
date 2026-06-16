@@ -93,6 +93,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Link preview (LinkPreviewField)
+    |--------------------------------------------------------------------------
+    */
+    'link_preview' => [
+        'cache_ttl_seconds' => (int) env('FLEX_FIELDS_LINK_PREVIEW_CACHE_TTL', 86_400),
+        'rate_limit_per_minute' => (int) env('FLEX_FIELDS_LINK_PREVIEW_RATE_LIMIT', 30),
+        'timeout_seconds' => (int) env('FLEX_FIELDS_LINK_PREVIEW_TIMEOUT', 8),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | CurrencyField — extra / override currencies
     |--------------------------------------------------------------------------
     | Merged on top of the built-in list in CurrencyCountries. Use ISO 4217 codes.

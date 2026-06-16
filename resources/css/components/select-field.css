@@ -522,14 +522,20 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 }
 
 .fi-dropdown-panel.fff-select-dropdown-panel {
+    --fff-select-menu-bg: rgb(255 255 255 / 0.9);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 2px 8px 0 #0000000f,
+        0 -6px 12px 0 #00000008,
+        0 14px 28px 0 #00000014;
     --fff-select-menu-hover: rgb(244 244 245 / 0.72);
     --fff-select-menu-selected: rgb(228 228 231 / 0.78);
     --fff-select-dropdown-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='%2371717a' fill-rule='evenodd' d='M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-.82 4.74a6 6 0 1 1 1.06-1.06l2.79 2.79a.75.75 0 1 1-1.06 1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
     border-radius: var(--fff-select-menu-radius, 1.5rem);
     border: none !important;
-    background: var(--fff-select-menu-bg) !important;
-    backdrop-filter: var(--fff-select-menu-blur) !important;
-    -webkit-backdrop-filter: var(--fff-select-menu-blur) !important;
+    background: var(--fff-select-menu-bg, rgb(255 255 255 / 0.9)) !important;
+    backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%)) !important;
+    -webkit-backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%)) !important;
     box-shadow: var(--fff-select-menu-shadow) !important;
     --tw-ring-shadow: 0 0 #0000 !important;
     --tw-ring-color: transparent !important;
@@ -771,14 +777,20 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 }
 
 .fi-input-wrp.fff-select-field .fi-dropdown-panel {
+    --fff-select-menu-bg: rgb(255 255 255 / 0.9);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 2px 8px 0 #0000000f,
+        0 -6px 12px 0 #00000008,
+        0 14px 28px 0 #00000014;
     width: 100%;
     min-width: 0;
     max-height: 15rem;
     border-radius: var(--fff-select-menu-radius, 1.5rem);
     border: none !important;
-    background: var(--fff-select-menu-bg) !important;
-    backdrop-filter: var(--fff-select-menu-blur) !important;
-    -webkit-backdrop-filter: var(--fff-select-menu-blur) !important;
+    background: var(--fff-select-menu-bg, rgb(255 255 255 / 0.9)) !important;
+    backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%)) !important;
+    -webkit-backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%)) !important;
     box-shadow: var(--fff-select-menu-shadow) !important;
     --tw-ring-shadow: 0 0 #0000 !important;
     --tw-ring-color: transparent !important;
@@ -1634,7 +1646,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     --fff-select-shadow: var(--fff-surface-shadow);
     --fff-select-text: rgb(244 244 245);
     --fff-select-placeholder: rgb(113 113 122);
-    --fff-select-menu-bg: #27272a3d;
+    --fff-select-menu-bg: rgb(39 39 42 / 0.92);
     --fff-select-menu-border: rgb(255 255 255 / 0.12);
     --fff-select-menu-blur: blur(16px) saturate(180%);
     --fff-select-menu-shadow:
@@ -1740,6 +1752,11 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 }
 
 .dark .fi-dropdown-panel.fff-select-dropdown-panel {
+    --fff-select-menu-bg: rgb(39 39 42 / 0.92);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
     --fff-select-menu-hover: rgb(63 63 70 / 0.82);
     --fff-select-menu-selected: rgb(82 82 91 / 0.88);
     --fff-select-selected-check-fg: rgb(244 244 245);
@@ -1748,6 +1765,26 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     --fff-select-grid-check-bg: rgb(82 82 91 / 0.98);
     --fff-select-grid-check-fg: rgb(250 250 250);
     --fff-select-dropdown-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='%23a1a1aa' fill-rule='evenodd' d='M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-.82 4.74a6 6 0 1 1 1.06-1.06l2.79 2.79a.75.75 0 1 1-1.06 1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+}
+
+.dark .fi-input-wrp.fff-select-field .fi-dropdown-panel {
+    --fff-select-menu-bg: rgb(39 39 42 / 0.92);
+    --fff-select-menu-blur: blur(16px) saturate(180%);
+    --fff-select-menu-shadow:
+        0 4px 6px -1px rgb(0 0 0 / 0.28),
+        0 12px 28px -6px rgb(0 0 0 / 0.5);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .fi-dropdown-panel.fff-select-dropdown-panel,
+    .fi-input-wrp.fff-select-field .fi-dropdown-panel {
+        background: rgb(255 255 255 / 0.98) !important;
+    }
+
+    .dark .fi-dropdown-panel.fff-select-dropdown-panel,
+    .dark .fi-input-wrp.fff-select-field .fi-dropdown-panel {
+        background: rgb(39 39 42 / 0.98) !important;
+    }
 }
 
 .dark .fi-dropdown-panel.fff-select-dropdown-panel .fi-select-input-search-ctn .fi-input {

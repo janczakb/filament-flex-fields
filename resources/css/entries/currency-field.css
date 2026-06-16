@@ -5,5 +5,4 @@
 @source "../../src/Filament/Forms/Components/CurrencyField.php";
 @source "../views/forms/components/currency-field.blade.php";
 
-@import "../core/teleported-menu.css";
 @import "../components/currency-field.css";

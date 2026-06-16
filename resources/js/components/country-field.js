@@ -256,7 +256,7 @@ export default function countryFieldFormComponent({
         },
 
         closeMenu() {
-            this.menuOpen = false
+            this.closeTeleportedMenu()
         },
 
         preloadSelectedCountryFlag() {

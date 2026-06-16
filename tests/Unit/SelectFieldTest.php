@@ -491,6 +491,30 @@ it('loads select field stylesheet for enhanced select fields to coordinate ssr a
         ->toContain('fff-select-trigger-ssr');
 });
 
+it('uses coordinator shell for select field alpine patching without window globals', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain('fffSelectFieldCoordinator')
+        ->toContain('selectFormComponent({')
+        ->toContain('data-fff-select-root')
+        ->not->toContain('selectFieldPreload')
+        ->not->toContain('window.bootSelectFieldPatches')
+        ->not->toContain('requestAnimationFrame(applyPatches)');
+});
+
+it('keeps select field patch bootstrapping inside the coordinator module without window globals', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/dist/components/select-field.js');
+
+    expect($source)
+        ->toContain('bootSelectFieldPatches')
+        ->toContain('data-fff-select-root')
+        ->toContain('fff-select-coordinator-attach-failed')
+        ->toContain('fffSelectAttached')
+        ->not->toContain('window.bootSelectFieldPatches')
+        ->not->toContain('selectFieldPreload');
+});
+
 it('loads user select stylesheet only for user select fields', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
 
@@ -523,6 +547,7 @@ it('styles dark dropdown search input with glass backdrop in the select field bu
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
 
     expect($css)
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-menu-bg:#27272aeb/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*background-color:#40404573!important/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*-webkit-backdrop-filter:blur\(15px\)saturate\(2\.5\)/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*backdrop-filter:blur\(15px\)saturate\(2\.5\)/');

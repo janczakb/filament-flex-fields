@@ -146,22 +146,23 @@
                 <div
                     @class([
                         'fff-timezone-field__menu',
+                        'fff-teleported-menu',
                         'fff-timezone-field__menu--'.$getSize(),
+                        'fff-teleported-menu--'.$getSize(),
                     ])
                     x-ref="timezoneMenu"
                     x-show="menuOpen"
                     x-cloak
-                    x-transition.opacity.duration.150ms
                     x-bind:class="{ 'is-positioned': menuReady }"
                     x-on:click.stop
                     role="listbox"
                     x-bind:aria-label="{{ json_encode($getLabel()) }}"
                 >
                     @if ($isSearchable())
-                        <div class="fff-timezone-field__search-wrap">
+                        <div class="fff-timezone-field__search-wrap fff-teleported-menu__search-wrap">
                             <input
                                 type="search"
-                                class="fff-timezone-field__search"
+                                class="fff-timezone-field__search fff-teleported-menu__search"
                                 x-model="timezoneSearch"
                                 x-ref="timezoneSearch"
                                 x-bind:placeholder="searchPlaceholder"

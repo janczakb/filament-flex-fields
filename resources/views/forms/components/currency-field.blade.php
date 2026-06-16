@@ -92,20 +92,21 @@
                                 x-ref="currencyMenu"
                                 x-cloak
                                 x-show="currencyOpen"
-                                x-transition.opacity.duration.150ms
                                 x-bind:class="{ 'is-positioned': currencyMenuReady }"
                                 x-on:click.stop
                                 @class([
                                     'fff-currency-field__currency-menu',
+                                    'fff-teleported-menu',
                                     'fff-currency-field__currency-menu--'.$getSize(),
+                                    'fff-teleported-menu--'.$getSize(),
                                 ])
                                 role="listbox"
                             >
                                 @if ($isSearchable())
-                                    <div class="fff-currency-field__currency-search-wrap">
+                                    <div class="fff-currency-field__currency-search-wrap fff-teleported-menu__search-wrap">
                                         <input
                                             type="search"
-                                            class="fff-currency-field__currency-search"
+                                            class="fff-currency-field__currency-search fff-teleported-menu__search"
                                             x-ref="currencySearch"
                                             x-model="currencySearch"
                                             x-bind:placeholder="searchPlaceholder"

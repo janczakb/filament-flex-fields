@@ -12,6 +12,8 @@ Spectrum-style segmented date and time inputs powered by [`@internationalized/da
 | **FlexDateField** | `FlexDateField` | `date` | No | `string` — e.g. `2026-06-15` |
 | **FlexDatePicker** | `FlexDatePicker` | `date` | Yes (popover) | `string` — e.g. `2026-06-15` |
 | **FlexTimeField** | `FlexTimeField` | `time` | No | `string` — e.g. `14:30:00` |
+| **FlexTimeSegmentsField** | `FlexTimeSegmentsField` | — | No (dropdown) | `string` — e.g. `09:30` (`HH:MM`, 24h) |
+| **ScheduleField** | `ScheduleField` | — | No (embedded) | `array` — weekly schedule with timezone, days, slots — see [schedule-field.md](schedule-field.md) |
 | **FlexDateTimePicker** | `FlexDateTimePicker` | `dateTime` | Yes (popover) | `string` — e.g. `2026-06-15T14:30:00` |
 | **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array{start: string\|null, end: string\|null}` |
 | **FlexDurationField** | `FlexDurationField` | `duration` | No | `string` — e.g. `02:30:00` |
@@ -80,6 +82,48 @@ FlexTimeField::make('starts_at')
     ->hideTimeZone()
     ->default('14:30');
 ```
+
+#### FlexTimeSegmentsField — dropdown hour / minute (24h)
+
+Use when you need a compact **dropdown** time control (two scroll columns) instead of segmented text input — e.g. schedule slots, opening hours. Shares the flex-text-input **shell** (`variant`, `size`) but **not** the full `FlexTextInput` API (no prefix/suffix, masks, dictation, etc.).
+
+State is always normalized to **`HH:MM`** (24-hour). Configure minute granularity with `minuteStep()` (default `15`).
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeSegmentsField;
+
+FlexTimeSegmentsField::make('opens_at')
+    ->label('Opening time')
+    ->minuteStep(15)
+    ->variant('primary')
+    ->default('09:00');
+
+FlexTimeSegmentsField::make('slot_start')
+    ->minuteStep(5)
+    ->size('sm')
+    ->variant('soft')
+    ->hourCycle(12)
+    ->minValue('09:00')
+    ->maxValue('18:00')
+    ->locale('pl_PL');
+```
+
+Form builder JSON (`time_picker: dropdown` or `segments`):
+
+```json
+{
+  "type": "time",
+  "config": {
+    "time_picker": "dropdown",
+    "minute_step": 15,
+    "hour_cycle": 24,
+    "min_value": "09:00",
+    "max_value": "18:00"
+  }
+}
+```
+
+Default `time_picker` is `segmented` (`FlexTimeField`).
 
 #### FlexDateTimePicker — date + time with calendar
 

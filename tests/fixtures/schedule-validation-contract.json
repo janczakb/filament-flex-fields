@@ -1,0 +1,55 @@
+{
+    "overlap_cases": [
+        {
+            "name": "contract_overlap_detected",
+            "slots": [
+                { "from": "09:00", "to": "12:00" },
+                { "from": "11:00", "to": "13:00" }
+            ],
+            "expects_overlap": true,
+            "expects_validation_code": "overlap"
+        },
+        {
+            "name": "contract_adjacent_slots_allowed",
+            "slots": [
+                { "from": "09:00", "to": "12:00" },
+                { "from": "12:00", "to": "13:00" }
+            ],
+            "expects_overlap": false,
+            "expects_validation_code": null
+        }
+    ],
+    "min_max_cases": [
+        {
+            "name": "contract_min_slots_violation",
+            "slots": [],
+            "min_slots": 1,
+            "max_slots": 10,
+            "expects_validation_code": "min_slots"
+        },
+        {
+            "name": "contract_max_slots_violation",
+            "slots": [
+                { "from": "08:00", "to": "08:30" },
+                { "from": "08:30", "to": "09:00" },
+                { "from": "09:00", "to": "09:30" },
+                { "from": "09:30", "to": "10:00" },
+                { "from": "10:00", "to": "10:30" },
+                { "from": "10:30", "to": "11:00" },
+                { "from": "11:00", "to": "11:30" }
+            ],
+            "min_slots": 1,
+            "max_slots": 6,
+            "expects_validation_code": "max_slots"
+        },
+        {
+            "name": "contract_from_before_to_violation",
+            "slots": [
+                { "from": "17:00", "to": "09:00" }
+            ],
+            "min_slots": 1,
+            "max_slots": 10,
+            "expects_validation_code": "from_before_to"
+        }
+    ]
+}

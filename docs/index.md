@@ -15,6 +15,8 @@ Welcome to the **Filament Flex Fields** documentation. Below you will find the t
 - [PriceRangeField](pricerangefield.md)
 - [CreditCardField](creditcardfield.md)
 - [PhoneField](phonefield.md)
+- [LinkPreviewField](link-preview-field.md)
+- [ScheduleField](schedule-field.md)
 - [SignatureField](signaturefield.md)
 - [MapPickerField](mappickerfield.md)
 - [AddressAutocompleteField](addressautocompletefield.md)

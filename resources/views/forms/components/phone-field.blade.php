@@ -122,12 +122,13 @@
                         <div
                             @class([
                                 'fff-phone-field__country-menu',
+                                'fff-teleported-menu',
                                 'fff-phone-field__country-menu--'.$getSize(),
+                                'fff-teleported-menu--'.$getSize(),
                             ])
                             x-ref="countryMenu"
                             x-show="countryOpen"
                             x-cloak
-                            x-transition.opacity.duration.150ms
                             x-bind:class="{ 'is-positioned': countryMenuReady }"
                             x-on:click.stop
                             x-on:keydown="onCountryMenuKeydown($event)"
@@ -136,10 +137,10 @@
                             x-bind:aria-activedescendant="activeCountryIndex >= 0 ? countryOptionId(activeCountryIndex) : null"
                         >
                             @if ($isSearchable())
-                                <div class="fff-phone-field__country-search-wrap">
+                                <div class="fff-phone-field__country-search-wrap fff-teleported-menu__search-wrap">
                                     <input
                                         type="search"
-                                        class="fff-phone-field__country-search"
+                                        class="fff-phone-field__country-search fff-teleported-menu__search"
                                         x-model="countrySearch"
                                         x-ref="countrySearch"
                                         placeholder="{{ __('filament-flex-fields::default.phone.search_countries') }}"

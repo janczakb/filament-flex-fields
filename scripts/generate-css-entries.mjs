@@ -46,6 +46,16 @@ const components = [
         sources: ['../../src/Filament/Forms/Components/FlexTextInput.php', '../views/forms/components/flex-text-input-field.blade.php'],
     },
     {
+        name: 'link-preview-field',
+        imports: ['../components/link-preview-field.css'],
+        sources: ['../../src/Filament/Forms/Components/LinkPreviewField.php', '../views/forms/components/link-preview-field.blade.php'],
+    },
+    {
+        name: 'schedule-field',
+        imports: ['../components/schedule-field.css'],
+        sources: ['../../src/Filament/Forms/Components/ScheduleField.php', '../views/forms/components/schedule-field.blade.php'],
+    },
+    {
         name: 'credit-card',
         imports: ['../components/credit-card.css'],
         sources: ['../../src/Filament/Forms/Components/CreditCardField.php', '../views/forms/components/credit-card-field.blade.php'],
@@ -69,6 +79,16 @@ const components = [
         name: 'flex-date-time-field',
         imports: ['../components/flex-date-time.css'],
         sources: ['../../src/Filament/Forms/Components/FlexDateTimeField.php', '../views/forms/components/flex-date-time-field.blade.php'],
+    },
+    {
+        name: 'flex-time-segments',
+        imports: ['../components/flex-time-segments.css'],
+        sources: [
+            '../../src/Filament/Forms/Components/FlexTimeSegmentsField.php',
+            '../views/forms/components/flex-time-segments-field.blade.php',
+            '../views/forms/components/partials/flex-time-segments.blade.php',
+            '../views/forms/components/schedule-field.blade.php',
+        ],
     },
     {
         name: 'flex-file-upload',
