@@ -1,11 +1,11 @@
 <p align="center" class="filament-hidden">
-    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — dynamic custom fields and modern SaaS-inspired form components for Filament v5" class="filament-hidden">
+    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — 61 custom form components and JSON custom fields for Filament v5 Laravel admin panels" class="filament-hidden">
 </p>
 
 <h1 align="center">Filament Flex Fields</h1>
 
-<p align="center"><strong>61 Filament v5 form components · one design system · lazy assets · secure Mapbox geocoding · JSON custom fields without migrations.</strong><br>One Laravel admin UI toolkit instead of many separate field plugins — phone, map, matrix, slug, translatable, currency, tags, and more.</p>
-<p align="center">Lazy CSS/JS in <code>&lt;head&gt;</code> · server-side geocoding proxy · schema versioning · audit trail · built-in Playground · no Node.js in production</p>
+<p align="center"><strong>Filament v5 · Laravel admin forms · 61 custom components · one design system</strong><br>Replace a patchwork of field plugins with one cohesive form layer — lazy assets, optional JSON custom fields, built-in Playground.</p>
+<p align="center">Pre-built CSS/JS · no Node.js in production · standalone fields or dynamic schemas · full per-component docs</p>
 
 <p align="center">
     <a href="https://packagist.org/packages/janczakb/filament-flex-fields"><img src="https://img.shields.io/packagist/v/janczakb/filament-flex-fields.svg?style=flat-square" alt="Latest Version on Packagist"></a>
@@ -22,28 +22,93 @@
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
 </p>
 
-A [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **61 custom form components**, optional **JSON custom attributes** (no EAV migrations), and a unified `--fff-*` design system. Use any field standalone in Filament forms, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
-
-Most Filament projects glue together separate plugins for phone, country, map, slug, matrix, translatable fields, and rich selects — each with its own CSS, JS, and UX quirks. **Flex Fields ships one cohesive toolkit**: layout primitives (`ItemCard`, `SegmentTabs`, `CoverCard`), table columns (`UserColumn`, `RatingColumn`), **lazy-loaded** pre-built assets in `resources/dist/` (consumers **do not need Node.js**), shared Alpine chunks with CI bundle budgets, secure Mapbox geocoding, and a local **Playground** for visual QA.
+**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **61 custom form components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** (no EAV, no per-attribute migrations). Use any field standalone, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
 
 ---
 
-## What sets Flex Fields apart
+## Quick start {#quick-start}
 
-| | **Flex Fields** | **Typical field plugins** |
-|---|-----------------|---------------------------|
-| **Scope** | **61** components, one `--fff-*` design system | Many single-purpose packages |
-| **Assets** | Lazy per-field CSS/JS in `<head>`, shared chunks, pre-built dist — **no Node.js in your app** | Global bundle or per-page npm build |
-| **Geocoding** | Server proxy by default (token on Laravel), cache + rate limit | Token in browser, direct API per keystroke |
-| **Custom attributes** | JSON column + schema registry, version migrator, audit trail | Migrations, EAV, or untyped JSON |
-| **Country / phone** | One shared registry per page (`iso` + `phone` pools) | Full country list embedded per field |
-| **Menus** | One overlay coordinator — single open dropdown | Overlapping popovers, z-index issues |
+```bash
+composer require janczakb/filament-flex-fields
+php artisan filament:assets
+```
 
-Details below: [Lazy assets](#lazy-assets--shared-chunks) · [Mapbox](#secure-mapbox-geocoding-mappicker--addressautocomplete) · [JSON flex fields](#zero-migration-custom-fields-json--registry).
+Register the plugin on your Filament panel:
+
+```php
+use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel->plugin(FilamentFlexFieldsPlugin::make());
+}
+```
+
+Then drop any component into a form — e.g. `MatrixChoiceField::make('priorities')`. Full install options (path repo, config, translations): [Installation](#installation). API reference: [docs/index.md](docs/index.md).
 
 ---
 
-## Screenshots
+## Why Flex Fields? {#why-flex-fields}
+
+### Who it's for
+
+Teams building **Filament v5** backends that need more than native inputs — **CRM** custom attributes, **CMS** page builders, **SaaS** onboarding, **marketplaces** with configurable product fields, or any admin UI that should look and behave like one product, not ten plugins stitched together.
+
+### At a glance
+
+| | **Flex Fields** | **Typical approach** |
+|---|-----------------|----------------------|
+| **Scope** | **61** fields, layouts, and table columns — one package | Many single-purpose Filament plugins |
+| **Design** | One `--fff-*` system — sizes, focus, menus, dark mode | Mixed UI from unrelated packages |
+| **Flexibility** | Standalone fields **or** dynamic JSON on models — same components | Usually one mode only |
+| **Depth** | Validation, formatting, and interaction built in — not thin wrappers | Basic inputs; edge cases left to you |
+| **Performance** | Lazy per-field CSS/JS in `<head>`, shared chunks, pre-built `dist/` — no npm in your app | Global bundles or consumer-side builds |
+| **DX** | Playground for every component + dedicated doc per field | Trial-and-error per plugin |
+
+### What's inside
+
+**61 components** — 50 form fields, 9 layout/schema pieces, 2 table columns, plus `HoldConfirmAction`. Matrix grids, slugs, translatable groups, media, ratings, signatures, layouts — [full list](#custom-components-61).
+
+**One design system** — shared `sm` / `md` / `lg` sizes, `--fff-*` tokens, glass searchable menus, dark mode, consistent focus rings.
+
+**Lazy assets** {#lazy-assets--shared-chunks} — each field loads only its CSS/JS; heavy libraries share chunks and preload once per page. Pre-built `resources/dist/` means **no Node.js or Vite in your Laravel project**.
+
+<details>
+<summary>Asset pipeline (technical)</summary>
+
+1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only.
+2. **Per-component bundles** — queued when the field renders, deduped per request.
+3. **Head delivery** — `@stack('styles')` in `<head>`, not inline in the form body.
+
+See [Performance-first assets](#performance-first-assets) for classes, manifest, and bundle metrics.
+
+</details>
+
+**JSON custom fields** {#dynamic-custom-fields-json} — define schemas in PHP config or `FlexFieldSchemaRegistry`, store values in one JSON column via `HasFlexFields`. `FlexFieldFormBuilder` renders live Filament forms. Ideal for CMS, tenant settings, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php).
+
+**Playground & docs** — local preview of all 61 components; every field documented in `docs/` with methods, validation, and examples.
+
+---
+
+## Table of contents
+
+- [Quick start](#quick-start)
+- [Why Flex Fields?](#why-flex-fields)
+- [Screenshots](#screenshots)
+- [Custom Components (61)](#custom-components-61)
+- [Use cases](#use-cases)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Quick usage](#quick-usage)
+- [Playground](#playground)
+- [Documentation](#documentation)
+- [FAQ](#faq)
+- [Development](#development)
+
+---
+
+## Screenshots {#screenshots}
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
@@ -71,7 +136,7 @@ Details below: [Lazy assets](#lazy-assets--shared-chunks) · [Mapbox](#secure-ma
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">MapPickerField — Interactive Map Pin Selector</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Modern SaaS-inspired card-based layout component for structured settings blocks, user profiles, and clean form layouts">
+    <img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Card-based layout component for structured settings blocks, user profiles, and clean Filament form layouts">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Card-Based Layout Group</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
@@ -156,142 +221,6 @@ Details below: [Lazy assets](#lazy-assets--shared-chunks) · [Mapbox](#secure-ma
   </div>
 </div>
 
-
----
-
-## Table of contents
-
-- [What sets Flex Fields apart](#what-sets-flex-fields-apart)
-- [Why Flex Fields?](#why-flex-fields)
-- [Custom Components (61)](#custom-components-61)
-- [Use cases](#use-cases)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Setup](#setup)
-- [Quick usage](#quick-usage)
-- [Playground](#playground)
-- [Documentation](#documentation)
-- [FAQ](#faq)
-- [Development](#development)
-
----
-
-## Why Flex Fields?
-
-Filament Flex Fields replaces many scattered community packages with **one design system** for Filament v5: shared sizes (`sm`/`md`/`lg`), tokens (`--fff-*`), and glass searchable menus.
-
-### 📦 61 components in one plugin
-**50 form fields**, **9 layout/schema** components, **2 table columns** — plus **HoldConfirmAction** for press-and-hold destructive actions. Full list: [Custom Components (61)](#custom-components-61).
-
-### ⚡ Lazy assets & shared chunks {#lazy-assets--shared-chunks}
-Loading dozens of complex fields shouldn't make your admin panel sluggish. Flex Fields implements a **three-layer, request-scoped asset pipeline** that most Filament plugins do not offer:
-
-1. **Lean core** — `core.css` (~20 KB raw, ~4.5 KB gzip): design tokens + hint chrome only. No field UI bundled globally.
-2. **Lazy per-component CSS** — each of the 44+ component bundles loads **only when that field is on the page**.
-3. **Head delivery** — lazy stylesheets are **not** dumped inline in the form body. They are queued and pushed to Filament's native `@stack('styles')` in `<head>`.
-
-#### Why head delivery matters (and how we do it)
-
-Typical plugins either ship one fat CSS file for every page, or inject `<link>` tags mid-body when a field renders. Flex Fields uses the Laravel + Filament pattern:
-
-```
-Field blade renders
-  → FlexFieldStylesheetQueue::enqueueFor('phone-field')   // dedup per request
-  → @push('styles') <link rel="stylesheet" …>             // no body output
-  → Filament layout @stack('styles') in <head>            // browser discovers CSS early
-```
-
-**Result:** a form with `PhoneField` + `TagsField` fetches **only** `phone-field.css` + `tags-field.css` (+ shared deps like `flex-text-input.css`), each **once**, from `<head>`, before paint — not styles for the other 59 components.
-
-* **Lazy-Loaded CSS in `<head>`:** `@include('filament-flex-fields::partials.load-stylesheet')` on every field — zero body noise, deduplicated by `FlexFieldStylesheetQueue`.
-* **Tiered JS Chunks (esbuild code splitting):** Shared libraries (Mapbox, libphonenumber, emoji picker, audio UI, virtualized select menus) split into semantic chunks, `modulepreload` in `<head>`, deduplicated by `FlexFieldAlpineQueue` — **exactly once per page request** no matter how many fields use them.
-* **CI bundle budgets:** `npm run check:budgets` fails the build if dist assets exceed documented KB limits (`resources/dist/bundle-metrics.json`).
-
-<details>
-<summary>🔍 View Asset Optimization details (CSS & JS tables)</summary>
-
-#### CSS — lazy per component
-
-| Bundle | When it loads |
-|--------|----------------|
-| `core.css` | Always — design tokens, hint icons/tooltips |
-| `{component}.css` | **Only when that field is on the page** — queued on render, pushed to `<head>` via `load-stylesheet` |
-| `playground.css` | Playground page only |
-
-Use `PhoneField` and `TagsField` on the same form → the browser fetches **only** `phone-field.css` and `tags-field.css`, not styles for the other 59 components.
-
-#### JavaScript — tiered chunks (esbuild code splitting)
-
-All Alpine components are built together with `splitting: true`:
-
-| Layer | What you get |
-|-------|----------------|
-| **Entry** | Thin `{component}.js` — just the `x-data` factory for that field |
-| **Shared chunks** | Reusable `core/` modules with **semantic names** (`flex-fields-emoji-*`, `flex-fields-audio-*`, `flex-fields-select-menu-*`, …) |
-| **Manifest** | `alpine-manifest.json` maps each field → its chunks for `modulepreload` |
-| **Dedup** | `FlexFieldAlpineQueue` preloads each shared chunk **once per request** |
-
-#### Examples of what gets shared automatically:
-
-| Shared module | Used by | Why it matters |
-|---------------|---------|----------------|
-| Emoji picker | `FlexTextInput`, `FlexTextarea` | ~45 KB library loaded once, not twice |
-| Audio core | `AudioField`, `VoiceNoteRecorderField` | Waveform, playback, time formatting in one chunk |
-| Select menu shell | `CountryField`, `TimezoneField`, `CurrencyField` | One composable for floating searchable menus |
-| Mapbox helpers | `MapPickerField`, `AddressAutocompleteField` | Geocoding logic + Laravel server proxy (geocoding token stays server-side; map GL still needs a public token) |
-| libphonenumber-js | `PhoneField` | ~190 KB **lazy `import()`** — only when the field mounts |
-
-Fields with no shared deps (e.g. `RatingField`) stay as a single small entry — no artificial splitting.
-
-#### Consumer-friendly
-* **Zero Node.js for consumers:** Pre-built assets in `resources/dist/` — no Node.js required in your host app.
-* **Auto-registered:** After `composer update`, run `php artisan filament:assets`.
-* **Technical deep-dive:** [docs/index.md](docs/index.md) (Assets & playground).
-
-</details>
-
-### 🔒 Secure Mapbox geocoding (MapPicker & AddressAutocomplete)
-
-Location fields are production-hardened — not just “drop a token in the blade”:
-
-| Feature | What it does |
-|---------|----------------|
-| **Laravel server proxy** (default) | Geocoding API calls go through authenticated routes; `MAPBOX_ACCESS_TOKEN` stays server-side. Map tiles still use the public token only where Mapbox GL requires it. |
-| **Server + client cache** | Laravel `Cache` on proxy responses; in-memory dedup on repeat searches in the same session. |
-| **Rate limiting** | Configurable per-minute cap on proxy endpoints. |
-| **`searchTypes()`** | Restrict results to streets, POI, cities, regions, etc. — or search all Mapbox place types. |
-| **Keyboard accessibility** | Arrow/Home/End/Enter/Escape on suggestion lists with `aria-activedescendant`. |
-| **`wire:ignore` strategy** | Map DOM isolated from Livewire re-renders; state synced via `$entangle`; remount via `wire:key` when config changes. |
-
-Setup: [§4 Mapbox geocoding](#4-mapbox-geocoding-mappicker--addressautocomplete). API: [MapPickerField](docs/mappickerfield.md) · [AddressAutocompleteField](docs/addressautocompletefield.md).
-
-### 🧩 Zero-migration custom fields (JSON + registry)
-
-Define fields in PHP config or `FlexFieldSchemaRegistry` and store values in a **single JSON column** via `HasFlexFields` — no per-attribute migrations, no EAV joins:
-
-* **Schema versioning** — `FlexFieldSchemaMigrator` upgrades legacy config shapes (`field` → `fields`, `name` → `slug`, …) automatically on register.
-* **Audit trail** — enabled by default; appends who/when/what changed to a configurable `flex_field_audit` JSON column (`FLEX_FIELDS_AUDIT_ENABLED=false` to disable).
-* **Query scopes** — `scopeWhereFlexField()` and related helpers for filtering models by stored flex values.
-* **Form builder** — `FlexFieldFormBuilder` maps registry schemas to live Filament components.
-
-Ideal for CMS page builders, tenant-specific settings, onboarding wizards, and CRM custom attributes.
-
-### 🎨 SaaS-style UI
-Smooth transitions, unified borders and focus rings, dark mode on interactive surfaces (emoji picker, geocoding menus, country/phone dropdowns). Shared `--fff-z-*` z-index tokens keep teleported dropdowns below the Filament topbar.
-
-### 🧬 Highly reactive inputs teams actually need
-Build complex forms that would otherwise take weeks of custom frontend development:
-* **MatrixChoiceField:** A survey-style grid with radio/checkbox modes and reactive `disableCellWhen()` / `disableRowWhen()` logic to easily disable specific choices.
-* **TitleSlugField & SlugField:** Beautiful inputs with live URL permalink previews, automatic slug generation, copy actions, and database uniqueness validation.
-* **Specialized inputs:** Custom audio players with waveforms (`AudioField`), voice recorders (`VoiceNoteRecorderField`), weighted A/B splitters (`TrafficSplit`), multi-currency inputs (`CurrencyField`), card selection lists (`ChoiceCards`), and map pins (`MapPickerField`).
-
-### 🧪 Standalone Filament Inputs or Dynamic Schema Registry
-* **Standalone Fields:** Import any of the 61 components directly into your standard Filament forms, chaining them like native fields (no JSON column required).
-* **Dynamic Builder:** Bind your registry schemas to forms automatically using `FlexFieldFormBuilder` for dynamic JSON attributes.
-
-### 🔍 Built-in Local Developer Playground (Visual QA)
-Validate, preview, and interact with all 61 custom components instantly. Flex Fields features an out-of-the-box local Playground page (`/admin/playground` by default) containing interactive previews of every field to speed up your development.
-
 ---
 
 ## Custom Components (61)
@@ -311,7 +240,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
 | [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
 | [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
-| [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox address search — server proxy, `searchTypes()` (streets/POI/cities), keyboard a11y |
+| [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox-powered address search with structured storage |
 | [`FlexVerificationCode`](docs/flexverificationcode.md) | OTP / 2FA verification code input with grouping |
 
 ### Number & range (6)
@@ -369,7 +298,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`VideoField`](docs/videofield.md) | Video URL / player with YouTube support |
 | [`AudioField`](docs/audiofield.md) | Audio URL / player with waveform |
 | [`VoiceNoteRecorderField`](docs/voicenoterecorderfield.md) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
-| [`MapPickerField`](docs/mappickerfield.md) | Map pin picker — server geocoding proxy, `searchTypes()`, draggable marker, Livewire-safe map |
+| [`MapPickerField`](docs/mappickerfield.md) | Interactive map pin picker with draggable marker and address autofill |
 | [`SignatureField`](docs/signaturefield.md) | Canvas signature pad |
 | [`CreditCardField`](docs/creditcardfield.md) | Card preview with Luhn validation and CVV flip |
 | [`CellSlider`](docs/trackslider.md) | Compact `TrackSlider` variant for table cells |
@@ -411,15 +340,15 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 
 | Scenario | Recommended components |
 |----------|------------------------|
-| **CRM / SaaS custom attributes** | JSON flex fields + audit trail + `PhoneField`, `CountryField`, `UserSelect` |
-| **CMS / page builder** | `TitleSlugField`, `TranslatableFields`, schema versioning, `FlexFileUpload`, `FlexImageUpload` |
+| **CRM / SaaS custom attributes** | JSON flex fields + `PhoneField`, `CountryField`, `UserSelect` |
+| **CMS / page builder** | `TitleSlugField`, `TranslatableFields`, `FlexFileUpload`, `FlexImageUpload` |
 | **Product configurator** | `MatrixChoiceField`, `ChoiceCards`, `PriceRangeField`, `ColorSwatchField` |
 | **Surveys & assessments** | `MatrixChoiceField`, `FlexRadiolist`, `RatingField` |
 | **SaaS onboarding** | `ChoiceCards`, `SegmentTabs`, `CoverCard`, `ProgressCircle` |
 | **E-commerce filters** | `PriceRangeField`, `TrackSlider`, `DualListboxField` |
 | **User profile settings** | `ItemCardGroup`, `PhoneField`, `TimezoneField`, `SignatureField` |
 | **Payment forms** | `CreditCardField`, `FlexVerificationCode` |
-| **Location services** | `MapPickerField`, `AddressAutocompleteField` (Mapbox geocoding via optional Laravel proxy) |
+| **Location services** | `MapPickerField`, `AddressAutocompleteField` |
 | **A/B configuration** | `TrafficSplit`, `SegmentControl` |
 
 ---
@@ -444,7 +373,9 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 
 ---
 
-## Installation
+## Installation {#installation}
+
+Already ran [Quick start](#quick-start)? Jump to [Setup](#setup). Below: Packagist install, monorepo path repo, and keeping `filament:assets` in sync.
 
 ### Composer (Packagist)
 
@@ -617,9 +548,7 @@ FLEX_FIELDS_MAPBOX_RATE_LIMIT=60
 
 Proxy routes use `web` + `auth` middleware by default (`config/filament-flex-fields.php` → `mapbox.proxy_middleware`). Disable the proxy only when you intentionally expose a public Mapbox token client-side.
 
-**Field API highlights:** `searchTypes()` (POI / street / city / …), `language()`, `minSearchLength()`, `searchDebounce()`, `streetAddressesOnly()`.
-
-`CountryField` and `PhoneField` use a shared **country registry** delivered once per page (`iso` / `phone` pools) — see [CHANGELOG.md §2.2.0](CHANGELOG.md#220---2026-06-09).
+**Field API highlights:** `searchTypes()`, `language()`, `minSearchLength()`, `searchDebounce()`, `streetAddressesOnly()`. See [MapPickerField](docs/mappickerfield.md) and [AddressAutocompleteField](docs/addressautocompletefield.md).
 
 ### 5. Flex field audit trail (enabled by default)
 
@@ -722,30 +651,27 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 |----------|----------|
 | **[docs/index.md](docs/index.md)** | Complete per-component API — every method, option, validation rule, config key, and example |
 | **[docs/shared-concepts.md](docs/shared-concepts.md)** | Asset pipeline, overlay coordinator, `wire:ignore` + Livewire sync patterns |
-| **[CHANGELOG.md](CHANGELOG.md)** | Release history (geo proxy, schema versioning, audit trail, …) |
-| **config/filament-flex-fields.php** | Default schemas, UI sizes, playground toggles, Mapbox proxy |
+| **[CHANGELOG.md](CHANGELOG.md)** | Version history and release notes |
+| **config/filament-flex-fields.php** | Schemas, UI defaults, playground, Mapbox, audit |
 
 ---
 
 ## FAQ
 
 **Why choose Flex Fields over multiple Filament field plugins?**
-One design system, one asset pipeline, one Playground, and **61** components that share chunks (phone lib, emoji picker, Mapbox helpers, select menus). You avoid conflicting CSS, duplicate JS, and inconsistent UX — plus features most single-purpose plugins lack (matrix grids, JSON flex fields, server geocoding proxy, audit trail).
+One design system, one asset pipeline, one Playground, and **61** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
 
 **Do I need Node.js to use this package?**
 No. Pre-built CSS/JS are committed to `resources/dist/`. Node is only needed when developing the package itself.
 
 **How does asset loading work?**
-Each component loads its own CSS/JS on demand. Shared JavaScript (emoji picker, audio UI, country/timezone menus, Mapbox, overlay coordinator, etc.) is split into cached chunks with semantic names — loaded once per page even when multiple fields use the same module. See [Development → Performance-first assets](#performance-first-assets).
-
-**Is the Mapbox token safe in production?**
-By default, **yes for geocoding** — search/reverse requests use the Laravel proxy (`use_server_proxy=true`). The browser only receives proxy URLs, not your secret token. Mapbox GL map tiles still need a public token for rendering; keep that key URL-restricted in the Mapbox dashboard.
+Each component loads its own CSS/JS on demand. Shared libraries are split into cached chunks and loaded once per page. See [Development → Performance-first assets](#performance-first-assets).
 
 **Can I use components without the JSON flex-field system?**
 Yes. Import any component directly into Filament forms — the JSON column and `HasFlexFields` trait are optional.
 
 **How many components are included?**
-**61** custom UI classes with own views and CSS — listed in [Custom Components (61)](#custom-components-61). The optional JSON flex-field registry wires these components via `FlexFieldFormBuilder`.
+**61** custom UI classes with own views and CSS — listed in [Custom Components (61)](#custom-components-61).
 
 **Does it work with Filament v4?**
 No — this package targets **Filament v5** only.
@@ -754,10 +680,7 @@ No — this package targets **Filament v5** only.
 No. Sluggable, Translatable, and Media Library integrations are optional `composer suggest` packages.
 
 **Where is the Matrix Choice / survey grid?**
-`MatrixChoiceField` — radio or checkbox mode, per-row validation, reactive `disableCellWhen()` / `disableRowWhen()`. See [docs/index.md → MatrixChoiceField](docs/matrixchoicefield.md).
-
-**How are dynamic custom field schemas upgraded?**
-Register schemas via config or `FlexFieldSchemaRegistry`. Legacy shapes are migrated automatically by `FlexFieldSchemaMigrator` (see [CHANGELOG.md §2.4.0](CHANGELOG.md#240---2026-06-16)).
+`MatrixChoiceField` — radio or checkbox mode, per-row validation, reactive `disableCellWhen()` / `disableRowWhen()`. See [docs/matrixchoicefield.md](docs/matrixchoicefield.md).
 
 ---
 
@@ -770,7 +693,7 @@ composer analyse       # PHPStan
 
 npm install
 npm run build          # CSS + JS → resources/dist/
-npm run test:js        # Node unit tests (theme-utils, geocoding, dropdown registry, …)
+npm run test:js        # Node unit tests
 npm run test:e2e       # Playwright playground tests (requires FLEX_FIELDS_PLAYGROUND_URL)
 composer format        # Laravel Pint
 ```
@@ -781,7 +704,7 @@ Rebuild assets after changing `resources/css/` or `resources/js/`.
 npm run check:budgets   # CI bundle size guard (reads resources/dist/bundle-metrics.json)
 ```
 
-### Performance-first assets
+### Performance-first assets {#performance-first-assets}
 
 This is the technical reference for [Lazy assets & shared chunks](#lazy-assets--shared-chunks) above.
 
