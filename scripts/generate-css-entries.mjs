@@ -51,6 +51,11 @@ const components = [
         sources: ['../../src/Filament/Forms/Components/LinkPreviewField.php', '../views/forms/components/link-preview-field.blade.php'],
     },
     {
+        name: 'barcode-scanner-field',
+        imports: ['../components/barcode-scanner-field.css'],
+        sources: ['../../src/Filament/Forms/Components/BarcodeScannerField.php', '../views/forms/components/barcode-scanner-field.blade.php'],
+    },
+    {
         name: 'schedule-field',
         imports: ['../components/schedule-field.css'],
         sources: ['../../src/Filament/Forms/Components/ScheduleField.php', '../views/forms/components/schedule-field.blade.php'],

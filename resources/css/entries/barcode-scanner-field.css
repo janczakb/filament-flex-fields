@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/BarcodeScannerField.php";
+@source "../views/forms/components/barcode-scanner-field.blade.php";
+
+@import "../components/barcode-scanner-field.css";

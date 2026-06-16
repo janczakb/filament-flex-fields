@@ -227,6 +227,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <img src="art/sc-29.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SocialLinksField - Social profile link editor with brand icons, validation, reordering, and custom platforms support">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SocialLinksField — Social Profile Link Editor</p>
   </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <img src="art/sc-30.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BarcodeScannerField - Barcode and QR input with Filament modal camera scanner, format filtering, EAN/UPC checksum validation, and hybrid native + ZXing engines">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">BarcodeScannerField — Camera Barcode & QR Scanner</p>
+  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61 Components & Visual Playground</p>
@@ -241,7 +245,7 @@ Every item below is a **custom class shipped by this package** — own Blade vie
 
 Full API for each component: **[docs/index.md](docs/index.md)**.
 
-### Text & input (11)
+### Text & input (12)
 
 | Component | Description |
 |-----------|-------------|
@@ -251,6 +255,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
 | [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
 | [`LinkPreviewField`](docs/link-preview-field.md) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
+| [`BarcodeScannerField`](docs/barcode-scanner-field.md) | Barcode/QR input — Filament modal camera scanner, format whitelist, EAN/UPC checksum, hybrid BarcodeDetector + ZXing, torch & front/back switch, iOS-safe preview *(v2.6.0)* |
 | [`SocialLinksField`](docs/social-links-field.md) | Social profile links — platform picker, URL validation, custom platforms, reorder |
 | [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
 | [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
@@ -758,18 +763,18 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 20.6 (gzip 4.6) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.1 (gzip 5.9) + deps 61.8 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.4 (gzip 5.4) + deps 61.8 |
-| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 37 (gzip 6.7) + deps 19.3 |
-| TagsField | 3.1 (gzip 1.1) | 20.2 (gzip 4.6) + deps 59 |
-| RatingField | 0.7 (gzip 0.3) | 22.3 (gzip 5) |
-| SwitchField | Alpine inline | 40.8 (gzip 7) |
-| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.6 (gzip 5.8) + deps 146.9 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 26.4 (gzip 6) + deps 46.1 |
-| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 78.9 (gzip 12.1) + deps 24.8 |
+| core (always) | — | 20.8 (gzip 4.6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.4 (gzip 5.9) + deps 62.2 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.6 (gzip 5.4) + deps 62.2 |
+| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 37.2 (gzip 6.8) + deps 19.5 |
+| TagsField | 3.1 (gzip 1.1) | 20.4 (gzip 4.7) + deps 59.5 |
+| RatingField | 0.7 (gzip 0.3) | 22.5 (gzip 5.1) |
+| SwitchField | Alpine inline | 41.1 (gzip 7) |
+| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.8 (gzip 5.8) + deps 147.8 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 26.6 (gzip 6) + deps 46.5 |
+| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 79.1 (gzip 12.1) + deps 25 |
 
-Sample bundles (10 of **51** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **52** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

@@ -24,6 +24,8 @@
         "tailwindcss": "^4.1.0"
     },
     "dependencies": {
+        "@zxing/browser": "^0.1.5",
+        "@zxing/library": "^0.21.3",
         "@gravity-ui/icons": "^2.18.0",
         "@internationalized/date": "^3.8.2",
         "emoji-picker-element": "^1.29.1",

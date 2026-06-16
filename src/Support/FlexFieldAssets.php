@@ -30,6 +30,7 @@ class FlexFieldAssets
         'flex-textarea',
         'flex-text-input',
         'link-preview-field',
+        'barcode-scanner-field',
         'social-links-field',
         'schedule-field',
         'credit-card',
@@ -113,6 +114,7 @@ class FlexFieldAssets
         'flex-color-picker' => ['flex-text-input'],
         'slug-field' => ['flex-text-input'],
         'link-preview-field' => ['flex-text-input'],
+        'barcode-scanner-field' => ['flex-text-input'],
         'social-links-field' => ['flex-text-input', 'teleported-menu'],
         'schedule-field' => ['flex-text-input', 'switch', 'teleported-menu', 'timezone-field', 'flex-time-segments'],
         'tags-field' => ['flex-text-input', 'tag-chips'],
@@ -371,5 +373,26 @@ class FlexFieldAssets
         }
 
         return $map;
+    }
+
+    public static function barcodeScanBeepRelativePath(): string
+    {
+        $path = config('filament.assets_path', '');
+
+        return ltrim("{$path}/audio/".FilamentFlexFieldsPlugin::PACKAGE_NAME.'/barcode-scan-success.mp3', '/');
+    }
+
+    public static function barcodeScanBeepSourcePath(): string
+    {
+        return dirname(__DIR__, 2).'/resources/dist/audio/barcode-scan-success.mp3';
+    }
+
+    public static function barcodeScanBeepUrl(): string
+    {
+        $relative = self::barcodeScanBeepRelativePath();
+        $public = public_path($relative);
+        $version = is_file($public) ? (string) filemtime($public) : '1';
+
+        return asset($relative).'?v='.$version;
     }
 }

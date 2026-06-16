@@ -218,5 +218,13 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             $filesystem->ensureDirectoryExists(dirname($destination));
             $filesystem->copy($source, $destination);
         }
+
+        $beepSource = FlexFieldAssets::barcodeScanBeepSourcePath();
+        $beepDestination = public_path(FlexFieldAssets::barcodeScanBeepRelativePath());
+
+        if (is_file($beepSource) && (! is_file($beepDestination) || filemtime($beepSource) > filemtime($beepDestination))) {
+            $filesystem->ensureDirectoryExists(dirname($beepDestination));
+            $filesystem->copy($beepSource, $beepDestination);
+        }
     }
 }

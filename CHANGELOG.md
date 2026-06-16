@@ -5,7 +5,38 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.5.0] - 2026-06-16
+## [Unreleased]
+
+## [2.6.0] - 2026-06-16
+
+### Added
+
+- **`BarcodeScannerField`** — FlexTextInput shell with Filament modal scanner, manual entry fallback, multi-format support (QR, EAN, UPC, Code 128/39, ITF, PDF417, Data Matrix), torch toggle, continuous scanning, success sound, auto-submit, and EAN/UPC checksum validation.
+- **Hybrid scan engine** — native `BarcodeDetector` when supported (Chrome/Edge on desktop), automatic **ZXing** fallback elsewhere (including mobile); engine badge shown in the viewport.
+- **Barcode configuration** — chainable `formats()`, `continuous()`, `beepOnScan()` (default on), `autoSubmit()`, `cameraFacing()`, `preferredDeviceId()`, `allowCameraSwitch()`, `scanDelay()`, `scanInterval()`, `decodeFps()`, `pauseWhenHidden()`, `storeDetectedFormat()`, `allowManualInput()`, `scanButtonLabel()`, `modalHeading()`, `validateChecksum()`, and `barcodeRule()`.
+- **Barcode scanner UX** — toolbar under the preview with **switch camera** and **torch**; decode pauses while the browser tab is hidden (battery-friendly); optional structured state `{ value, format }` from camera symbology.
+- **Mobile camera pipeline** — iOS/WebKit video portal (body-mounted preview + synced overlay) so `<video srcObject>` renders inside the Filament modal; camera starts after the modal transition completes.
+- **Scan feedback** — rounded scan frame, animated scan line, success flash; bundled MP3 on desktop; **transient Web Audio beep** on mobile (no lock-screen media player).
+- **Lazy ZXing assets** — `@zxing/browser` loaded via dynamic import in a separate JS chunk; field CSS/JS lazy-loaded per instance.
+- **Playground** — `barcode-scanner-field` page (default, EAN-only, continuous, checksum, scan-only).
+- **Documentation** — [docs/barcode-scanner-field.md](docs/barcode-scanner-field.md); entries in [README.md](README.md) (Text & input), [docs/index.md](docs/index.md), and [COMPONENTS.md](COMPONENTS.md).
+- **Tests** — PHP unit/feature tests, JS unit tests for barcode validation and engine helpers, Playwright smoke test for barcode scanner playground.
+- **i18n** — English and Polish strings under `barcode_scanner.*`.
+
+### Changed
+
+- **Scanner modal** — native `<x-filament::modal>` (teleported, Filament transitions, close button); spacing below modal description before the preview.
+- **Mobile camera switch** — toggles `facingMode` (`environment` ↔ `user`) instead of cycling opaque `deviceId` values (reliable front/back on iPhone).
+- **Scan controls layout** — switch camera and torch moved from viewport overlay to a **toolbar below the video** (Filament-style buttons, always clickable).
+- **Scan overlay** — minimal Apple-style rounded frame and scan line; compact engine badge in the top-left corner.
+
+### Fixed
+
+- **iOS black camera preview** — video preview no longer stays black inside the teleported Filament modal (body portal + overlay sync).
+- **Mobile switch / torch taps** — controls no longer use `$dispatch` from a detached portal (events never reached Alpine); direct `switchCamera()` / `toggleTorch()` handlers.
+- **Layout on mobile** — portal position resyncs after layout; camera switch no longer hides the toolbar or leaves a black gap above the preview; toolbar stays below the viewport and is not covered by the fixed video layer.
+
+## [2.5.1] - 2026-06-16
 
 Quality, security, accessibility, and test hardening for **LinkPreviewField** and **ScheduleField** (both introduced in 2.4.5), plus new **`SocialLinksField`**.
 

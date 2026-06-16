@@ -51,6 +51,10 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (modules) => modules.includes('core/country-list-keyboard.js'),
     },
     {
+        slug: 'flex-fields-barcode-scanner',
+        matches: (_modules, inputs) => inputs.some((input) => input.includes('@zxing/')),
+    },
+    {
         slug: 'flex-fields-phone-lib',
         matches: (_modules, inputs) => inputs.some((input) => input.includes('libphonenumber-js')),
     },
@@ -226,6 +230,15 @@ fs.writeFileSync(
 );
 
 writeBundleMetrics(packageRoot, { js: collectJsMetrics(distRoot) });
+
+const audioSource = path.join(packageRoot, 'resources/audio/barcode-scan-success.mp3');
+const audioDistDir = path.join(packageRoot, 'resources/dist/audio');
+const audioDist = path.join(audioDistDir, 'barcode-scan-success.mp3');
+
+if (fs.existsSync(audioSource)) {
+    fs.mkdirSync(audioDistDir, { recursive: true });
+    fs.copyFileSync(audioSource, audioDist);
+}
 
 const outputCount = Object.keys(result.metafile.outputs).length;
 

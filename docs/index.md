@@ -16,6 +16,7 @@ Welcome to the **Filament Flex Fields** documentation. Below you will find the t
 - [CreditCardField](creditcardfield.md)
 - [PhoneField](phonefield.md)
 - [LinkPreviewField](link-preview-field.md)
+- [BarcodeScannerField](barcode-scanner-field.md) — barcode/QR camera scanner *(v2.6.0)*
 - [SocialLinksField](social-links-field.md)
 - [ScheduleField](schedule-field.md)
 - [SignatureField](signaturefield.md)

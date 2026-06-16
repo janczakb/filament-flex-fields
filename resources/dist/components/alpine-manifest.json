@@ -9,6 +9,10 @@
     "flex-fields-audio-7IBP5TOY.js",
     "flex-fields-dynamic-bars-TC53IFLW.js"
   ],
+  "barcode-scanner-field": [
+    "flex-fields-barcode-scanner-RBWMZ7Z6.js",
+    "flex-fields-shared-R7IEHECV.js"
+  ],
   "country-field": [
     "flex-fields-virtualized-list-N4JD6N7Y.js",
     "flex-fields-select-menu-RS76F35B.js",
@@ -109,6 +113,7 @@
   ],
   "__shared_chunks__": [
     "flex-fields-audio-7IBP5TOY.js",
+    "flex-fields-barcode-scanner-RBWMZ7Z6.js",
     "flex-fields-components-flex-time-segments-BFXCIJ74.js",
     "flex-fields-dynamic-bars-TC53IFLW.js",
     "flex-fields-emoji-WRSTRHC2.js",
@@ -117,11 +122,15 @@
     "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
     "flex-fields-phone-lib-XLJG7A36.js",
     "flex-fields-select-menu-RS76F35B.js",
+    "flex-fields-shared-R7IEHECV.js",
     "flex-fields-theme-utils-NPS3OGXG.js",
     "flex-fields-timezone-picker-mixin-CZV5ZPU2.js",
     "flex-fields-virtualized-list-N4JD6N7Y.js"
   ],
   "__chunk_modules__": {
+    "flex-fields-shared-R7IEHECV.js": [],
+    "flex-fields-barcode-scanner-RBWMZ7Z6.js": [],
+    "flex-fields-barcode-scanner-W4FSKKOS.js": [],
     "flex-fields-shared-6QIOXHYQ.js": [],
     "flex-fields-phone-lib-XLJG7A36.js": [],
     "flex-fields-timezone-picker-mixin-CZV5ZPU2.js": [

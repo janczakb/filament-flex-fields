@@ -31,8 +31,9 @@ This document covers **custom UI components** (form fields, table columns, and l
 16. [CreditCardField](#creditcardfield)
 17. [PhoneField](#phonefield)
 18. [LinkPreviewField](#linkpreviewfield)
-19. [SocialLinksField](#sociallinksfield)
-20. [SignatureField](#signaturefield)
+19. [BarcodeScannerField](#barcodescannerfield)
+20. [SocialLinksField](#sociallinksfield)
+21. [SignatureField](#signaturefield)
 21. [MapPickerField](#mappickerfield)
 22. [AddressAutocompleteField](#addressautocompletefield)
 23. [ChoiceCards](#choicecards)
@@ -1839,6 +1840,95 @@ Built-in: `nullable`, `url`. Trims whitespace; empty dehydrates to `null`.
 Stylesheets: `flex-text-input`, `link-preview-field`. Alpine: `link-preview-field`. Route: `filament-flex-fields.url-meta.scrape`.
 
 **Full documentation:** [docs/link-preview-field.md](docs/link-preview-field.md) — recipes, accessibility, CSS classes, model examples.
+
+---
+
+## BarcodeScannerField
+
+> **Added in v2.6.0**
+
+### Summary
+
+Barcode/QR input on the FlexTextInput shell with a **Filament modal** camera scanner, optional manual typing, **format whitelist** (`formats()`), EAN/UPC checksum validation, success sound, and hybrid **BarcodeDetector + ZXing** engine (lazy-loaded). **iOS/WebKit** uses a body-mounted video portal so the live preview renders correctly inside the teleported modal.
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\BarcodeScannerField` |
+| **State type** | `string\|null` by default; `{ value, format }\|null` with `storeDetectedFormat()` |
+| **Playground** | `barcode-scanner-field` |
+
+### Basic usage
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\BarcodeScannerField;
+use Bjanczak\FilamentFlexFields\Enums\BarcodeFormat;
+
+BarcodeScannerField::make('sku')
+    ->label('Product barcode')
+    ->required();
+
+// Restrict to EAN/UPC only
+BarcodeScannerField::make('ean')
+    ->formats([BarcodeFormat::Ean13, BarcodeFormat::Ean8, BarcodeFormat::UpcA])
+    ->validateChecksum()
+    ->allowManualInput(false);
+
+// QR only
+BarcodeScannerField::make('ticket')
+    ->formats([BarcodeFormat::Qr]);
+```
+
+### Supported formats
+
+`Qr`, `Ean13`, `Ean8`, `UpcA`, `UpcE`, `Code128`, `Code39`, `Itf`, `Pdf417`, `DataMatrix` — via `BarcodeFormat` enum. Default: all formats. Test EAN-13: `5901234123457` (valid checksum).
+
+### Configuration API
+
+| Method | Default | Description |
+|--------|---------|-------------|
+| `formats()` / `supportedFormats()` | all formats | Allowed symbologies (camera + client + server) |
+| `validateChecksum()` | `false` | EAN/UPC modulo-10 validation |
+| `continuous()` | `false` | Keep modal open after each scan |
+| `beepOnScan()` | `true` | Confirmation sound (MP3 desktop; Web Audio mobile) |
+| `autoSubmit()` | `false` | Dispatch events / submit form |
+| `cameraFacing()` | `environment` | `environment` or `user` |
+| `preferredDeviceId()` | `null` | Fixed camera device id |
+| `allowCameraSwitch()` | `true` | Switch camera in toolbar (`facingMode` mobile; device cycle desktop) |
+| `scanDelay()` | `750` | Duplicate scan debounce (ms) |
+| `scanInterval()` | `120` | Decode interval (ms), 50–2000 |
+| `decodeFps()` | — | Sets interval from frames per second |
+| `pauseWhenHidden()` | `true` | Pause when tab hidden |
+| `storeDetectedFormat()` | `false` | Persist symbology in state |
+| `allowManualInput()` | `true` | Text input fallback |
+| `scanButtonLabel()` | translated | Scan button label |
+| `modalHeading()` | translated | Modal title |
+| `scanIcon()` | QR icon | Scan trigger icon |
+| `barcodeRule()` | — | Extra validation rule |
+| `variant()` | `primary` | FlexTextInput variants |
+| `size()` | `md` | `sm`, `md`, `lg` |
+
+### Scan behaviour
+
+On success (default): fills input, plays beep, closes modal. With `continuous()`: stays open for repeated scans.
+
+- **Toolbar** below the preview: switch camera + torch (not overlaid on video).
+- **Mobile**: front/back via `facingMode` toggle; **desktop**: cycles video inputs when `allowCameraSwitch()` and ≥2 devices.
+- **Beep**: MP3 on desktop; short Web Audio tone on mobile (no lock-screen media controls).
+- **iOS preview**: synced body portal for `<video srcObject>` inside Filament modal.
+
+### Validation
+
+`BarcodeValidator` on server; client mirrors before accepting camera reads. Optional checksum for EAN/UPC. Custom `barcodeRule()` merges with built-in rules.
+
+### Events
+
+`barcode-scanned` — `{ value, format, engine, statePath }`. `barcode-auto-submit` when `autoSubmit()` enabled.
+
+### Assets
+
+Stylesheets: `flex-text-input`, `barcode-scanner-field`. Alpine: `barcode-scanner-field` (+ lazy ZXing chunk). Audio: `barcode-scan-success.mp3`. Uses `wire:ignore` + `$entangle`.
+
+**Full documentation:** [docs/barcode-scanner-field.md](docs/barcode-scanner-field.md) — format whitelist recipes, detection notes, CSS classes, playground demos, test values.
 
 ---
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundComponentPage;
+use Bjanczak\FilamentFlexFields\Support\Playground\BarcodeScannerFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\AddressAutocompletePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\AudioFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCardsPlayground;
@@ -109,8 +110,9 @@ class FlexFieldsPlaygroundRegistry
                 'audio-field' => ['label' => 'Audio field', 'playground' => AudioFieldPlayground::class, 'sort' => 330, 'icon' => GravityIcon::VolumeFill],
                 'map-picker' => ['label' => 'Map picker', 'playground' => MapPickerPlayground::class, 'sort' => 340, 'icon' => GravityIcon::MapPin],
                 'link-preview-field' => ['label' => 'Link preview', 'playground' => LinkPreviewFieldPlayground::class, 'sort' => 345, 'icon' => GravityIcon::Link],
+                'barcode-scanner-field' => ['label' => 'Barcode scanner', 'playground' => BarcodeScannerFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::make('qr-code')],
                 'social-links-field' => ['label' => 'Social links', 'playground' => SocialLinksFieldPlayground::class, 'sort' => 347, 'icon' => GravityIcon::Persons],
-                'schedule-field' => ['label' => 'Schedule field', 'playground' => ScheduleFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::Calendar],
+                'schedule-field' => ['label' => 'Schedule field', 'playground' => ScheduleFieldPlayground::class, 'sort' => 348, 'icon' => GravityIcon::Calendar],
                 'address-autocomplete' => ['label' => 'Address autocomplete', 'playground' => AddressAutocompletePlayground::class, 'sort' => 350, 'icon' => GravityIcon::MapPin],
                 'signature-field' => ['label' => 'Signature', 'playground' => SignatureFieldPlayground::class, 'sort' => 360, 'icon' => GravityIcon::Pencil],
                 'verification-code' => ['label' => 'Verification Code', 'playground' => FlexVerificationCodePlayground::class, 'sort' => 370, 'icon' => GravityIcon::ShieldCheck],
