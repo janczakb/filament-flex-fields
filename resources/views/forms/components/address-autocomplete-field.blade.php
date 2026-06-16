@@ -69,7 +69,9 @@
         aria-label="{{ $getLabel() }}"
     >
         <div class="fff-address-autocomplete__search-wrap">
-            <div @class([
+            <div
+                x-ref="searchShell"
+                @class([
                 'fff-flex-text-input__shell',
                 'is-invalid' => $hasError,
             ])>

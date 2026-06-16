@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-16T07:03:07.050Z",
+  "generatedAt": "2026-06-16T08:19:22.583Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 19625,
@@ -326,6 +326,11 @@
       "kb": 100.19,
       "gzipKb": 14.72
     },
+    "playground-social-links-field.css": {
+      "bytes": 125403,
+      "kb": 122.46,
+      "gzipKb": 15.18
+    },
     "playground-switch.css": {
       "bytes": 73765,
       "kb": 72.04,
@@ -431,6 +436,11 @@
       "kb": 32.02,
       "gzipKb": 6.35
     },
+    "social-links-field.css": {
+      "bytes": 30174,
+      "kb": 29.47,
+      "gzipKb": 5.63
+    },
     "switch.css": {
       "bytes": 41824,
       "kb": 40.84,
@@ -496,7 +506,7 @@
     "address-autocomplete.js": {
       "bytes": 5385,
       "kb": 5.26,
-      "gzipKb": 1.61
+      "gzipKb": 1.62
     },
     "audio-field.js": {
       "bytes": 3339,
@@ -697,6 +707,11 @@
       "bytes": 10241,
       "kb": 10,
       "gzipKb": 2.72
+    },
+    "social-links-field.js": {
+      "bytes": 9834,
+      "kb": 9.6,
+      "gzipKb": 3.07
     },
     "tags-field.js": {
       "bytes": 3217,

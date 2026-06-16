@@ -19,7 +19,7 @@ const exclusiveDropdown = createExclusiveDropdownMixin({
 const geocodingDropdown = createSearchableSelectMenuMixin({
     openKey: 'searchOpen',
     readyKey: 'searchDropdownReady',
-    triggerRef: 'searchInput',
+    triggerRef: 'searchShell',
     menuRef: 'searchDropdown',
     closeMethod: 'closeSearchDropdown',
     ownerIdPrefix: 'fff-address-autocomplete',

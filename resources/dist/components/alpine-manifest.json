@@ -86,6 +86,11 @@
   ],
   "signature-field": [],
   "slug-field": [],
+  "social-links-field": [
+    "flex-fields-select-menu-RS76F35B.js",
+    "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
+    "flex-fields-theme-utils-NPS3OGXG.js"
+  ],
   "tags-field": [],
   "timezone-field": [
     "flex-fields-timezone-picker-mixin-CZV5ZPU2.js",

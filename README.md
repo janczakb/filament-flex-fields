@@ -26,7 +26,7 @@
 
 ---
 
-## Quick start {#quick-start}
+## Quick start
 
 ```bash
 composer require janczakb/filament-flex-fields
@@ -48,7 +48,7 @@ Then drop any component into a form — e.g. `MatrixChoiceField::make('prioritie
 
 ---
 
-## Why Flex Fields? {#why-flex-fields}
+## Why Flex Fields?
 
 ### Who it's for
 
@@ -71,7 +71,7 @@ Teams building **Filament v5** backends that need more than native inputs — **
 
 **One design system** — shared `sm` / `md` / `lg` sizes, `--fff-*` tokens, glass searchable menus, dark mode, consistent focus rings.
 
-**Lazy assets** {#lazy-assets--shared-chunks} — each field loads only its CSS/JS; heavy libraries share chunks and preload once per page. Pre-built `resources/dist/` means **no Node.js or Vite in your Laravel project**.
+<a id="lazy-assets--shared-chunks"></a>**Lazy assets** — each field loads only its CSS/JS; heavy libraries share chunks and preload once per page. Pre-built `resources/dist/` means **no Node.js or Vite in your Laravel project**.
 
 <details>
 <summary>Asset pipeline (technical)</summary>
@@ -84,7 +84,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 </details>
 
-**JSON custom fields** {#dynamic-custom-fields-json} — define schemas in PHP config or `FlexFieldSchemaRegistry`, store values in one JSON column via `HasFlexFields`. `FlexFieldFormBuilder` renders live Filament forms. Ideal for CMS, tenant settings, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php).
+<a id="dynamic-custom-fields-json"></a>**JSON custom fields** — define schemas in PHP config or `FlexFieldSchemaRegistry`, store values in one JSON column via `HasFlexFields`. `FlexFieldFormBuilder` renders live Filament forms. Ideal for CMS, tenant settings, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php).
 
 **Playground & docs** — local preview of all 61 components; every field documented in `docs/` with methods, validation, and examples.
 
@@ -108,7 +108,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 ---
 
-## Screenshots {#screenshots}
+## Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
@@ -223,6 +223,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <img src="art/sc-28.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="LinkPreviewField - URL input field with live Open Graph / meta tag preview cards and server-side scraping">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">LinkPreviewField — Open Graph Link Preview Card</p>
   </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <img src="art/sc-29.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SocialLinksField - Social profile link editor with brand icons, validation, reordering, and custom platforms support">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">SocialLinksField — Social Profile Link Editor</p>
+  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61 Components & Visual Playground</p>
@@ -237,7 +241,7 @@ Every item below is a **custom class shipped by this package** — own Blade vie
 
 Full API for each component: **[docs/index.md](docs/index.md)**.
 
-### Text & input (10)
+### Text & input (11)
 
 | Component | Description |
 |-----------|-------------|
@@ -247,6 +251,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
 | [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
 | [`LinkPreviewField`](docs/link-preview-field.md) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
+| [`SocialLinksField`](docs/social-links-field.md) | Social profile links — platform picker, URL validation, custom platforms, reorder |
 | [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
 | [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
 | [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox-powered address search with structured storage |
@@ -384,7 +389,7 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 
 ---
 
-## Installation {#installation}
+## Installation
 
 Already ran [Quick start](#quick-start)? Jump to [Setup](#setup). Below: Packagist install, monorepo path repo, and keeping `filament:assets` in sync.
 
@@ -715,7 +720,7 @@ Rebuild assets after changing `resources/css/` or `resources/js/`.
 npm run check:budgets   # CI bundle size guard (reads resources/dist/bundle-metrics.json)
 ```
 
-### Performance-first assets {#performance-first-assets}
+### Performance-first assets
 
 This is the technical reference for [Lazy assets & shared chunks](#lazy-assets--shared-chunks) above.
 
@@ -764,7 +769,7 @@ npm run check:budgets  # fail if any bundle exceeds limits
 | MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 26.4 (gzip 6) + deps 46.1 |
 | SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 78.9 (gzip 12.1) + deps 24.8 |
 
-Sample bundles (10 of **50** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **51** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

@@ -31,45 +31,46 @@ This document covers **custom UI components** (form fields, table columns, and l
 16. [CreditCardField](#creditcardfield)
 17. [PhoneField](#phonefield)
 18. [LinkPreviewField](#linkpreviewfield)
-19. [SignatureField](#signaturefield)
-20. [MapPickerField](#mappickerfield)
-21. [AddressAutocompleteField](#addressautocompletefield)
-22. [ChoiceCards](#choicecards)
-23. [ChoiceCheckboxCards](#choicecheckboxcards)
-24. [FlexChecklist](#flexchecklist)
-25. [FlexRadiolist](#flexradiolist)
-26. [MatrixChoiceField](#matrixchoicefield)
-27. [SwitchField](#switchfield)
-28. [CurrencyField](#currencyfield)
-29. [CountryField](#countryfield)
-30. [TimezoneField](#timezonefield)
-31. [ScheduleField](#schedulefield)
-32. [Date & time fields](#date--time-fields)
-33. [FlexVerificationCode](#flexverificationcode)
-34. [AudioField](#audiofield)
-35. [VoiceNoteRecorderField](#voicenoterecorderfield)
-36. [VideoField](#videofield)
-37. [FlexFileUpload & FlexImageUpload](#flexfileupload--fleximageupload)
-38. [ColorSwatchField](#colorswatchfield)
-39. [FlexColorPickerField](#flexcolorpickerfield)
-40. [NumberStepper](#numberstepper)
-41. [FlexSlider](#flexslider)
-42. [SegmentTabs](#segmenttabs)
-43. [SegmentControl](#segmentcontrol)
-44. [TrackSlider](#trackslider)
-45. [TrafficSplit](#trafficsplit)
-46. [RatingField](#ratingfield)
-47. [RatingColumn](#ratingcolumn)
-48. [CoverCard](#covercard)
-49. [ProgressBar](#progressbar)
-50. [ProgressCircle](#progresscircle)
-51. [ItemCard](#itemcard)
-52. [ItemCardGroup](#itemcardgroup)
-53. [ItemCardStack](#itemcardstack)
-54. [Layout components — quick comparison](#layout-components--quick-comparison)
-55. [Form layout patterns](#form-layout-patterns)
-56. [SlugField & TitleSlugField](#slugfield--titleslugfield)
-57. [TranslatableFields](#translatablefields)
+19. [SocialLinksField](#sociallinksfield)
+20. [SignatureField](#signaturefield)
+21. [MapPickerField](#mappickerfield)
+22. [AddressAutocompleteField](#addressautocompletefield)
+23. [ChoiceCards](#choicecards)
+24. [ChoiceCheckboxCards](#choicecheckboxcards)
+25. [FlexChecklist](#flexchecklist)
+26. [FlexRadiolist](#flexradiolist)
+27. [MatrixChoiceField](#matrixchoicefield)
+28. [SwitchField](#switchfield)
+29. [CurrencyField](#currencyfield)
+30. [CountryField](#countryfield)
+31. [TimezoneField](#timezonefield)
+32. [ScheduleField](#schedulefield)
+33. [Date & time fields](#date--time-fields)
+34. [FlexVerificationCode](#flexverificationcode)
+35. [AudioField](#audiofield)
+36. [VoiceNoteRecorderField](#voicenoterecorderfield)
+37. [VideoField](#videofield)
+38. [FlexFileUpload & FlexImageUpload](#flexfileupload--fleximageupload)
+39. [ColorSwatchField](#colorswatchfield)
+40. [FlexColorPickerField](#flexcolorpickerfield)
+41. [NumberStepper](#numberstepper)
+42. [FlexSlider](#flexslider)
+43. [SegmentTabs](#segmenttabs)
+44. [SegmentControl](#segmentcontrol)
+45. [TrackSlider](#trackslider)
+46. [TrafficSplit](#trafficsplit)
+47. [RatingField](#ratingfield)
+48. [RatingColumn](#ratingcolumn)
+49. [CoverCard](#covercard)
+50. [ProgressBar](#progressbar)
+51. [ProgressCircle](#progresscircle)
+52. [ItemCard](#itemcard)
+53. [ItemCardGroup](#itemcardgroup)
+54. [ItemCardStack](#itemcardstack)
+55. [Layout components — quick comparison](#layout-components--quick-comparison)
+56. [Form layout patterns](#form-layout-patterns)
+57. [SlugField & TitleSlugField](#slugfield--titleslugfield)
+58. [TranslatableFields](#translatablefields)
 
 # Part I — Shared concepts
 
@@ -4103,6 +4104,86 @@ Valid `HH:MM`, `from < to`, no overlapping slots, min/max slots on enabled days,
 Stylesheets: `flex-text-input`, `switch`, `teleported-menu`, `timezone-field`, `flex-time-segments`. Alpine: `schedule-field`, `flex-time-segments`. Uses `wire:ignore` + `$entangle`.
 
 **Full documentation:** [docs/schedule-field.md](docs/schedule-field.md) — recipes, UI behaviour, CSS classes, model persistence.
+
+---
+
+## SocialLinksField
+
+### Summary
+
+Social profile link editor: platform picker, one URL per platform, hostname validation, custom platforms, reordering, and URL auto-format on blur. Default size **`md`**.
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField` |
+| **State type** | `list<array{platform: string, url: string}>` |
+| **Model cast** | `'social_links' => 'array'` or `'json'` |
+| **Playground** | `social-links-field` |
+
+### Basic usage
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField;
+
+SocialLinksField::make('social_links')
+    ->label('Social profiles')
+    ->required();
+```
+
+### State format
+
+```json
+[
+  { "platform": "instagram", "url": "https://instagram.com/username" },
+  { "platform": "website", "url": "https://example.com" }
+]
+```
+
+Rows with empty URLs are kept during editing for validation; stripped on dehydrate/save.
+
+### Configuration API
+
+| Method | Default | Description |
+|--------|---------|-------------|
+| `platforms()` | all built-ins | Whitelist platforms (enum + custom strings) |
+| `excludePlatforms()` | `[]` | Remove platforms from defaults |
+| `customPlatforms()` | `[]` | Custom platform definitions (`value`, `label`, `placeholder`, `hosts`, `iconSvg`) |
+| `maxLinks()` | `null` | Maximum rows |
+| `reorderable()` | `false` | Up/down row reorder buttons — enable with `->reorderable()` |
+| `autoFormatUrls()` | `true` | Blur: trim + prepend `https://` |
+| `variant()` | `primary` | `primary`, `secondary`, `soft`, `flat`, `ghost` |
+| `size()` | `md` | `sm`, `md`, `lg` |
+| `readOnly()` / `disabled()` | — | Filament interaction states |
+| `focusOutline()` | `false` | Focus ring on URL shells |
+
+```php
+SocialLinksField::make('social_links')
+    ->excludePlatforms([SocialPlatform::Vk, SocialPlatform::Twitch])
+    ->customPlatforms([
+        [
+            'value' => 'mastodon',
+            'label' => 'Mastodon',
+            'hosts' => ['mastodon.social'],
+        ],
+    ])
+    ->maxLinks(6)
+    ->reorderable()
+    ->autoFormatUrls();
+```
+
+### Public helper methods
+
+`getPlatformValues()`, `getPlatformDefinitionMap()`, `getPlatformDefinitions()`, `getBrandIconSvgs()`, `getAlpineConfiguration()`, `getWrapperClasses()`, `isReorderable()`, `shouldAutoFormatUrls()`, `getMaxLinks()`.
+
+### Validation
+
+Per-row URL required, valid http(s), host matches platform `hosts` (or any host for `website`/empty hosts). Client submit guard blocks invalid submits and syncs first error to Livewire.
+
+### Assets
+
+Stylesheets: `social-links-field`, `flex-text-input`, `teleported-menu`. Alpine: `social-links-field`. Uses `wire:ignore` + `$entangle`.
+
+**Full documentation:** [docs/social-links-field.md](docs/social-links-field.md) — recipes, custom platforms, a11y, CSS classes, testing.
 
 ---
 

@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.5.0] - 2026-06-16
 
-Quality, security, accessibility, and test hardening for **LinkPreviewField** and **ScheduleField** (both introduced in 2.4.5).
+Quality, security, accessibility, and test hardening for **LinkPreviewField** and **ScheduleField** (both introduced in 2.4.5), plus new **`SocialLinksField`**.
 
 ### Added
 
-- **`LinkPreviewField`** — URL input with live Open Graph preview cards (`horizontal`, `vertical`, `card` layouts), server-side `UrlMetaScraper`, client debounce/cache/preload pipeline, and optional SSR initial preview.
-- **`ScheduleField`** — weekly schedule editor with day toggles, from/to time slots, add break, copy-to-weekdays, optional timezone selector, and overlap validation.
-- **Tests** — comprehensive SSRF unit tests for `UrlMetaScraper`; JS unit tests for `link-preview-field`, `url-meta-scrape`, `schedule-field`, and `schedule-validation`; PHP↔JS contract fixtures for overlap/min/max validation; Livewire feature test (`ScheduleFieldRenderTest`); Playwright playground smoke tests for link preview and schedule field.
+- **`SocialLinksField`** — social profile link editor with platform picker (add-from-dropdown UX), one URL row per platform, built-in brand icons, per-platform hostname validation, and optional custom platforms (`customPlatforms()` with label, hosts, icon SVG).
+- **Social links configuration** — `platforms()` whitelist, `excludePlatforms()`, `maxLinks()`, variants/sizes (`primary`, `secondary`, `soft`, `flat`, `ghost`; `sm`/`md`/`lg`), `autoFormatUrls()` (trim + prepend `https://` on blur), and opt-in `reorderable()` (default off).
+- **Social links validation** — server rules via `SocialLinkValidator`; client-side mirror blocks submit and syncs row errors to Livewire (`$wire.addError`); empty in-progress rows kept in state for validation, stripped on `dehydrate()`; legacy associative map state normalized on hydrate.
+- **Social links SSR** — server-rendered list/toolbar fallback to prevent layout jump before Alpine hydration; teleported platform menu with keyboard navigation and click-outside close.
+- **Playground** — `social-links-field` page (default, limited platforms, excluded platforms, custom platforms, reorderable, empty).
+- **Documentation** — [docs/social-links-field.md](docs/social-links-field.md); entries in [README.md](README.md) (Text & input), [docs/index.md](docs/index.md), and [COMPONENTS.md](COMPONENTS.md).
+- **Tests** — PHP unit/feature tests for `SocialLinksField`; JS unit tests for `social-link-validation` and `social-links-field`; Playwright smoke test for social links playground.
+- **Link preview & schedule tests** — comprehensive SSRF unit tests for `UrlMetaScraper`; JS unit tests for `link-preview-field`, `url-meta-scrape`, `schedule-field`, and `schedule-validation`; PHP↔JS contract fixtures for overlap/min/max validation; Livewire feature test (`ScheduleFieldRenderTest`); Playwright playground smoke tests for link preview and schedule field.
 
 ### Changed
 
@@ -21,6 +26,7 @@ Quality, security, accessibility, and test hardening for **LinkPreviewField** an
 - **Schedule toolbar** — compact add-slot / add-break buttons; copy-to-weekdays uses a confirm dialog before overwriting weekday schedules.
 - **`flex-time-segments`** — teleported time picker menu styling; `from`/`to` pickers constrain options so start ≤ end within each slot; time options expose `role="option"` and `aria-selected`.
 - **Link preview** — image preload timeout (5s) aligned with scrape timeout constants; `@media (prefers-reduced-motion: reduce)` disables card/shimmer transitions.
+- **Documentation** — `SocialLinksField` listed under **Text & input** (with `LinkPreviewField`), not Date & time; COMPONENTS.md TOC reordered accordingly.
 
 ### Fixed
 
@@ -28,6 +34,7 @@ Quality, security, accessibility, and test hardening for **LinkPreviewField** an
 - **Schedule inline validation** — client overlap/range errors block form submit and sync the first error to Livewire via `$wire.addError`.
 - **Link preview client scrape** — `isScrapeCandidate()` blocks localhost, loopback, private IPs, and metadata hostnames (matching server-side SSRF rules).
 - **Prefixed URL display**, dark-mode card colors, and horizontal skeleton width (carried from 2.4.5 polish).
+- **`SocialLinksField` UI** — uniform icon sizing in picker/list, dark-mode legibility on add trigger/button, circular remove/reorder buttons with default gray background, no layout jump on reload (SSR + hydration overlay).
 
 ### Security
 
