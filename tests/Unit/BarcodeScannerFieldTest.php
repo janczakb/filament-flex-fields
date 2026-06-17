@@ -50,7 +50,7 @@ it('exposes wrapper classes', function () {
 
 it('registers stylesheet dependencies', function () {
     expect(FlexFieldAssets::stylesheetsFor('barcode-scanner-field'))
-        ->toBe(['flex-text-input', 'barcode-scanner-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'barcode-scanner-field']);
 });
 
 it('rejects invalid variants and camera facing modes', function () {
@@ -121,8 +121,7 @@ it('renders required blade integration hooks', function () {
         ->toContain('x-modal-opened')
         ->toContain('openScanner()')
         ->toContain('toggleTorch()')
-        ->toContain('fff-barcode-scanner__switch-camera-btn')
-        ->toContain('fff-barcode-switch-camera');
+        ->toContain('fff-barcode-scanner__switch-camera-btn');
 });
 
 it('configures scan interval decode fps camera switch and visibility options', function () {

@@ -34,6 +34,10 @@ it('resolves localized timezone display names via intl when available', function
 it('prefers published translation overrides over intl', function () {
     app()->setLocale('en');
 
+    $displayNameCache = new ReflectionProperty(Timezones::class, 'displayNameCache');
+    $displayNameCache->setAccessible(true);
+    $displayNameCache->setValue(null, []);
+
     expect(Timezones::translationKey('Europe/Warsaw'))->toBe('Europe__Warsaw')
         ->and(Timezones::displayName('UTC'))->toBe('UTC');
 

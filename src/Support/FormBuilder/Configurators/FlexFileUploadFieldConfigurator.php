@@ -92,6 +92,14 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
             $field->maxImageHeight((int) $config['max_image_height']);
         }
 
+        if (array_key_exists('allow_url_upload', $config) && (bool) $config['allow_url_upload']) {
+            $field->allowUrlUpload();
+        }
+
+        if (array_key_exists('allow_webcam_upload', $config) && (bool) $config['allow_webcam_upload']) {
+            $field->allowWebcamUpload();
+        }
+
         return $field;
     }
 }

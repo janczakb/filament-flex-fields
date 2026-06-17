@@ -6,12 +6,14 @@ use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundCluster;
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundComponentPage;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Http\Request;
 
 it('exposes one registry entry per playground component', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(45)
-        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(45);
+    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(49)
+        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(49);
 });
 
 it('orders playground definitions by sort', function () {
@@ -50,11 +52,11 @@ it('resolves component page definitions from configuration keys', function () {
 it('resolves playground slug from request path for authorization', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    $user = new Illuminate\Foundation\Auth\User;
+    $user = new User;
     $user->forceFill(['id' => 1]);
     auth()->login($user);
 
-    app()->instance('request', Illuminate\Http\Request::create('/admin/flex-fields-playground/user-column', 'GET'));
+    app()->instance('request', Request::create('/admin/flex-fields-playground/user-column', 'GET'));
 
     expect(FlexFieldsPlaygroundComponentPage::canAccess())->toBeTrue();
 });
@@ -69,7 +71,7 @@ it('uses registry labels for sub-navigation entries', function () {
     $labels = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'label');
 
     expect($labels)->toContain('RatingColumn', 'UserColumn', 'Phone field')
-        ->and(count($labels))->toBe(45);
+        ->and(count($labels))->toBe(49);
 });
 
 it('assigns a gravity icon to every playground sub-navigation entry', function () {

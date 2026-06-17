@@ -86,7 +86,7 @@ it('resolves initial preview metadata for prefilled urls', function () {
 
 it('registers stylesheet dependencies', function () {
     expect(FlexFieldAssets::stylesheetsFor('link-preview-field'))
-        ->toBe(['flex-text-input', 'link-preview-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'link-preview-field']);
 });
 
 it('rejects invalid variants', function () {

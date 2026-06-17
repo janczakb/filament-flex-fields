@@ -2,7 +2,7 @@
  * Shared glass theme tokens for teleported searchable dropdown menus.
  */
 import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
-import { resolveIsDark } from './theme-utils.js'
+import { resolveIsDark, resolveTeleportedMenuZIndex } from './theme-utils.js'
 
 export function applyTeleportedMenuTheme(menu, { variant = 'default' } = {}) {
     if (! menu) {
@@ -190,7 +190,7 @@ export function createSearchableSelectMenuMixin({
 
             menu.style.position = 'fixed'
             menu.style.width = `${Math.round(menuWidth)}px`
-            menu.style.zIndex = 'var(--fff-z-dropdown, 20)'
+            menu.style.zIndex = resolveTeleportedMenuZIndex()
             menu.style.top = `${Math.round(top)}px`
             menu.style.left = `${Math.round(left)}px`
             menu.style.marginTop = '0'

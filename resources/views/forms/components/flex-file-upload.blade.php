@@ -17,6 +17,7 @@
     $livewireKey = $getLivewireKey();
     $flexConfig = $field->getFlexFileUploadAlpineConfiguration();
     $placeholder = $field->getEffectivePlaceholder();
+    $hasUploadSourceTabs = $field->hasUploadSourceTabs();
 
     $alignment = $getAlignment() ?? Alignment::Start;
 
@@ -29,6 +30,7 @@
         : null;
     $hasUploadMeta = filled($initialSummaryLabel) || filled($flexConfig['remainingSlotsLabel']);
     $hasDualUploadMeta = filled($initialSummaryLabel) && filled($flexConfig['remainingSlotsLabel']);
+    $bindWebcamModalEvents = $hasUploadSourceTabs && $field->shouldAllowWebcamUpload();
 @endphp
 
 <x-dynamic-component
@@ -40,6 +42,9 @@
     "
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-file-upload'])
+    @if ($hasUploadSourceTabs)
+        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control'])
+    @endif
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('flex-file-upload', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
@@ -52,8 +57,27 @@
             showFileIcon: @js($flexConfig['showFileIcon']),
             isMultiple: @js($isMultiple),
             initialSummaryLabel: @js($initialSummaryLabel ?? ''),
+            hasUploadSourceTabs: @js($flexConfig['hasUploadSourceTabs']),
+            uploadSourceTabKeys: @js($flexConfig['uploadSourceTabKeys']),
+            defaultUploadSource: @js($flexConfig['defaultUploadSource']),
+            allowUrlUpload: @js($flexConfig['allowUrlUpload']),
+            allowWebcamUpload: @js($flexConfig['allowWebcamUpload']),
+            schemaComponentKey: @js($flexConfig['schemaComponentKey']),
+            statePath: @js($flexConfig['statePath']),
+            isPreviewable: @js($flexConfig['isPreviewable']),
+            shouldAppendFiles: @js($flexConfig['shouldAppendFiles']),
+            isDisabled: @js($isDisabled),
+            webcamFacingMode: @js($flexConfig['webcamFacingMode']),
+            webcamModalId: @js($flexConfig['webcamModalId'] ?? null),
+            labels: @js($flexConfig['labels']),
         })"
         x-init="init()"
+        @if ($bindWebcamModalEvents)
+        x-on:close-modal.window="onWebcamModalClosed($event)"
+        x-on:modal-closed.window="onWebcamModalClosed($event)"
+        x-on:x-modal-opened.window="onWebcamModalOpened($event)"
+        @endif
+        x-on:register-file-pond="registerFilePond($event.detail)"
         x-bind:class="{ 'is-ready': displayReady }"
         @class([
             ...$field->getWrapperClasses(),
@@ -62,8 +86,32 @@
             'fff-flex-file-upload--has-dual-meta' => $hasDualUploadMeta,
         ])
     >
+        @if ($hasUploadSourceTabs)
+            @include('filament-flex-fields::forms.components.partials.flex-file-upload-source-tabs')
+
+            <div class="fff-flex-file-upload__source-panels">
+                <div
+                    id="{{ $id }}-source-file"
+                    role="tabpanel"
+                    aria-labelledby="{{ $id }}-source-file-trigger"
+                    x-bind:class="{ 'is-active': isUploadSource('file') }"
+                    x-bind:aria-hidden="! isUploadSource('file')"
+                    class="fff-flex-file-upload__source-panel fff-flex-file-upload__source-panel--file"
+                >
+        @endif
+
         <div class="fff-flex-file-upload__stage">
             @include('filament-flex-fields::forms.components.partials.flex-file-upload-skeleton')
+
+            @if ($hasUploadSourceTabs)
+            <img
+                x-show="instantPreviewUrl && urlImporting"
+                x-cloak
+                x-bind:src="instantPreviewUrl"
+                alt=""
+                class="fff-flex-file-upload__instant-preview"
+            >
+            @endif
 
             <div
             x-load
@@ -184,6 +232,7 @@
                         ($alignment instanceof Alignment) ? "fi-align-{$alignment->value}" : $alignment,
                     ])
             }}
+            x-effect="$dispatch('register-file-pond', { component: $data, pond: pond })"
         >
             <div class="fi-fo-file-upload-input-ctn">
                 <input
@@ -210,8 +259,31 @@
             @if ($hasImageEditor && (! $isDisabled))
                 @include('filament-flex-fields::forms.components.partials.flex-file-upload-image-editor')
             @endif
-        </div>
-        </div>
+        </div>{{-- .fff-flex-file-upload__live --}}
+        </div>{{-- .fff-flex-file-upload__stage --}}
+
+        @if ($hasUploadSourceTabs)
+            </div>{{-- file upload source tabpanel --}}
+
+            @if ($field->shouldAllowUrlUpload())
+                @include('filament-flex-fields::forms.components.partials.flex-file-upload-url-panel')
+            @endif
+
+            @if ($field->shouldAllowWebcamUpload())
+                @include('filament-flex-fields::forms.components.partials.flex-file-upload-webcam-panel')
+            @endif
+            </div>{{-- .fff-flex-file-upload__source-panels --}}
+        @endif
+
+        @if ($hasUploadSourceTabs && $field->shouldAllowUrlUpload())
+            <p
+                x-show="$data.urlError"
+                x-cloak
+                x-text="$data.urlError"
+                class="fff-flex-file-upload__source-error fff-flex-file-upload__source-error--global"
+                role="alert"
+            ></p>
+        @endif
 
         @if ($hasUploadMeta)
             <div @class(['fff-flex-file-upload__meta', 'fff-flex-file-upload__meta--dual' => $hasDualUploadMeta])>

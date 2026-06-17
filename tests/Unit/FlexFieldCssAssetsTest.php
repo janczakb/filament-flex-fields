@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
+use Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Filament\Support\Facades\FilamentAsset;
 
@@ -112,6 +114,14 @@ it('keeps playground-only demo styles out of the core bundle', function () {
         ->and($playgroundCss)->toContain('.fff-user-column-playground__table');
 });
 
+it('registers asset injector script alongside lazy css assets', function () {
+    $registered = collect(FilamentAsset::getScripts(['janczakb/filament-flex-fields']))
+        ->map(fn ($asset) => $asset->getId())
+        ->all();
+
+    expect($registered)->toContain(FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID);
+});
+
 it('registers lazy stylesheets for every lazy component asset id', function () {
     $registered = collect(FilamentAsset::getStyles(['janczakb/filament-flex-fields']))
         ->map(fn ($asset) => $asset->getId())
@@ -125,20 +135,20 @@ it('registers lazy stylesheets for every lazy component asset id', function () {
 });
 
 it('registers playground css assets only when playground is enabled', function () {
-    $provider = new Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider(app());
+    $provider = new FilamentFlexFieldsServiceProvider(app());
     $method = new ReflectionMethod($provider, 'registeredStylesheets');
 
     config()->set('filament-flex-fields.playground.enabled', false);
 
     $disabledIds = array_map(
-        fn (Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss $asset): string => $asset->getId(),
+        fn (FlexFieldsCss $asset): string => $asset->getId(),
         $method->invoke($provider),
     );
 
     config()->set('filament-flex-fields.playground.enabled', true);
 
     $enabledIds = array_map(
-        fn (Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss $asset): string => $asset->getId(),
+        fn (FlexFieldsCss $asset): string => $asset->getId(),
         $method->invoke($provider),
     );
 

@@ -5,7 +5,7 @@
 
 ### Summary
 
-Styled Filament file upload with security defaults, MIME presets, upload summaries, optional metadata sidecars, image optimization hooks, and scoped per-user directories.
+Styled Filament file upload with security defaults, MIME presets, upload summaries, optional metadata sidecars, image optimization hooks, scoped per-user directories, and opt-in **webcam capture** / **URL import** tabs *(v2.6.1)*.
 
 | | |
 |---|---|
@@ -80,6 +80,24 @@ FlexFileUpload::make('scan')
 // $data['scan_meta'] => ['original_name' => '...', 'mime' => '...', 'size' => ..., 'width' => ...]
 ```
 
+#### Webcam & URL import
+
+You can extend the default upload dropzone with additional input methods. The following example adds both a camera capture tab and a remote URL import tab:
+
+```php
+FlexImageUpload::make('vehicle_photo')
+    ->label('Vehicle Photo')
+    ->withRecommendedDefaults()
+    ->imagesOnly()
+    ->allowWebcamUpload() // Enables the native device camera tab
+    ->allowUrlUpload()    // Enables the remote URL download tab
+    ->optimizeImages()
+    ->maxImageWidth(1920)
+    ->maxImageHeight(1080)
+    ->disk('public')
+    ->directory('vehicle-photos');
+```
+
 ### Configuration API
 
 #### `withRecommendedDefaults()` / `applyRecommendedSecurityDefaults()`
@@ -144,6 +162,39 @@ Configures dynamic per-user scoped subdirectories: `{prefix}/{user_id}/...`.
 FlexFileUpload::make('document')
     ->scopedDirectory('user-files');
 ```
+
+#### `allowWebcamUpload(bool|Closure $condition = true)`
+
+Adds a new "Camera" tab to the upload component, allowing users to directly capture photos using their device's native camera. It supports dynamic front/back camera toggling (`environment` vs `user` facing), torch/flash control (if supported by hardware), and gives the user a chance to review/retake the photo before injecting it into the queue.
+
+*Note: Since it uses the `navigator.mediaDevices.getUserMedia` browser API, this feature requires a secure context (HTTPS) to function correctly. It perfectly integrates with `imagesOnly()` and Filament's `optimizeImages()` configurations.*
+
+```php
+FlexImageUpload::make('inspection_photo')
+    ->label('Vehicle Damage Photo')
+    ->imagesOnly()
+    ->multiple()
+    ->maxFiles(3)
+    ->allowWebcamUpload() // Enables the camera tab
+    ->optimizeImages()
+    ->maxImageWidth(1920)
+    ->maxImageHeight(1080);
+```
+
+#### `allowUrlUpload(bool|Closure $condition = true)`
+
+Adds a new "URL" tab to the upload component, allowing users to paste a direct link to a file. The file is fetched **server-side**, validated against SSRF rules (localhost, private IPs, and metadata hostnames are rejected), staged as a temporary preview, then injected into the FilePond queue as a native `File`. Nothing is written to the field disk until form save.
+
+```php
+FlexFileUpload::make('attachment')
+    ->label('Import Asset')
+    ->withRecommendedDefaults()
+    ->allowUrlUpload() // Enables the remote URL import tab
+    ->disk('public')
+    ->directory('imported-assets');
+```
+
+> **Security:** URL import is disabled unless you call `allowUrlUpload()`. Unsafe URLs are blocked before any server fetch runs.
 
 #### `createFormStrategy(bool|Closure $condition = true)`
 
@@ -356,6 +407,17 @@ FlexImageUpload::make('photo')
 | `scoped_directory` | `scopedDirectory()` |
 | `optimize_images` | `optimizeImages()` |
 | `max_image_width` / `max_image_height` | `maxImageWidth()` / `maxImageHeight()` |
+| `allow_webcam_upload` | `allowWebcamUpload()` |
+| `allow_url_upload` | `allowUrlUpload()` |
+
+### Security
+
+| Concern | Behaviour |
+|---------|-----------|
+| **Executable uploads** | `rejectExecutableFiles()` blocks dangerous extensions (`.php`, `.sh`, …). |
+| **URL import SSRF** | Server-side fetch rejects localhost, loopback, private/link-local IPs, `.local` / `.internal` hostnames, and cloud metadata endpoints before download. |
+| **Webcam capture** | Requires HTTPS (`getUserMedia` secure context). Not offered for `documentsOnly()` uploads. |
+| **Deferred disk writes** | `createFormStrategy()` (included in `withRecommendedDefaults()`) prevents path tampering until form save. |
 
 ### CSS classes
 
@@ -368,7 +430,8 @@ FlexImageUpload::make('photo')
 ### Implementation notes
 
 - Requires Livewire temporary uploads; configure `FILESYSTEM_DISK` and disk credentials.
-- Playground examples under **File upload** in Flex Fields Playground.
+- Webcam capture requires HTTPS. URL import rejects unsafe remote URLs before server fetch.
+- Playground examples under **File upload** in Flex Fields Playground (File / Camera / URL tabs).
 - For Spatie Media Library integration, see package `FlexSpatieMediaLibraryFileUpload` (if installed in app).
 
 ---

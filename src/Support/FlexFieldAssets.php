@@ -19,6 +19,20 @@ class FlexFieldAssets
 
     public const PLAYGROUND_STYLESHEET_ID = 'flex-fields-playground';
 
+    public const ASSET_INJECTOR_SCRIPT_ID = 'flex-field-asset-injector';
+
+    public const PLAYGROUND_SKELETON_DEMO_SCRIPT_ID = 'playground-skeleton-demo';
+
+    /**
+     * Most common lazy bundles preloaded in <head> to reduce modal and form FOUC.
+     *
+     * @var list<string>
+     */
+    public const CRITICAL_PRELOAD_STYLESHEETS = [
+        'flex-text-input',
+        'teleported-menu',
+    ];
+
     /** @var list<string> */
     public const LAZY_COMPONENT_STYLESHEETS = [
         'cover-card',
@@ -157,17 +171,40 @@ class FlexFieldAssets
     {
         $component = self::resolveStylesheetComponent($component);
         $stylesheets = [];
+        $visited = [];
 
-        foreach ([
-            ...self::STYLESHEET_DEPENDENCIES[$component] ?? [],
-            ...(self::hasLazyStylesheet($component) ? [$component] : []),
-        ] as $stylesheet) {
-            if (! in_array($stylesheet, $stylesheets, true)) {
-                $stylesheets[] = $stylesheet;
+        $resolve = function (string $comp) use (&$resolve, &$stylesheets, &$visited) {
+            if (isset($visited[$comp])) {
+                return;
             }
-        }
+
+            $visited[$comp] = true;
+
+            foreach (self::STYLESHEET_DEPENDENCIES[$comp] ?? [] as $dep) {
+                $resolve($dep);
+            }
+
+            if (self::hasLazyStylesheet($comp)) {
+                if (! in_array($comp, $stylesheets, true)) {
+                    $stylesheets[] = $comp;
+                }
+            }
+        };
+
+        $resolve($component);
 
         return $stylesheets;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function stylesheetHrefsFor(string $component): array
+    {
+        return array_map(
+            fn (string $stylesheet): string => self::stylesheetHref($stylesheet),
+            self::stylesheetsFor($component),
+        );
     }
 
     /**
@@ -195,6 +232,17 @@ class FlexFieldAssets
             self::stylesheetId($component),
             FilamentFlexFieldsPlugin::PACKAGE_NAME,
         );
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function criticalPreloadStylesheets(): array
+    {
+        return array_values(array_filter(
+            self::CRITICAL_PRELOAD_STYLESHEETS,
+            fn (string $component): bool => self::hasLazyStylesheet($component),
+        ));
     }
 
     public static function playgroundStylesheetHref(): string

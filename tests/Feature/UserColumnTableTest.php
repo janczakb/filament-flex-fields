@@ -13,15 +13,19 @@ it('renders queued table column stylesheets from the styles after hook', functio
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/queued-stylesheets.blade.php');
 
     expect($blade)
-        ->toContain('FlexFieldStylesheetQueue::registered()')
-        ->toContain('data-fff-queued-stylesheet')
-        ->toContain('data-navigate-track');
+        ->toContain('FlexFieldStylesheetQueue::pending()')
+        ->toContain('emit-assets');
+
+    $emitBlade = file_get_contents(__DIR__.'/../../resources/views/partials/emit-assets.blade.php');
+
+    expect($emitBlade)->toContain('data-navigate-track');
 });
 
-it('registers navigate dedupe script for flex fields lazy assets', function (): void {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/lazy-assets-navigate-dedupe.blade.php');
+it('registers unified asset injector for flex fields lazy assets', function (): void {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/flex-field-asset-injector.blade.php');
 
     expect($blade)
-        ->toContain('livewire:navigated')
-        ->toContain('filament-flex-fields');
+        ->toContain('flex-field-asset-injector')
+        ->toContain('FilamentAsset::getScriptSrc')
+        ->toContain('data-navigate-track');
 });

@@ -656,7 +656,7 @@ it('loads tag chips stylesheet for removable selected user tag chips', function 
     $tagChipsCss = file_get_contents(__DIR__.'/../../resources/dist/css/tag-chips.css');
 
     expect(FlexFieldAssets::stylesheetsFor('user-select'))
-        ->toBe(['select-field', 'tag-chips', 'user-display', 'user-select'])
+        ->toBe(['teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select'])
         ->and($tagChipsCss)
         ->toContain('.fff-tags-field__tag-remove');
 });

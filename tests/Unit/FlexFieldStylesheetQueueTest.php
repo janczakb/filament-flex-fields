@@ -3,15 +3,17 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 
 beforeEach(function () {
     FlexFieldStylesheetQueue::reset();
+    FlexFieldAlpineQueue::reset();
 });
 
 it('deduplicates stylesheet links across multiple fields on one request', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('country-field'))
         ->toBe(['country-field'])
         ->and(FlexFieldStylesheetQueue::has('flex-text-input'))->toBeTrue()
@@ -22,7 +24,7 @@ it('deduplicates stylesheet links across multiple fields on one request', functi
 
 it('deduplicates repeated enqueue calls for the same component', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
         ->toBe([]);
 });
@@ -36,14 +38,14 @@ it('deduplicates emoji picker stylesheet across flex text input and textarea fie
 
 it('resolves stylesheet dependencies without duplication inside one component', function () {
     expect(FlexFieldAssets::stylesheetsFor('phone-field'))
-        ->toBe(['flex-text-input', 'teleported-menu', 'phone-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
 });
 
 it('loads flex text input styles before date time field stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('flex-date-time-field'))
-        ->toBe(['flex-text-input', 'flex-date-time-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('flex-date-time-field'))
-        ->toBe(['flex-text-input', 'flex-date-time-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field']);
 });
 
 it('resolves playground slug aliases to lazy stylesheet component ids', function () {
@@ -51,9 +53,9 @@ it('resolves playground slug aliases to lazy stylesheet component ids', function
         ->toBe('flex-date-time-field')
         ->and(FlexFieldAssets::shouldLoadStylesheetsFor('date-time-fields'))->toBeTrue()
         ->and(FlexFieldAssets::playgroundStylesheetsFor('date-time-fields'))
-        ->toBe(['flex-text-input', 'flex-date-time-field', 'teleported-menu', 'flex-time-segments'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field', 'teleported-menu', 'flex-time-segments'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('date-time-fields'))
-        ->toBe(['flex-text-input', 'flex-date-time-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field']);
 });
 
 it('keeps flex text input in its own bundle separate from phone field', function () {
@@ -103,33 +105,163 @@ it('keeps flex text input shell styles separate from date time field bundle', fu
     expect($flexTextInputCss)->toContain('.fff-flex-text-input__shell');
 });
 
-it('pushes lazy stylesheets and alpine chunk preloads to the head styles stack', function () {
+it('removes inactive upload source panels from layout flow', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/flex-file-upload.css');
+
+    expect($css)
+        ->toContain('.fff-flex-file-upload__source-panels > .fff-flex-file-upload__source-panel:not(.is-active)')
+        ->toContain('position: absolute');
+});
+
+it('shows skeleton overlays for pending modal and inline morph targets', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/core/asset-injector.css');
+
+    expect($css)
+        ->toContain('.fff-flex-fields-assets-pending:not(.fi-modal)')
+        ->toContain('.fff-flex-fields-assets-ready:not(.fi-modal)')
+        ->toContain('fff-flex-fields-assets-skeleton')
+        ->toContain('.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after')
+        ->toContain('inset: 0')
+        ->not->toContain('inset: 1.5rem');
+});
+
+it('emits pending assets inline when a field registers stylesheets', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/load-stylesheet.blade.php');
 
     expect($blade)
-        ->toContain('@pushOnce')
-        ->toContain('bjanczak-flex-fields:stylesheet:')
         ->toContain('FlexFieldStylesheetQueue::enqueueFor')
         ->toContain('FlexFieldAlpineQueue::enqueueChunksFor')
-        ->toContain('rel="stylesheet"')
-        ->toContain('modulepreload')
-        ->toContain('data-navigate-track')
-        ->toContain('alpineChunkSrc');
+        ->toContain('emit-assets')
+        ->toContain('markStylesheetsEmitted')
+        ->not->toContain('@pushOnce');
 });
 
-it('registers navigate dedupe script for flex fields lazy assets', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/lazy-assets-navigate-dedupe.blade.php');
+it('emits pending assets from a single queued-stylesheets injector', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/queued-stylesheets.blade.php');
 
     expect($blade)
-        ->toContain('livewire:navigated')
-        ->toContain('filament-flex-fields');
+        ->toContain('FlexFieldStylesheetQueue::pending()')
+        ->toContain('FlexFieldAlpineQueue::pending()')
+        ->toContain('emit-assets')
+        ->toContain('markStylesheetsEmitted')
+        ->toContain('markChunksEmitted');
+});
+
+it('tracks emitted stylesheets separately from registration', function () {
+    expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
+        ->and(FlexFieldStylesheetQueue::pending())
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+
+    FlexFieldStylesheetQueue::markStylesheetsEmitted(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+
+    expect(FlexFieldStylesheetQueue::pending())->toBe([])
+        ->and(FlexFieldStylesheetQueue::registered())
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+});
+
+it('simulates the multi-field asset audit without duplicate emissions', function () {
+    $log = [];
+
+    $render = function (int $index, string $component) use (&$log): void {
+        $pendingStylesheets = FlexFieldStylesheetQueue::enqueueFor($component);
+        $pendingChunks = FlexFieldAlpineQueue::enqueueChunksFor($component);
+
+        $log[] = [
+            'index' => $index,
+            'component' => $component,
+            'stylesheets' => $pendingStylesheets,
+            'chunks' => $pendingChunks,
+        ];
+    };
+
+    $render(0, 'flex-text-input');
+    $render(1, 'flex-text-input');
+    $render(2, 'phone-field');
+    $render(3, 'phone-field');
+    $render(4, 'schedule-field');
+
+    expect($log[0]['stylesheets'])->toBe(['emoji-picker', 'flex-text-input'])
+        ->and($log[1]['stylesheets'])->toBe([])
+        ->and($log[2]['stylesheets'])->toBe(['teleported-menu', 'phone-field'])
+        ->and($log[3]['stylesheets'])->toBe([])
+        ->and($log[4]['stylesheets'])->toBe(['switch', 'timezone-field', 'flex-time-segments', 'schedule-field']);
+
+    $firstPass = view('filament-flex-fields::partials.queued-stylesheets')->render();
+
+    expect($firstPass)
+        ->toContain('data-fff-asset-batch')
+        ->toContain('flex-fields-flex-text-input')
+        ->toContain('flex-fields-teleported-menu')
+        ->toContain('flex-fields-schedule-field');
+
+    $secondPass = view('filament-flex-fields::partials.queued-stylesheets')->render();
+
+    expect($secondPass)->toBe('');
+});
+
+it('registers unified asset injector script for livewire, spa, and modal flows', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/flex-field-asset-injector.blade.php');
+    $module = file_get_contents(__DIR__.'/../../resources/js/core/flex-field-asset-injector.js');
+
+    expect($blade)
+        ->toContain('flex-field-asset-injector')
+        ->toContain('FilamentAsset::getScriptSrc')
+        ->toContain('data-navigate-track');
+
+    expect($module)
+        ->toContain('morph.updating')
+        ->toContain('morph.updated')
+        ->toContain('beginPendingMorph')
+        ->toContain('preloadBatchesIn')
+        ->toContain('rootNeedsAssetLoading')
+        ->toContain('resolvePendingTarget(el)')
+        ->toContain('registerInjectorHooks')
+        ->toContain('pendingMorphTargets.add(target)')
+        ->toContain('pendingMorphTargets.add(element)')
+        ->toContain('cleanupClosedModalPendingState')
+        ->toContain('modal-closed')
+        ->toContain('fff-flex-fields-assets-pending')
+        ->toContain('data-fff-asset-batch')
+        ->toContain('normalizeAssetUrl')
+        ->toContain('inflightRequests')
+        ->toContain('closest(\'.fi-modal\')')
+        ->toContain('data-fff-playground-bundle')
+        ->toContain('data-fff-stylesheet')
+        ->toContain('data-fff-alpine-chunk');
+});
+
+it('registers playground skeleton demo script separately from the core injector', function () {
+    $script = file_get_contents(__DIR__.'/../../resources/views/partials/playground-skeleton-demo-script.blade.php');
+    $demoModule = file_get_contents(__DIR__.'/../../resources/js/playground/skeleton-demo.js');
+
+    expect($script)
+        ->toContain('PLAYGROUND_SKELETON_DEMO_SCRIPT_ID')
+        ->toContain('data-navigate-track');
+
+    expect($demoModule)
+        ->toContain('installPlaygroundSkeletonDemo')
+        ->toContain('registerInjectorHooks')
+        ->toContain('FffSkeletonDemo')
+        ->not->toContain('morph.updating');
+});
+
+it('pushes blocking head assets on full page and inlines them for livewire requests', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/emit-assets.blade.php');
+
+    expect($blade)
+        ->toContain('Livewire::isLivewireRequest()')
+        ->toContain("@push('styles')")
+        ->toContain('data-fff-asset-batch')
+        ->toContain('data-fff-stylesheet')
+        ->toContain('data-fff-alpine-chunk');
 });
 
 it('loads flex text input and map picker dropdown before address autocomplete stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('address-autocomplete'))
-        ->toBe(['flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('address-autocomplete'))
-        ->toBe(['flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete']);
 });
 
 it('loads map picker dropdown before map picker stylesheet', function () {
@@ -180,9 +312,9 @@ it('keeps shared user display primitives in source bundles', function () {
 
 it('loads tag chips stylesheet before tags field stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('tags-field'))
-        ->toBe(['flex-text-input', 'tag-chips', 'tags-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'tags-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('tags-field'))
-        ->toBe(['flex-text-input', 'tag-chips', 'tags-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'tags-field']);
 });
 
 it('keeps shared tag chip styles in a separate bundle', function () {
@@ -242,6 +374,7 @@ it('keeps shared teleported menu styles in a separate bundle', function () {
     expect($teleportedMenuCss)
         ->toContain('.fff-teleported-menu')
         ->toContain('.fff-teleported-menu__search')
+        ->toContain(':has(.fi-modal.fi-modal-open) .fff-teleported-menu')
         ->toContain('#40404573');
 
     expect($countryCss)
@@ -288,6 +421,7 @@ it('renders queued playground component stylesheets in the page push block', fun
 
     expect($stylesPartial)
         ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain("@push('styles')")
         ->toContain('data-fff-playground-bundle')
         ->toContain('data-navigate-track');
 });

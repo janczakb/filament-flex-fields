@@ -28,6 +28,8 @@
 
 ## Quick start
 
+**First-time install:**
+
 ```bash
 composer require janczakb/filament-flex-fields
 php artisan filament:assets
@@ -44,7 +46,64 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-Then drop any component into a form — e.g. `MatrixChoiceField::make('priorities')`. Full install options (path repo, config, translations): [Installation](#installation). API reference: [docs/index.md](docs/index.md).
+Then drop any component into a form — e.g. `MatrixChoiceField::make('priorities')`. Full install options (path repo, config, translations): [Installation](#installation). **Already installed?** See [Upgrading](#upgrading) below.
+
+---
+
+## Upgrading
+
+When a new version is released, update the package and sync Filament assets into `public/`. **You do not need Node.js, npm, or `npm run build` in your Laravel app** — the plugin ships pre-built CSS/JS in `resources/dist/`.
+
+### Standard upgrade (Packagist)
+
+```bash
+composer update janczakb/filament-flex-fields
+php artisan filament:assets
+```
+
+That is the full required workflow for most apps.
+
+### Path repository (monorepo / local package)
+
+```bash
+composer update janczakb/filament-flex-fields
+php artisan filament:assets
+```
+
+If you develop the package itself, rebuild assets inside the package first (`npm run build` in `packages/filament-flex-fields/`), then run the commands above in the host app.
+
+### Automate asset sync (recommended)
+
+Add this to your host app `composer.json` so `filament:assets` runs after every `composer install` / `composer update`:
+
+```json
+"scripts": {
+    "post-autoload-dump": [
+        "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+        "@php artisan package:discover --ansi",
+        "@php artisan filament:assets --ansi"
+    ]
+}
+```
+
+With that hook in place, `composer update janczakb/filament-flex-fields` alone is enough.
+
+### What you usually do **not** need on upgrade
+
+| Step | Needed? |
+|------|---------|
+| `npm install` / `npm run build` in the host app | **No** — assets are pre-built in the package |
+| `php artisan vendor:publish --tag=filament-flex-fields-config` | **No** — unless [CHANGELOG](CHANGELOG.md) documents a new config key you want to set |
+| `php artisan vendor:publish --tag=filament-flex-fields-translations` | **No** — see [Updating translations after a plugin upgrade](#updating-translations-after-a-plugin-upgrade) |
+| `php artisan optimize:clear` | **Only** if the panel still serves stale CSS/JS after `filament:assets` (rare) |
+
+### After upgrading in the browser
+
+If a field looks unstyled after deploy, hard-refresh the Filament panel (`Cmd+Shift+R` / `Ctrl+Shift+R`) once so the browser drops cached asset URLs.
+
+### Version-specific notes
+
+Read [CHANGELOG.md](CHANGELOG.md) for breaking changes, new config keys, and migration steps for a given release.
 
 ---
 
@@ -76,9 +135,10 @@ Teams building **Filament v5** backends that need more than native inputs — **
 <details>
 <summary>Asset pipeline (technical)</summary>
 
-1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only.
-2. **Per-component bundles** — queued when the field renders, deduped per request.
-3. **Head delivery** — `@stack('styles')` in `<head>`, not inline in the form body.
+1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only; high-priority bundles may preload at `HEAD_END`.
+2. **Per-component bundles** — queued when the field renders, deduped per request via `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue`.
+3. **Head delivery** — `emit-assets` pushes `<link>` / `modulepreload` via `@stack('styles')` on full pages; Livewire partials emit inline asset batches.
+4. **SPA injector** — `flex-field-asset-injector.js` loads missing lazy CSS/JS on morph and navigation, with FOUC prevention inside Filament modals.
 
 See [Performance-first assets](#performance-first-assets) for classes, manifest, and bundle metrics.
 
@@ -93,6 +153,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 ## Table of contents
 
 - [Quick start](#quick-start)
+- [Upgrading](#upgrading)
 - [Why Flex Fields?](#why-flex-fields)
 - [Screenshots](#screenshots)
 - [Custom Components (61)](#custom-components-61)
@@ -231,6 +292,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <img src="art/sc-30.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BarcodeScannerField - Barcode and QR input with Filament modal camera scanner, format filtering, EAN/UPC checksum validation, and hybrid native + ZXing engines">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">BarcodeScannerField — Camera Barcode & QR Scanner</p>
   </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <img src="art/sc-31.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexFileUpload — Webcam & URL File Import</p>
+  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61 Components & Visual Playground</p>
@@ -313,7 +378,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 |-----------|-------------|
 | [`ColorSwatchField`](docs/colorswatchfield.md) | Preset color swatch picker |
 | [`FlexColorPickerField`](docs/flexcolorpickerfield.md) | Advanced color picker with grid and eyedropper |
-| [`FlexFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Styled file upload with security presets |
+| [`FlexFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Styled file upload with webcam capture, URL import, and security presets *(v2.6.1)* |
 | [`FlexImageUpload`](docs/flexfileupload-and-fleximageupload.md) | Image upload with processing options |
 | [`FlexSpatieMediaLibraryFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Spatie Media Library upload integration |
 | [`VideoField`](docs/videofield.md) | Video URL / player with YouTube support |
@@ -396,12 +461,13 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 
 ## Installation
 
-Already ran [Quick start](#quick-start)? Jump to [Setup](#setup). Below: Packagist install, monorepo path repo, and keeping `filament:assets` in sync.
+Already ran [Quick start](#quick-start)? Jump to [Setup](#setup). For version bumps, see [Upgrading](#upgrading). Below: Packagist install, monorepo path repo, and optional Composer automation.
 
 ### Composer (Packagist)
 
 ```bash
 composer require janczakb/filament-flex-fields
+php artisan filament:assets
 ```
 
 ### Composer (path repository — monorepo)
@@ -422,25 +488,19 @@ composer require janczakb/filament-flex-fields
 
 ```bash
 composer require janczakb/filament-flex-fields:@dev
+php artisan filament:assets
 ```
-
-> [!IMPORTANT]
-> Register Filament assets after every install or update:
->
-> ```bash
-> php artisan filament:assets
-> ```
 
 Auto-discovered via `composer.json` → `extra.laravel.providers`.
 
-**Keep assets in sync** — add to your host app `composer.json`:
+**Asset sync on every Composer run** — optional but recommended; see [Automate asset sync](#automate-asset-sync-recommended) in [Upgrading](#upgrading).
 
 ```json
 "scripts": {
     "post-autoload-dump": [
         "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
         "@php artisan package:discover --ansi",
-        "@php artisan filament:assets"
+        "@php artisan filament:assets --ansi"
     ]
 }
 ```
@@ -662,7 +722,7 @@ A dev UI page previews every custom component.
 FLEX_FIELDS_PLAYGROUND=false
 ```
 
-Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`, `phone-field`, `item-card-group`, `progress-circle`.
+Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`, `phone-field`, `file-upload`, `item-card-group`, `progress-circle`.
 
 ---
 
@@ -734,12 +794,14 @@ This is the technical reference for [Lazy assets & shared chunks](#lazy-assets--
 | Step | Class / file | Role |
 |------|----------------|------|
 | 1 | Field blade `@include(…load-stylesheet)` | Registers needed bundles when the field is on the page |
-| 2 | `FlexFieldStylesheetQueue` | Request-scoped dedup — 5× `ChoiceCards` → 1× `choice-cards.css` |
-| 3 | `@push('styles')` in `load-stylesheet.blade.php` | Pushes `<link rel="stylesheet">` without rendering in body |
-| 4 | Filament `@stack('styles')` in `layout/base.blade.php` | Renders all pushed links in `<head>` before content paint |
-| 5 | `loadedOnRequest()` on Filament CSS assets | Prevents unused bundles from auto-loading via `@filamentStyles` |
+| 2 | `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue` | Request-scoped dedup — 5× `ChoiceCards` → 1× `choice-cards.css` |
+| 3 | `emit-assets` (via `load-stylesheet`) | Full-page: `@push('styles')` into `<head>`; Livewire partial: inline `<link>` / `modulepreload` batches |
+| 4 | `queued-stylesheets` render hook | Flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END` |
+| 5 | Filament `@stack('styles')` in `layout/base.blade.php` | Renders pushed links in `<head>` before content paint |
+| 6 | `flex-field-asset-injector.js` | SPA/morph: loads missing lazy assets, dedupes hrefs, prevents modal FOUC |
+| 7 | `loadedOnRequest()` on Filament CSS assets | Prevents unused bundles from auto-loading via `@filamentStyles` |
 
-Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` (e.g. `phone-field` → `flex-text-input` first).
+Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` and resolved depth-first in `stylesheetsFor()` (e.g. `schedule-field` → `timezone-field` → `flex-time-segments`).
 
 #### JavaScript delivery pipeline
 
@@ -749,7 +811,8 @@ Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` (e.g.
 | 2 | esbuild `splitting: true` + semantic chunk names | `flex-fields-phone-lib-*`, `flex-fields-emoji-*`, … |
 | 3 | `alpine-manifest.json` | Maps each field → chunk list for preload |
 | 4 | `FlexFieldAlpineQueue` | Dedup `modulepreload` in `<head>` — one fetch per chunk per request |
-| 5 | Dynamic `import()` where possible | e.g. libphonenumber, emoji picker — parse cost deferred until interaction |
+| 5 | `flex-field-asset-injector.js` | Loads missing chunks from morph batches; in-flight promise cache prevents duplicate fetches |
+| 6 | Dynamic `import()` where possible | e.g. libphonenumber, emoji picker — parse cost deferred until interaction |
 
 #### Bundle inventory & CI
 
@@ -763,18 +826,18 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 20.8 (gzip 4.6) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.4 (gzip 5.9) + deps 62.2 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.6 (gzip 5.4) + deps 62.2 |
-| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 37.2 (gzip 6.8) + deps 19.5 |
-| TagsField | 3.1 (gzip 1.1) | 20.4 (gzip 4.7) + deps 59.5 |
+| core (always) | — | 22.8 (gzip 5) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.4 (gzip 5.9) + deps 62.6 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.7 (gzip 5.4) + deps 62.6 |
+| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 37.3 (gzip 6.8) + deps 19.6 |
+| TagsField | 3.1 (gzip 1.1) | 20.5 (gzip 4.7) + deps 59.6 |
 | RatingField | 0.7 (gzip 0.3) | 22.5 (gzip 5.1) |
-| SwitchField | Alpine inline | 41.1 (gzip 7) |
-| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.8 (gzip 5.8) + deps 147.8 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.3 (gzip 0.2) | 26.6 (gzip 6) + deps 46.5 |
-| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.3 (gzip 0.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 79.1 (gzip 12.1) + deps 25 |
+| SwitchField | Alpine inline | 41.1 (gzip 7.1) |
+| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.8 (gzip 5.8) + deps 148.2 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 26.6 (gzip 6) + deps 46.9 |
+| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 79.2 (gzip 12.2) + deps 25.3 |
 
-Sample bundles (10 of **52** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **53** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

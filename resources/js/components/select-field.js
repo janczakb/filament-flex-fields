@@ -2,6 +2,7 @@
  * SelectField Alpine coordinator — patches Filament selectFormComponent instances.
  */
 import { applyTeleportedMenuTheme } from '../core/searchable-select-menu.js'
+import { resolveTeleportedMenuZIndex } from '../core/theme-utils.js'
 
 export function bootSelectFieldPatches(select, alpine, config) {
     const { $nextTick } = alpine
@@ -690,7 +691,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
         );
         dropdown.style.setProperty('border', 'none', 'important');
         dropdown.style.setProperty('border-radius', readVar('--fff-select-menu-radius', '1.5rem'), 'important');
-        dropdown.style.setProperty('z-index', '20', 'important');
+        dropdown.style.setProperty('z-index', resolveTeleportedMenuZIndex(), 'important');
     };
 
     const clearIconHtml = config.clearIconHtml;

@@ -25,6 +25,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Registry\FieldTypeHandlerReg
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
 use Bjanczak\FilamentFlexFields\Support\UserSelectQueryCache;
+use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
@@ -77,6 +78,7 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         FilamentAsset::register([
             ...$this->registeredStylesheets(),
+            ...$this->registeredScripts(),
             ...$this->registeredAlpineComponents(),
         ], package: FilamentFlexFieldsPlugin::PACKAGE_NAME);
 
@@ -91,11 +93,21 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
+            fn (): string => view('filament-flex-fields::partials.critical-stylesheet-preloads')->render(),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::HEAD_END,
             fn (): string => view('filament-flex-fields::partials.hold-confirm-action-preload')->render(),
         );
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::STYLES_AFTER,
+            fn (): string => view('filament-flex-fields::partials.queued-stylesheets')->render(),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
             fn (): string => view('filament-flex-fields::partials.queued-stylesheets')->render(),
         );
 
@@ -125,8 +137,17 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         FilamentView::registerRenderHook(
             PanelsRenderHook::SCRIPTS_AFTER,
-            fn (): string => view('filament-flex-fields::partials.lazy-assets-navigate-dedupe')->render(),
+            fn (): string => view('filament-flex-fields::partials.flex-field-asset-injector')->render(),
         );
+
+        if (FlexFieldsConfig::isPlaygroundEnabled()) {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::SCRIPTS_AFTER,
+                fn (): string => request()->is('*flex-fields-playground*')
+                    ? view('filament-flex-fields::partials.playground-skeleton-demo-script')->render()
+                    : '',
+            );
+        }
 
         RegistersTranslatableFieldMacros::boot();
 
@@ -169,6 +190,28 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
     }
 
     /**
+     * @return list<Js>
+     */
+    protected function registeredScripts(): array
+    {
+        $scripts = [
+            Js::make(
+                FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID,
+                __DIR__.'/../resources/dist/core/flex-field-asset-injector.js',
+            ),
+        ];
+
+        if (FlexFieldsConfig::isPlaygroundEnabled()) {
+            $scripts[] = Js::make(
+                FlexFieldAssets::PLAYGROUND_SKELETON_DEMO_SCRIPT_ID,
+                __DIR__.'/../resources/dist/playground/skeleton-demo.js',
+            )->loadedOnRequest();
+        }
+
+        return $scripts;
+    }
+
+    /**
      * @return list<FlexFieldsAlpineComponent>
      */
     protected function registeredAlpineComponents(): array
@@ -195,6 +238,7 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         $assets = [
             ...FilamentAsset::getStyles([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
+            ...FilamentAsset::getScripts([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
             ...FilamentAsset::getAlpineComponents([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
         ];
 

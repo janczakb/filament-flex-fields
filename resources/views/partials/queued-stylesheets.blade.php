@@ -1,17 +1,19 @@
 @php
-    use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
+    use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
     use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 
-    $queuedStylesheets = FlexFieldStylesheetQueue::registered();
+    $stylesheets = FlexFieldStylesheetQueue::pending();
+    $chunks = FlexFieldAlpineQueue::pending();
 @endphp
 
-@if (count($queuedStylesheets) > 0)
-    @foreach ($queuedStylesheets as $stylesheet)
-        <link
-            rel="stylesheet"
-            href="{{ FlexFieldAssets::stylesheetHref($stylesheet) }}"
-            data-navigate-track
-            data-fff-queued-stylesheet="{{ $stylesheet }}"
-        />
-    @endforeach
+@if (count($stylesheets) > 0 || count($chunks) > 0)
+    @include('filament-flex-fields::partials.emit-assets', [
+        'stylesheets' => $stylesheets,
+        'chunks' => $chunks,
+    ])
+
+    @php
+        FlexFieldStylesheetQueue::markStylesheetsEmitted($stylesheets);
+        FlexFieldAlpineQueue::markChunksEmitted($chunks);
+    @endphp
 @endif

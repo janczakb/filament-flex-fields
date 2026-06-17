@@ -130,7 +130,7 @@ UserColumn::make('team_preview')
 | **`UserColumnStackState`** | Wraps multi-user state so Filament `TextColumn` treats it as one HTML cell (avoids comma-joined rich rows). |
 | **`UserColumnRenderCache`** | Per-request cache of rendered rich/stack HTML keyed by normalized display data and column options. Identical stacks across rows reuse one Blade render. |
 | **`sharedStackUsing()`** | Per-page cache of shared multi-user state — resolver runs once per Livewire table, not once per row. |
-| **Lazy CSS** | Loads `flex-fields-user-display.css` + `flex-fields-user-column.css` only when a `UserColumn` cell renders (via `load-stylesheet` partial). `@pushOnce` + queue deduplication prevent duplicate `<link>` tags; `data-navigate-track` + navigate dedupe script keep SPA navigation clean. |
+| **Lazy CSS** | Loads `flex-fields-user-display.css` + `flex-fields-user-column.css` only when a `UserColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
 
 ### Shared user display API
 

@@ -1,3 +1,11 @@
+export function resolveTeleportedMenuZIndex() {
+    if (document.querySelector('.fi-modal.fi-modal-open') !== null) {
+        return 'var(--fff-z-dropdown-modal, 60)'
+    }
+
+    return 'var(--fff-z-dropdown, 20)'
+}
+
 export function resolveIsDark() {
     if (document.documentElement.classList.contains('dark')) {
         return true

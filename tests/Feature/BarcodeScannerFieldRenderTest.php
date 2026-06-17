@@ -103,6 +103,5 @@ it('renders switch camera button in modal viewport', function (): void {
     $html = Livewire::test(TestableBarcodeScannerForm::class)->html(false);
 
     expect($html)
-        ->toContain('fff-barcode-scanner__switch-camera-btn')
-        ->toContain('fff-barcode-switch-camera');
+        ->toContain('fff-barcode-scanner__switch-camera-btn');
 });

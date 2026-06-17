@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Data\SocialPlatform;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField;
-use Bjanczak\FilamentFlexFields\Support\SocialLinks\SocialLinkValidator;
 use Bjanczak\FilamentFlexFields\Support\SocialLinks\SocialLinksNormalizer;
+use Bjanczak\FilamentFlexFields\Support\SocialLinks\SocialLinkValidator;
 use Bjanczak\FilamentFlexFields\Support\SocialLinks\SocialPlatformDefinition;
 
 it('normalizes list and associative state shapes', function (): void {

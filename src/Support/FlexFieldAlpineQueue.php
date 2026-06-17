@@ -6,8 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 class FlexFieldAlpineQueue
 {
-    /** @var array<string, true> */
-    protected array $preloaded = [];
+    use FlexFieldAssetQueue;
 
     /**
      * Queue shared Alpine chunks for a component, returning only chunks
@@ -28,25 +27,9 @@ class FlexFieldAlpineQueue
         return $pending;
     }
 
-    public function queue(string $chunk): bool
-    {
-        if (isset($this->preloaded[$chunk])) {
-            return false;
-        }
-
-        $this->preloaded[$chunk] = true;
-
-        return true;
-    }
-
     public function hasChunk(string $chunk): bool
     {
-        return isset($this->preloaded[$chunk]);
-    }
-
-    public function clear(): void
-    {
-        $this->preloaded = [];
+        return $this->hasKey($chunk);
     }
 
     /**
@@ -70,5 +53,21 @@ class FlexFieldAlpineQueue
     public static function reset(): void
     {
         app(self::class)->clear();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function pending(): array
+    {
+        return app(self::class)->pendingRegistered();
+    }
+
+    /**
+     * @param  list<string>  $chunks
+     */
+    public static function markChunksEmitted(array $chunks): void
+    {
+        app(self::class)->markEmitted($chunks);
     }
 }

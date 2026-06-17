@@ -179,8 +179,9 @@ CSS is split into bundles:
 | Asset ID | File | Loading |
 |----------|------|---------|
 | `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, shared layout) |
-| `flex-fields-playground` | `resources/dist/css/playground.css` | Loaded on the playground page only |
-| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — queued when a field renders, pushed to Filament `<head>` via `@stack('styles')` (`load-stylesheet`) |
+| `flex-fields-playground` | `resources/dist/css/playground.css` | Base playground chrome only |
+| `flex-fields-playground-{slug}` | `resources/dist/css/playground-{slug}.css` | Per-slug playground bundle (e.g. `playground-phone-field.css`) |
+| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — queued when a field renders, delivered via `emit-assets` → `@stack('styles')` or Livewire inline batches |
 
 ### JavaScript (tiered chunks)
 
@@ -207,20 +208,34 @@ Komponenty **bez** wpisów w manifeście (np. `rating-field`, `dual-listbox`) ni
 
 Moduły używane tylko przez jedno pole (np. `core/date-time/*` → tylko `flex-date-time-field`, `nouislider` → tylko `flex-slider`) pozostają w entry, dopóki drugi komponent ich nie zaimportuje.
 
-#### Preload
+#### Preload & delivery
 
-Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` rejestruje CSS i `modulepreload` chunków w `<head>` (Filament `@stack('styles')`). `FlexFieldStylesheetQueue` i `FlexFieldAlpineQueue` deduplikują między polami na stronie.
+Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` rejestruje CSS i chunki Alpine w kolejce request-scoped (`FlexFieldStylesheetQueue`, `FlexFieldAlpineQueue`). `load-stylesheet` natychmiast emituje `emit-assets`:
+
+- **Pełna strona** — `@push('styles')` do Filament `@stack('styles')` w `<head>`.
+- **Partial Livewire** — inline `<link>` / `modulepreload` + ukryty `data-fff-asset-batch` dla injectora.
+
+`queued-stylesheets` opróżnia `pending()` kolejki na hookach `STYLES_AFTER` i `BODY_END`. Krytyczne bundle mogą być preloadowane przez `critical-stylesheet-preloads` na `HEAD_END`.
+
+#### Asset injector (SPA / modals)
+
+`flex-field-asset-injector.js` (Filament JS asset, `SCRIPTS_AFTER`) obsługuje:
+
+- deduplikację hrefów (`normalizeAssetUrl`, Map indeksy, in-flight cache),
+- ładowanie brakujących CSS i chunków Alpine z batchy morph,
+- FOUC w modalach (`morph.updating` / `morph.updated`, klasy `fff-flex-fields-assets-pending` / `ready`),
+- chronione linki (`data-fff-stylesheet`, `data-fff-alpine-chunk`, `data-fff-playground-bundle`).
 
 Komponenty bez własnego CSS ale z JS (np. `rating-field`) ładują chunki przez ESM `import` przy `x-load` — bez osobnego preloadu, bo manifest jest pusty.
 
-Po zmianie JS:
+Po zmianie JS (w tym injector):
 
 ```bash
 npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles are **lazy-loaded per column** where possible (`UserColumn` → `user-display` + `user-column`; other table columns may use dedicated bundles). Playground-only CSS stays in `playground.css`.
+Table column styles are **lazy-loaded per column** where possible (`UserColumn` → `user-display` + `user-column`; other table columns may use dedicated bundles). Playground CSS uses base `playground.css` plus per-slug `playground-{slug}.css` bundles.
 
 After changing package CSS or JS:
 
@@ -1086,7 +1101,7 @@ Resolve the same multi-user stack once per table page instead of per row. Prefer
 - **Stack state wrapper** — multi-user cells render as one stack, not comma-joined rich rows.
 - **Render cache** — identical rich/stack HTML is reused within the same request.
 - **Shared stack cache** — `sharedStackUsing()` runs resolver once per Livewire table page.
-- **Lazy CSS** — `user-display` + `user-column` bundles load when the column renders; `@pushOnce` + queue prevent duplicate `<link>` tags.
+- **Lazy CSS** — `user-display` + `user-column` bundles load when the column renders; request-scoped queue + `emit-assets` prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean.
 
 Custom avatar via Filament convention:
 
@@ -6031,6 +6046,26 @@ FlexFileUpload::make('scan')
 // $data['scan_meta'] => ['original_name' => '...', 'mime' => '...', 'size' => ..., 'width' => ...]
 ```
 
+#### Webcam & URL import *(v2.6.1)*
+
+Opt-in auxiliary upload sources alongside the default FilePond dropzone:
+
+```php
+FlexImageUpload::make('vehicle_photo')
+    ->label('Vehicle Photo')
+    ->withRecommendedDefaults()
+    ->imagesOnly()
+    ->allowWebcamUpload() // Camera capture tab (HTTPS required)
+    ->allowUrlUpload()    // Remote URL import tab (server-side fetch + SSRF guard)
+    ->optimizeImages()
+    ->maxImageWidth(1920)
+    ->maxImageHeight(1080)
+    ->disk('public')
+    ->directory('vehicle-photos');
+```
+
+Captured webcam photos and URL imports are converted to native `File` objects and injected into FilePond, so `multiple()`, `imageEditor()`, and `optimizeImages()` work unchanged.
+
 ### Security & presets
 
 #### `withRecommendedDefaults()` / `applyRecommendedSecurityDefaults()`
@@ -6061,6 +6096,14 @@ Blocks dangerous extensions (`.php`, `.sh`, …) with validation message.
 #### `scopedDirectory(string $prefix = 'uploads')`
 
 Per-user subdirectory: `{prefix}/{user_id}/…` when authenticated.
+
+#### `allowWebcamUpload(bool|Closure $condition = true)`
+
+Adds a **Camera** tab for native device capture (`getUserMedia`). Supports front/back camera toggle and torch where the browser exposes it; review/retake before adding to the queue. Requires HTTPS. Disabled automatically for `documentsOnly()` uploads. Integrates with `imagesOnly()`, `multiple()`, and Filament image editor hooks.
+
+#### `allowUrlUpload(bool|Closure $condition = true)`
+
+Adds a **URL** tab to import a remote file. The server fetches and validates the URL (SSRF-safe — blocks localhost, private IPs, metadata hosts), stages a temporary preview, then injects a native `File` into FilePond without persisting to the field disk until form save.
 
 ### UX & layout
 
@@ -6119,6 +6162,8 @@ Per-user subdirectory: `{prefix}/{user_id}/…` when authenticated.
 | `scoped_directory` | `scopedDirectory()` |
 | `optimize_images` | `optimizeImages()` |
 | `max_image_width` / `max_image_height` | `maxImageWidth()` / `maxImageHeight()` |
+| `allow_webcam_upload` | `allowWebcamUpload()` |
+| `allow_url_upload` | `allowUrlUpload()` |
 
 ### CSS classes
 
@@ -6131,7 +6176,8 @@ Per-user subdirectory: `{prefix}/{user_id}/…` when authenticated.
 ### Implementation notes
 
 - Requires Livewire temporary uploads; configure `FILESYSTEM_DISK` and disk credentials.
-- Playground examples under **File upload** in Flex Fields Playground.
+- Webcam capture requires a secure context (HTTPS). URL import rejects unsafe remote URLs before server fetch.
+- Playground examples under **File upload** in Flex Fields Playground (webcam + URL tabs).
 - For Spatie Media Library integration, see package `FlexSpatieMediaLibraryFileUpload` (if installed in app).
 
 ---
@@ -7295,7 +7341,7 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | Mechanism | What it does |
 |-----------|----------------|
 | **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
-| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). `@pushOnce` + queue deduplication prevent duplicate `<link>` tags; `data-navigate-track` + navigate dedupe script keep SPA navigation clean. |
+| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
 
 ---
 

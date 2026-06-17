@@ -19,6 +19,7 @@ function installDomStub() {
                 contains: (name) => bodyClassList.has(name),
             },
         },
+        querySelector: () => null,
     }
 
     return {
@@ -39,12 +40,22 @@ test('resolveIsDark returns true when documentElement has dark class', async () 
     dom.reset()
 })
 
-test('resolveIsDark returns false when light mode is explicit', async () => {
+test('resolveTeleportedMenuZIndex uses modal layer when a Filament modal is open', async () => {
     const dom = installDomStub()
-    const { resolveIsDark } = await import('../../resources/js/core/theme-utils.js')
+    const { resolveTeleportedMenuZIndex } = await import('../../resources/js/core/theme-utils.js')
 
-    globalThis.matchMedia = () => ({ matches: false })
+    document.querySelector = () => ({ classList: { contains: () => true } })
 
-    assert.equal(resolveIsDark(), false)
+    assert.equal(resolveTeleportedMenuZIndex(), 'var(--fff-z-dropdown-modal, 60)')
+    dom.reset()
+})
+
+test('resolveTeleportedMenuZIndex uses default dropdown layer without an open modal', async () => {
+    const dom = installDomStub()
+    const { resolveTeleportedMenuZIndex } = await import('../../resources/js/core/theme-utils.js')
+
+    document.querySelector = () => null
+
+    assert.equal(resolveTeleportedMenuZIndex(), 'var(--fff-z-dropdown, 20)')
     dom.reset()
 })

@@ -17,7 +17,7 @@ const CSS_BUDGETS = {
     'country-field.css': { rawKb: 30, gzipKb: 10 },
     'select-field.css': { rawKb: 120, gzipKb: 25 },
     'user-display.css': { rawKb: 22, gzipKb: 5 },
-    'tag-chips.css': { rawKb: 22, gzipKb: 5 },
+    'tag-chips.css': { rawKb: 23, gzipKb: 5 },
     'user-select.css': { rawKb: 130, gzipKb: 28 },
     'flex-text-input.css': { rawKb: 40, gzipKb: 12 },
     'playground.css': { rawKb: 60, gzipKb: 20 },

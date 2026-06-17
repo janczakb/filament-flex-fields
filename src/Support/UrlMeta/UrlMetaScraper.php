@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\UrlMeta;
 
+use Bjanczak\FilamentFlexFields\Support\Http\SafeRemoteUrlValidator;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
@@ -25,11 +26,12 @@ class UrlMetaScraper
 
     public function __construct(
         private readonly RedirectUrlResolver $redirectUrlResolver,
+        private readonly SafeRemoteUrlValidator $urlValidator,
     ) {}
 
     public function isScrapableUrl(string $url): bool
     {
-        return $this->isValidHttpUrl($url) && $this->isSafeScrapingUrl($url);
+        return $this->urlValidator->isAllowedHttpUrl($url);
     }
 
     /**
@@ -117,7 +119,7 @@ class UrlMetaScraper
         $timeout = (int) config('filament-flex-fields.link_preview.timeout_seconds', 3);
 
         for ($redirects = 0; $redirects <= self::MAX_REDIRECTS; $redirects++) {
-            if (! $this->isSafeScrapingUrl($currentUrl)) {
+            if (! $this->urlValidator->isAllowedHttpUrl($currentUrl)) {
                 return null;
             }
 
@@ -327,79 +329,5 @@ class UrlMetaScraper
         $directory = rtrim(str_replace('\\', '/', dirname($path)), '/');
 
         return $scheme.'://'.$host.($directory !== '' ? $directory.'/' : '/').ltrim($relativeUrl, '/');
-    }
-
-    private function isValidHttpUrl(string $url): bool
-    {
-        if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            return false;
-        }
-
-        $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
-
-        return in_array($scheme, ['http', 'https'], true);
-    }
-
-    private function isSafeScrapingUrl(string $url): bool
-    {
-        $parts = parse_url($url);
-
-        if (! is_array($parts) || empty($parts['host'])) {
-            return false;
-        }
-
-        $host = strtolower($parts['host']);
-
-        if ($this->isBlockedHostname($host)) {
-            return false;
-        }
-
-        if (str_ends_with($host, '.local') || str_ends_with($host, '.internal')) {
-            return false;
-        }
-
-        return $this->resolvesToPublicIps($host);
-    }
-
-    private function resolvesToPublicIps(string $host): bool
-    {
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            return $this->isPublicIp($host);
-        }
-
-        $ips = @gethostbynamel($host);
-
-        if (empty($ips)) {
-            return false;
-        }
-
-        foreach ($ips as $ip) {
-            if (! $this->isPublicIp($ip)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private function isBlockedHostname(string $host): bool
-    {
-        if ($host === 'localhost' || str_ends_with($host, '.localhost')) {
-            return true;
-        }
-
-        return in_array($host, [
-            'metadata.google.internal',
-            'metadata.goog',
-        ], true);
-    }
-
-    private function isPublicIp(string $ip): bool
-    {
-        return (bool) filter_var(
-            $ip,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
-        );
     }
 }

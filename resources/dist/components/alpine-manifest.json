@@ -1,28 +1,27 @@
 {
   "address-autocomplete": [
     "flex-fields-mapbox-FJYAQXEZ.js",
-    "flex-fields-select-menu-RS76F35B.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
-    "flex-fields-theme-utils-NPS3OGXG.js"
+    "flex-fields-theme-utils-JOEZLVV2.js"
   ],
   "audio-field": [
     "flex-fields-audio-7IBP5TOY.js",
     "flex-fields-dynamic-bars-TC53IFLW.js"
   ],
   "barcode-scanner-field": [
-    "flex-fields-barcode-scanner-RBWMZ7Z6.js",
-    "flex-fields-shared-R7IEHECV.js"
+    "flex-fields-barcode-scanner-engine-UXRCIZA3.js"
   ],
   "country-field": [
     "flex-fields-virtualized-list-N4JD6N7Y.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "credit-card": [],
   "currency-field": [
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "dual-listbox": [],
@@ -33,23 +32,25 @@
   "flex-date-time-field": [
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
-  "flex-file-upload": [],
+  "flex-file-upload": [
+    "flex-fields-barcode-scanner-engine-UXRCIZA3.js"
+  ],
   "flex-slider": [],
   "flex-text-input": [
-    "flex-fields-emoji-WRSTRHC2.js",
+    "flex-fields-emoji-CIU7E6GF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
-    "flex-fields-theme-utils-NPS3OGXG.js"
+    "flex-fields-theme-utils-JOEZLVV2.js"
   ],
   "flex-textarea": [
-    "flex-fields-emoji-WRSTRHC2.js",
+    "flex-fields-emoji-CIU7E6GF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
-    "flex-fields-theme-utils-NPS3OGXG.js"
+    "flex-fields-theme-utils-JOEZLVV2.js"
   ],
   "flex-time-segments": [
-    "flex-fields-components-flex-time-segments-BFXCIJ74.js",
+    "flex-fields-components-flex-time-segments-6LXG4NDO.js",
     "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "flex-verification-code": [],
@@ -57,15 +58,15 @@
   "link-preview-field": [],
   "map-picker": [
     "flex-fields-mapbox-FJYAQXEZ.js",
-    "flex-fields-select-menu-RS76F35B.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
-    "flex-fields-theme-utils-NPS3OGXG.js"
+    "flex-fields-theme-utils-JOEZLVV2.js"
   ],
   "number-stepper": [],
   "phone-field": [
     "flex-fields-virtualized-list-N4JD6N7Y.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
     "flex-fields-phone-lib-XLJG7A36.js"
   ],
@@ -74,33 +75,33 @@
   ],
   "rating-field": [],
   "schedule-field": [
-    "flex-fields-timezone-picker-mixin-CZV5ZPU2.js",
-    "flex-fields-components-flex-time-segments-BFXCIJ74.js",
+    "flex-fields-timezone-picker-mixin-W4RQ3VLA.js",
+    "flex-fields-components-flex-time-segments-6LXG4NDO.js",
     "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "segment-control": [],
   "segment-tabs": [],
   "select-field": [
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "signature-field": [],
   "slug-field": [],
   "social-links-field": [
-    "flex-fields-select-menu-RS76F35B.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
-    "flex-fields-theme-utils-NPS3OGXG.js"
+    "flex-fields-theme-utils-JOEZLVV2.js"
   ],
   "tags-field": [],
   "timezone-field": [
-    "flex-fields-timezone-picker-mixin-CZV5ZPU2.js",
+    "flex-fields-timezone-picker-mixin-W4RQ3VLA.js",
     "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js"
   ],
   "traffic-split": [],
@@ -113,18 +114,17 @@
   ],
   "__shared_chunks__": [
     "flex-fields-audio-7IBP5TOY.js",
-    "flex-fields-barcode-scanner-RBWMZ7Z6.js",
-    "flex-fields-components-flex-time-segments-BFXCIJ74.js",
+    "flex-fields-barcode-scanner-engine-UXRCIZA3.js",
+    "flex-fields-components-flex-time-segments-6LXG4NDO.js",
     "flex-fields-dynamic-bars-TC53IFLW.js",
-    "flex-fields-emoji-WRSTRHC2.js",
+    "flex-fields-emoji-CIU7E6GF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
     "flex-fields-mapbox-FJYAQXEZ.js",
     "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
     "flex-fields-phone-lib-XLJG7A36.js",
-    "flex-fields-select-menu-RS76F35B.js",
-    "flex-fields-shared-R7IEHECV.js",
-    "flex-fields-theme-utils-NPS3OGXG.js",
-    "flex-fields-timezone-picker-mixin-CZV5ZPU2.js",
+    "flex-fields-select-menu-WOU2UHEF.js",
+    "flex-fields-theme-utils-JOEZLVV2.js",
+    "flex-fields-timezone-picker-mixin-W4RQ3VLA.js",
     "flex-fields-virtualized-list-N4JD6N7Y.js"
   ],
   "__chunk_modules__": {
@@ -133,14 +133,14 @@
     "flex-fields-barcode-scanner-W4FSKKOS.js": [],
     "flex-fields-shared-6QIOXHYQ.js": [],
     "flex-fields-phone-lib-XLJG7A36.js": [],
-    "flex-fields-timezone-picker-mixin-CZV5ZPU2.js": [
+    "flex-fields-timezone-picker-mixin-W4RQ3VLA.js": [
       "support/timezone-picker-mixin.js"
     ],
-    "flex-fields-emoji-WRSTRHC2.js": [
+    "flex-fields-emoji-CIU7E6GF.js": [
       "core/emoji-picker-category-icons.js",
       "core/shared-emoji-picker.js"
     ],
-    "flex-fields-components-flex-time-segments-BFXCIJ74.js": [
+    "flex-fields-components-flex-time-segments-6LXG4NDO.js": [
       "components/flex-time-segments.js",
       "core/time-utils.js"
     ],
@@ -160,16 +160,19 @@
     "flex-fields-dynamic-bars-TC53IFLW.js": [
       "core/dynamic-bars.js"
     ],
+    "flex-fields-barcode-scanner-engine-UXRCIZA3.js": [
+      "support/barcode-scanner-engine.js"
+    ],
     "flex-fields-virtualized-list-N4JD6N7Y.js": [
       "core/country-list-keyboard.js",
       "core/country-registry.js",
       "core/country-search.js",
       "core/virtualized-list.js"
     ],
-    "flex-fields-select-menu-RS76F35B.js": [
+    "flex-fields-select-menu-WOU2UHEF.js": [
       "core/searchable-select-menu.js"
     ],
-    "flex-fields-theme-utils-NPS3OGXG.js": [
+    "flex-fields-theme-utils-JOEZLVV2.js": [
       "core/theme-utils.js"
     ],
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js": [

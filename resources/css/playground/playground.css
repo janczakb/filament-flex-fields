@@ -365,3 +365,91 @@
 .fff-repeater-stacked-urls .fi-fo-simple-repeater-add {
     @apply justify-start;
 }
+
+.fff-playground-skeleton-demo {
+    margin-bottom: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px dashed rgb(251 191 36);
+    border-radius: 0.75rem;
+    background: rgb(255 251 235);
+}
+
+.dark .fff-playground-skeleton-demo {
+    border-color: rgb(245 158 11 / 0.45);
+    background: rgb(39 39 42);
+}
+
+.fff-playground-skeleton-demo__title {
+    margin: 0 0 0.35rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(17 24 39);
+}
+
+.dark .fff-playground-skeleton-demo__title {
+    color: rgb(255 255 255);
+}
+
+.fff-playground-skeleton-demo__text,
+.fff-playground-skeleton-demo__steps {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(82 82 91);
+}
+
+.dark .fff-playground-skeleton-demo__text,
+.dark .fff-playground-skeleton-demo__steps {
+    color: rgb(161 161 170);
+}
+
+.fff-playground-skeleton-demo__steps {
+    padding-left: 1.25rem;
+}
+
+.fff-playground-skeleton-demo__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.fff-playground-skeleton-demo__button {
+    border: 1px solid rgb(228 228 231);
+    border-radius: 0.5rem;
+    background: #fff;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(39 39 42);
+    cursor: pointer;
+}
+
+.fff-playground-skeleton-demo__button:hover {
+    background: rgb(244 244 245);
+}
+
+.fff-playground-skeleton-demo__button--primary {
+    border-color: rgb(245 158 11);
+    background: rgb(245 158 11);
+    color: #fff;
+}
+
+.fff-playground-skeleton-demo__button--primary:hover {
+    background: rgb(217 119 6);
+}
+
+.dark .fff-playground-skeleton-demo__button {
+    border-color: rgb(63 63 70);
+    background: rgb(39 39 42);
+    color: rgb(244 244 245);
+}
+
+.dark .fff-playground-skeleton-demo__button:hover {
+    background: rgb(63 63 70);
+}
+
+.dark .fff-playground-skeleton-demo__button--primary {
+    border-color: rgb(245 158 11);
+    background: rgb(245 158 11);
+    color: rgb(24 24 27);
+}

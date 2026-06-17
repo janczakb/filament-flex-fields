@@ -3,9 +3,11 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\UserColumn;
+use Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
-use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
+use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\UserColumnRenderCache;
 use Bjanczak\FilamentFlexFields\Support\UserColumnSharedStackCache;
@@ -13,6 +15,7 @@ use Bjanczak\FilamentFlexFields\Support\UserColumnStackState;
 use Filament\Schemas\Components\Section;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Http\Request;
 
 function makeUserColumnTestRecord(array $attributes = []): Model
 {
@@ -282,10 +285,10 @@ it('queues user column stylesheets for the playground page styles before hook', 
 
     expect($stylesPartial)
         ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain("@push('styles')")
         ->toContain('rel="stylesheet"')
         ->toContain('data-fff-playground-bundle')
         ->and($assetsPartial)
-        ->toContain('fffPrefetchPlaygroundBundle')
         ->toContain('fffEnsurePlaygroundBundle')
         ->and($themePartial)
         ->toContain('window.FffPlaygroundTheme')
@@ -293,10 +296,22 @@ it('queues user column stylesheets for the playground page styles before hook', 
         ->toContain("localStorage.setItem('theme'")
         ->toContain('alpine:init');
 
-    app()->instance('request', Illuminate\Http\Request::create('/admin/flex-fields-playground/user-column', 'GET'));
+    app()->instance('request', Request::create('/admin/flex-fields-playground/user-column', 'GET'));
 
-    expect(FlexFieldAssets::playgroundStylesheetHrefForRequest())
-        ->toBe(FlexFieldAssets::playgroundBundleHrefForSlug('user-column'));
+    $provider = new FilamentFlexFieldsServiceProvider(app());
+    $method = new ReflectionMethod($provider, 'registeredStylesheets');
+    config()->set('filament-flex-fields.playground.enabled', true);
+
+    $enabledIds = array_map(
+        fn (FlexFieldsCss $asset): string => $asset->getId(),
+        $method->invoke($provider),
+    );
+
+    expect(FlexFieldAssets::resolvePlaygroundSlugFromRequest())->toBe('user-column')
+        ->and(FlexFieldAssets::hasPlaygroundBundleForSlug('user-column'))->toBeTrue()
+        ->and(FlexFieldAssets::playgroundBundleStylesheetId('user-column'))
+        ->toBe('flex-fields-playground-user-column')
+        ->and($enabledIds)->toContain('flex-fields-playground-user-column');
 });
 
 it('does not load stylesheets from table column blade partials', function () {

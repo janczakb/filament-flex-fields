@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
@@ -11,7 +12,7 @@ beforeEach(function (): void {
     config()->set('filament-flex-fields.mapbox.rate_limit_per_minute', 2);
     config()->set('filament-flex-fields.mapbox.cache_ttl_seconds', 0);
 
-    $this->withoutMiddleware(\Illuminate\Auth\Middleware\Authenticate::class);
+    $this->withoutMiddleware(Authenticate::class);
 
     RateLimiter::clear('fff-geocode:127.0.0.1');
 });

@@ -8,7 +8,6 @@ declare(strict_types=1);
  * Usage (from monorepo root):
  *   php packages/filament-flex-fields/scripts/export-playground-bundles.php
  */
-
 $autoloadCandidates = [
     __DIR__.'/../../../vendor/autoload.php',
     __DIR__.'/../vendor/autoload.php',

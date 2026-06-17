@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Mapbox;
 
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;

@@ -36,7 +36,7 @@ Welcome to the **Filament Flex Fields** documentation. Below you will find the t
 - [AudioField](audiofield.md)
 - [VoiceNoteRecorderField](voicenoterecorderfield.md)
 - [VideoField](videofield.md)
-- [FlexFileUpload & FlexImageUpload](flexfileupload-and-fleximageupload.md)
+- [FlexFileUpload & FlexImageUpload](flexfileupload-and-fleximageupload.md) — webcam capture & URL import *(v2.6.1)*
 - [ColorSwatchField](colorswatchfield.md)
 - [FlexColorPickerField](flexcolorpickerfield.md)
 - [NumberStepper](numberstepper.md)

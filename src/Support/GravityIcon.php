@@ -105,6 +105,8 @@ final class GravityIcon
 
     public const string ChevronsCollapseUpRight = 'gravityui-chevrons-collapse-up-right';
 
+    public const string Camera = 'gravityui-camera';
+
     public const string CopyPicture = 'gravityui-copy-picture';
 
     public const string Printer = 'gravityui-printer';
@@ -116,6 +118,8 @@ final class GravityIcon
     public const string Link = 'gravityui-link';
 
     public const string Thunderbolt = 'gravityui-thunderbolt';
+
+    public const string ThunderboltFill = 'gravityui-thunderbolt-fill';
 
     public const string Person = 'gravityui-person';
 

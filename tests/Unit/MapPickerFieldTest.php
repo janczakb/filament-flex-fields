@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Bjanczak\FilamentFlexFields\Enums\MapboxSearchType;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MapPickerField;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 
@@ -90,14 +91,14 @@ it('validates street addresses only mode requires a street name', function () {
 
 it('limits search types to poi when configured', function () {
     $field = MapPickerField::make('location')
-        ->searchTypes([\Bjanczak\FilamentFlexFields\Enums\MapboxSearchType::Poi]);
+        ->searchTypes([MapboxSearchType::Poi]);
 
     expect($field->getSearchTypes())->toBe(['poi']);
 });
 
 it('limits search types to address when street addresses only is enabled', function () {
     $field = MapPickerField::make('location')
-        ->searchTypes([\Bjanczak\FilamentFlexFields\Enums\MapboxSearchType::Poi])
+        ->searchTypes([MapboxSearchType::Poi])
         ->streetAddressesOnly();
 
     expect($field->getSearchTypes())->toBe(['address']);

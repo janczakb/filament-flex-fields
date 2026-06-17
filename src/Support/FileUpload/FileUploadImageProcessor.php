@@ -6,6 +6,9 @@ namespace Bjanczak\FilamentFlexFields\Support\FileUpload;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
+use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 
 class FileUploadImageProcessor
@@ -32,19 +35,58 @@ class FileUploadImageProcessor
             return $path;
         }
 
-        if (class_exists(ImageManager::class)) {
+        if ($this->shouldUseInterventionImageProcessor()) {
             return $this->processWithIntervention($disk, $path, $absolutePath);
         }
 
         return $this->processWithGd($disk, $path, $absolutePath, $mime);
     }
 
+    protected function shouldUseInterventionImageProcessor(): bool
+    {
+        if (! class_exists(ImageManager::class)) {
+            return false;
+        }
+
+        return method_exists(ImageManager::class, 'decodePath')
+            || method_exists(ImageManager::class, 'read');
+    }
+
+    protected function createInterventionImageManager(): ImageManager
+    {
+        if (class_exists(GdDriver::class)) {
+            $driver = extension_loaded('imagick') ? new ImagickDriver : new GdDriver;
+
+            return new ImageManager($driver);
+        }
+
+        return new ImageManager;
+    }
+
+    protected function loadInterventionImage(ImageManager $manager, string $absolutePath): mixed
+    {
+        if (method_exists($manager, 'decodePath')) {
+            return $manager->decodePath($absolutePath);
+        }
+
+        return $manager->read($absolutePath);
+    }
+
+    protected function saveInterventionImageAsWebp(mixed $image, string $absolutePath): void
+    {
+        if (class_exists(WebpEncoder::class)) {
+            $image->encode(new WebpEncoder(quality: 85))->save($absolutePath);
+
+            return;
+        }
+
+        $image->toWebp(quality: 85)->save($absolutePath);
+    }
+
     protected function processWithIntervention(Filesystem $disk, string $path, string $absolutePath): string
     {
-        /** @var class-string $managerClass */
-        $managerClass = ImageManager::class;
-        $manager = new $managerClass;
-        $image = $manager->read($absolutePath);
+        $manager = $this->createInterventionImageManager();
+        $image = $this->loadInterventionImage($manager, $absolutePath);
 
         if ($this->maxImageWidth || $this->maxImageHeight) {
             $image->scale(
@@ -58,7 +100,7 @@ class FileUploadImageProcessor
             $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
 
             if (is_string($newAbsolutePath)) {
-                $image->toWebp(quality: 85)->save($newAbsolutePath);
+                $this->saveInterventionImageAsWebp($image, $newAbsolutePath);
 
                 if ($newPath !== $path) {
                     $disk->delete($path);

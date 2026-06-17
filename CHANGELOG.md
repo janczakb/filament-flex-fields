@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.6.1] - 2026-06-17
+
+### Added
+
+- **Asset Injector V2 (SPA/Modal Asset Pipeline)** — Re-architected lazy CSS and Alpine chunk loading. Logic extracted into a dedicated, testable `flex-field-asset-injector.js` module, built to `resources/dist/` via `scripts/build-asset-injector-js.mjs`, and registered as a Filament JS asset.
+- **Shared asset queue trait** — `FlexFieldAssetQueue` centralizes `enqueued` / `emitted` / `pending()` bookkeeping for `FlexFieldStylesheetQueue` and `FlexFieldAlpineQueue`.
+- **Critical stylesheet preloads** — `critical-stylesheet-preloads` partial preloads high-priority flex-field CSS at `HEAD_END` to shorten first-paint latency.
+- **FOUC prevention in modals** — `Livewire.hook('morph.updating')` scans unattached morph fragments (`toEl`) for `data-fff-asset-batch` markers (stylesheets and Alpine chunks), then applies `fff-flex-fields-assets-pending` to the **live** DOM target (`el` or its `.fi-modal` ancestor) before morph completes. While assets load, modals show a **skeleton shimmer** over `.fi-modal-content` (shell and backdrop stay visible) instead of hiding the entire window.
+- **Background asset preloading** — `preloadBatchesIn()` warms lazy CSS/JS from hidden `data-fff-asset-batch` markers without removing them. Preload runs on `requestIdleCallback` after page load / SPA navigation and on debounced hover over action triggers (`button`, `a`, `[wire:click]`), so modal fields are often styled before the user clicks.
+- **Alpine chunk loading in morph batches** — Asset batches now carry `data-fff-chunks`; the injector loads missing `modulepreload` chunks alongside stylesheets.
+- **In-flight promise cache** — `inflightRequests` Map deduplicates concurrent downloads; parallel Livewire requests for the same asset share one network request.
+- **URL normalization** — Native `URL` constructor normalizes relative, absolute, and mismatched-protocol hrefs before deduplication and load checks.
+- **Protected asset links** — Stylesheets and chunks tagged with `data-fff-stylesheet`, `data-fff-alpine-chunk`, or `data-fff-playground-bundle` are never removed during injector dedupe.
+- **Injector optimizations** — O(1) `Map` indices for loaded stylesheets/chunks; `link.sheet` check before treating a DOM link as loaded; `Promise.allSettled` so 404s do not block remaining assets; dedupe removes duplicate injected links instead of re-appending them.
+- **Playground page stylesheets** — `playground-page-stylesheets` partial pushes per-slug playground bundles via `@push('styles')` with protected `data-fff-playground-bundle` markers.
+- **JavaScript test suite** — Unit tests in `tests/js/flex-field-asset-injector.test.mjs` cover URL normalization, in-flight dedupe, morph `el`/`toEl` pending state, conditional `prepareModal`, background preload, protected links, and failed-load recovery.
+- **Webcam & URL file import** — New auxiliary upload sources for `flex-file-upload`, opt-in via `allowWebcamUpload()` and `allowUrlUpload()`. Webcam capture supports front/back camera toggle and torch where available; URL import fetches remote images into native `File` objects injected into FilePond, preserving Filament image manipulation hooks and `multiple()` support. Playground demos and [docs/flexfileupload-and-fleximageupload.md](docs/flexfileupload-and-fleximageupload.md) updated.
+- **PHP tests** — `FlexFileUploadSourcesTest` feature coverage for webcam/URL sources, staged previews, SSRF rejection, and disabled-source guards.
+
+### Changed
+
+- **`load-stylesheet` always emits** — Field registration immediately includes `emit-assets` (no longer deferred-only), so lazy CSS is not lost on full-page renders.
+- **`emit-assets` dual emit path** — Full-page requests push `<link>` tags via `@push('styles')`; Livewire partial updates emit inline `<link>` / `modulepreload` tags for the injector to process.
+- **`queued-stylesheets` injector** — Flushes `pending()` stylesheet and chunk queues at `STYLES_AFTER` and `BODY_END` hook points.
+- **Morph pending resolution** — `beginPendingMorph({ el, toEl })` scans batches on `toEl` but resolves pending targets from live `el`, keeping modal state attached to the real DOM node through morph.
+- **Modal open pending is conditional** — `prepareModal` (`x-modal-opened`) applies skeleton pending only when `rootNeedsAssetLoading()` is true; cached assets open instantly with no pending flash.
+- **Teleported menu z-index in modals** — `teleported-menu.css` raises dropdown stacking when a Filament modal is open (`:has(.fi-modal.fi-modal-open)`).
+
+### Fixed
+
+- **Global CSS regression after V2** — Lazy stylesheets load again on full-page Filament views; V2 had registered assets without emitting them until `BODY_END`.
+- **Playground missing CSS** — Playground bundle links are protected from injector dedupe; per-slug stylesheets push into the layout `styles` stack.
+- **Modal stuck hidden after morph** — Pending state now tracks the live modal (`el`) instead of detached `toEl`, so `morph.updated` reliably releases `fff-flex-fields-assets-pending`.
+- **Teleported menu behind modal** — Country/phone/timezone dropdowns render above open modals instead of underneath the overlay.
+- **Upload source panel layout gap** — Inactive webcam/URL panels are removed from document flow (`position: absolute`) so switching tabs does not leave empty vertical space above FilePond.
+- **Recursive stylesheet dependency resolution** — Depth-first traversal in `FlexFieldAssets::stylesheetsFor()` resolves deeply nested CSS dependencies in correct bottom-up cascade order (e.g. `schedule-field` → `timezone-field` → `flex-time-segments`).
+
+### Security
+
+- **URL import SSRF guard** — Remote file import rejects unsafe URLs (localhost, private IPs, metadata endpoints) before fetch, matching server-side scrape safety patterns.
+
 ## [2.6.0] - 2026-06-16
 
 ### Added

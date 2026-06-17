@@ -6,14 +6,11 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 class FlexFieldStylesheetQueue
 {
-    /** @var array<string, true> */
-    protected array $enqueued = [];
+    use FlexFieldAssetQueue;
 
     /**
      * Queue a component and its declared dependencies, returning only stylesheets
      * that have not been registered yet during the current request.
-     *
-     * Blade partials push returned stylesheets to Filament's @stack('styles') in <head>.
      *
      * @return list<string>
      */
@@ -30,25 +27,9 @@ class FlexFieldStylesheetQueue
         return $pending;
     }
 
-    public function queue(string $component): bool
-    {
-        if (isset($this->enqueued[$component])) {
-            return false;
-        }
-
-        $this->enqueued[$component] = true;
-
-        return true;
-    }
-
     public function hasComponent(string $component): bool
     {
-        return isset($this->enqueued[$component]);
-    }
-
-    public function clear(): void
-    {
-        $this->enqueued = [];
+        return $this->hasKey($component);
     }
 
     /**
@@ -56,7 +37,7 @@ class FlexFieldStylesheetQueue
      */
     public function enqueuedStylesheets(): array
     {
-        return array_keys($this->enqueued);
+        return $this->registeredKeys();
     }
 
     /**
@@ -88,5 +69,21 @@ class FlexFieldStylesheetQueue
     public static function registered(): array
     {
         return app(self::class)->enqueuedStylesheets();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function pending(): array
+    {
+        return app(self::class)->pendingRegistered();
+    }
+
+    /**
+     * @param  list<string>  $stylesheets
+     */
+    public static function markStylesheetsEmitted(array $stylesheets): void
+    {
+        app(self::class)->markEmitted($stylesheets);
     }
 }

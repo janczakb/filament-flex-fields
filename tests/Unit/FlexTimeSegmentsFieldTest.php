@@ -40,7 +40,7 @@ it('normalizes flex time segments state to HH:MM', function () {
 
 it('registers flex time segments assets for lazy loading', function () {
     expect(FlexFieldAssets::hasLazyStylesheet('flex-time-segments'))->toBeTrue()
-        ->and(FlexFieldAssets::STYLESHEET_DEPENDENCIES['flex-time-segments'])->toBe(['flex-text-input']);
+        ->and(FlexFieldAssets::STYLESHEET_DEPENDENCIES['flex-time-segments'])->toBe(['flex-text-input', 'teleported-menu']);
 });
 
 it('renders flex time segments field view with entangled alpine bindings', function () {

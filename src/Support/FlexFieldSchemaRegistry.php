@@ -12,7 +12,6 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldSchema;
-use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaMigrator;
 
 class FlexFieldSchemaRegistry
 {

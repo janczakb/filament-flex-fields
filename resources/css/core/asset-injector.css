@@ -1,0 +1,109 @@
+@keyframes fff-flex-fields-assets-skeleton {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Modal: keep the shell and backdrop visible; skeleton overlay while lazy assets load */
+.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window {
+    position: relative;
+    overflow: hidden;
+}
+
+.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window > * {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: inherit;
+    background-color: rgb(244 244 245);
+    background-image: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0) 0%,
+        rgb(228 228 231 / 0.65) 50%,
+        rgb(228 228 231 / 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-flex-fields-assets-skeleton 1.4s ease-in-out infinite;
+}
+
+.dark .fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after {
+    background-color: rgb(39 39 42);
+    background-image: linear-gradient(
+        90deg,
+        rgb(63 63 70 / 0) 0%,
+        rgb(63 63 70 / 0.55) 50%,
+        rgb(63 63 70 / 0) 100%
+    );
+}
+
+.fi-modal.fff-flex-fields-assets-ready > .fi-modal-window-ctn > .fi-modal-window > * {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Inline / non-modal morph targets */
+.fff-flex-fields-assets-pending:not(.fi-modal) {
+    position: relative;
+    min-height: 2.5rem;
+}
+
+.fff-flex-fields-assets-pending:not(.fi-modal) > * {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fff-flex-fields-assets-pending:not(.fi-modal)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 0.5rem;
+    background-color: rgb(244 244 245);
+    background-image: linear-gradient(
+        90deg,
+        rgb(228 228 231 / 0) 0%,
+        rgb(228 228 231 / 0.65) 50%,
+        rgb(228 228 231 / 0) 100%
+    );
+    background-size: 200% 100%;
+    animation: fff-flex-fields-assets-skeleton 1.4s ease-in-out infinite;
+}
+
+.dark .fff-flex-fields-assets-pending:not(.fi-modal)::after {
+    background-color: rgb(39 39 42);
+    background-image: linear-gradient(
+        90deg,
+        rgb(63 63 70 / 0) 0%,
+        rgb(63 63 70 / 0.55) 50%,
+        rgb(63 63 70 / 0) 100%
+    );
+}
+
+.fff-flex-fields-assets-ready:not(.fi-modal) > * {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fff-flex-fields-assets-ready:not(.fi-modal)::after {
+    content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after,
+    .fff-flex-fields-assets-pending:not(.fi-modal)::after {
+        animation: none;
+        background-image: none;
+    }
+}

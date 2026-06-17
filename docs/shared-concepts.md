@@ -181,7 +181,7 @@ Several interactive fields (`MapPickerField`, `AddressAutocompleteField`, `Selec
 | **State sync** | Pass Livewire state through `$wire.$entangle('statePath')` in `x-data` — Alpine owns the UI, Livewire owns persistence. |
 | **Config changes** | Add a `wire:key` hash over read-only/disabled/config props (token, `fields()`, `storeFormat()`, size, variant). When config changes, Livewire remounts the ignored subtree with fresh Alpine boot data. |
 | **Server updates** | Avoid `->set('data.field')` on ignored fragments in tests; change upstream props or entangled state instead. |
-| **Dropdowns / maps** | Teleport menus to `body`, use shared overlay coordinator (`fffOverlays`) so only one menu stays open. |
+| **Dropdowns / maps** | Teleport menus to `body`, use shared overlay coordinator (`fffOverlays`) so only one menu stays open. `teleported-menu.css` raises z-index when a Filament modal is open (`:has(.fi-modal.fi-modal-open)`). |
 
 Example (`MapPickerField` / `AddressAutocompleteField`):
 
@@ -204,8 +204,9 @@ CSS is split into bundles:
 | Asset ID | File | Loading |
 |----------|------|---------|
 | `flex-fields-core` | `resources/dist/css/core.css` | Always loaded (tokens, switches, item cards, hold-confirm actions, shared layout) |
-| `flex-fields-playground` | `resources/dist/css/playground.css` | Loaded on the playground page only |
-| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — injected by form field blades and `CoverCard` via `load-stylesheet` |
+| `flex-fields-playground` | `resources/dist/css/playground.css` | Base playground chrome only |
+| `flex-fields-playground-{slug}` | `resources/dist/css/playground-{slug}.css` | Per-slug playground bundle (e.g. `playground-phone-field.css`) |
+| `flex-fields-{component}` | `resources/dist/css/{component}.css` | Lazy — injected by form field blades and `CoverCard` via `load-stylesheet` → `emit-assets` |
 
 ### JavaScript (tiered chunks)
 
@@ -232,20 +233,36 @@ Components **without** entries in the manifest (e.g. `rating-field`, `dual-listb
 
 Modules used by only a single field (e.g. `core/date-time/*` used only by `flex-date-time-field`, `nouislider` used only by `flex-slider`) remain inside their entries until another component starts importing them.
 
-#### Preload
+#### Preload & delivery
 
-Every blade template rendering a component stylesheet will automatically register a `modulepreload` hint for its required chunks using the manifest (`FlexFieldAlpineQueue` deduplicates chunks rendered by multiple components on the same page).
+Every blade template rendering a component stylesheet registers CSS and Alpine chunks in request-scoped queues (`FlexFieldStylesheetQueue`, `FlexFieldAlpineQueue`). `load-stylesheet` immediately emits `emit-assets`:
+
+- **Full page** — `@push('styles')` into Filament `@stack('styles')` in `<head>`.
+- **Livewire partial** — inline `<link>` / `modulepreload` tags plus a hidden `data-fff-asset-batch` marker for the injector.
+
+`queued-stylesheets` flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END`. Critical bundles may preload via `critical-stylesheet-preloads` at `HEAD_END`.
+
+#### Asset injector (SPA / modals)
+
+`flex-field-asset-injector.js` (registered Filament JS asset at `SCRIPTS_AFTER`) handles:
+
+- href deduplication (`normalizeAssetUrl`, Map indices, in-flight promise cache),
+- loading missing CSS and Alpine chunks from morph batches,
+- modal FOUC prevention (`morph.updating` / `morph.updated`, `fff-flex-fields-assets-pending` / `ready` classes),
+- protected links (`data-fff-stylesheet`, `data-fff-alpine-chunk`, `data-fff-playground-bundle`).
 
 Components without custom CSS but requiring JS (e.g. `rating-field`) load their chunks dynamically via ESM `import` inside `x-load` — without explicit preloading, since their manifest entry is empty.
 
-After modifying JavaScript:
+After modifying JavaScript (including the injector):
 
 ```bash
 npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). `@pushOnce` + `FlexFieldStylesheetQueue` prevent duplicate `<link>` tags.
+Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). Request-scoped queue + `emit-assets` prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean.
+
+Playground CSS uses base `playground.css` plus per-slug `playground-{slug}.css` bundles pushed via `playground-page-stylesheets`.
 
 After changing package CSS or JS:
 

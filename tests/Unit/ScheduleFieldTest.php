@@ -323,6 +323,7 @@ it('dehydrates normalized schedule state for storage', function () {
 
 it('registers lazy stylesheet assets for schedule field', function () {
     expect(FlexFieldAssets::stylesheetsFor('schedule-field'))->toBe([
+        'emoji-picker',
         'flex-text-input',
         'switch',
         'teleported-menu',
@@ -353,7 +354,7 @@ it('normalizes day keys and rejects invalid copy source day', function () {
     $field->copySourceDay('invalid');
 
     $field->getCopySourceDay();
-})->throws(\InvalidArgumentException::class);
+})->throws(InvalidArgumentException::class);
 
 it('normalizes time values through schedule normalizer', function () {
     $normalizer = new ScheduleNormalizer;

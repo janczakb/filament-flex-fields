@@ -7,7 +7,7 @@
         "build:css:playground-bundles": "node scripts/build-playground-bundles.mjs",
         "build:css:legacy": "npx @tailwindcss/cli -i ./resources/css/plugin.css -o ./resources/dist/filament-flex-fields.css --minify",
         "build:css": "npm run build:css:core && npm run build:css:playground && npm run build:css:components && npm run build:css:playground-bundles",
-        "build:js": "node scripts/build-component-js.mjs",
+        "build:js": "node scripts/build-component-js.mjs && node scripts/build-asset-injector-js.mjs && node scripts/build-skeleton-demo-js.mjs",
         "test:js": "node --import ./tests/js/register-svg-loader.mjs --test tests/js/**/*.test.mjs",
         "test:e2e": "playwright test",
         "test:e2e:coordinator": "playwright test tests/e2e/select-field-coordinator.spec.mjs",

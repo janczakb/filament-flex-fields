@@ -26,6 +26,14 @@
     -webkit-backdrop-filter: var(--fff-select-menu-blur, blur(16px) saturate(180%)) !important;
 }
 
+:root:has(.fi-modal.fi-modal-open) {
+    --fff-z-dropdown: var(--fff-z-dropdown-modal, 60);
+}
+
+:root:has(.fi-modal.fi-modal-open) .fff-teleported-menu {
+    z-index: var(--fff-z-dropdown-modal, 60) !important;
+}
+
 .fff-teleported-menu:not(.fi-dropdown-panel) {
     opacity: 0;
     pointer-events: none;

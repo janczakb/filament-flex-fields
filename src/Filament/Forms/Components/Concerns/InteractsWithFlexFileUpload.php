@@ -21,6 +21,8 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
  */
 trait InteractsWithFlexFileUpload
 {
+    use HasFlexFileUploadSources;
+
     protected string|Closure $flexFileUploadVariant = 'primary';
 
     protected bool|Closure $flexScopedDirectoryEnabled = false;
@@ -404,6 +406,31 @@ trait InteractsWithFlexFileUpload
         return $this;
     }
 
+    public function persistUploadedFileWithFlexProcessing(TemporaryUploadedFile $file): ?string
+    {
+        $storedPath = $this->saveUploadedFile($file);
+
+        if ($storedPath === null) {
+            return null;
+        }
+
+        if ($this->shouldOptimizeImages() || $this->shouldOptimizeImagesToWebp() || $this->getFlexMaxImageWidth() || $this->getFlexMaxImageHeight()) {
+            $processor = new FileUploadImageProcessor(
+                optimizeImages: $this->shouldOptimizeImages(),
+                optimizeImagesToWebp: $this->shouldOptimizeImagesToWebp(),
+                maxImageWidth: $this->getFlexMaxImageWidth(),
+                maxImageHeight: $this->getFlexMaxImageHeight(),
+                stripExif: $this->shouldStripExif(),
+            );
+
+            $storedPath = $processor->process($this->getDisk(), $storedPath);
+        }
+
+        $this->writeMetadataForStoredPath($storedPath, $file->getClientOriginalName(), $file);
+
+        return $storedPath;
+    }
+
     public function registerFlexFileUploadHooks(): void
     {
         $this->afterStateHydrated(function (BaseFileUpload $component): void {
@@ -419,27 +446,8 @@ trait InteractsWithFlexFileUpload
 
         $this->saveUploadedFileUsing(function (BaseFileUpload $component, TemporaryUploadedFile $file): ?string {
             /** @var static $component */
-            $storedPath = $component->saveUploadedFile($file);
 
-            if ($storedPath === null) {
-                return null;
-            }
-
-            if ($component->shouldOptimizeImages() || $component->shouldOptimizeImagesToWebp() || $component->getFlexMaxImageWidth() || $component->getFlexMaxImageHeight()) {
-                $processor = new FileUploadImageProcessor(
-                    optimizeImages: $component->shouldOptimizeImages(),
-                    optimizeImagesToWebp: $component->shouldOptimizeImagesToWebp(),
-                    maxImageWidth: $component->getFlexMaxImageWidth(),
-                    maxImageHeight: $component->getFlexMaxImageHeight(),
-                    stripExif: $component->shouldStripExif(),
-                );
-
-                $storedPath = $processor->process($component->getDisk(), $storedPath);
-            }
-
-            $component->writeMetadataForStoredPath($storedPath, $file->getClientOriginalName(), $file);
-
-            return $storedPath;
+            return $component->persistUploadedFileWithFlexProcessing($file);
         });
 
         $this->deleteUploadedFileUsing(function (BaseFileUpload $component, string $file): void {
@@ -751,6 +759,7 @@ trait InteractsWithFlexFileUpload
     public function getFlexFileUploadAlpineConfiguration(): array
     {
         return [
+            ...$this->getUploadSourceAlpineConfiguration(),
             'showUploadSummary' => $this->shouldShowUploadSummary(),
             'requireReplaceConfirmation' => $this->shouldRequireReplaceConfirmation(),
             'replaceConfirmationMessage' => __('filament-flex-fields::default.file_upload.replace_confirmation'),
@@ -785,6 +794,10 @@ trait InteractsWithFlexFileUpload
 
         if ($this->isAvatar()) {
             $classes[] = 'fff-flex-file-upload--avatar';
+        }
+
+        if ($this->hasUploadSourceTabs()) {
+            $classes[] = 'fff-flex-file-upload--source-tabs';
         }
 
         return $classes;

@@ -80,7 +80,7 @@ class UserColumn extends TextColumn
         return $this;
     }
 
-    public function applyEagerLoading(EloquentBuilder | Relation $query): EloquentBuilder | Relation
+    public function applyEagerLoading(EloquentBuilder|Relation $query): EloquentBuilder|Relation
     {
         if ($this->eagerLoad !== null) {
             foreach (Arr::wrap($this->evaluate($this->eagerLoad)) as $relationship) {
