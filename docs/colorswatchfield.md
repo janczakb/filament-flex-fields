@@ -1,5 +1,7 @@
 # ColorSwatchField
 
+![ColorSwatchField](/art/sc-24.png)
+
 [← Back to Table of Contents](index.md)
 
 

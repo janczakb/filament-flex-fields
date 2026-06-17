@@ -1,6 +1,6 @@
 # PriceRangeField
 
-![PriceRangeField](../art/sc-9.png)
+![PriceRangeField](/art/sc-9.png)
 
 [← Back to Table of Contents](index.md)
 

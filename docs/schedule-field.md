@@ -1,6 +1,6 @@
 # ScheduleField
 
-![ScheduleField](../art/sc-27.png)
+![ScheduleField](/art/sc-27.png)
 
 [← Back to Table of Contents](index.md)
 

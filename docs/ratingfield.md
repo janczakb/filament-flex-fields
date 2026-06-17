@@ -1,6 +1,6 @@
 # RatingField
 
-![RatingField](../art/sc-20.png)
+![RatingField](/art/sc-20.png)
 
 [← Back to Table of Contents](index.md)
 

@@ -1,6 +1,6 @@
 # TranslatableFields
 
-![TranslatableFields](../art/sc-22.png)
+![TranslatableFields](/art/sc-22.png)
 
 [← Back to Table of Contents](index.md)
 

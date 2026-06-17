@@ -1,6 +1,6 @@
 # SlugField & TitleSlugField
 
-![SlugField](../art/sc-22.png)
+![SlugField](/art/sc-22.png)
 
 [← Back to Table of Contents](index.md)
 

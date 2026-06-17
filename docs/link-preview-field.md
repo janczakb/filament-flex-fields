@@ -1,6 +1,6 @@
 # LinkPreviewField
 
-![LinkPreviewField](../art/sc-28.png)
+![LinkPreviewField](/art/sc-28.png)
 
 [← Back to Table of Contents](index.md)
 

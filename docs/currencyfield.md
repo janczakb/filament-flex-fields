@@ -1,6 +1,6 @@
 # CurrencyField
 
-![CurrencyField](../art/sc-5.png)
+![CurrencyField](/art/sc-5.png)
 
 [← Back to Table of Contents](index.md)
 

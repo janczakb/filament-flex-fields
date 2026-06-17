@@ -1,6 +1,6 @@
 # ChoiceCards
 
-![ChoiceCards](../art/sc-14.png)
+![ChoiceCards](/art/sc-14.png)
 
 [← Back to Table of Contents](index.md)
 

@@ -1,6 +1,6 @@
 # FlexTextInput
 
-![FlexTextInput](../art/sc-24.png)
+![FlexTextInput](/art/sc-25.png)
 
 [← Back to Table of Contents](index.md)
 

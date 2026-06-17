@@ -1,6 +1,6 @@
 # NumberStepper
 
-![NumberStepper](../art/sc-13.png)
+![NumberStepper](/art/sc-13.png)
 
 [← Back to Table of Contents](index.md)
 

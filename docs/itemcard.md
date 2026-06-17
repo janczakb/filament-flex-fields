@@ -1,7 +1,5 @@
 # ItemCard
 
-![ItemCard](../art/sc-26.png)
-
 [← Back to Table of Contents](index.md)
 
 

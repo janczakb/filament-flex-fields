@@ -1,7 +1,5 @@
 # UserSelect
 
-![UserSelect](../art/sc-25.png)
-
 [← Back to Table of Contents](index.md)
 
 

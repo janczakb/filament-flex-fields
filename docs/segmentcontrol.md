@@ -1,6 +1,6 @@
 # SegmentControl
 
-![SegmentControl](../art/sc-17.png)
+![SegmentControl](/art/sc-17.png)
 
 [← Back to Table of Contents](index.md)
 

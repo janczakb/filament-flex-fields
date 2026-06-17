@@ -35,7 +35,10 @@
         "docs/timezonefield",
         "docs/slugfield-and-titleslugfield",
         "docs/addressautocompletefield",
-        "docs/flexverificationcode"
+        "docs/flexverificationcode",
+        "docs/tags-field",
+        "docs/link-preview-field",
+        "docs/social-links-field"
       ]
     },
     {
@@ -67,7 +70,8 @@
     {
       "group": "Date & Time",
       "pages": [
-        "docs/date-and-time-fields"
+        "docs/date-and-time-fields",
+        "docs/schedule-field"
       ]
     },
     {
@@ -81,7 +85,8 @@
         "docs/voicenoterecorderfield",
         "docs/mappickerfield",
         "docs/signaturefield",
-        "docs/creditcardfield"
+        "docs/creditcardfield",
+        "docs/barcode-scanner-field"
       ]
     },
     {

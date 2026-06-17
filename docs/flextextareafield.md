@@ -1,6 +1,6 @@
 # FlexTextareaField
 
-![FlexTextareaField](../art/sc-3.png)
+![FlexTextareaField](/art/sc-3.png)
 
 [← Back to Table of Contents](index.md)
 

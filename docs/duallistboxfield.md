@@ -1,6 +1,6 @@
 # DualListboxField
 
-![DualListboxField](../art/sc-8.png)
+![DualListboxField](/art/sc-8.png)
 
 [← Back to Table of Contents](index.md)
 
