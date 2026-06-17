@@ -1,11 +1,11 @@
 # SegmentTabs
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-Schema layout component: **iOS-style segmented tabs** with per-tab form schemas (same visual language as [SegmentControl](segmentcontrol.md)). Used directly and as the base for [TranslatableFields](translatablefields.md).
+Schema layout component: **iOS-style segmented tabs** with per-tab form schemas (same visual language as [SegmentControl](/docs/segmentcontrol)). Used directly and as the base for [TranslatableFields](/docs/translatablefields).
 
 | | |
 |---|---|
@@ -130,7 +130,7 @@ SegmentTabs::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-See [Control size](shared-concepts.md).
+See [Control size](/docs/shared-concepts).
 
 ```php
 SegmentTabs::make('field_name')

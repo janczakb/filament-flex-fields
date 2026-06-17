@@ -1,11 +1,11 @@
 # FlexChecklist
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](flexradiolist.md) but stores an array of selected keys.
+SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](/docs/flexradiolist) but stores an array of selected keys.
 
 | | |
 |---|---|

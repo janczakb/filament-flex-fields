@@ -1,6 +1,6 @@
 # ItemCardStack
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 Vertical stack wrapper for **standalone** `ItemCard` components. Adds consistent **gap** between sibling cards (SaaS vertical stack / pressable list).

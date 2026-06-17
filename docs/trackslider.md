@@ -2,7 +2,7 @@
 
 ![TrackSlider](/art/sc-16.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -127,7 +127,7 @@ TrackSlider::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-See [Control size](shared-concepts.md).
+See [Control size](/docs/shared-concepts).
 
 ```php
 TrackSlider::make('field_name')

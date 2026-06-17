@@ -15,6 +15,7 @@
         "test:e2e:playground-skeleton": "playwright test tests/e2e/playground-skeleton-injector.spec.mjs",
         "test:assets": "npm run build && npm run test:js && npm run test:e2e:coordinator",
         "docs:sanitize": "node scripts/sanitize-docs-for-mintlify.mjs",
+        "docs:fix-links": "node scripts/fix-docs-internal-links.mjs",
         "docs:dev": "mintlify dev",
         "docs:build": "mintlify build",
         "build": "npm run build:css && npm run build:js && node scripts/generate-bundle-summary.mjs",

@@ -1,11 +1,11 @@
 # UserColumn
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-Read-only **table column** for displaying users with the same visual language as [UserSelect](userselect.md). Automatically picks the layout based on how many users are in the cell state:
+Read-only **table column** for displaying users with the same visual language as [UserSelect](/docs/userselect). Automatically picks the layout based on how many users are in the cell state:
 
 | Users in state | Display |
 |----------------|---------|
@@ -134,7 +134,7 @@ UserColumn::make('team_preview')
 
 ### Shared user display API
 
-These methods are identical to [UserSelect](userselect.md):
+These methods are identical to [UserSelect](/docs/userselect):
 
 | Method | Description |
 |--------|-------------|

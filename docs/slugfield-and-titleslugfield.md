@@ -2,7 +2,7 @@
 
 ![SlugField](/art/sc-22.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -704,13 +704,13 @@ TitleSlugField::make(
 
 ---
 
-> **Universal locale tabs:** For any translatable attribute (title, body, metadata, …), use the dedicated [TranslatableFields](translatablefields.md) component. The section below covers **TitleSlugField** only — translatable **titles** with a **single shared slug**.
+> **Universal locale tabs:** For any translatable attribute (title, body, metadata, …), use the dedicated [TranslatableFields](/docs/translatablefields) component. The section below covers **TitleSlugField** only — translatable **titles** with a **single shared slug**.
 
 ---
 
 ### Translatable titles (single slug)
 
-> For generic translatable fields (body, excerpt, metadata, …) without slug coupling, use [TranslatableFields](translatablefields.md) instead.
+> For generic translatable fields (body, excerpt, metadata, …) without slug coupling, use [TranslatableFields](/docs/translatablefields) instead.
 
 Optional multi-language **title** with **one shared slug**. Locale switching uses package **`TranslatableFields`** (built on `SegmentTabs`).
 

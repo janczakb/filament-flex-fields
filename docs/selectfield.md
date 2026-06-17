@@ -1,6 +1,6 @@
 # SelectField
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -107,7 +107,7 @@ All Filament `Select` methods work, including:
 | `native()` | Native HTML select (overrides custom UI when `true`) |
 | `allowHtml()` | Allow HTML in option labels |
 
-Rich option shape: see [Rich select option shape](shared-concepts.md).
+Rich option shape: see [Rich select option shape](/docs/shared-concepts).
 
 ### FlexField schema config
 

@@ -2,7 +2,7 @@
 
 ![ProgressCircle](/art/sc-19.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 SVG circular progress with full-circle and semi-circle variants, rounded stroke caps, center or beside content, optional card shell, gap arc, and gradient strokes.

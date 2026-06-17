@@ -1,6 +1,6 @@
 # ItemCard
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 modern SaaS-inspired list row / card for settings screens, navigation rows, and mixed action layouts. Renders a horizontal row with optional leading icon, title, description, trailing schema slot (switch, select, actions), and optional chevron.

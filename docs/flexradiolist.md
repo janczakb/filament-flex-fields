@@ -1,11 +1,11 @@
 # FlexRadiolist
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-SaaS-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](flexchecklist.md) but one choice at a time.
+SaaS-style **single-select** list (radio behaviour). Same row layout as [FlexChecklist](/docs/flexchecklist) but one choice at a time.
 
 | | |
 |---|---|

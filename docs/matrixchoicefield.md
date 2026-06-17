@@ -2,7 +2,7 @@
 
 ![MatrixChoiceField](/art/sc-2.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -353,7 +353,7 @@ Filament accent for selected radio/checkbox indicators. Default: `primary`.
 
 ### Inherited Filament field API
 
-Also supports standard [Inherited Filament field API](shared-concepts.md):
+Also supports standard [Inherited Filament field API](/docs/shared-concepts):
 
 | Method | Typical use |
 |--------|-------------|

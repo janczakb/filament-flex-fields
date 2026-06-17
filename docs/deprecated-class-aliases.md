@@ -1,6 +1,6 @@
 # Deprecated class aliases
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 | Deprecated class | Replacement | Notes |

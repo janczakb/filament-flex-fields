@@ -2,7 +2,7 @@
 
 ![VoiceNoteRecorderField](/art/sc-12.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary

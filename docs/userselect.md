@@ -1,11 +1,11 @@
 # UserSelect
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-Rich user picker extending [SelectField](selectfield.md): avatar, name, email, and verified badge in dropdown and trigger. Single selection shows a compact rich trigger; multiple selection shows a names summary in the trigger plus removable avatar tags below the field.
+Rich user picker extending [SelectField](/docs/selectfield): avatar, name, email, and verified badge in dropdown and trigger. Single selection shows a compact rich trigger; multiple selection shows a names summary in the trigger plus removable avatar tags below the field.
 
 | | |
 |---|---|
@@ -14,7 +14,7 @@ Rich user picker extending [SelectField](selectfield.md): avatar, name, email, a
 | **FieldType** | `user_select` |
 | **Parent** | `SelectField` — inherits select API unless overridden below |
 
-For **read-only user display in tables**, use [UserColumn](usercolumn.md) instead.
+For **read-only user display in tables**, use [UserColumn](/docs/usercolumn) instead.
 
 ### Basic usage
 
@@ -60,7 +60,7 @@ UserSelect::make('reviewer_id')
     ]);
 ```
 
-Custom resolvers (aligned with [UserColumn](usercolumn.md)):
+Custom resolvers (aligned with [UserColumn](/docs/usercolumn)):
 
 ```php
 UserSelect::make('owner_id')
@@ -113,7 +113,7 @@ UserSelect::make('author_id')
 ```
 ### Inherited SelectField API
 
-All [SelectField](selectfield.md) methods apply: `multiple()`, `searchable()`, `options()`, `variant()`, `size()`, `richOptions()`, `native()`, `placeholder()`, `preload()` (with `relationship()`), etc.
+All [SelectField](/docs/selectfield) methods apply: `multiple()`, `searchable()`, `options()`, `variant()`, `size()`, `richOptions()`, `native()`, `placeholder()`, `preload()` (with `relationship()`), etc.
 
 ### Public helper methods
 

@@ -1,6 +1,6 @@
 # Layout components — quick comparison
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 | Need | Component / pattern |

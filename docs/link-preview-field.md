@@ -2,7 +2,7 @@
 
 ![LinkPreviewField](/art/sc-28.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -132,7 +132,7 @@ LinkPreviewField::make('url')
 
 #### `size(string|ControlSize|Closure $size)`
 
-Control height. See [Control size](shared-concepts.md). Default: **`md`**.
+Control height. See [Control size](/docs/shared-concepts). Default: **`md`**.
 
 ```php
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;

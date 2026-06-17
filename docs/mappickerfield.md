@@ -2,7 +2,7 @@
 
 ![MapPickerField](/art/sc-6.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -247,6 +247,6 @@ MapPickerField::make('field_name')
 - When `lat`/`lng` exist but `place_name` is empty, a summary is built from street, postcode, city, and country.
 - Shared geocoding helpers live in `resources/js/support/mapbox-geocoding.js` (also used by `AddressAutocompleteField`).
 - With `streetAddressesOnly()`, a map click or pin drag outside a resolvable street address shows an inline error and does not update state (the pin snaps back on drag).
-- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](shared-concepts.md#livewire-wireignore-strategy-map--heavy-alpine-fields).
+- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](/docs/shared-concepts#livewire-wireignore-strategy-map--heavy-alpine-fields).
 
 ---

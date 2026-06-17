@@ -1,6 +1,6 @@
 # AddressAutocompleteField
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -146,6 +146,6 @@ Config defaults (`config/filament-flex-fields.php` → `ui`):
 - UI matches `FlexTextInput` (`primary` / `secondary` / `flat` variants, Gravity UI icons).
 - Autocomplete dropdown reuses MapPicker dropdown styles, including skeleton loading states.
 - Unlike `MapPickerField`, coordinates are not stored; only address fields from `fields()` are dehydrated.
-- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](shared-concepts.md#livewire-wireignore-strategy-map--heavy-alpine-fields).
+- **Livewire:** uses `wire:ignore` + `$entangle` for state and `wire:key` over config props for remounts — see [Shared concepts → wire:ignore strategy](/docs/shared-concepts#livewire-wireignore-strategy-map--heavy-alpine-fields).
 
 ---

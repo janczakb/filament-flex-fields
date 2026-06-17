@@ -2,12 +2,12 @@
 
 ![TranslatableFields](/art/sc-22.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-Locale-aware **schema layout** built on **SegmentTabs** (iOS-style segmented tabs, same visual language as [SegmentControl](segmentcontrol.md)). Clones one or more field templates into per-locale tabs with automatic state paths, JSON hydration, and optional Spatie `laravel-translatable` support.
+Locale-aware **schema layout** built on **SegmentTabs** (iOS-style segmented tabs, same visual language as [SegmentControl](/docs/segmentcontrol)). Clones one or more field templates into per-locale tabs with automatic state paths, JSON hydration, and optional Spatie `laravel-translatable` support.
 
 Designed as a first-party, extensible alternative to third-party translatable tab packages — with explicit extension points (`localeFieldUsing`, `storageAttributeUsing`, tab/field modifiers) and no external plugin dependency.
 
@@ -21,7 +21,7 @@ Designed as a first-party, extensible alternative to third-party translatable ta
 | **Form state** | Dot paths per locale: `title.ar`, `title.en`, … |
 | **DB storage** | JSON / array column: `{"ar":"…","en":"…"}` or Spatie translatable attribute |
 
-> **Not the same as TitleSlugField translations.** [TitleSlugField](slugfield-and-titleslugfield.md#translatable-titles-single-slug) provides a narrower use case: translatable **titles** with a **single shared slug** and slug-source-locale sync. Use `TranslatableFields` for any generic translatable attribute (body, excerpt, metadata, …).
+> **Not the same as TitleSlugField translations.** [TitleSlugField](/docs/slugfield-and-titleslugfield#translatable-titles-single-slug) provides a narrower use case: translatable **titles** with a **single shared slug** and slug-source-locale sync. Use `TranslatableFields` for any generic translatable attribute (body, excerpt, metadata, …).
 
 ### Basic usage — standalone component
 
@@ -517,7 +517,7 @@ TranslatableFields::make('field_name')
 | `fullWidth(bool\|Closure $condition = true)` | Stretch tabs to full container width. |
 | `iconOnly(bool\|Closure $condition = true)` | Hide tab labels; show icons only. |
 | `expandSelectedLabel(bool\|Closure $condition = true)` | Animate selected tab to wider width. |
-| `size(string\|ControlSize\|Closure $size)` | See [Control size](shared-concepts.md). |
+| `size(string\|ControlSize\|Closure $size)` | See [Control size](/docs/shared-concepts). |
 
 ### Global defaults
 
@@ -598,7 +598,7 @@ Component concerns (under `TranslatableFields/Concerns/`):
 | **Empty tab badges** | Opt-in via `emptyBadgeWhenAllFieldsAreEmpty()` | **On by default** for title locale tabs |
 | **Default active tab** | `activeTabWithValue()` in `withRecommendedDefaults()` | `slugSourceLocale` tab |
 
-For translatable titles with permalink generation, see [Translatable titles (single slug)](slugfield-and-titleslugfield.md#translatable-titles-single-slug).
+For translatable titles with permalink generation, see [Translatable titles (single slug)](/docs/slugfield-and-titleslugfield#translatable-titles-single-slug).
 
 ### Playground
 

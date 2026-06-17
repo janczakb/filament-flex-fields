@@ -1,6 +1,6 @@
 # Document maintenance
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 Update this file whenever a component gains a new public method, validation rule, config key, or default value change.

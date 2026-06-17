@@ -2,7 +2,7 @@
 
 ![PriceRangeField](/art/sc-9.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -138,7 +138,7 @@ PriceRangeField::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-See [Control size](shared-concepts.md).
+See [Control size](/docs/shared-concepts).
 
 ```php
 PriceRangeField::make('field_name')

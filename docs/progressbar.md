@@ -2,7 +2,7 @@
 
 ![ProgressBar](/art/sc-4.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 Linear progress indicator for uploads, sync status, stepped delivery trackers, and pill-style multi-segment bars.

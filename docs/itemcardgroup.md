@@ -2,7 +2,7 @@
 
 ![ItemCardGroup](/art/sc-7.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 Grouped list surface: multiple `ItemCard` rows share one bordered container (SaaS **item-card-group**). Optional group header, row separators, group-level variant, and group-wide pressable rows.

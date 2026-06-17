@@ -2,7 +2,7 @@
 
 ![RatingField](/art/sc-20.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -15,7 +15,7 @@ SaaS-style star (or custom icon) rating input with hover preview, semantic color
 | **State type** | `int|null` (interactive) · `float|null` (read-only display) |
 | **FieldType** | `rating` |
 
-Shares rating display configuration with [RatingColumn](ratingcolumn.md) via matching fluent API. Fill calculations live in the shared `CalculatesRatingFill` concern.
+Shares rating display configuration with [RatingColumn](/docs/ratingcolumn) via matching fluent API. Fill calculations live in the shared `CalculatesRatingFill` concern.
 
 ### Basic usage
 
@@ -63,7 +63,7 @@ RatingField::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-See [Control size](shared-concepts.md). Default: `md`.
+See [Control size](/docs/shared-concepts). Default: `md`.
 
 ```php
 RatingField::make('field_name')
@@ -149,6 +149,6 @@ RatingField::make('field_name')
 | `show_value` | `showValue()` |
 | `read_only` | `readOnly()` |
 
-For **read-only rating display in tables**, use [RatingColumn](ratingcolumn.md) instead.
+For **read-only rating display in tables**, use [RatingColumn](/docs/ratingcolumn) instead.
 
 ---

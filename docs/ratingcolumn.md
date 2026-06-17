@@ -1,11 +1,11 @@
 # RatingColumn
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
 
-Read-only **table column** for displaying ratings with the same visual language as [RatingField](ratingfield.md). Supports fractional values with partial icon fill, custom icons, semantic colors, sizes, and optional numeric value display.
+Read-only **table column** for displaying ratings with the same visual language as [RatingField](/docs/ratingfield). Supports fractional values with partial icon fill, custom icons, semantic colors, sizes, and optional numeric value display.
 
 | | |
 |---|---|
@@ -44,7 +44,7 @@ No column-only methods beyond inherited table APIs. All visual options come from
 
 ### Shared rating display API
 
-These methods are identical to [RatingField](ratingfield.md):
+These methods are identical to [RatingField](/docs/ratingfield):
 
 | Method | Description |
 |--------|-------------|

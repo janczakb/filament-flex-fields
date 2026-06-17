@@ -1,6 +1,6 @@
 # TimezoneField
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -63,7 +63,7 @@ TimezoneField::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-Control height. See [Control size](shared-concepts.md). Default: `md`.
+Control height. See [Control size](/docs/shared-concepts). Default: `md`.
 
 ```php
 TimezoneField::make('field_name')

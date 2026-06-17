@@ -1,6 +1,6 @@
 # ChoiceCheckboxCards
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -60,7 +60,7 @@ Use native `Checkbox` or `SwitchField` for a single boolean. Use `ChoiceCheckbox
 
 Shares the same card API as ChoiceCards:
 
-- `options()` — see [Rich card option shape](shared-concepts.md)
+- `options()` — see [Rich card option shape](/docs/shared-concepts)
 - `disabledOptions()`
 - `layout()`
 - `gridColumns()`

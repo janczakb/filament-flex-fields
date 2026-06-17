@@ -4,7 +4,7 @@
 
 > **Added in v2.6.0**
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 ### Summary
 

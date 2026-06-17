@@ -2,7 +2,7 @@
 
 ![FlexFileUpload](/art/sc-31.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary

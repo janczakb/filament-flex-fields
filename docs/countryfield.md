@@ -1,6 +1,6 @@
 # CountryField
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -62,7 +62,7 @@ CountryField::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-Control height. See [Control size](shared-concepts.md). Default: `md` (config: `filament-flex-fields.ui.country_size`).
+Control height. See [Control size](/docs/shared-concepts). Default: `md` (config: `filament-flex-fields.ui.country_size`).
 
 ```php
 CountryField::make('field_name')

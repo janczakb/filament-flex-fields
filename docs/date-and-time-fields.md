@@ -2,7 +2,7 @@
 
 ![FlexDateRangeField](/art/sc-26.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 Spectrum-style segmented date and time inputs powered by [`@internationalized/date`](https://react-spectrum.adobe.com/internationalized/date/). All variants share one Alpine component (`flex-date-time-field`), one Blade view, and the `InteractsWithDateTimeConfiguration` trait.
@@ -15,7 +15,7 @@ Spectrum-style segmented date and time inputs powered by [`@internationalized/da
 | **FlexDatePicker** | `FlexDatePicker` | `date` | Yes (popover) | `string` — e.g. `2026-06-15` |
 | **FlexTimeField** | `FlexTimeField` | `time` | No | `string` — e.g. `14:30:00` |
 | **FlexTimeSegmentsField** | `FlexTimeSegmentsField` | — | No (dropdown) | `string` — e.g. `09:30` (`HH:MM`, 24h) |
-| **ScheduleField** | `ScheduleField` | — | No (embedded) | `array` — weekly schedule with timezone, days, slots — see [schedule-field.md](schedule-field.md) |
+| **ScheduleField** | `ScheduleField` | — | No (embedded) | `array` — weekly schedule with timezone, days, slots — see [schedule-field.md](/docs/schedule-field) |
 | **FlexDateTimePicker** | `FlexDateTimePicker` | `dateTime` | Yes (popover) | `string` — e.g. `2026-06-15T14:30:00` |
 | **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array&lt;start: string\|null, end: string\|null&gt;` |
 | **FlexDurationField** | `FlexDurationField` | `duration` | No | `string` — e.g. `02:30:00` |
@@ -432,7 +432,7 @@ Visual shell style. Values: `primary` (default), `secondary`, `flat`. Shared wit
 #### `size(string|ControlSize|Closure $size)`
 
 
-Control height. See [Control size](shared-concepts.md). Default: `md`.
+Control height. See [Control size](/docs/shared-concepts). Default: `md`.
 
 ```php
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
@@ -499,7 +499,7 @@ PHP date format for display helpers (`initialDisplay`, `formatForDisplay`). When
 #### `storageFormat(string|Closure|null $format)`
 
 
-Format used when normalizing state for storage. When omitted, mode/granularity defaults apply. See [State format](flexslider.md#state-format).
+Format used when normalizing state for storage. When omitted, mode/granularity defaults apply. See [State format](/docs/flexslider#state-format).
 
 ```php
 ->storageFormat('Y-m-d')
@@ -734,7 +734,7 @@ Inherited from `HasFieldFocusOutline`. Show focus ring on the outer shell.
 #### Inherited Filament `Field` API
 
 
-`label()`, `helperText()`, `hint()`, `placeholder()`, `required()`, `disabled()`, `readOnly()`, `default()`, `live()`, `dehydrated()`, `hidden()`, `visible()`, `rule()`, `rules()`, `afterStateUpdated()` — all work as usual. See [Inherited Filament field API](shared-concepts.md).
+`label()`, `helperText()`, `hint()`, `placeholder()`, `required()`, `disabled()`, `readOnly()`, `default()`, `live()`, `dehydrated()`, `hidden()`, `visible()`, `rule()`, `rules()`, `afterStateUpdated()` — all work as usual. See [Inherited Filament field API](/docs/shared-concepts).
 
 Default placeholders (translation keys under `filament-flex-fields::default.date_time`):
 

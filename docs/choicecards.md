@@ -2,7 +2,7 @@
 
 ![ChoiceCards](/art/sc-14.png)
 
-[← Back to Table of Contents](index.md)
+[← Back to Table of Contents](/docs/index)
 
 
 ### Summary
@@ -49,7 +49,7 @@ ChoiceCards::make('plan')
 #### `options(array|Closure $options)`
 
 
-Option list. See [Rich card option shape](shared-concepts.md).
+Option list. See [Rich card option shape](/docs/shared-concepts).
 
 ```php
 ChoiceCards::make('field_name')
@@ -141,7 +141,7 @@ ChoiceCards::make('field_name')
 #### `size(string|ControlSize|Closure $size)`
 
 
-Scales padding, typography, indicators, and icons. See [Control size](shared-concepts.md).
+Scales padding, typography, indicators, and icons. See [Control size](/docs/shared-concepts).
 
 ```php
 ChoiceCards::make('field_name')
