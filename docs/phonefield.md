@@ -12,7 +12,7 @@ International phone input with searchable country picker, libphonenumber validat
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField` |
-| **State type** | `array<country: string, national: string, e164: string>` |
+| **State type** | `array&lt;country: string, national: string, e164: string&gt;` |
 | **FieldType** | `phone` |
 
 ### Basic usage
@@ -218,8 +218,8 @@ PhoneField::make('field_name')
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getVariant()` | `string` | Resolved variant |
-| `getAllowedCountryCodes()` | `list<string>\|null` | Whitelist or `null` |
-| `getExceptCountryCodes()` | `list<string>` | Blacklist |
+| `getAllowedCountryCodes()` | `list&lt;string&gt;\|null` | Whitelist or `null` |
+| `getExceptCountryCodes()` | `list&lt;string&gt;` | Blacklist |
 | `getDefaultCountryCode()` | `string` | Effective default region |
 | `isSearchable()` | `bool` | Country search enabled |
 | `hasSuffixIcon()` | `bool` | Suffix icon visible |
@@ -229,13 +229,13 @@ PhoneField::make('field_name')
 | `shouldUseBrowserLocaleDefault()` | `bool` | Browser locale default |
 | `shouldSortCountriesByBrowserLocale()` | `bool` | Browser locale sort |
 | `getBrowserLocaleCountryCode()` | `string\|null` | Detected locale country |
-| `getCountriesMetadata()` | `list<array>` | `code`, `name`, `dial_code`, `flag_url` |
+| `getCountriesMetadata()` | `list&lt;array&gt;` | `code`, `name`, `dial_code`, `flag_url` |
 | `getCountrySelectOptions()` | `array` | Options for internal select |
 | `getDefaultSuffixIcon()` | `string\|BackedEnum\|Htmlable` | Default suffix icon |
 | `getSuffixIcon()` | `string\|BackedEnum\|Htmlable\|null` | Resolved suffix icon |
 | `normalizeState(mixed $state)` | `array` | Canonical `{country, national, e164}` |
 | `getPhoneValidationMessage(array $state)` | `string\|null` | Error message or `null` |
-| `getWrapperClasses()` | `list<string>` | CSS class list |
+| `getWrapperClasses()` | `list&lt;string&gt;` | CSS class list |
 
 ### FlexField schema config
 

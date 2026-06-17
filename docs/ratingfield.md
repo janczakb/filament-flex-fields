@@ -46,7 +46,7 @@ RatingField::make('average_score')
 | `min:0` | Always |
 | `max:{stars}` | Matches `stars()` / `max()` |
 | `integer` | Interactive mode only |
-| `required` | When `->required()` |
+| `required` | When `-&gt;required()` |
 
 ### Configuration API
 

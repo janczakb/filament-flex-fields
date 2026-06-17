@@ -191,17 +191,17 @@ MapPickerField::make('field_name')
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getFields()` | `list<string>` | Configured field keys |
+| `getFields()` | `list&lt;string&gt;` | Configured field keys |
 | `getStoreFormat()` | `string` | `structured` or `string` |
 | `getStringFormat()` | `string` | String template |
-| `getRequiredFields()` | `list<string>` | Required subset |
+| `getRequiredFields()` | `list&lt;string&gt;` | Required subset |
 | `getMapboxToken()` | `string\|null` | Resolved token |
-| `getDefaultCenter()` | `array<0: float, 1: float>` | Map center |
+| `getDefaultCenter()` | `array&lt;0: float, 1: float&gt;` | Map center |
 | `getDefaultZoom()` | `int` | Zoom level |
 | `isSearchable()` | `bool` | Search enabled |
 | `isStreetAddressesOnly()` | `bool` | Street-address restriction enabled |
-| `getSearchTypes()` | `list<string>\|null` | Mapbox `types` filter (`null` = all types) |
-| `getCountries()` | `list<string>\|null` | Country filter |
+| `getSearchTypes()` | `list&lt;string&gt;\|null` | Mapbox `types` filter (`null` = all types) |
+| `getCountries()` | `list&lt;string&gt;\|null` | Country filter |
 | `hasStreetAddress(array $state)` | `bool` | Whether canonical state has a street name |
 | `getEmptyCanonicalState()` | `array` | All keys `null` |
 | `hydrateToCanonical(mixed $state)` | `array` | Normalize incoming state |

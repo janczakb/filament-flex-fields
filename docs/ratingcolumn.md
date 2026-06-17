@@ -10,7 +10,7 @@ Read-only **table column** for displaying ratings with the same visual language 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Tables\Columns\RatingColumn` |
-| **Context** | Filament tables (`$table->columns([...])`) |
+| **Context** | Filament tables (`$table-&gt;columns([...])`) |
 | **State type** | `int|float|string|null` (numeric values only) |
 | **Parent** | `Filament\Tables\Columns\TextColumn` |
 
@@ -36,7 +36,7 @@ RatingColumn::make('satisfaction')
     ->showValue(false);
 ```
 
-Filament resolves `$record->score` as column state from the model attribute or relationship. Fractional values (e.g. `3.7`) render with partial star fill.
+Filament resolves `$record-&gt;score` as column state from the model attribute or relationship. Fractional values (e.g. `3.7`) render with partial star fill.
 
 ### Configuration API (RatingColumn-specific)
 
@@ -70,7 +70,7 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | `getRatingIcon()` | `string\|BackedEnum\|Htmlable` | Icon reference |
 | `getRatingDisplaySize()` | `string` | Icon control size (`sm`, `md`, `lg`) |
 | `shouldShowValue()` | `bool` | Whether numeric value is shown |
-| `getItemIndexes()` | `list<int>` | 1-based indexes for each star |
+| `getItemIndexes()` | `list&lt;int&gt;` | 1-based indexes for each star |
 
 ### CSS classes
 
@@ -90,6 +90,6 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | Mechanism | What it does |
 |-----------|----------------|
 | **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
-| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
+| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `&lt;link&gt;` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
 
 ---

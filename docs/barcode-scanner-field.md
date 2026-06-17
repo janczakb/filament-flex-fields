@@ -14,7 +14,7 @@
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\BarcodeScannerField` |
 | **State type** | `string\|null` — scanned or typed barcode value (symbology is **not** stored) |
-| **Model cast** | `'sku' => 'string'` (typical) |
+| **Model cast** | `'sku' =&gt; 'string'` (typical) |
 | **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
 | **Playground** | `barcode-scanner-field` slug in Flex Fields playground |
 
@@ -188,7 +188,7 @@ All methods accept `Closure` for dynamic configuration.
 
 | Method | Description | Default |
 |--------|-------------|---------|
-| `formats()` / `supportedFormats()` | Allowed symbologies (`list<BarcodeFormat\|string>`) | all formats |
+| `formats()` / `supportedFormats()` | Allowed symbologies (`list&lt;BarcodeFormat\|string&gt;`) | all formats |
 | `validateChecksum()` | Modulo-10 check for EAN/UPC | `false` |
 | `continuous()` | Keep modal open after each scan | `false` |
 | `beepOnScan()` | Play confirmation sound on success (MP3 on desktop; transient Web Audio on mobile) | `true` |
@@ -309,7 +309,7 @@ Client-side validation mirrors server rules before accepting a camera scan (inva
 ### Accessibility
 
 - Scan button: keyboard operable, `aria-haspopup="dialog"`.
-- Modal: native Filament `<x-filament::modal>` — focus trap, Escape to close, header close button.
+- Modal: native Filament `&lt;x-filament::modal&gt;` — focus trap, Escape to close, header close button.
 - Loading state: `aria-live="polite"` while camera starts.
 - Errors: `role="alert"` in modal body.
 - `@media (prefers-reduced-motion: reduce)` disables scan-line animation and spinner.

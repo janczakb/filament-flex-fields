@@ -12,5 +12,6 @@ it('renders a balanced html tree for the file upload playground section', functi
     $html = Livewire::test(TestableTranslatableForm::class)->html(false);
 
     expect(substr_count($html, '<div'))
-        ->toBe(substr_count($html, '</div>'));
+        ->toBe(substr_count($html, '</div>'))
+        ->and($html)->toContain('Open skeleton demo slide-over');
 });

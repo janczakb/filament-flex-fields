@@ -152,7 +152,7 @@ SegmentTabs::make('field_name')
 
 | Method | Returns |
 |--------|---------|
-| `getVisibleTabs()` | `list<SegmentTab>` — visible tabs only |
+| `getVisibleTabs()` | `list&lt;SegmentTab&gt;` — visible tabs only |
 | `getActiveTab()` | `int` — 1-based active index |
 | `getActiveTabKey()` | `?string` — key of active tab |
 | `isTabActive(SegmentTab $tab)` | `bool` |

@@ -10,7 +10,7 @@ Tag input with pill chips below the field, inline remove buttons, optional sugge
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\TagsField` |
-| **State type** | `list<string>` |
+| **State type** | `list&lt;string&gt;` |
 | **FieldType** | `tags` |
 
 ### Basic usage

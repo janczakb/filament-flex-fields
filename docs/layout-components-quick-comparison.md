@@ -13,7 +13,7 @@
 | Hero / banner at top of form | `CoverCard` + `fullWidth()` + wide `ratio()` |
 | Locale tabs for translatable fields | `TranslatableFields` |
 | Row with switch/select | `ItemCard::schema([...])` inside group |
-| Whole row navigates | `->chevron()->url()` or `->pressableAction()` |
+| Whole row navigates | `-&gt;chevron()-&gt;url()` or `-&gt;pressableAction()` |
 | Settings list with header above box | `ItemCardGroup::headerStyle('outside')` |
 
 ---

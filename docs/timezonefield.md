@@ -177,9 +177,9 @@ TimezoneField::make('field_name')
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getVariant()` | `string` | Resolved variant |
-| `getAllowedTimezoneIdentifiers()` | `list<string>\|null` | Whitelist or `null` |
-| `getExceptTimezoneIdentifiers()` | `list<string>` | Blacklist |
-| `getResolvedTimezoneIdentifiers()` | `list<string>` | Effective allowed identifiers |
+| `getAllowedTimezoneIdentifiers()` | `list&lt;string&gt;\|null` | Whitelist or `null` |
+| `getExceptTimezoneIdentifiers()` | `list&lt;string&gt;` | Blacklist |
+| `getResolvedTimezoneIdentifiers()` | `list&lt;string&gt;` | Effective allowed identifiers |
 | `getDefaultTimezoneIdentifier()` | `string\|null` | Effective default |
 | `isSearchable()` | `bool` | Search enabled |
 | `shouldShowOffset()` | `bool` | Offset badge visible |
@@ -187,10 +187,10 @@ TimezoneField::make('field_name')
 | `shouldUseBrowserTimezoneDefault()` | `bool` | Browser timezone default |
 | `shouldSortTimezonesByBrowserTimezone()` | `bool` | Browser timezone sort |
 | `getBrowserTimezoneIdentifier()` | `string\|null` | Server-side detected timezone |
-| `getTimezonesMetadata()` | `list<array>` | `id`, `label`, `offset`, `offset_seconds`, `region` |
+| `getTimezonesMetadata()` | `list&lt;array&gt;` | `id`, `label`, `offset`, `offset_seconds`, `region` |
 | `getTimezoneSelectOptions()` | `array` | Options map for internal select |
 | `normalizeState(mixed $state)` | `string\|null` | Canonical timezone identifier |
-| `getWrapperClasses()` | `list<string>` | CSS class list |
+| `getWrapperClasses()` | `list&lt;string&gt;` | CSS class list |
 
 ### CSS classes
 

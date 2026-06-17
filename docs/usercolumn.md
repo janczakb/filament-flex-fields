@@ -16,8 +16,8 @@ Read-only **table column** for displaying users with the same visual language as
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Tables\Columns\UserColumn` |
-| **Context** | Filament tables (`$table->columns([...])`) |
-| **State type** | `Model`, `Collection` of models, or `list<Model>` |
+| **Context** | Filament tables (`$table-&gt;columns([...])`) |
+| **State type** | `Model`, `Collection` of models, or `list&lt;Model&gt;` |
 | **Parent** | `Filament\Tables\Columns\TextColumn` |
 
 Shares user field configuration with UserSelect via the `ResolvesUserDisplay` concern (`nameColumn`, `emailColumn`, `avatarColumn`, custom resolvers).
@@ -47,7 +47,7 @@ UserColumn::make('members')
     ->stackedOverlap(10);
 ```
 
-Filament resolves `$record->author` or `$record->members` as column state. `UserColumn` automatically calls `with()` for direct relationship column names (for example `members`, `author`) and any extra relations declared via `eagerLoad()`.
+Filament resolves `$record-&gt;author` or `$record-&gt;members` as column state. `UserColumn` automatically calls `with()` for direct relationship column names (for example `members`, `author`) and any extra relations declared via `eagerLoad()`.
 
 Custom `getStateUsing()` that returns the same users on every row should use `sharedStackUsing()` (preferred) or resolve models once per request on the page/resource.
 
@@ -130,7 +130,7 @@ UserColumn::make('team_preview')
 | **`UserColumnStackState`** | Wraps multi-user state so Filament `TextColumn` treats it as one HTML cell (avoids comma-joined rich rows). |
 | **`UserColumnRenderCache`** | Per-request cache of rendered rich/stack HTML keyed by normalized display data and column options. Identical stacks across rows reuse one Blade render. |
 | **`sharedStackUsing()`** | Per-page cache of shared multi-user state — resolver runs once per Livewire table, not once per row. |
-| **Lazy CSS** | Loads `flex-fields-user-display.css` + `flex-fields-user-column.css` only when a `UserColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
+| **Lazy CSS** | Loads `flex-fields-user-display.css` + `flex-fields-user-column.css` only when a `UserColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `&lt;link&gt;` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
 
 ### Shared user display API
 
@@ -156,7 +156,7 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `formatUserDisplay(mixed $state)` | `string` | Rendered HTML for a state value |
-| `normalizeUsersFromState(mixed $state)` | `list<array>` | Normalized user display arrays |
+| `normalizeUsersFromState(mixed $state)` | `list&lt;array&gt;` | Normalized user display arrays |
 | `recordToDisplayArray(Model $record)` | `array` | `label`, `description`, `image`, `verified`, `initials` |
 | `renderRichUser(array $user)` | `string` | Single-user rich HTML |
 | `renderAvatarStack(array $users)` | `string` | Multi-user stack HTML |

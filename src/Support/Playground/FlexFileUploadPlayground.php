@@ -60,6 +60,21 @@ class FlexFileUploadPlayground
                                     ->label('Barcode scanner'),
                             ])
                             ->modalWidth('2xl'),
+                        \Filament\Actions\Action::make('skeleton_loading_slide_over_demo')
+                            ->label('3. Open skeleton demo slide-over')
+                            ->color('warning')
+                            ->icon('heroicon-m-arrow-left-on-rectangle')
+                            ->slideOver()
+                            ->modalHeading('Skeleton loading demo (slide-over)')
+                            ->modalDescription('Same lazy-loaded fields as the modal demo, rendered in a Filament slide-over panel.')
+                            ->form([
+                                ScheduleField::make('skeleton_slide_over_schedule')
+                                    ->label('Schedule field')
+                                    ->timezone('UTC'),
+                                BarcodeScannerField::make('skeleton_slide_over_barcode')
+                                    ->label('Barcode scanner'),
+                            ])
+                            ->modalWidth('2xl'),
                         \Filament\Actions\Action::make('test_modal_css')
                             ->label('Quick modal CSS test')
                             ->color('gray')

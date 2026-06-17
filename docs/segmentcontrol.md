@@ -13,7 +13,7 @@ iOS-style **single-select** segmented control.
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl` |
 | **State type** | `string\|int` — one option key |
-| **Model cast** | `'alignment' => 'string'` |
+| **Model cast** | `'alignment' =&gt; 'string'` |
 | **FieldType** | `segment_control` |
 
 ### Basic usage
@@ -52,7 +52,7 @@ Built-in `Rule::in(...)` against option keys.
 | `tooltip` | `string\|null` | Hover tooltip |
 | `disabled` | `bool` | Disables this segment |
 
-Simple form: `'left' => 'Left'`.
+Simple form: `'left' =&gt; 'Left'`.
 
 ```php
 SegmentControl::make('field_name')

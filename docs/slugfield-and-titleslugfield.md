@@ -133,8 +133,8 @@ TitleSlugField::make(
 | `slugSourceLocale` | Nie | `app.locale` / pierwszy locale | Which title language drives slug generation |
 | `requiredTitleLocales` | Nie | only `slugSourceLocale` | `'all'`, `['en']` lub `null` — which title locales are required |
 | `spatieTranslatable` | Nie | `false` | Config flag for Spatie models — see [Translatable titles](#translatable-titles-single-slug) |
-| `titleLocaleConfigurator` | Nie | `null` | `fn (FlexTextInput $field, string $locale) => $field` |
-| `translatableFieldsConfigurator` | Nie | `null` | `fn (TranslatableFields $fields) => $fields->…` — custom configuration of title tabs |
+| `titleLocaleConfigurator` | Nie | `null` | `fn (FlexTextInput $field, string $locale) =&gt; $field` |
+| `translatableFieldsConfigurator` | Nie | `null` | `fn (TranslatableFields $fields) =&gt; $fields-&gt;…` — custom configuration of title tabs |
 | `spatieModel` | Nie | `null` | **Only** for Spatie **Sluggable** (`HasSlug`) — do not confuse with Translatable |
 
 #### What happens automatically (without Spatie)
@@ -189,7 +189,7 @@ Do tego: [Spatie `laravel-sluggable` integration](#spatie-laravel-sluggable-inte
 | Symptom | Cause | Fix |
 |-------|-----------|-----|
 | Slug does not save | Missing `slug` in `$fillable` | Add to `$fillable` |
-| No URL preview under slug | `url_host` is `null` | Set `APP_URL` in `.env` or `->urlHost(...)` |
+| No URL preview under slug | `url_host` is `null` | Set `APP_URL` in `.env` or `-&gt;urlHost(...)` |
 | Slug does not update from title | Manual edit disabled auto-sync | Click **Regenerate** |
 | Validation: slug already exists | Duplicate in database | Change slug or delete the old record |
 | `name` / `handle` fields instead of title/slug | Default field names | `fieldTitle:` / `fieldSlug:` lub config |
@@ -908,7 +908,7 @@ SlugField::make('slug')
 | `translatableTitleField(string\|Closure $fieldName)` | Base title attribute name (default: `title`) |
 | `spatieTranslatable(bool\|Closure $condition = true)` | Config flag (FlexField schema); hydrate auto-detects Spatie when present |
 | `usesTranslatableTitle()` | Whether translatable mode is active |
-| `getTitleLocales()` | Resolved `locale => label` map |
+| `getTitleLocales()` | Resolved `locale =&gt; label` map |
 | `getSlugSourceLocale()` | Effective source locale |
 | `shouldUseSpatieTranslatable()` | Evaluated `spatieTranslatable` flag |
 
@@ -1046,7 +1046,7 @@ SlugField::make('permalink')
 |---------------|---------------------------|
 | `generateSlugsFrom('title')` | Yes |
 | `generateSlugsFrom(['title', 'subtitle'])` | Yes — reads sibling form fields |
-| `generateSlugsFrom(fn ($model) => ...)` | Yes — Closure receives hydrated model |
+| `generateSlugsFrom(fn ($model) =&gt; ...)` | Yes — Closure receives hydrated model |
 | `saveSlugsTo()` | Yes — via `spatieSlugField()` |
 | `usingSeparator()` / `usingLanguage()` | Yes |
 | `slugsShouldBeNoLongerThan()` | Yes |
@@ -1315,7 +1315,7 @@ Only the exact value `/` is allowed as a special case.
 | `$fieldTitle` | `?string` | `config('filament-flex-fields.slug.field_title')` | Title state path |
 | `$fieldSlug` | `?string` | `config('filament-flex-fields.slug.field_slug')` | Slug state path |
 | `$titleField` | `?Field` | built-in `FlexTextInput` | Replace default title control |
-| `$titleFieldWrapper` | `?Closure` | `null` | Wrap title field: `fn ($field) => $field->columnSpan(2)` |
+| `$titleFieldWrapper` | `?Closure` | `null` | Wrap title field: `fn ($field) =&gt; $field-&gt;columnSpan(2)` |
 | `$titleAfterStateUpdated` | `?Closure` | `null` | Hook after title changes |
 | `$slugAfterStateUpdated` | `?Closure` | `null` | Hook after slug changes / regenerate |
 | `$titleRules` | `array\|Closure` | `['required', 'string']` | Validation on title |
@@ -1353,12 +1353,12 @@ TitleSlugField::make(
 | `$preserveSlugOnEdit` | `bool\|Closure` | `true` | Don't auto-update slug on edit |
 | `$translatableLocales` | `array\|Closure\|null` | `config('…slug.translatable_locales')` | Enables `TranslatableFields` title UI; `null` = single-language title |
 | `$slugSourceLocale` | `string\|Closure\|null` | `config('…slug.slug_source_locale')` or `app.locale` | Locale whose title drives slug generation |
-| `$requiredTitleLocales` | `'all'\|list<string>\|Closure\|null` | `config('…slug.required_title_locales')` or slug source locale only | Which title tabs are required (`null` = source locale only) |
+| `$requiredTitleLocales` | `'all'\|list&lt;string&gt;\|Closure\|null` | `config('…slug.required_title_locales')` or slug source locale only | Which title tabs are required (`null` = source locale only) |
 | `$spatieTranslatable` | `bool\|Closure` | `false` | Marks Spatie Translatable intent; hydrate auto-detects `HasTranslations` when package is present |
-| `$titleLocaleConfigurator` | `?Closure` | `null` | `fn (FlexTextInput $field, string $locale) => $field` |
-| `$translatableFieldsConfigurator` | `?Closure` | `null` | `fn (TranslatableFields $fields) => $fields->…` — full title tabs config |
+| `$titleLocaleConfigurator` | `?Closure` | `null` | `fn (FlexTextInput $field, string $locale) =&gt; $field` |
+| `$translatableFieldsConfigurator` | `?Closure` | `null` | `fn (TranslatableFields $fields) =&gt; $fields-&gt;…` — full title tabs config |
 | `$spatieModel` | `string\|Closure\|null` | `null` | **Spatie Sluggable only** (`HasSlug`) — not Translatable |
-| `$slugConfigurator` | `?Closure` | `null` | `fn (SlugField $field) => $field->...` |
+| `$slugConfigurator` | `?Closure` | `null` | `fn (SlugField $field) =&gt; $field-&gt;...` |
 
 **Example — custom title field + slug configurator:**
 
@@ -1481,7 +1481,7 @@ Enables translatable title source paths (`title.pl`, …). Usually set via `titl
 
 #### `titleLocales(array|Closure $locales)`
 
-Locale map (`['pl' => 'PL', 'en' => 'EN']`) or list (`['pl', 'en']`). Implies `translatableTitle(true)`.
+Locale map (`['pl' =&gt; 'PL', 'en' =&gt; 'EN']`) or list (`['pl', 'en']`). Implies `translatableTitle(true)`.
 
 #### `slugSourceLocale(string|Closure $locale)`
 
@@ -1548,7 +1548,7 @@ TitleSlugField::make(
 
 #### `slugifyUsing(?Closure $callback)`
 
-Custom slugifier; receives `['source' => string]`.
+Custom slugifier; receives `['source' =&gt; string]`.
 
 ```php
 ->slugifyUsing(fn (array $state): string => str_replace(' ', '.', strtolower($state['source']))),
@@ -1902,7 +1902,7 @@ Public methods used in Blade templates, tests, and custom field extensions:
 | `usesSpatieIntegration()` | `bool` | Whether Spatie sluggable options are resolved |
 | `getSpatieModelClass()` | `?string` | Resolved FQCN model class |
 | `shouldUseServerSideGeneration()` | `bool` | Whether Alpine triggers Livewire preview requests |
-| `getWrapperClasses()` | `list<string>` | Component CSS wrapper classes |
+| `getWrapperClasses()` | `list&lt;string&gt;` | Component CSS wrapper classes |
 
 **Example in test:**
 
@@ -2091,16 +2091,16 @@ Set your application locale (`app.locale` = `pl`) to load built-in translations 
 | Spatie not working | Missing package dependency | `composer require spatie/laravel-sluggable` |
 | Spatie not working | Model missing `getSlugOptions()` or Sluggable attribute | Add slug configuration to model or pass class to `spatieModel(Post::class)` |
 | `usesSpatieIntegration()` returns false | Form model doesn't match class with SlugOptions | Pass model class explicitly: `spatieModel(Post::class)` |
-| Missing permalink bar | `url_host` is null | Set `APP_URL` or `->urlHost(config('app.url'))` |
+| Missing permalink bar | `url_host` is null | Set `APP_URL` or `-&gt;urlHost(config('app.url'))` |
 | Permalink truncates host (`...`) | UX edit mode limits space | Normal behavior — full URL is copied to clipboard and visited |
-| Unique validation fails incorrectly | Missing tenant scope (multi-tenant) | `->slugUniqueScope(fn ($q) => $q->where('tenant_id', ...))` |
+| Unique validation fails incorrectly | Missing tenant scope (multi-tenant) | `-&gt;slugUniqueScope(fn ($q) =&gt; $q-&gt;where('tenant_id', ...))` |
 | Unique doesn't work on mount | Model record not loaded yet | Package defers validation — ensure the resource binds the record |
 | `slugifyUsing()` not working | Closure doesn't return string or missing source state | `slugifyUsing()` **always takes precedence** over Spatie generator |
-| Test `->set('data.slug')` fails | `wire:ignore` + Alpine | Change `data.title` or set `slug_auto_update_disabled` flag |
+| Test `-&gt;set('data.slug')` fails | `wire:ignore` + Alpine | Change `data.title` or set `slug_auto_update_disabled` flag |
 | `Target [Model] is not instantiable` | Closure maps to model type hint on mount | Use `mixed $record` or remove type hint in closure parameters |
 | Regenerate button is hidden | Auto-sync is still active | Manually edit the slug first to show the button (or set update flag) |
-| Homepage `/` slug rejected | Default pattern without allowHomepage | Call `->allowHomepageSlug()` (updates default pattern regex) or custom pattern |
-| Repeater rows do not sync | Incorrect source field path | `->source('title')` in the same schema row resolves relative paths automatically |
+| Homepage `/` slug rejected | Default pattern without allowHomepage | Call `-&gt;allowHomepageSlug()` (updates default pattern regex) or custom pattern |
+| Repeater rows do not sync | Incorrect source field path | `-&gt;source('title')` in the same schema row resolves relative paths automatically |
 
 **Diagnostics in tinker / test:**
 

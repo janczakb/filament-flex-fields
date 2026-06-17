@@ -12,11 +12,11 @@
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\MatrixChoiceField` |
-| **State type** | Radio: `array<string, string\|null>` · Checkbox: `array<string, list<string>>` |
+| **State type** | Radio: `array&lt;string, string\|null&gt;` · Checkbox: `array&lt;string, list&lt;string&gt;&gt;` |
 | **FieldType** | `matrix_choice` |
 | **Playground** | `matrix-choice` |
 | **Stylesheet** | Lazy `matrix-choice-field` bundle |
-| **Model cast** | `'responses' => 'array'` or `'responses' => 'json'` |
+| **Model cast** | `'responses' =&gt; 'array'` or `'responses' =&gt; 'json'` |
 
 > Use `matrixColumns()` — **not** `columns()` — because `columns()` is reserved by Filament layout grids.
 
@@ -126,8 +126,8 @@ Each key in `matrixColumns()` is a selectable column id (stored in state).
 
 | Form | Example |
 |------|---------|
-| `key => 'Label'` | `'happy' => 'Happy'` |
-| Rich array | `'high' => ['label' => 'High', 'icon' => 'heroicon-o-bolt', 'disabled' => true]` |
+| `key =&gt; 'Label'` | `'happy' =&gt; 'Happy'` |
+| Rich array | `'high' =&gt; ['label' =&gt; 'High', 'icon' =&gt; 'heroicon-o-bolt', 'disabled' =&gt; true]` |
 
 | Key | Type | Description |
 |-----|------|-------------|
@@ -168,7 +168,7 @@ Each key in `matrixColumns()` is a selectable column id (stored in state).
 
 - Default state: `[]`
 - On dehydrate, empty rows and invalid keys are stripped
-- Use Eloquent cast `'field' => 'array'` or `'field' => 'json'`
+- Use Eloquent cast `'field' =&gt; 'array'` or `'field' =&gt; 'json'`
 
 ### Validation
 
@@ -197,7 +197,7 @@ Translation keys (`resources/lang/en/default.php`):
 
 #### Custom cross-row rules
 
-Use standard Filament `->rule()` for business logic across rows:
+Use standard Filament `-&gt;rule()` for business logic across rows:
 
 ```php
 use Closure;
@@ -266,7 +266,7 @@ Per-column icon map merged into column metadata:
 #### `requiredRows(array|Closure $keys)`
 
 
-Mark rows as required without inline `required => true`:
+Mark rows as required without inline `required =&gt; true`:
 
 ```php
 ->requiredRows(['saturday', 'sunday'])
@@ -284,7 +284,7 @@ Lock entire rows by key (static, always on):
 #### `disabledCells(array|Closure $map)`
 
 
-Lock specific cells. Map shape: `rowKey => [columnKey, ...]`:
+Lock specific cells. Map shape: `rowKey =&gt; [columnKey, ...]`:
 
 ```php
 ->disabledCells([
@@ -313,7 +313,7 @@ Accepts `Closure` for server-side dynamic maps (re-evaluated on each render; use
 | `$row` | Target row to disable |
 | `$column` | Target column to disable |
 | `$whenRow` | Row to watch |
-| `$whenColumns` | `string` or `list<string>` — trigger column key(s) |
+| `$whenColumns` | `string` or `list&lt;string&gt;` — trigger column key(s) |
 
 | Trigger mode | Match condition |
 |--------------|-----------------|
@@ -371,16 +371,16 @@ Also supports standard [Inherited Filament field API](shared-concepts.md):
 |--------|---------|-------------|
 | `getMode()` | `string` | `radio` or `checkbox` |
 | `isCheckboxMode()` | `bool` | Checkbox mode flag |
-| `getRowKeys()` / `getColumnKeys()` | `list<string>` | Valid keys |
+| `getRowKeys()` / `getColumnKeys()` | `list&lt;string&gt;` | Valid keys |
 | `getNormalizedRows()` | `array` | Merged row metadata |
 | `getNormalizedColumns()` | `array` | Merged column metadata |
-| `getDisabledCellsMap()` | `array<string, list<string>>` | Static disabled cells |
-| `getConditionalDisableRules()` | `list<array>` | `disableCellWhen` / `disableRowWhen` rules |
+| `getDisabledCellsMap()` | `array&lt;string, list&lt;string&gt;&gt;` | Static disabled cells |
+| `getConditionalDisableRules()` | `list&lt;array&gt;` | `disableCellWhen` / `disableRowWhen` rules |
 | `matchesConditionalDisableRule($rule, $state)` | `bool` | Test rule against state |
 | `isRowDisabled($row, $state?)` | `bool` | Static + conditional row lock |
 | `isCellDisabled($row, $column, $state?)` | `bool` | Static + conditional cell lock |
 | `dehydrateValue($state)` | `array` | Normalize state for storage |
-| `getWrapperClasses()` | `list<string>` | `fff-matrix-choice` BEM classes |
+| `getWrapperClasses()` | `list&lt;string&gt;` | `fff-matrix-choice` BEM classes |
 | `getMatrixSizeStyles()` | `array` | CSS custom properties |
 
 ### FlexField schema config

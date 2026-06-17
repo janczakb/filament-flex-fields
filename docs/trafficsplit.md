@@ -10,8 +10,8 @@ Visual editor for splitting **100%** across 2–5 draggable segments (traffic al
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrafficSplit` |
-| **State type** | `array<int, int>` — weights summing to **100** |
-| **Model cast** | `'split' => 'array'` or `'json'` |
+| **State type** | `array&lt;int, int&gt;` — weights summing to **100** |
+| **Model cast** | `'split' =&gt; 'array'` or `'json'` |
 | **FieldType** | `traffic_split` |
 
 Example state: `[40, 35, 25]`.
@@ -61,7 +61,7 @@ On load, weights are passed through `normalizeWeights()`:
 - Respects `lockedSegments`
 - Rebalances unlocked segments so the total equals **100**
 
-Throws `InvalidArgumentException` when `minWeight × segmentCount > 100`.
+Throws `InvalidArgumentException` when `minWeight × segmentCount &gt; 100`.
 
 ### FlexField schema config
 
@@ -79,8 +79,8 @@ Throws `InvalidArgumentException` when `minWeight × segmentCount > 100`.
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `equalSplit()` | `list<int>` | Equal weight distribution across `segmentCount()` summing to **100** (remainder distributed to first segments). Default state source. |
-| `normalizeWeights(?array $weights)` | `list<int>` | Normalizes weights to segment count, enforces `minWeight`, respects `lockedSegments`, rebalances to total **100**. Returns `equalSplit()` when input is invalid. |
+| `equalSplit()` | `list&lt;int&gt;` | Equal weight distribution across `segmentCount()` summing to **100** (remainder distributed to first segments). Default state source. |
+| `normalizeWeights(?array $weights)` | `list&lt;int&gt;` | Normalizes weights to segment count, enforces `minWeight`, respects `lockedSegments`, rebalances to total **100**. Returns `equalSplit()` when input is invalid. |
 
 ### CSS / stacking
 

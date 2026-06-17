@@ -12,7 +12,7 @@ Revolut-style currency input: locale-aware formatting, digit animations, optiona
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField` |
-| **State type (internal)** | `int\|null` (single currency) or `array<amount: int\|null, currency: string>\|null` (multi-currency) |
+| **State type (internal)** | `int\|null` (single currency) or `array&lt;amount: int\|null, currency: string&gt;\|null` (multi-currency) |
 | **Default DB format** | **Minor units** as integer — e.g. `66 666,60 PLN` → `6666660` |
 | **FieldType** | `currency` |
 
@@ -86,7 +86,7 @@ On hydrate, `afterStateHydrated` normalizes incoming values:
 
 ### Custom database formats
 
-By default, `dehydrateStateUsing()` saves **minor units** as `int` (or `array` with multi-currency). There is **no** built-in `->storeAsMajor()` method — override dehydration (and optionally hydration) when your column uses a different format.
+By default, `dehydrateStateUsing()` saves **minor units** as `int` (or `array` with multi-currency). There is **no** built-in `-&gt;storeAsMajor()` method — override dehydration (and optionally hydration) when your column uses a different format.
 
 #### When to override `dehydrateStateUsing()`
 
@@ -151,7 +151,7 @@ CurrencyField::make('price')
     );
 ```
 
-> **Note:** The built-in closure is `fn (CurrencyField $component, mixed $state) => $component->normalizeState($state)`. When overriding, you receive state that is already in the component’s internal shape (minor units). Use `normalizeState()` only if you need to re-normalize arbitrary input.
+> **Note:** The built-in closure is `fn (CurrencyField $component, mixed $state) =&gt; $component-&gt;normalizeState($state)`. When overriding, you receive state that is already in the component’s internal shape (minor units). Use `normalizeState()` only if you need to re-normalize arbitrary input.
 
 #### Recommended: Eloquent cast
 

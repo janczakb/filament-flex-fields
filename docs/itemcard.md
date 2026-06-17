@@ -117,9 +117,9 @@ When the row is pressable:
 
 ### Form integration
 
-Fields inside `->schema()` are normal Filament form fields. They use the parent form `statePath` (e.g. `data.dark_mode`).
+Fields inside `-&gt;schema()` are normal Filament form fields. They use the parent form `statePath` (e.g. `data.dark_mode`).
 
-**Validation** runs on parent form submit (`$this->form->validate()`). Rules go on the **field**, not on `ItemCard`. Errors appear **below each field** in the trailing slot (standard Filament wrapper), not under `ItemCardGroup`.
+**Validation** runs on parent form submit (`$this-&gt;form-&gt;validate()`). Rules go on the **field**, not on `ItemCard`. Errors appear **below each field** in the trailing slot (standard Filament wrapper), not under `ItemCardGroup`.
 
 **Autosave / on change:**
 
@@ -157,7 +157,7 @@ ItemCard::make('Delete account')
     ]),
 ```
 
-`->itemCard()` is provided by the package `Action` class (`CanStyleItemCardAction`).
+`-&gt;itemCard()` is provided by the package `Action` class (`CanStyleItemCardAction`).
 
 ### Select & switch in item cards
 

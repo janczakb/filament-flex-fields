@@ -54,7 +54,7 @@ Stores the **array key** from `colors()`, e.g. `'indigo'`, not `#6366f1`.
 #### `colors(array|Closure $colors)`
 
 
-Map of `key => hex` (or CSS color). Required for meaningful UI.
+Map of `key =&gt; hex` (or CSS color). Required for meaningful UI.
 
 ```php
 ColorSwatchField::make('field_name')
@@ -101,7 +101,7 @@ ColorSwatchField::make('field_name')
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getColors()` | `array<string, string>` | Key → color map |
+| `getColors()` | `array&lt;string, string&gt;` | Key → color map |
 | `getSectionLabel()` | `string\|null` | Header text |
 | `getSectionIcon()` | `string\|BackedEnum\|Htmlable\|null` | Header icon |
 | `getDefaultSectionIcon()` | `string\|BackedEnum\|Htmlable` | Fallback icon |

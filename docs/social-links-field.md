@@ -12,8 +12,8 @@
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField` |
-| **State type** | `list<array<platform: string, url: string>>` (also accepts legacy associative map) |
-| **Model cast** | `'social_links' => 'array'` or `'json'` |
+| **State type** | `list&lt;array&lt;platform: string, url: string&gt;&gt;` (also accepts legacy associative map) |
+| **Model cast** | `'social_links' =&gt; 'array'` or `'json'` |
 | **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
 | **Playground** | `social-links-field` slug in Flex Fields playground |
 
@@ -258,12 +258,12 @@ Show focus ring on URL input shells (`HasFieldFocusOutline`).
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getPlatformValues()` | `list<string>` | Resolved platform slugs |
-| `getPlatformDefinitionMap()` | `array<string, SocialPlatformDefinition>` | Full metadata map |
-| `getPlatformDefinitions()` | `list<array>` | Alpine-ready definitions including `hosts` |
-| `getBrandIconSvgs()` | `array<string, string>` | Rendered SVG map per platform |
+| `getPlatformValues()` | `list&lt;string&gt;` | Resolved platform slugs |
+| `getPlatformDefinitionMap()` | `array&lt;string, SocialPlatformDefinition&gt;` | Full metadata map |
+| `getPlatformDefinitions()` | `list&lt;array&gt;` | Alpine-ready definitions including `hosts` |
+| `getBrandIconSvgs()` | `array&lt;string, string&gt;` | Rendered SVG map per platform |
 | `getAlpineConfiguration()` | `array` | Full JS config blob |
-| `getWrapperClasses()` | `array<string, bool>` | BEM wrapper class map |
+| `getWrapperClasses()` | `array&lt;string, bool&gt;` | BEM wrapper class map |
 | `isReorderable()` | `bool` | Whether reorder UI is enabled |
 | `shouldAutoFormatUrls()` | `bool` | Whether blur formatting runs |
 | `getMaxLinks()` | `?int` | Link cap |

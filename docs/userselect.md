@@ -10,7 +10,7 @@ Rich user picker extending [SelectField](selectfield.md): avatar, name, email, a
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect` |
-| **State type** | `string\|int\|null` (single) or `list<string\|int>` (multiple) |
+| **State type** | `string\|int\|null` (single) or `list&lt;string\|int&gt;` (multiple) |
 | **FieldType** | `user_select` |
 | **Parent** | `SelectField` — inherits select API unless overridden below |
 
@@ -96,7 +96,7 @@ When resolving a user record (trigger, tags, or search results):
 2. `avatarColumn()` value on the model
 3. If neither yields a URL, initials are shown on a gradient surface
 
-Use `getAvatarUrlUsing(fn ($record) => $record->getFilamentAvatarUrl())` to integrate with Filament's user avatar convention.
+Use `getAvatarUrlUsing(fn ($record) =&gt; $record-&gt;getFilamentAvatarUrl())` to integrate with Filament's user avatar convention.
 
 ### Configuration API (UserSelect-specific)
 
@@ -135,9 +135,9 @@ All [SelectField](selectfield.md) methods apply: `multiple()`, `searchable()`, `
 | `getInitialTriggerLabel()` | `string\|null` | Rich trigger HTML (single) |
 | `getInitialMultipleTriggerHtml()` | `string\|null` | SSR trigger HTML (multiple) |
 | `getInitialSelectedUserTagsHtml()` | `string\|null` | SSR tag row HTML (multiple, 2+ users) |
-| `getInitialSelectedUserEntriesForJs()` | `list<array>` | Hydration payload for client display |
-| `getInitialOptionsForJs()` | `list<array>` | Empty on page load for `optionModel()` (lazy) |
-| `getOptionsForJs()` | `list<array>` | Full options for Livewire fetches |
+| `getInitialSelectedUserEntriesForJs()` | `list&lt;array&gt;` | Hydration payload for client display |
+| `getInitialOptionsForJs()` | `list&lt;array&gt;` | Empty on page load for `optionModel()` (lazy) |
+| `getOptionsForJs()` | `list&lt;array&gt;` | Full options for Livewire fetches |
 
 ### FlexField schema config
 

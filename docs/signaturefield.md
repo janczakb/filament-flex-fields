@@ -240,7 +240,7 @@ SignatureField::make('field_name')
 | `getWebpQuality()` | `float` | WebP quality |
 | `getUndoIcon()` etc. | `string\|BackedEnum\|Htmlable` | Resolved icons |
 | `normalizeState(mixed $state)` | `string\|null` | Sanitized SVG |
-| `getWrapperClasses()` | `array<string, bool>` | `fff-signature-field` |
+| `getWrapperClasses()` | `array&lt;string, bool&gt;` | `fff-signature-field` |
 
 ### FlexField schema config
 

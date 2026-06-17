@@ -164,7 +164,7 @@ ItemCardGroup::make('Source Control')
 
 When enabled, **all child rows without interactive `schema()`** become pressable (hover + ripple). Rows with switch/select/action children stay non-pressable.
 
-Does not add actions by itself — combine with `ItemCard::pressableAction()` or `->chevron()` + `->url()` per row.
+Does not add actions by itself — combine with `ItemCard::pressableAction()` or `-&gt;chevron()` + `-&gt;url()` per row.
 
 ```php
 ItemCardGroup::make('Account')

@@ -13,7 +13,7 @@ SaaS-style **single-select** card group (radio behaviour).
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCards` |
 | **State type** | `string\|null` — one option key |
-| **Model cast** | `'plan' => 'string'` or backed enum |
+| **Model cast** | `'plan' =&gt; 'string'` or backed enum |
 | **FieldType** | `choice_cards` |
 
 ### Basic usage

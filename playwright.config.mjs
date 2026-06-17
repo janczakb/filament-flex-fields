@@ -20,7 +20,7 @@ export default defineConfig({
         },
         {
             name: 'playground',
-            testMatch: /playground-select\.spec\.mjs/,
+            testMatch: /playground-.*\.spec\.mjs/,
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: playgroundBaseURL ?? 'http://127.0.0.1:8000/admin/flex-fields-playground',

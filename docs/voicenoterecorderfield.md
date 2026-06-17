@@ -84,7 +84,7 @@ VoiceNoteRecorderField::make('voice_note')
 | Phase | State shape | Example |
 |-------|-------------|---------|
 | Empty | `null` | — |
-| After JS upload (before save) | Associative array keyed by UUID | `['a1b2…' => TemporaryUploadedFile]` |
+| After JS upload (before save) | Associative array keyed by UUID | `['a1b2…' =&gt; TemporaryUploadedFile]` |
 | After form dehydrate / save | `string` — path on `disk()` | `'voice-notes/01H….webm'` |
 | Existing record (edit) | `string` path | Loaded for playback via `getInitialAudioUrl()` |
 
@@ -211,7 +211,7 @@ Use **Dump JSON** in the playground to inspect temp upload state (`livewire-file
 - Requires **microphone permission** and a browser with `MediaRecorder` (Chrome, Safari, Firefox).
 - Prefers `audio/mp4` when supported (Safari), falls back to `audio/webm` / `audio/ogg`.
 - Local playback uses blob URLs; duration falls back to measured recording time when WebM metadata is missing.
-- Deferred upload hooks the parent `<form>` `submit` event (capture phase), uploads via Livewire, then calls `form.requestSubmit()`.
+- Deferred upload hooks the parent `&lt;form&gt;` `submit` event (capture phase), uploads via Livewire, then calls `form.requestSubmit()`.
 - Delete calls `removeUploadedFile` (temp) or `deleteUploadedFile` (persisted) via `callSchemaComponentMethod` when `schemaComponentKey` is available.
 - Translations: `filament-flex-fields::default.audio.*` (`record_label`, `uploading_on_submit`, etc.).
 

@@ -12,8 +12,8 @@ Two-panel **multi-select** listbox with search, transfer buttons, drag reorder, 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\DualListboxField` |
-| **State type** | `list<string>` — ordered selected option keys |
-| **Model cast** | `'permissions' => 'array'` or `'json'` |
+| **State type** | `list&lt;string&gt;` — ordered selected option keys |
+| **Model cast** | `'permissions' =&gt; 'array'` or `'json'` |
 | **FieldType** | `dual_listbox` |
 
 Example state: `['read', 'write', 'delete']`.
@@ -110,8 +110,8 @@ DualListboxField::make('permissions')
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `normalizeState(array $state)` | `list<string>` | Filters state to allowed, non-disabled option keys; preserves order and deduplicates. |
-| `getNormalizedOptions()` | `array<string, array<label, description, disabled>>` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
-| `getOptionsForJs()` | `list<array<value, label, description, disabled>>` | Option list shape passed to the Alpine/JS layer. |
+| `normalizeState(array $state)` | `list&lt;string&gt;` | Filters state to allowed, non-disabled option keys; preserves order and deduplicates. |
+| `getNormalizedOptions()` | `array&lt;string, array&lt;label, description, disabled&gt;&gt;` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
+| `getOptionsForJs()` | `list&lt;array&lt;value, label, description, disabled&gt;&gt;` | Option list shape passed to the Alpine/JS layer. |
 
 ---

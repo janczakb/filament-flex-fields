@@ -17,9 +17,9 @@ Spectrum-style segmented date and time inputs powered by [`@internationalized/da
 | **FlexTimeSegmentsField** | `FlexTimeSegmentsField` | — | No (dropdown) | `string` — e.g. `09:30` (`HH:MM`, 24h) |
 | **ScheduleField** | `ScheduleField` | — | No (embedded) | `array` — weekly schedule with timezone, days, slots — see [schedule-field.md](schedule-field.md) |
 | **FlexDateTimePicker** | `FlexDateTimePicker` | `dateTime` | Yes (popover) | `string` — e.g. `2026-06-15T14:30:00` |
-| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array<start: string\|null, end: string\|null>` |
+| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array&lt;start: string\|null, end: string\|null&gt;` |
 | **FlexDurationField** | `FlexDurationField` | `duration` | No | `string` — e.g. `02:30:00` |
-| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array<start: string\|null, end: string\|null>` |
+| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array&lt;start: string\|null, end: string\|null&gt;` |
 | **FlexMonthPicker** | `FlexMonthPicker` | `month` | Yes (month grid) | `string` — e.g. `2026-06` |
 | **FlexYearPicker** | `FlexYearPicker` | `year` | Yes (year grid) | `string` — e.g. `2026` |
 
@@ -458,7 +458,7 @@ use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
 #### `locale(string|Closure|null $locale)`
 
 
-BCP 47 locale for segment order, placeholders, separators, and calendar labels. Default: `app()->getLocale()`. Laravel-style tags (`pl_PL`) are normalized to BCP 47 (`pl-PL`) for JS `Intl` APIs. Segment order follows locale via `DateTimeLocaleOrder` — see [Display format vs storage format](#display-format-vs-storage-format).
+BCP 47 locale for segment order, placeholders, separators, and calendar labels. Default: `app()-&gt;getLocale()`. Laravel-style tags (`pl_PL`) are normalized to BCP 47 (`pl-PL`) for JS `Intl` APIs. Segment order follows locale via `DateTimeLocaleOrder` — see [Display format vs storage format](#display-format-vs-storage-format).
 
 ```php
 ->locale('en_US')
@@ -973,7 +973,7 @@ Configure fields manually in Filament schemas for full API access (`FlexDatePick
 | `isEmptyState(mixed $state)` | `bool` | Whether value is considered empty |
 | `getAlpineConfiguration()` | `array` | Full Alpine bootstrap payload |
 | `getViewSegments()` | `array` | SSR segment hydration |
-| `getWrapperClasses()` | `list<string>` | CSS class list |
+| `getWrapperClasses()` | `list&lt;string&gt;` | CSS class list |
 
 ### CSS classes
 

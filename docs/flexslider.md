@@ -99,17 +99,17 @@ See [Filament Slider documentation](https://filamentphp.com/docs/forms/fields/sl
 | `getValuePosition()` | `string` | Label position |
 | `shouldAutoFill()` | `bool` | Auto fill segments |
 | `getColor()` / `getFillColor()` | `string\|null` | Colors |
-| `getNormalizedStateValues()` | `list<float>` | Current handle values |
+| `getNormalizedStateValues()` | `list&lt;float&gt;` | Current handle values |
 | `isRangeState()` | `bool` | Range mode |
 | `valueToPercent()` / `valueToRatio()` | `float` | Position math |
-| `getInitialValueRatios()` | `list<float>` | SSR thumb positions |
+| `getInitialValueRatios()` | `list&lt;float&gt;` | SSR thumb positions |
 | `formatDisplayValue(?float $value)` | `string` | Formatted label |
 | `shouldShowStepDots()` | `bool` | Step dots visible |
-| `getStepDotRatios()` | `list<float>` | Dot positions |
+| `getStepDotRatios()` | `list&lt;float&gt;` | Dot positions |
 | `shouldRenderServerPips()` | `bool` | SSR pips mode |
-| `getServerRenderedPips()` | `list<array>` | Pip markup data |
+| `getServerRenderedPips()` | `list&lt;array&gt;` | Pip markup data |
 | `resolveConnectForChrome()` | `array\|false` | Fill connection flags |
-| `getInitialFillSegments()` | `list<array>` | SSR fill segments |
+| `getInitialFillSegments()` | `list&lt;array&gt;` | SSR fill segments |
 | `normalizeNumeric(float\|int $value)` | `float` | Step-aligned value |
 
 ### FlexField schema config

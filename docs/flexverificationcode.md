@@ -210,7 +210,7 @@ FlexVerificationCode::make('field_name')
 #### `footerAction(Action|Closure|null $action)`
 
 
-Register a **link-style** Filament action beside the footer text (e.g. **Resend**). Pass a `Closure` to create a default link action named `{field}-footer-action` with label `filament-flex-fields::default.verification_code.resend`. Non-link actions passed to this method are automatically converted with `->link()`.
+Register a **link-style** Filament action beside the footer text (e.g. **Resend**). Pass a `Closure` to create a default link action named `{field}-footer-action` with label `filament-flex-fields::default.verification_code.resend`. Non-link actions passed to this method are automatically converted with `-&gt;link()`.
 
 ```php
 FlexVerificationCode::make('field_name')
@@ -222,7 +222,7 @@ FlexVerificationCode::make('field_name')
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getLength()` | `int` | Code length |
-| `getResolvedGroups()` | `list<int>` | Group sizes |
+| `getResolvedGroups()` | `list&lt;int&gt;` | Group sizes |
 | `getGroupSeparator()` | `string\|null` | Separator character |
 | `shouldShowSeparators()` | `bool` | Multiple groups |
 | `getAllowedCharacters()` | `string` | `numeric` or `alphanumeric` |
@@ -238,7 +238,7 @@ FlexVerificationCode::make('field_name')
 | `getInputValidationPattern()` | `string` | Partial input regex |
 | `normalizeState(string $state)` | `string` | Filtered code |
 | `getDigitAriaLabel(int $index)` | `string` | Per-digit aria label |
-| `getWrapperClasses()` | `list<string>` | `fff-verification-code` |
+| `getWrapperClasses()` | `list&lt;string&gt;` | `fff-verification-code` |
 | `getHeading()` | `string\|Htmlable\|null` | Heading copy |
 | `getDescription()` | `string\|Htmlable\|null` | Description copy |
 | `getFooter()` | `string\|Htmlable\|null` | Footer prompt copy |
@@ -284,6 +284,6 @@ FlexVerificationCode::make('field_name')
 - Paste distributes characters across cells; non-allowed characters are stripped.
 - Alphanumeric mode uppercases letters in `normalizeState()`.
 - Playground section **Verification Code** demonstrates sizes, auto-submit, and the **Verify account** heading/footer/resend layout.
-- Footer actions use Filament `Action` with `->link()` styling (`.fi-ac-link-action`).
+- Footer actions use Filament `Action` with `-&gt;link()` styling (`.fi-ac-link-action`).
 
 ---

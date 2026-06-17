@@ -130,10 +130,10 @@ AudioField::make('field_name')
 | `shouldLoop()` | `bool` | Loop enabled |
 | `resolveAudioSrc(mixed $state)` | `string\|null` | Effective URL |
 | `hasCustomWaveform()` | `bool` | Custom peaks configured |
-| `getWaveform()` | `list<int>` | Normalized peaks |
-| `resolveWaveform(mixed $state)` | `list<int>` | Peaks for display |
+| `getWaveform()` | `list&lt;int&gt;` | Normalized peaks |
+| `resolveWaveform(mixed $state)` | `list&lt;int&gt;` | Peaks for display |
 | `getPlayIcon()` / `getPauseIcon()` | `string\|BackedEnum\|Htmlable` | Icons |
-| `getWrapperClasses()` | `list<string>` | `fff-audio-field-field` |
+| `getWrapperClasses()` | `list&lt;string&gt;` | `fff-audio-field-field` |
 
 ### FlexField schema config
 

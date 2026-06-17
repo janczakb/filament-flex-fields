@@ -94,7 +94,7 @@ Each component section documents four layers of API surface:
 
 | Layer | Description |
 |-------|-------------|
-| **Chainable config methods** | Fluent `->method()` calls on the component class. Accept scalars, `Closure`, or Filament utility injection. |
+| **Chainable config methods** | Fluent `-&gt;method()` calls on the component class. Accept scalars, `Closure`, or Filament utility injection. |
 | **Inherited APIs** | Methods from parent Filament classes (`Field`, `TextInput`, `Select`, traits) that work unchanged. Listed briefly where relevant. |
 | **Public helper methods** | Non-chainable getters and utilities used by Blade views, tests, or custom extensions. Documented per component when they expose stable behaviour. |
 | **FlexField schema keys** | Snake-case keys in field `config` arrays passed to `FlexFieldFormBuilder`. Map to chainable methods. Keys not yet wired in the builder may still be valid when configuring fields manually. |
@@ -180,7 +180,7 @@ Several interactive fields (`MapPickerField`, `AddressAutocompleteField`, `Selec
 |---------|----------|
 | **State sync** | Pass Livewire state through `$wire.$entangle('statePath')` in `x-data` — Alpine owns the UI, Livewire owns persistence. |
 | **Config changes** | Add a `wire:key` hash over read-only/disabled/config props (token, `fields()`, `storeFormat()`, size, variant). When config changes, Livewire remounts the ignored subtree with fresh Alpine boot data. |
-| **Server updates** | Avoid `->set('data.field')` on ignored fragments in tests; change upstream props or entangled state instead. |
+| **Server updates** | Avoid `-&gt;set('data.field')` on ignored fragments in tests; change upstream props or entangled state instead. |
 | **Dropdowns / maps** | Teleport menus to `body`, use shared overlay coordinator (`fffOverlays`) so only one menu stays open. `teleported-menu.css` raises z-index when a Filament modal is open (`:has(.fi-modal.fi-modal-open)`). |
 
 Example (`MapPickerField` / `AddressAutocompleteField`):
@@ -237,8 +237,8 @@ Modules used by only a single field (e.g. `core/date-time/*` used only by `flex-
 
 Every blade template rendering a component stylesheet registers CSS and Alpine chunks in request-scoped queues (`FlexFieldStylesheetQueue`, `FlexFieldAlpineQueue`). `load-stylesheet` immediately emits `emit-assets`:
 
-- **Full page** — `@push('styles')` into Filament `@stack('styles')` in `<head>`.
-- **Livewire partial** — inline `<link>` / `modulepreload` tags plus a hidden `data-fff-asset-batch` marker for the injector.
+- **Full page** — `@push('styles')` into Filament `@stack('styles')` in `&lt;head&gt;`.
+- **Livewire partial** — inline `&lt;link&gt;` / `modulepreload` tags plus a hidden `data-fff-asset-batch` marker for the injector.
 
 `queued-stylesheets` flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END`. Critical bundles may preload via `critical-stylesheet-preloads` at `HEAD_END`.
 
@@ -260,7 +260,7 @@ npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). Request-scoped queue + `emit-assets` prevent duplicate `<link>` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean.
+Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). Request-scoped queue + `emit-assets` prevent duplicate `&lt;link&gt;` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean.
 
 Playground CSS uses base `playground.css` plus per-slug `playground-{slug}.css` bundles pushed via `playground-page-stylesheets`.
 
@@ -359,7 +359,7 @@ Used by **SelectField** when options use a rich array shape or when `richOptions
 | `badge_color` | `string` | Filament color token for the badge. Default: `primary`. |
 | `disabled` | `bool` | Disables this option. |
 
-Option groups use nested arrays: `'Backend' => ['laravel' => 'Laravel', ...]`.
+Option groups use nested arrays: `'Backend' =&gt; ['laravel' =&gt; 'Laravel', ...]`.
 
 ---
 

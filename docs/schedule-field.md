@@ -12,8 +12,8 @@ Weekly **availability / opening-hours editor** with per-day toggles, **from/to t
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField` |
-| **State type** | `array<timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string, type?: string>>}>}` |
-| **Model cast** | `'opening_hours' => 'array'` or `'json'` |
+| **State type** | `array&lt;timezone?: string, days: array&lt;string, array{enabled: bool, slots: list&lt;array{from: string, to: string, type?: string&gt;&gt;}&gt;}` |
+| **Model cast** | `'opening_hours' =&gt; 'array'` or `'json'` |
 | **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
 | **Playground** | `schedule-field` slug in Flex Fields playground |
 
@@ -308,26 +308,26 @@ ScheduleField::make('hours')->focusOutline();
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getDays()` | `list<string>` | Normalized day codes to render |
+| `getDays()` | `list&lt;string&gt;` | Normalized day codes to render |
 | `showsTimezoneSelector()` | `bool` | Timezone block visible |
 | `getDefaultTimezoneIdentifier()` | `string\|null` | Default / fallback timezone |
 | `getTimeStep()` | `int` | Minute step (1–60) |
 | `getMinSlots()` / `getMaxSlots()` | `int` | Slot limits |
 | `shouldAllowCopyToWeekdays()` | `bool` | Copy button enabled |
 | `getCopySourceDay()` | `string` | Copy source day code |
-| `getWorkdays()` | `list<string>` | Copy target weekdays |
+| `getWorkdays()` | `list&lt;string&gt;` | Copy target weekdays |
 | `shouldRequireSlotsForEnabledDays()` | `bool` | Min slots enforced |
-| `getLockedDays()` | `list<string>` | Locked day codes |
+| `getLockedDays()` | `list&lt;string&gt;` | Locked day codes |
 | `isDayLocked(string $day)` | `bool` | Single day lock check |
 | `getVariant()` / `getSize()` | `string` | Resolved styling |
 | `defaultSchedule(?string $timezone, ?array $days)` | `array` | Static default state builder |
 | `normalizeState(mixed $state)` | `array` | Canonical schedule array |
 | `isEmptyState(mixed $state)` | `bool` | True when no day keys |
 | `stateMatches(array $normalized, mixed $state)` | `bool` | Compare normalized JSON |
-| `getResolvedTimezoneIdentifiers()` | `list<string>` | Allowed IANA identifiers |
-| `getTimezoneOptionsForJs()` | `list<array<id,label,offset>>` | Timezone dropdown data |
+| `getResolvedTimezoneIdentifiers()` | `list&lt;string&gt;` | Allowed IANA identifiers |
+| `getTimezoneOptionsForJs()` | `list&lt;array&lt;id,label,offset&gt;&gt;` | Timezone dropdown data |
 | `getAlpineConfiguration()` | `array` | Alpine + validation config |
-| `getWrapperClasses()` | `array<string, bool>` | Root CSS class map |
+| `getWrapperClasses()` | `array&lt;string, bool&gt;` | Root CSS class map |
 
 ---
 

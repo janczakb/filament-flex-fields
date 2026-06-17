@@ -10,7 +10,7 @@ SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](flexra
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist` |
-| **State type** | `list<string\|int>` — selected option keys |
+| **State type** | `list&lt;string\|int&gt;` — selected option keys |
 | **FieldType** | `flex_checklist` |
 | **State cast** | `OptionsArrayStateCast` |
 
@@ -59,7 +59,7 @@ Array of unique string keys. Default: `[]`. Duplicate values are deduplicated on
 #### `options(array|Closure $options)`
 
 
-`key => label` or rich array (`label`, `description`, `desc`, `icon`, `disabled`). From `HasChecklistOptions`.
+`key =&gt; label` or rich array (`label`, `description`, `desc`, `icon`, `disabled`). From `HasChecklistOptions`.
 
 ```php
 FlexChecklist::make('field_name')
@@ -158,7 +158,7 @@ FlexChecklist::make('field_name')
 | `getDisabledOptions()` | `array` | Disabled keys |
 | `isOptionDisabled(string\|int $key)` | `bool` | Row disabled |
 | `getChecklistSizeStyles()` | `array` | CSS custom properties |
-| `getWrapperClasses()` | `list<string>` | `fff-flex-checklist` |
+| `getWrapperClasses()` | `list&lt;string&gt;` | `fff-flex-checklist` |
 
 ### FlexField schema config
 

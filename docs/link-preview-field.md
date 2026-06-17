@@ -13,7 +13,7 @@ URL input with a live Open Graph / HTML meta preview card. The field uses the **
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\LinkPreviewField` |
 | **State type** | `string\|null` — full URL (including configured prefix) |
-| **Model cast** | `'article_url' => 'string'` or leave uncast |
+| **Model cast** | `'article_url' =&gt; 'string'` or leave uncast |
 | **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
 | **Playground** | `link-preview-field` slug in Flex Fields playground |
 
@@ -202,7 +202,7 @@ LinkPreviewField::make('url')
 
 #### `showVisitLink(bool|Closure $condition = true)`
 
-When **`true`** (default), the domain row is an `<a>` opening the URL in a new tab (`rel="noopener noreferrer"`).
+When **`true`** (default), the domain row is an `&lt;a&gt;` opening the URL in a new tab (`rel="noopener noreferrer"`).
 
 When **`false`**, the domain is plain text with the same icon styling (`fff-link-preview__domain--text`).
 
@@ -291,7 +291,7 @@ LinkPreviewField::make('url')->focusOutline();
 | `getScrapeUrl()` | `string` | Relative scrape route URL for Alpine |
 | `resolveInitialPreview(?string $url)` | `array\|null` | Server-side metadata (`title`, `description`, `image`) |
 | `getAlpineConfiguration()` | `array` | Config passed to `linkPreviewFieldFormComponent` |
-| `getWrapperClasses()` | `array<string, bool>` | Root CSS class map |
+| `getWrapperClasses()` | `array&lt;string, bool&gt;` | Root CSS class map |
 
 `resolveInitialPreview()` returns `null` when preview is disabled, URL is empty, URL is not scrapable, or scrape returns no metadata.
 
@@ -464,7 +464,7 @@ Uses `wire:ignore` on the Alpine root — prefer changing Livewire state or sibl
 
 ### Implementation notes
 
-- Metadata is scraped server-side via `UrlMetaScraper` (Open Graph + fallback `<title>` / `<meta name="description">` / `<meta property="og:image">`).
+- Metadata is scraped server-side via `UrlMetaScraper` (Open Graph + fallback `&lt;title&gt;` / `&lt;meta name="description"&gt;` / `&lt;meta property="og:image"&gt;`).
 - Non-scrapable URLs (invalid scheme, localhost, etc.) skip preview quietly.
 - Image preload runs client-side before revealing the card to avoid layout pop-in.
 - Invalid `variant()` or `previewLayout()` values throw `InvalidArgumentException` at render time.

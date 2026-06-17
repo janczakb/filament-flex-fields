@@ -15,7 +15,7 @@ Also used internally for `FieldType::Percentage` and `FieldType::RangeSlider`.
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrackSlider` |
 | **State type** | `int\|float` |
-| **Model cast** | `'volume' => 'integer'` or `'float'` |
+| **Model cast** | `'volume' =&gt; 'integer'` or `'float'` |
 | **FieldType** | `range_slider`, `percentage` |
 
 ### Basic usage

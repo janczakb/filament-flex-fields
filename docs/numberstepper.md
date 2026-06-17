@@ -13,7 +13,7 @@ Pill-shaped numeric control with **−** / **+** buttons and an animated NumberF
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper` |
 | **State type** | `int\|float\|null` when `nullable()` |
-| **Model cast** | `'quantity' => 'integer'` or `'decimal:2'` |
+| **Model cast** | `'quantity' =&gt; 'integer'` or `'decimal:2'` |
 | **FieldType** | `number_stepper` |
 
 ### Basic usage

@@ -25,7 +25,7 @@ Designed as a first-party, extensible alternative to third-party translatable ta
 
 ### Basic usage — standalone component
 
-Register field templates with `->schema()`. Each template is cloned once per locale tab.
+Register field templates with `-&gt;schema()`. Each template is cloned once per locale tab.
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
@@ -74,7 +74,7 @@ FlexTextInput::make('title')
 
 | Macro parameter | Type | Description |
 |-----------------|------|-------------|
-| `$locales` | `array\|Closure\|null` | Locale codes or `locale => label` map. `null` = read from config. |
+| `$locales` | `array\|Closure\|null` | Locale codes or `locale =&gt; label` map. `null` = read from config. |
 | `$modifyTabsUsing` | `Closure(TranslatableTab, string $locale): void\|null` | Applied to each locale tab after build. |
 | `$modifyFieldsUsing` | `Closure(Field, string $locale): void\|null` | Applied to each cloned field after build. |
 
@@ -146,7 +146,7 @@ Empty-badge logic considers **all** fields in a tab: the badge appears only when
 
 Locales can be supplied inline, split across codes and labels, or read from config.
 
-#### Inline map (`locale => label`)
+#### Inline map (`locale =&gt; label`)
 
 ```php
 TranslatableFields::make('Content')
@@ -168,7 +168,7 @@ TranslatableFields::make('Content')
 
 When only codes are given and no matching label exists, the tab label defaults to the uppercased locale code (`en` → `EN`).
 
-#### From config (omit `->locales()`)
+#### From config (omit `-&gt;locales()`)
 
 ```php
 // config/filament-flex-fields.php
@@ -239,7 +239,7 @@ TranslatableFields::make('Content')
     ->schema([FlexTextInput::make('title')]);
 ```
 
-Tabs use `->live()` so badges update as the user types.
+Tabs use `-&gt;live()` so badges update as the user types.
 
 #### `activeTabWithValue()`
 
@@ -421,7 +421,7 @@ TranslatableFields::make('Content')
 | Template | Locale | Form state path |
 |----------|--------|-----------------|
 | `FlexTextInput::make('title')` | `en` | `title.en` |
-| `FlexTextInput::make('title')->statePath('metadata.title')` | `en` | `metadata.title.en` |
+| `FlexTextInput::make('title')-&gt;statePath('metadata.title')` | `en` | `metadata.title.en` |
 
 Storage attribute for hydration defaults to the field `name` (`title`), not the full state path.
 
@@ -441,7 +441,7 @@ TranslatableFields::make('field_name')
 #### `locales(array|Closure $locales)`
 
 
-Locale codes as a list (`['ar', 'en']`) or map (`['ar' => 'Arabic', 'en' => 'English']`).
+Locale codes as a list (`['ar', 'en']`) or map (`['ar' =&gt; 'Arabic', 'en' =&gt; 'English']`).
 
 ```php
 TranslatableFields::make('field_name')
@@ -553,7 +553,7 @@ Register in a service provider `boot()` method. Every `TranslatableFields::make(
 
 | Config key | Used by |
 |------------|---------|
-| `translatable.locales` | Default locales when `->locales()` is omitted |
+| `translatable.locales` | Default locales when `-&gt;locales()` is omitted |
 | `translatable.locale_labels` | Tab labels for list-style locale codes |
 | `translatable.empty_badge_label` | `emptyBadgeWhenAllFieldsAreEmpty()` default label |
 | `translatable.rtl_locales` | `directionByLocale()` RTL detection |
@@ -592,7 +592,7 @@ Component concerns (under `TranslatableFields/Concerns/`):
 | **Purpose** | Any translatable attribute(s) | Title + single shared slug |
 | **Slug** | Not involved | One slug; only `slugSourceLocale` drives auto-sync |
 | **Component** | Standalone schema / field macro | `FusedGroup` factory; title tabs use `TranslatableFields` |
-| **Locale config** | `translatable.*` config + `->locales()` | `slug.translatable_locales` + `translatableLocales` param |
+| **Locale config** | `translatable.*` config + `-&gt;locales()` | `slug.translatable_locales` + `translatableLocales` param |
 | **Shared internals** | Full architecture above | Same `TranslatableFields` + `TranslatableHydrator` for title tabs |
 | **Extra config** | Direct fluent API | `translatableFieldsConfigurator` + `titleLocaleConfigurator` |
 | **Empty tab badges** | Opt-in via `emptyBadgeWhenAllFieldsAreEmpty()` | **On by default** for title locale tabs |

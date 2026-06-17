@@ -11,8 +11,12 @@
         "test:js": "node --import ./tests/js/register-svg-loader.mjs --test tests/js/**/*.test.mjs",
         "test:e2e": "playwright test",
         "test:e2e:coordinator": "playwright test tests/e2e/select-field-coordinator.spec.mjs",
-        "test:e2e:playground": "playwright test tests/e2e/playground-select.spec.mjs",
+        "test:e2e:playground": "playwright test tests/e2e/playground-*.spec.mjs",
+        "test:e2e:playground-skeleton": "playwright test tests/e2e/playground-skeleton-injector.spec.mjs",
         "test:assets": "npm run build && npm run test:js && npm run test:e2e:coordinator",
+        "docs:sanitize": "node scripts/sanitize-docs-for-mintlify.mjs",
+        "docs:dev": "mintlify dev",
+        "docs:build": "mintlify build",
         "build": "npm run build:css && npm run build:js && node scripts/generate-bundle-summary.mjs",
         "check:budgets": "node scripts/check-bundle-budgets.mjs",
         "watch:css": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --watch"

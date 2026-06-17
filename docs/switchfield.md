@@ -11,7 +11,7 @@ SaaS-style boolean toggle: label and description on one side, switch on the othe
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SwitchField` |
 | **State type** | `bool` |
-| **Model cast** | `'is_admin' => 'boolean'` |
+| **Model cast** | `'is_admin' =&gt; 'boolean'` |
 | **FieldType** | `toggle` |
 
 ### Basic usage

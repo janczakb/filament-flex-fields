@@ -10,8 +10,8 @@ SaaS-style **multi-select** card group (checkbox behaviour).
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCheckboxCards` |
-| **State type** | `array<int\|string>` — list of selected option keys |
-| **Model cast** | `'toppings' => 'array'` or `'json'` |
+| **State type** | `array&lt;int\|string&gt;` — list of selected option keys |
+| **Model cast** | `'toppings' =&gt; 'array'` or `'json'` |
 | **FieldType** | `choice_checkbox_cards` |
 
 ### Basic usage

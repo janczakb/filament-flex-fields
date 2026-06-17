@@ -173,9 +173,9 @@ CountryField::make('field_name')
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getVariant()` | `string` | Resolved variant |
-| `getAllowedCountryCodes()` | `list<string>\|null` | Whitelist or `null` |
-| `getExceptCountryCodes()` | `list<string>` | Blacklist |
-| `getResolvedCountryCodes()` | `list<string>` | Effective allowed codes |
+| `getAllowedCountryCodes()` | `list&lt;string&gt;\|null` | Whitelist or `null` |
+| `getExceptCountryCodes()` | `list&lt;string&gt;` | Blacklist |
+| `getResolvedCountryCodes()` | `list&lt;string&gt;` | Effective allowed codes |
 | `getDefaultCountryCode()` | `string\|null` | Effective default |
 | `isSearchable()` | `bool` | Search enabled |
 | `shouldShowCountryCode()` | `bool` | ISO code visible |
@@ -183,10 +183,10 @@ CountryField::make('field_name')
 | `shouldUseBrowserLocaleDefault()` | `bool` | Browser locale default |
 | `shouldSortCountriesByBrowserLocale()` | `bool` | Browser locale sort |
 | `getBrowserLocaleCountryCode()` | `string\|null` | Detected locale country |
-| `getCountriesMetadata()` | `list<array>` | `code`, `name`, `dial_code`, `flag_url` |
+| `getCountriesMetadata()` | `list&lt;array&gt;` | `code`, `name`, `dial_code`, `flag_url` |
 | `getCountrySelectOptions()` | `array` | Options map for internal select |
 | `normalizeState(mixed $state)` | `string\|null` | Canonical country code |
-| `getWrapperClasses()` | `list<string>` | CSS class list |
+| `getWrapperClasses()` | `list&lt;string&gt;` | CSS class list |
 
 ### FlexField schema config
 

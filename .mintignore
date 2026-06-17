@@ -1,0 +1,29 @@
+# PHP package — publish only docs/ + Mintlify config
+vendor/
+node_modules/
+COMPONENTS.md
+tests/
+src/
+resources/
+database/
+stubs/
+scripts/
+art/
+.github/
+playwright-report/
+test-results/
+coverage/
+*.log
+
+# Build artifacts
+resources/dist/
+
+# Package metadata (Mintlify auto-ignores README/CHANGELOG; list explicitly for clarity)
+composer.json
+composer.lock
+package-lock.json
+phpunit.xml
+phpunit.xml.dist
+pest.php
+playwright.config.mjs
+vitest.config.*
