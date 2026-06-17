@@ -1,4 +1,6 @@
-# SocialLinksField
+---
+title: "SocialLinksField"
+---
 
 ![SocialLinksField](/art/sc-29.png)
 

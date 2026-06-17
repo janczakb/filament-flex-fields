@@ -1,4 +1,6 @@
-# ColorSwatchField
+---
+title: "ColorSwatchField"
+---
 
 ![ColorSwatchField](/art/sc-24.png)
 

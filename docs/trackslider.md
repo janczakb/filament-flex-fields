@@ -1,4 +1,6 @@
-# TrackSlider
+---
+title: "TrackSlider"
+---
 
 ![TrackSlider](/art/sc-16.png)
 

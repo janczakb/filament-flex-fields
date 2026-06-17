@@ -1,4 +1,6 @@
-# MapPickerField
+---
+title: "MapPickerField"
+---
 
 ![MapPickerField](/art/sc-6.png)
 

@@ -1,4 +1,6 @@
-# Document maintenance
+---
+title: "Document maintenance"
+---
 
 [← Back to Table of Contents](/docs/index)
 

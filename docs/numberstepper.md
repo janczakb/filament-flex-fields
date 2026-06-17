@@ -1,4 +1,6 @@
-# NumberStepper
+---
+title: "NumberStepper"
+---
 
 ![NumberStepper](/art/sc-13.png)
 

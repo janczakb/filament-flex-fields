@@ -1,4 +1,6 @@
-# Form layout patterns
+---
+title: "Form layout patterns"
+---
 
 [← Back to Table of Contents](/docs/index)
 

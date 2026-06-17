@@ -8,6 +8,12 @@
 <p align="center">Pre-built CSS/JS · no Node.js in production · standalone fields or dynamic schemas · full per-component docs</p>
 
 <p align="center">
+    <a href="https://flex-fields.mintlify.app/" target="_blank" rel="noopener noreferrer">
+        <img src="art/docs-button.svg" width="320" height="52" alt="View documentation at flex-fields.mintlify.app">
+    </a>
+</p>
+
+<p align="center">
     <a href="https://packagist.org/packages/janczakb/filament-flex-fields"><img src="https://img.shields.io/packagist/v/janczakb/filament-flex-fields.svg?style=flat-square" alt="Latest Version on Packagist"></a>
     <a href="https://github.com/janczakb/filament-flex-fields/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-proprietary-7c3aed.svg?style=flat-square" alt="License"></a>
     <a href="https://packagist.org/packages/janczakb/filament-flex-fields"><img src="https://img.shields.io/packagist/dt/janczakb/filament-flex-fields.svg?style=flat-square" alt="Total Downloads"></a>

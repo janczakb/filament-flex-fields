@@ -1,4 +1,6 @@
-# RatingColumn
+---
+title: "RatingColumn"
+---
 
 [← Back to Table of Contents](/docs/index)
 

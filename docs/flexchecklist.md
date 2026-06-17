@@ -1,4 +1,6 @@
-# FlexChecklist
+---
+title: "FlexChecklist"
+---
 
 [← Back to Table of Contents](/docs/index)
 

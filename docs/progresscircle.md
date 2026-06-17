@@ -1,4 +1,6 @@
-# ProgressCircle
+---
+title: "ProgressCircle"
+---
 
 ![ProgressCircle](/art/sc-19.png)
 

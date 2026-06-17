@@ -1,4 +1,6 @@
-# ItemCardGroup
+---
+title: "ItemCardGroup"
+---
 
 ![ItemCardGroup](/art/sc-7.png)
 

@@ -1,4 +1,6 @@
-# SegmentControl
+---
+title: "SegmentControl"
+---
 
 ![SegmentControl](/art/sc-17.png)
 

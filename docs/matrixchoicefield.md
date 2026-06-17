@@ -1,4 +1,6 @@
-# MatrixChoiceField
+---
+title: "MatrixChoiceField"
+---
 
 ![MatrixChoiceField](/art/sc-2.png)
 

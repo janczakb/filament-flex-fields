@@ -1,4 +1,6 @@
-# SwitchField
+---
+title: "SwitchField"
+---
 
 [← Back to Table of Contents](/docs/index)
 

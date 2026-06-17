@@ -1,4 +1,6 @@
-# SegmentTabs
+---
+title: "SegmentTabs"
+---
 
 [← Back to Table of Contents](/docs/index)
 

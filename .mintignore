@@ -8,7 +8,6 @@ resources/
 database/
 stubs/
 scripts/
-art/
 .github/
 playwright-report/
 test-results/

@@ -1,4 +1,6 @@
-# FlexSlider
+---
+title: "FlexSlider"
+---
 
 [← Back to Table of Contents](/docs/index)
 

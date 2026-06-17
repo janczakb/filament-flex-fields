@@ -1,4 +1,6 @@
-# FlexFileUpload & FlexImageUpload
+---
+title: "FlexFileUpload & FlexImageUpload"
+---
 
 ![FlexFileUpload](/art/sc-31.png)
 

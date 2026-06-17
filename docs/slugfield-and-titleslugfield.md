@@ -1,4 +1,6 @@
-# SlugField & TitleSlugField
+---
+title: "SlugField & TitleSlugField"
+---
 
 ![SlugField](/art/sc-22.png)
 

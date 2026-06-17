@@ -1,4 +1,6 @@
-# FlexTextareaField
+---
+title: "FlexTextareaField"
+---
 
 ![FlexTextareaField](/art/sc-3.png)
 

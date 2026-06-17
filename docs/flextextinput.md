@@ -1,4 +1,6 @@
-# FlexTextInput
+---
+title: "FlexTextInput"
+---
 
 ![FlexTextInput](/art/sc-25.png)
 

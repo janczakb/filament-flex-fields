@@ -1,4 +1,6 @@
-# FlexColorPickerField
+---
+title: "FlexColorPickerField"
+---
 
 ![FlexColorPickerField](/art/sc-11.png)
 

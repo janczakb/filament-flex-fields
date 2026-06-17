@@ -1,4 +1,6 @@
-# LinkPreviewField
+---
+title: "LinkPreviewField"
+---
 
 ![LinkPreviewField](/art/sc-28.png)
 

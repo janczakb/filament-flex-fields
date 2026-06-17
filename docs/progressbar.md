@@ -1,4 +1,6 @@
-# ProgressBar
+---
+title: "ProgressBar"
+---
 
 ![ProgressBar](/art/sc-4.png)
 

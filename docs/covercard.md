@@ -1,4 +1,6 @@
-# CoverCard
+---
+title: "CoverCard"
+---
 
 ![CoverCard](/art/sc-18.png)
 

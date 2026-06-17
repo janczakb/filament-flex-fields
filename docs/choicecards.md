@@ -1,4 +1,6 @@
-# ChoiceCards
+---
+title: "ChoiceCards"
+---
 
 ![ChoiceCards](/art/sc-14.png)
 

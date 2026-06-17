@@ -1,4 +1,6 @@
-# ItemCardStack
+---
+title: "ItemCardStack"
+---
 
 [← Back to Table of Contents](/docs/index)
 

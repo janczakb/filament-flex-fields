@@ -1,4 +1,6 @@
-# Deprecated class aliases
+---
+title: "Deprecated class aliases"
+---
 
 [← Back to Table of Contents](/docs/index)
 

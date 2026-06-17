@@ -1,4 +1,6 @@
-# Layout components — quick comparison
+---
+title: "Layout components — quick comparison"
+---
 
 [← Back to Table of Contents](/docs/index)
 

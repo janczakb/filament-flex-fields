@@ -1,4 +1,6 @@
-# ItemCard
+---
+title: "ItemCard"
+---
 
 [← Back to Table of Contents](/docs/index)
 

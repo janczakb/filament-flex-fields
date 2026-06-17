@@ -1,4 +1,6 @@
-# CurrencyField
+---
+title: "CurrencyField"
+---
 
 ![CurrencyField](/art/sc-5.png)
 

@@ -1,4 +1,6 @@
-# PriceRangeField
+---
+title: "PriceRangeField"
+---
 
 ![PriceRangeField](/art/sc-9.png)
 

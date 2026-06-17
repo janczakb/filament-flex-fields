@@ -1,4 +1,6 @@
-# DualListboxField
+---
+title: "DualListboxField"
+---
 
 ![DualListboxField](/art/sc-8.png)
 

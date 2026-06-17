@@ -1,4 +1,6 @@
-# ChoiceCheckboxCards
+---
+title: "ChoiceCheckboxCards"
+---
 
 [← Back to Table of Contents](/docs/index)
 

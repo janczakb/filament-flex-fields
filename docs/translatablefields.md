@@ -1,4 +1,6 @@
-# TranslatableFields
+---
+title: "TranslatableFields"
+---
 
 ![TranslatableFields](/art/sc-22.png)
 

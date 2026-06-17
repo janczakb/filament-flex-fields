@@ -1,4 +1,6 @@
-# Shared Concepts
+---
+title: "Shared Concepts"
+---
 
 [← Back to table of contents](/docs/index)
 

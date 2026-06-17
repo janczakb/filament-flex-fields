@@ -1,4 +1,6 @@
-# BarcodeScannerField
+---
+title: "BarcodeScannerField"
+---
 
 ![BarcodeScannerField](/art/sc-30.png)
 

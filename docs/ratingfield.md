@@ -1,4 +1,6 @@
-# RatingField
+---
+title: "RatingField"
+---
 
 ![RatingField](/art/sc-20.png)
 
