@@ -7,123 +7,118 @@
     "light": "#818cf8",
     "dark": "#4f46e5"
   },
-  "favicon": "/favicon.png",
   "navigation": {
     "groups": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "README",
-          "docs/shared-concepts"
-        ],
-        "icon": "rocket"
-      },
-      {
-        "group": "Guides & Resources",
-        "pages": [
-          "docs/form-layout-patterns",
-          "docs/layout-components-quick-comparison",
-          "docs/deprecated-class-aliases"
-        ],
-        "icon": "book-open"
-      },
-      {
-        "group": "Text & Input",
-        "pages": [
-          "docs/flextextinput",
-          "docs/flextextareafield",
-          "docs/phonefield",
-          "docs/countryfield",
-          "docs/timezonefield",
-          "docs/slugfield-and-titleslugfield",
-          "docs/addressautocompletefield",
-          "docs/flexverificationcode",
-          "docs/tags-field",
-          "docs/link-preview-field",
-          "docs/social-links-field"
-        ],
-        "icon": "type"
-      },
-      {
-        "group": "Number & Range",
-        "pages": [
-          "docs/numberstepper",
-          "docs/currencyfield",
-          "docs/flexslider",
-          "docs/trackslider",
-          "docs/pricerangefield",
-          "docs/trafficsplit"
-        ],
-        "icon": "hash"
-      },
-      {
-        "group": "Choice & Selection",
-        "pages": [
-          "docs/switchfield",
-          "docs/segmentcontrol",
-          "docs/choicecards",
-          "docs/choicecheckboxcards",
-          "docs/flexchecklist",
-          "docs/flexradiolist",
-          "docs/matrixchoicefield",
-          "docs/selectfield",
-          "docs/userselect",
-          "docs/duallistboxfield"
-        ],
-        "icon": "check-square"
-      },
-      {
-        "group": "Date & Time",
-        "pages": [
-          "docs/date-and-time-fields",
-          "docs/schedule-field"
-        ],
-        "icon": "calendar"
-      },
-      {
-        "group": "Media, Color & Location",
-        "pages": [
-          "docs/colorswatchfield",
-          "docs/flexcolorpickerfield",
-          "docs/flexfileupload-and-fleximageupload",
-          "docs/videofield",
-          "docs/audiofield",
-          "docs/voicenoterecorderfield",
-          "docs/mappickerfield",
-          "docs/signaturefield",
-          "docs/creditcardfield",
-          "docs/barcode-scanner-field"
-        ],
-        "icon": "image"
-      },
-      {
-        "group": "Rating & Tables",
-        "pages": [
-          "docs/ratingfield",
-          "docs/ratingcolumn",
-          "docs/usercolumn"
-        ],
-        "icon": "star"
-      },
-      {
-        "group": "Layout & Display (Schemas)",
-        "pages": [
-          "docs/itemcard",
-          "docs/itemcardgroup",
-          "docs/itemcardstack",
-          "docs/covercard",
-          "docs/progressbar",
-          "docs/progresscircle",
-          "docs/segmenttabs",
-          "docs/translatablefields"
-        ],
-        "icon": "layout-template"
-      }
+    {
+      "group": "Getting Started",
+      "pages": [
+        "docs/index",
+        "docs/shared-concepts"
+      ],
+      "icon": "rocket"
+    },
+    {
+      "group": "Guides & Resources",
+      "pages": [
+        "docs/form-layout-patterns",
+        "docs/layout-components-quick-comparison",
+        "docs/deprecated-class-aliases"
+      ],
+      "icon": "book-open"
+    },
+    {
+      "group": "Text & Input",
+      "pages": [
+        "docs/flextextinput",
+        "docs/flextextareafield",
+        "docs/phonefield",
+        "docs/countryfield",
+        "docs/timezonefield",
+        "docs/slugfield-and-titleslugfield",
+        "docs/addressautocompletefield",
+        "docs/flexverificationcode",
+        "docs/tags-field",
+        "docs/link-preview-field",
+        "docs/social-links-field"
+      ],
+      "icon": "type"
+    },
+    {
+      "group": "Number & Range",
+      "pages": [
+        "docs/numberstepper",
+        "docs/currencyfield",
+        "docs/flexslider",
+        "docs/trackslider",
+        "docs/pricerangefield",
+        "docs/trafficsplit"
+      ],
+      "icon": "hash"
+    },
+    {
+      "group": "Choice & Selection",
+      "pages": [
+        "docs/switchfield",
+        "docs/segmentcontrol",
+        "docs/choicecards",
+        "docs/choicecheckboxcards",
+        "docs/flexchecklist",
+        "docs/flexradiolist",
+        "docs/matrixchoicefield",
+        "docs/selectfield",
+        "docs/userselect",
+        "docs/duallistboxfield"
+      ],
+      "icon": "check-square"
+    },
+    {
+      "group": "Date & Time",
+      "pages": [
+        "docs/date-and-time-fields",
+        "docs/schedule-field"
+      ],
+      "icon": "calendar"
+    },
+    {
+      "group": "Media, Color & Location",
+      "pages": [
+        "docs/colorswatchfield",
+        "docs/flexcolorpickerfield",
+        "docs/flexfileupload-and-fleximageupload",
+        "docs/videofield",
+        "docs/audiofield",
+        "docs/voicenoterecorderfield",
+        "docs/mappickerfield",
+        "docs/signaturefield",
+        "docs/creditcardfield",
+        "docs/barcode-scanner-field"
+      ],
+      "icon": "image"
+    },
+    {
+      "group": "Rating & Tables",
+      "pages": [
+        "docs/ratingfield",
+        "docs/ratingcolumn",
+        "docs/usercolumn"
+      ],
+      "icon": "star"
+    },
+    {
+      "group": "Layout & Display (Schemas)",
+      "pages": [
+        "docs/itemcard",
+        "docs/itemcardgroup",
+        "docs/itemcardstack",
+        "docs/covercard",
+        "docs/progressbar",
+        "docs/progresscircle",
+        "docs/segmenttabs",
+        "docs/translatablefields"
+      ],
+      "icon": "layout-template"
+    }
     ]
-  },
-  "logo": {
-    "light": "/logo/logo-light.svg",
-    "dark": "/logo/logo-dark.svg"
   },
   "navbar": {
     "links": [
