@@ -1,5 +1,7 @@
 # FlexColorPickerField
 
+![FlexColorPickerField](../art/sc-11.png)
+
 [← Back to Table of Contents](index.md)
 
 

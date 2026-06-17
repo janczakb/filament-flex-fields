@@ -1,5 +1,7 @@
 # CoverCard
 
+![CoverCard](../art/sc-18.png)
+
 [← Back to Table of Contents](index.md)
 
 

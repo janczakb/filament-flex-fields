@@ -1,5 +1,7 @@
 # FlexFileUpload & FlexImageUpload
 
+![FlexFileUpload](../art/sc-31.png)
+
 [← Back to Table of Contents](index.md)
 
 

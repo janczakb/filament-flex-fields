@@ -1,5 +1,7 @@
 # ItemCardGroup
 
+![ItemCardGroup](../art/sc-7.png)
+
 [← Back to Table of Contents](index.md)
 
 

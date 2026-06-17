@@ -1,5 +1,7 @@
 # ProgressBar
 
+![ProgressBar](../art/sc-4.png)
+
 [← Back to Table of Contents](index.md)
 
 

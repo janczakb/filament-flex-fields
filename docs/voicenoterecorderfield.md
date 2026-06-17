@@ -1,5 +1,7 @@
 # VoiceNoteRecorderField
 
+![VoiceNoteRecorderField](../art/sc-12.png)
+
 [← Back to Table of Contents](index.md)
 
 

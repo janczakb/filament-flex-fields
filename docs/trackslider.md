@@ -1,5 +1,7 @@
 # TrackSlider
 
+![TrackSlider](../art/sc-16.png)
+
 [← Back to Table of Contents](index.md)
 
 

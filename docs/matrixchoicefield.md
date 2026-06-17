@@ -1,5 +1,7 @@
 # MatrixChoiceField
 
+![MatrixChoiceField](../art/sc-2.png)
+
 [← Back to Table of Contents](index.md)
 
 

@@ -1,5 +1,7 @@
 # ProgressCircle
 
+![ProgressCircle](../art/sc-19.png)
+
 [← Back to Table of Contents](index.md)
 
 

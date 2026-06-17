@@ -1,5 +1,7 @@
 # MapPickerField
 
+![MapPickerField](../art/sc-6.png)
+
 [← Back to Table of Contents](index.md)
 
 

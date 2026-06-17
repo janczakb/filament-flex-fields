@@ -1,5 +1,7 @@
 # BarcodeScannerField
 
+![BarcodeScannerField](../art/sc-30.png)
+
 > **Added in v2.6.0**
 
 [← Back to Table of Contents](index.md)
