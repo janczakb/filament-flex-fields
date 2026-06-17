@@ -12,7 +12,7 @@ Interactive **credit card** form rendered as a flippable card UI with number for
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CreditCardField` |
-| **State type** | `array{number: string, name: string, expiry: string, cvv: string}` |
+| **State type** | `array<number: string, name: string, expiry: string, cvv: string>` |
 | **Model cast** | `'card' => 'array'` or `'json'` |
 | **FieldType** | `credit_card` |
 
@@ -90,7 +90,7 @@ On hydrate and dehydrate:
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `normalizeState(array $state)` | `array{number, name, expiry, cvv}` | Strips non-digits from `number`/`cvv`, formats `expiry` as `MM/YY`, trims `name`. |
+| `normalizeState(array $state)` | `array<number, name, expiry, cvv>` | Strips non-digits from `number`/`cvv`, formats `expiry` as `MM/YY`, trims `name`. |
 | `getExpiryValidationMessage(string $expiry)` | `string\|null` | Translation key message for invalid or expired `MM/YY` values; `null` when valid or empty. |
 
 ---

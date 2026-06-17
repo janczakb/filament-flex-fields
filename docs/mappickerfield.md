@@ -196,7 +196,7 @@ MapPickerField::make('field_name')
 | `getStringFormat()` | `string` | String template |
 | `getRequiredFields()` | `list<string>` | Required subset |
 | `getMapboxToken()` | `string\|null` | Resolved token |
-| `getDefaultCenter()` | `array{0: float, 1: float}` | Map center |
+| `getDefaultCenter()` | `array<0: float, 1: float>` | Map center |
 | `getDefaultZoom()` | `int` | Zoom level |
 | `isSearchable()` | `bool` | Search enabled |
 | `isStreetAddressesOnly()` | `bool` | Street-address restriction enabled |

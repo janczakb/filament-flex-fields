@@ -17,9 +17,9 @@ Spectrum-style segmented date and time inputs powered by [`@internationalized/da
 | **FlexTimeSegmentsField** | `FlexTimeSegmentsField` | — | No (dropdown) | `string` — e.g. `09:30` (`HH:MM`, 24h) |
 | **ScheduleField** | `ScheduleField` | — | No (embedded) | `array` — weekly schedule with timezone, days, slots — see [schedule-field.md](schedule-field.md) |
 | **FlexDateTimePicker** | `FlexDateTimePicker` | `dateTime` | Yes (popover) | `string` — e.g. `2026-06-15T14:30:00` |
-| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array{start: string\|null, end: string\|null}` |
+| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array<start: string\|null, end: string\|null>` |
 | **FlexDurationField** | `FlexDurationField` | `duration` | No | `string` — e.g. `02:30:00` |
-| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array{start: string\|null, end: string\|null}` |
+| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array<start: string\|null, end: string\|null>` |
 | **FlexMonthPicker** | `FlexMonthPicker` | `month` | Yes (month grid) | `string` — e.g. `2026-06` |
 | **FlexYearPicker** | `FlexYearPicker` | `year` | Yes (year grid) | `string` — e.g. `2026` |
 

@@ -120,6 +120,6 @@ All standard Filament `TextInput` methods work unchanged, including:
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `calculatePasswordStrength(string $password)` | `array{score: int, label: string, percent: float\|int}` | Password strength score **0–4**, human label (`Very weak` … `Strong`), and fill percent (`score / 4 × 100`). Empty password returns score `0`, empty label, percent `0`. Used by the strength bar meta row. |
+| `calculatePasswordStrength(string $password)` | `array<score: int, label: string, percent: float\|int>` | Password strength score **0–4**, human label (`Very weak` … `Strong`), and fill percent (`score / 4 × 100`). Empty password returns score `0`, empty label, percent `0`. Used by the strength bar meta row. |
 
 ---

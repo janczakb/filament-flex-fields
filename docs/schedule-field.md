@@ -12,7 +12,7 @@ Weekly **availability / opening-hours editor** with per-day toggles, **from/to t
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField` |
-| **State type** | `array{timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string, type?: string}>}>}` |
+| **State type** | `array<timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string, type?: string>>}>}` |
 | **Model cast** | `'opening_hours' => 'array'` or `'json'` |
 | **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
 | **Playground** | `schedule-field` slug in Flex Fields playground |
@@ -119,7 +119,7 @@ Static helper signature:
 ```php
 /**
  * @param  list<string>|null  $days  Which days to include (default: all seven)
- * @return array{timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string}>}>}
+ * @return array<timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string>>}>}
  */
 ScheduleField::defaultSchedule(?string $timezone = null, ?array $days = null): array
 ```
@@ -325,7 +325,7 @@ ScheduleField::make('hours')->focusOutline();
 | `isEmptyState(mixed $state)` | `bool` | True when no day keys |
 | `stateMatches(array $normalized, mixed $state)` | `bool` | Compare normalized JSON |
 | `getResolvedTimezoneIdentifiers()` | `list<string>` | Allowed IANA identifiers |
-| `getTimezoneOptionsForJs()` | `list<array{id,label,offset}>` | Timezone dropdown data |
+| `getTimezoneOptionsForJs()` | `list<array<id,label,offset>>` | Timezone dropdown data |
 | `getAlpineConfiguration()` | `array` | Alpine + validation config |
 | `getWrapperClasses()` | `array<string, bool>` | Root CSS class map |
 

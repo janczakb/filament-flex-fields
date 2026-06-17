@@ -12,7 +12,7 @@ Revolut-style currency input: locale-aware formatting, digit animations, optiona
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField` |
-| **State type (internal)** | `int\|null` (single currency) or `array{amount: int\|null, currency: string}\|null` (multi-currency) |
+| **State type (internal)** | `int\|null` (single currency) or `array<amount: int\|null, currency: string>\|null` (multi-currency) |
 | **Default DB format** | **Minor units** as integer — e.g. `66 666,60 PLN` → `6666660` |
 | **FieldType** | `currency` |
 

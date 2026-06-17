@@ -108,7 +108,7 @@ Toolbar selects, toolbar actions, and `submitAction()` are **not** configurable 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getInitialHeightRem()` | `float` | Server-rendered initial textarea height in `rem` from `rows()` (formula: `max(rows × 1.5 + 0.25, 2.25)`). |
-| `getToolbarSelects()` | `list<array{statePath, options, placeholder, icon, initialValue, initialLabel}>` | Resolved toolbar dropdown configs with server-rendered initial labels. |
+| `getToolbarSelects()` | `list<array<statePath, options, placeholder, icon, initialValue, initialLabel>>` | Resolved toolbar dropdown configs with server-rendered initial labels. |
 | `isSubmitDisabled()` | `bool` | Whether the submit action should be disabled (trimmed state is blank). |
 
 ---

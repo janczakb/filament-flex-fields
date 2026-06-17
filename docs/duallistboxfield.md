@@ -111,7 +111,7 @@ DualListboxField::make('permissions')
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `normalizeState(array $state)` | `list<string>` | Filters state to allowed, non-disabled option keys; preserves order and deduplicates. |
-| `getNormalizedOptions()` | `array<string, array{label, description, disabled}>` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
-| `getOptionsForJs()` | `list<array{value, label, description, disabled}>` | Option list shape passed to the Alpine/JS layer. |
+| `getNormalizedOptions()` | `array<string, array<label, description, disabled>>` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
+| `getOptionsForJs()` | `list<array<value, label, description, disabled>>` | Option list shape passed to the Alpine/JS layer. |
 
 ---

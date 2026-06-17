@@ -12,7 +12,7 @@ International phone input with searchable country picker, libphonenumber validat
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField` |
-| **State type** | `array{country: string, national: string, e164: string}` |
+| **State type** | `array<country: string, national: string, e164: string>` |
 | **FieldType** | `phone` |
 
 ### Basic usage

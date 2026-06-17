@@ -533,7 +533,7 @@ All standard Filament `TextInput` methods work unchanged, including:
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `calculatePasswordStrength(string $password)` | `array{score: int, label: string, percent: float\|int}` | Password strength score **0–4**, human label (`Very weak` … `Strong`), and fill percent (`score / 4 × 100`). Empty password returns score `0`, empty label, percent `0`. Used by the strength bar meta row. |
+| `calculatePasswordStrength(string $password)` | `array<score: int, label: string, percent: float\|int>` | Password strength score **0–4**, human label (`Very weak` … `Strong`), and fill percent (`score / 4 × 100`). Empty password returns score `0`, empty label, percent `0`. Used by the strength bar meta row. |
 
 ---
 
@@ -688,7 +688,7 @@ Toolbar selects, toolbar actions, and `submitAction()` are **not** configurable 
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `getInitialHeightRem()` | `float` | Server-rendered initial textarea height in `rem` from `rows()` (formula: `max(rows × 1.5 + 0.25, 2.25)`). |
-| `getToolbarSelects()` | `list<array{statePath, options, placeholder, icon, initialValue, initialLabel}>` | Resolved toolbar dropdown configs with server-rendered initial labels. |
+| `getToolbarSelects()` | `list<array<statePath, options, placeholder, icon, initialValue, initialLabel>>` | Resolved toolbar dropdown configs with server-rendered initial labels. |
 | `isSubmitDisabled()` | `bool` | Whether the submit action should be disabled (trimmed state is blank). |
 
 ---
@@ -1315,8 +1315,8 @@ See [Control size](#control-size).
 | Method | Returns | Description |
 |--------|---------|-------------|
 | `normalizeState(array $state)` | `list<string>` | Filters state to allowed, non-disabled option keys; preserves order and deduplicates. |
-| `getNormalizedOptions()` | `array<string, array{label, description, disabled}>` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
-| `getOptionsForJs()` | `list<array{value, label, description, disabled}>` | Option list shape passed to the Alpine/JS layer. |
+| `getNormalizedOptions()` | `array<string, array<label, description, disabled>>` | Flattened option map from simple strings or rich arrays plus `disabledOptions()`. |
+| `getOptionsForJs()` | `list<array<value, label, description, disabled>>` | Option list shape passed to the Alpine/JS layer. |
 
 ---
 
@@ -1329,7 +1329,7 @@ Dual-handle **price range** slider with histogram backdrop, min/max numeric inpu
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PriceRangeField` |
-| **State type** | `array{min: int|float, max: int|float}` |
+| **State type** | `array<min: int|float, max: int|float>` |
 | **Model cast** | `'price_range' => 'array'` or `'json'` |
 | **FieldType** | `price_range` |
 
@@ -1433,7 +1433,7 @@ On hydrate and dehydrate, values are clamped to `[min, max]`, stepped, and `min`
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `normalizeState(array $state)` | `array{min, max}` | Clamps min/max to bounds, applies step rounding, ensures `min ≤ max`. |
+| `normalizeState(array $state)` | `array<min, max>` | Clamps min/max to bounds, applies step rounding, ensures `min ≤ max`. |
 | `defaultHistogram()` | `list<float>` | Built-in 32-bar histogram heights (8–100) used when `histogram()` is empty. |
 | `hasPrefix()` | `bool` | Whether a currency/unit prefix is configured (not `withoutPrefix()`). |
 
@@ -1448,7 +1448,7 @@ Interactive **credit card** form rendered as a flippable card UI with number for
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CreditCardField` |
-| **State type** | `array{number: string, name: string, expiry: string, cvv: string}` |
+| **State type** | `array<number: string, name: string, expiry: string, cvv: string>` |
 | **Model cast** | `'card' => 'array'` or `'json'` |
 | **FieldType** | `credit_card` |
 
@@ -1542,7 +1542,7 @@ On hydrate and dehydrate:
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `normalizeState(array $state)` | `array{number, name, expiry, cvv}` | Strips non-digits from `number`/`cvv`, formats `expiry` as `MM/YY`, trims `name`. |
+| `normalizeState(array $state)` | `array<number, name, expiry, cvv>` | Strips non-digits from `number`/`cvv`, formats `expiry` as `MM/YY`, trims `name`. |
 | `getExpiryValidationMessage(string $expiry)` | `string\|null` | Translation key message for invalid or expired `MM/YY` values; `null` when valid or empty. |
 
 ---
@@ -1556,7 +1556,7 @@ International phone input with searchable country picker, libphonenumber validat
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField` |
-| **State type** | `array{country: string, national: string, e164: string}` |
+| **State type** | `array<country: string, national: string, e164: string>` |
 | **FieldType** | `phone` |
 
 ### Basic usage
@@ -2245,7 +2245,7 @@ Disable map interaction.
 | `getStringFormat()` | `string` | String template |
 | `getRequiredFields()` | `list<string>` | Required subset |
 | `getMapboxToken()` | `string\|null` | Resolved token |
-| `getDefaultCenter()` | `array{0: float, 1: float}` | Map center |
+| `getDefaultCenter()` | `array<0: float, 1: float>` | Map center |
 | `getDefaultZoom()` | `int` | Zoom level |
 | `isSearchable()` | `bool` | Search enabled |
 | `isStreetAddressesOnly()` | `bool` | Street-address restriction enabled |
@@ -3508,7 +3508,7 @@ Revolut-style currency input: locale-aware formatting, digit animations, optiona
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField` |
-| **State type (internal)** | `int\|null` (single currency) or `array{amount: int\|null, currency: string}\|null` (multi-currency) |
+| **State type (internal)** | `int\|null` (single currency) or `array<amount: int\|null, currency: string>\|null` (multi-currency) |
 | **Default DB format** | **Minor units** as integer — e.g. `66 666,60 PLN` → `6666660` |
 | **FieldType** | `currency` |
 
@@ -4116,7 +4116,7 @@ Weekly availability editor: day toggles, from/to time slots, breaks, copy-to-wee
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField` |
-| **State type** | `array{timezone?: string, days: …}` |
+| **State type** | `array<timezone?: string, days: …>` |
 | **Model cast** | `'opening_hours' => 'array'` or `'json'` |
 | **Playground** | `schedule-field` |
 
@@ -4221,7 +4221,7 @@ Social profile link editor: platform picker, one URL per platform, hostname vali
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField` |
-| **State type** | `list<array{platform: string, url: string}>` |
+| **State type** | `list<array<platform: string, url: string>>` |
 | **Model cast** | `'social_links' => 'array'` or `'json'` |
 | **Playground** | `social-links-field` |
 
@@ -4304,9 +4304,9 @@ Spectrum-style segmented date and time inputs powered by [`@internationalized/da
 | **FlexDatePicker** | `FlexDatePicker` | `date` | Yes (popover) | `string` — e.g. `2026-06-15` |
 | **FlexTimeField** | `FlexTimeField` | `time` | No | `string` — e.g. `14:30:00` |
 | **FlexDateTimePicker** | `FlexDateTimePicker` | `dateTime` | Yes (popover) | `string` — e.g. `2026-06-15T14:30:00` |
-| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array{start: string\|null, end: string\|null}` |
+| **FlexDateRangeField** | `FlexDateRangeField` | `dateRange` | Yes (range UI) | `array<start: string\|null, end: string\|null>` |
 | **FlexDurationField** | `FlexDurationField` | `duration` | No | `string` — e.g. `02:30:00` |
-| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array{start: string\|null, end: string\|null}` |
+| **FlexTimeRangeField** | `FlexTimeRangeField` | `timeRange` | No | `array<start: string\|null, end: string\|null>` |
 | **FlexMonthPicker** | `FlexMonthPicker` | `month` | Yes (month grid) | `string` — e.g. `2026-06` |
 | **FlexYearPicker** | `FlexYearPicker` | `year` | Yes (year grid) | `string` — e.g. `2026` |
 

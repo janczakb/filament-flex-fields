@@ -12,7 +12,7 @@ Dual-handle **price range** slider with histogram backdrop, min/max numeric inpu
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PriceRangeField` |
-| **State type** | `array{min: int|float, max: int|float}` |
+| **State type** | `array<min: int|float, max: int|float>` |
 | **Model cast** | `'price_range' => 'array'` or `'json'` |
 | **FieldType** | `price_range` |
 
@@ -170,7 +170,7 @@ On hydrate and dehydrate, values are clamped to `[min, max]`, stepped, and `min`
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `normalizeState(array $state)` | `array{min, max}` | Clamps min/max to bounds, applies step rounding, ensures `min ≤ max`. |
+| `normalizeState(array $state)` | `array<min, max>` | Clamps min/max to bounds, applies step rounding, ensures `min ≤ max`. |
 | `defaultHistogram()` | `list<float>` | Built-in 32-bar histogram heights (8–100) used when `histogram()` is empty. |
 | `hasPrefix()` | `bool` | Whether a currency/unit prefix is configured (not `withoutPrefix()`). |
 
