@@ -9,7 +9,7 @@
 
 <p align="center">
     <a href="https://flex-fields.mintlify.app/" target="_blank" rel="noopener noreferrer">
-        <img src="art/docs-button.svg" width="320" height="52" alt="View documentation at flex-fields.mintlify.app">
+        <img src="art/docs-button.png" width="360" alt="Documentation — flex-fields.mintlify.app">
     </a>
 </p>
 
