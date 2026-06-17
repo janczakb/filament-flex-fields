@@ -304,6 +304,18 @@ return [
         'signature_close_icon' => 'gravityui-xmark',
         'video_size' => 'md',
         'audio_size' => 'md',
+        /*
+        | Default icon sets for IconPickerField when ->sets() is not called.
+        | null = all installed blade-icons sets. Example: ['heroicons', 'gravity-icons']
+        */
+        'icon_picker_sets' => null,
+        'icon_picker_size' => 'md',
+        'icon_picker_variant' => 'bordered',
+        'icon_picker_index_cache_days' => 7,
+        'icon_picker_svg_cache_days' => 30,
+        'icon_picker_catalog_cache_days' => 7,
+        'icon_picker_search_cache_minutes' => 60,
+        'icon_picker_use_bundled_manifest' => true,
     ],
 
     /*

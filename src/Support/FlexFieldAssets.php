@@ -78,10 +78,12 @@ class FlexFieldAssets
         'rating-field',
         'color-swatch',
         'select-field',
+        'icon-picker-field',
         'user-select',
         'user-display',
         'user-column',
         'rating-column',
+        'icon-column',
         'hold-confirm-action',
         'track-slider',
         'segment-control',
@@ -126,6 +128,7 @@ class FlexFieldAssets
         'currency-field' => ['flex-text-input', 'teleported-menu'],
         'address-autocomplete' => ['flex-text-input', 'teleported-menu', 'map-picker-dropdown'],
         'flex-color-picker' => ['flex-text-input'],
+        'icon-picker-field' => ['teleported-menu', 'select-field'],
         'slug-field' => ['flex-text-input'],
         'link-preview-field' => ['flex-text-input'],
         'barcode-scanner-field' => ['flex-text-input'],
@@ -239,9 +242,30 @@ class FlexFieldAssets
      */
     public static function criticalPreloadStylesheets(): array
     {
-        return array_values(array_filter(
+        $preloads = array_values(array_filter(
             self::CRITICAL_PRELOAD_STYLESHEETS,
             fn (string $component): bool => self::hasLazyStylesheet($component),
+        ));
+
+        if (! request()->is('*flex-fields-playground*')) {
+            return $preloads;
+        }
+
+        $slug = self::resolvePlaygroundSlugFromRequest();
+
+        if (blank($slug)) {
+            return $preloads;
+        }
+
+        if (self::hasPlaygroundBundleForSlug($slug)) {
+            return [];
+        }
+
+        $needed = self::playgroundStylesheetsFor($slug);
+
+        return array_values(array_filter(
+            $preloads,
+            fn (string $component): bool => in_array($component, $needed, true),
         ));
     }
 

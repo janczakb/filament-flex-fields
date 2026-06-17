@@ -52,4 +52,5 @@ pnpm-debug.log*
 
 # Playwright / Testing
 /test-results/
+/reference/
 /bin/

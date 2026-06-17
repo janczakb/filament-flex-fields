@@ -157,6 +157,14 @@ VoiceNoteRecorderField::make('field_name')
     ->size('md');
 ```
 
+#### `focusOutline(bool|Closure $condition = true)`
+
+Inherited from `HasFieldFocusOutline` via `FlexFileUpload`. Default: **`false`**. Adds the shared focus ring on the recorder shell when enabled.
+
+```php
+VoiceNoteRecorderField::make('voice_note')->focusOutline();
+```
+
 ### Inherited FileUpload API
 
 `VoiceNoteRecorderField` uses the standard Filament file upload pipeline (not FilePond UI). Common options:
@@ -170,7 +178,124 @@ VoiceNoteRecorderField::make('field_name')
 | `required()` / `nullable()` | Validation |
 | `deleteFileOnRemove()` | Remove file from disk when user deletes recording (enabled by default) |
 | `storeFileNamesIn(string\|Closure\|null $path)` | Sibling state for original filenames |
-| `preserveFilenames()` / `moveFiles()` | See [FlexFileUpload](#flexfileupload--fleximageupload) |
+| `preserveFilenames()` / `moveFiles()` | See [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) |
+| `acceptedFileTypes(array\|Closure $types)` | Override MIME whitelist (defaults set in `setUp()`) |
+| `imageEditor(bool\|Closure $condition = true)` | Not used by voice UI — leave disabled (default) |
+| `multiple(bool\|Closure $condition = true)` | Single recording per field — keep `multiple(false)` |
+| `maxFiles(int\|Closure $max)` | Typically `1` for a single voice note |
+| `openable()` / `downloadable()` / `previewable()` | FileUpload flags; voice field uses custom playback UI |
+
+```php
+VoiceNoteRecorderField::make('voice_note')
+    ->disk('s3')
+    ->directory('support/voice-notes')
+    ->visibility('private')
+    ->maxSize(5120) // KB
+    ->acceptedFileTypes(['audio/webm', 'audio/mp4', 'audio/mpeg'])
+    ->maxFiles(1);
+```
+
+### Flex fields context
+
+There is **no** `FieldType` enum mapping for `VoiceNoteRecorderField`. Use the PHP class directly in Filament schemas, or register a custom flex-field handler if you need schema-driven forms.
+
+### Model & persistence
+
+```php
+// Migration
+$table->string('voice_note_path')->nullable();
+
+// Model
+protected $fillable = ['voice_note_path'];
+```
+
+Optional URL accessor for playback outside the form:
+
+```php
+public function getVoiceNoteUrlAttribute(): ?string
+{
+    if (blank($this->voice_note_path)) {
+        return null;
+    }
+
+    return Storage::disk('public')->url($this->voice_note_path);
+}
+```
+
+Edit form with existing recording:
+
+```php
+VoiceNoteRecorderField::make('voice_note_path')
+    ->label('Voice note')
+    ->disk('public')
+    ->directory('voice-notes')
+    ->default(fn (?Ticket $record): ?string => $record?->voice_note_path);
+// getInitialAudioUrl() resolves playback URL from persisted path on load
+```
+
+### Recipes
+
+#### Support ticket voice note — deferred upload
+
+```php
+VoiceNoteRecorderField::make('voice_note_path')
+    ->label('Describe the issue')
+    ->disk('public')
+    ->directory('tickets/voice-notes')
+    ->maxDuration(120)
+    ->required()
+    ->helperText('Record up to 2 minutes. Upload runs when you submit the form.');
+```
+
+#### Immediate upload — feedback widget
+
+```php
+VoiceNoteRecorderField::make('feedback_audio')
+    ->label('Voice feedback')
+    ->uploadImmediately()
+    ->disk('public')
+    ->directory('feedback')
+    ->maxDuration(60);
+```
+
+#### Edit form — existing file playback
+
+```php
+VoiceNoteRecorderField::make('voice_note_path')
+    ->label('Voice message')
+    ->default(fn (?Message $record): ?string => $record?->voice_note_path)
+    ->disk('public')
+    ->directory('messages/voice')
+    ->uploadOnSubmit();
+```
+
+#### Private S3 disk — short 30s limit
+
+```php
+VoiceNoteRecorderField::make('voice_note_path')
+    ->label('Quick voice reply')
+    ->disk('s3')
+    ->directory('voice-notes')
+    ->visibility('private')
+    ->maxDuration(30)
+    ->maxSize(2048)
+    ->uploadImmediately();
+```
+
+#### Custom control icons
+
+```php
+use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+
+VoiceNoteRecorderField::make('voice_note_path')
+    ->microphoneIcon(GravityIcon::Microphone)
+    ->playIcon('heroicon-o-play')
+    ->pauseIcon('heroicon-o-pause')
+    ->stopIcon('heroicon-o-stop')
+    ->trashIcon('heroicon-o-trash')
+    ->checkmarkIcon('heroicon-o-check')
+    ->size('lg');
+```
 
 ### Public helper methods
 

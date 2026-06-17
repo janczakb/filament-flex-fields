@@ -31,6 +31,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\MatrixChoiceFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\NumberStepperPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\PhoneFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\PriceRangePlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\IconColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SegmentControlPlayground;
@@ -71,6 +72,7 @@ class FlexFieldsPlaygroundBuilder
         protected UserColumnPlayground $userColumnPlayground = new UserColumnPlayground,
         protected RatingPlayground $ratingPlayground = new RatingPlayground,
         protected RatingColumnPlayground $ratingColumnPlayground = new RatingColumnPlayground,
+        protected IconColumnPlayground $iconColumnPlayground = new IconColumnPlayground,
         protected DualListboxPlayground $dualListboxPlayground = new DualListboxPlayground,
         protected PriceRangePlayground $priceRangePlayground = new PriceRangePlayground,
         protected FlexTextareaPlayground $flexTextareaPlayground = new FlexTextareaPlayground,
@@ -121,6 +123,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->userColumnPlayground->components(),
             ...$this->ratingPlayground->components(),
             ...$this->ratingColumnPlayground->components(),
+            ...$this->iconColumnPlayground->components(),
             ...$this->dualListboxPlayground->components(),
             ...$this->priceRangePlayground->components(),
             ...$this->flexTextareaPlayground->components(),

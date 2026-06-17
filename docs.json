@@ -66,6 +66,7 @@
         "docs/flexradiolist",
         "docs/matrixchoicefield",
         "docs/selectfield",
+        "docs/icon-picker-field",
         "docs/userselect",
         "docs/duallistboxfield"
       ],
@@ -100,6 +101,7 @@
       "pages": [
         "docs/ratingfield",
         "docs/ratingcolumn",
+        "docs/iconcolumn",
         "docs/usercolumn"
       ],
       "icon": "star"

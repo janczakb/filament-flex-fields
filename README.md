@@ -1,10 +1,10 @@
 <p align="center" class="filament-hidden">
-    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — 61 custom form components and JSON custom fields for Filament v5 Laravel admin panels" class="filament-hidden">
+    <img src="art/field-flex-thumb-r.png" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — 68 custom form components and JSON custom fields for Filament v5 Laravel admin panels" class="filament-hidden">
 </p>
 
 <h1 align="center">Filament Flex Fields</h1>
 
-<p align="center"><strong>Filament v5 · Laravel admin forms · 61 custom components · one design system</strong><br>Replace a patchwork of field plugins with one cohesive form layer — lazy assets, optional JSON custom fields, built-in Playground.</p>
+<p align="center"><strong>Filament v5 · Laravel admin forms · 68 custom components · one design system</strong><br>Replace a patchwork of field plugins with one cohesive form layer — lazy assets, optional JSON custom fields, built-in Playground.</p>
 <p align="center">Pre-built CSS/JS · no Node.js in production · standalone fields or dynamic schemas · full per-component docs</p>
 
 <p align="center">
@@ -28,7 +28,7 @@
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
 </p>
 
-**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **61 custom form components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** (no EAV, no per-attribute migrations). Use any field standalone, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
+**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **68 custom form components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** (no EAV, no per-attribute migrations). Use any field standalone, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
 
 ---
 
@@ -123,7 +123,7 @@ Teams building **Filament v5** backends that need more than native inputs — **
 
 | | **Flex Fields** | **Typical approach** |
 |---|-----------------|----------------------|
-| **Scope** | **61** fields, layouts, and table columns — one package | Many single-purpose Filament plugins |
+| **Scope** | **68** fields, layouts, and table columns — one package | Many single-purpose Filament plugins |
 | **Design** | One `--fff-*` system — sizes, focus, menus, dark mode | Mixed UI from unrelated packages |
 | **Flexibility** | Standalone fields **or** dynamic JSON on models — same components | Usually one mode only |
 | **Depth** | Validation, formatting, and interaction built in — not thin wrappers | Basic inputs; edge cases left to you |
@@ -132,7 +132,7 @@ Teams building **Filament v5** backends that need more than native inputs — **
 
 ### What's inside
 
-**61 components** — 50 form fields, 9 layout/schema pieces, 2 table columns, plus `HoldConfirmAction`. Matrix grids, slugs, translatable groups, media, ratings, signatures, layouts — [full list](#custom-components-61).
+**68 components** — 56 form fields, 9 layout/schema pieces, 3 table columns, plus `HoldConfirmAction`. Matrix grids, slugs, translatable groups, media, ratings, signatures, layouts — [full list](#custom-components-68).
 
 **One design system** — shared `sm` / `md` / `lg` sizes, `--fff-*` tokens, glass searchable menus, dark mode, consistent focus rings.
 
@@ -152,7 +152,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 <a id="dynamic-custom-fields-json"></a>**JSON custom fields** — define schemas in PHP config or `FlexFieldSchemaRegistry`, store values in one JSON column via `HasFlexFields`. `FlexFieldFormBuilder` renders live Filament forms. Ideal for CMS, tenant settings, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php).
 
-**Playground & docs** — local preview of all 61 components; every field documented in `docs/` with methods, validation, and examples.
+**Playground & docs** — local preview of all 68 components; every field documented in `docs/` with methods, validation, and examples.
 
 ---
 
@@ -162,7 +162,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 - [Upgrading](#upgrading)
 - [Why Flex Fields?](#why-flex-fields)
 - [Screenshots](#screenshots)
-- [Custom Components (61)](#custom-components-61)
+- [Custom Components (68)](#custom-components-68)
 - [Use cases](#use-cases)
 - [Requirements](#requirements)
 - [Installation](#installation)
@@ -302,15 +302,19 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <a href="docs/flexfileupload-and-fleximageupload.md"><img src="art/sc-31.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexFileUpload — Webcam & URL File Import</p>
   </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="docs/icon-picker-field.md"><img src="art/sc-32.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="IconPickerField - Highly optimized searchable SVG icon picker with virtual scrolling, asynchronous preview loading, and WAI-ARIA combobox accessibility"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">IconPickerField — Virtual Scrolling & W3C ARIA</p>
+  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
     <img src="art/more.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 61 Components & Visual Playground</p>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 68 Components & Visual Playground</p>
   </div>
 </div>
 
 ---
 
-## Custom Components (61)
+## Custom Components (68)
 
 Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
 
@@ -344,7 +348,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`PriceRangeField`](docs/pricerangefield.md) | Dual-handle price filter with histogram |
 | [`TrafficSplit`](docs/trafficsplit.md) | Weighted segment split control (A/B-style traffic allocation) |
 
-### Choice & selection (13)
+### Choice & selection (14)
 
 | Component | Description |
 |-----------|-------------|
@@ -360,6 +364,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`UserSelect`](docs/userselect.md) | User picker with avatar stacks and verification badges |
 | [`DualListboxField`](docs/duallistboxfield.md) | Two-panel reorderable transfer list |
 | [`TagsField`](docs/tags-field.md) | Tag input — pills below the field with inline remove buttons |
+| [`IconPickerField`](docs/icon-picker-field.md) | Searchable blade-icons picker with lazy SVG rendering, virtual scroll, and paginated search *(v2.7.0)* |
 | [`FlexSpatieTagsField`](docs/tags-field.md) | Spatie Tags integration for `TagsField` |
 
 ### Date & time (11)
@@ -417,14 +422,15 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 
 Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patterns).
 
-### Table columns (2)
+### Table columns (3)
 
 | Component | Description |
 |-----------|-------------|
 | [`UserColumn`](docs/usercolumn.md) | Avatar + name/email display with hover card |
 | [`RatingColumn`](docs/ratingcolumn.md) | Star rating display in Filament tables |
+| [`IconColumn`](docs/iconcolumn.md) | Blade-icons display for `IconPickerField` values *(v2.7.0)* |
 
-**Total: 61 custom components** (50 form fields + 9 layout/schema + 2 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 61.
+**Total: 68 custom components** (56 form fields + 9 layout/schema + 3 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 68.
 
 ---
 
@@ -746,7 +752,7 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 ## FAQ
 
 **Why choose Flex Fields over multiple Filament field plugins?**
-One design system, one asset pipeline, one Playground, and **61** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
+One design system, one asset pipeline, one Playground, and **68** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
 
 **Do I need Node.js to use this package?**
 No. Pre-built CSS/JS are committed to `resources/dist/`. Node is only needed when developing the package itself.
@@ -758,7 +764,7 @@ Each component loads its own CSS/JS on demand. Shared libraries are split into c
 Yes. Import any component directly into Filament forms — the JSON column and `HasFlexFields` trait are optional.
 
 **How many components are included?**
-**61** custom UI classes with own views and CSS — listed in [Custom Components (61)](#custom-components-61).
+**68** custom UI classes with own views and CSS — listed in [Custom Components (68)](#custom-components-68).
 
 **Does it work with Filament v4?**
 No — this package targets **Filament v5** only.
@@ -832,18 +838,18 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 22.8 (gzip 5) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 29.4 (gzip 5.9) + deps 62.6 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 25.7 (gzip 5.4) + deps 62.6 |
-| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 37.3 (gzip 6.8) + deps 19.6 |
-| TagsField | 3.1 (gzip 1.1) | 20.5 (gzip 4.7) + deps 59.6 |
-| RatingField | 0.7 (gzip 0.3) | 22.5 (gzip 5.1) |
-| SwitchField | Alpine inline | 41.1 (gzip 7.1) |
-| UserSelect | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.8 (gzip 5.8) + deps 148.2 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 26.6 (gzip 6) + deps 46.9 |
-| SelectField | 14.5 (gzip 4.7) + select-menu 5 (gzip 1.7) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 79.2 (gzip 12.2) + deps 25.3 |
+| core (always) | — | 25.4 (gzip 5.6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 32 (gzip 6.5) + deps 68.6 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.2 (gzip 6) + deps 68.6 |
+| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 39.8 (gzip 7.4) + deps 22.1 |
+| TagsField | 3.1 (gzip 1.1) | 23 (gzip 5.3) + deps 64.7 |
+| RatingField | 0.7 (gzip 0.3) | 25.1 (gzip 5.7) |
+| SwitchField | Alpine inline | 43.7 (gzip 7.7) |
+| UserSelect | 14.5 (gzip 4.7) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.4 (gzip 6.4) + deps 158.3 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 29.2 (gzip 6.6) + deps 51.9 |
+| SelectField | 14.5 (gzip 4.7) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 81.7 (gzip 12.8) + deps 27.8 |
 
-Sample bundles (10 of **53** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **54** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

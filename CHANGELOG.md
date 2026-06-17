@@ -5,7 +5,32 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.7.0] - 2026-06-18
+
+### Added
+
+- **`IconPickerField`** — Searchable **blade-icons** picker with SelectField-style teleported dropdown, lazy SVG previews, paginated server search, set-filter pills, whitelist/exclude controls, and virtual scrolling for large catalogs. Stores the full icon name (`heroicon-o-star`, `gravityui-star`, etc.).
+- **`IconColumn`** — Read-only table column for blade-icons values stored by `IconPickerField`; optional label, color, size, and per-request render cache. Playground demo and `docs/iconcolumn.md`.
+- **Icon catalog pipeline** — `IconCatalogResolver`, `IconCatalogIndex`, and ranked search with server-side caching; optional bundled manifest via `php artisan fff:icons:manifest` for cold-start performance.
+- **Icon picker configuration** — `sets()`, `icons()`, `excludeIcons()`, `searchResultsLayout()` (`grid` / `list` / `icons`), `gridColumns()`, `closeOnSelect()`, `preload()`, `limitPerSet()`, `perPage()`, plus shared `SelectField` shell options (`variant`, `size`, `clearable`, affixes).
+- **Icon picker performance** — viewport SVG batching (`IntersectionObserver`), client search LRU cache, next-page prefetch, and a DOM virtual window for long result sets.
+- **Icon picker UX** — combobox keyboard navigation, debounced search with highlight, horizontal scroll for set pills, full-width results divider, and skeleton states while icons load.
+- **`FieldType::IconPicker`** — FlexField form-builder support via `IconPickerFieldConfigurator`.
+- **Playground** — `icon-picker-field` page with Heroicons-only, Gravity-only, multi-set pill filter, grid/whitelist, size, variant, and clearable demos.
+- **Documentation** — [docs/icon-picker-field.md](docs/icon-picker-field.md) (full API, setup, config, performance); navigation entry under **Choice & Selection** in [docs.json](docs.json) and [docs/index.md](docs/index.md).
+- **Tests** — PHP unit/feature tests (`IconPickerFieldTest`, `IconCatalogResolverTest`, `IconPickerFieldRenderTest`, SVG batch limits); JS tests for virtual window, SVG loader, search cache, keyboard highlight, and panel lifecycle.
+
+### Changed
+
+- **Playground bundle dedupe** — `FlexFieldStylesheetQueue::suppressForPlaygroundBundle()` prevents duplicate lazy CSS when a per-slug playground bundle already includes component stylesheets.
+- **Critical preload scoping** — `criticalPreloadStylesheets()` skips global preloads on bundled playground slugs and filters preloads to stylesheets the active slug actually uses (fixes unused `flex-text-input` preload warnings on icon-picker pages).
+- **Icon picker panel lifecycle** — reopen/refresh no longer calls Alpine `$watch` cleanup (magic `$watch` does not return an unwatcher); pending-flag + `panelReady` watcher handles scroll/SVG resync safely.
+
+### Fixed
+
+- **Icon picker reopen** — empty or frozen results after close/reopen; scroll position preserved on pagination (`preserveScroll`); virtual window getters stay in sync during scroll.
+- **Duplicate icon-picker CSS on playground** — bundle + lazy `icon-picker-field.css` no longer both apply conflicting `.fff-icon-picker__toolbar` rules.
+- **Icon picker set pills** — symmetric spacing above/below pills; full-width separator; single-row horizontal scroll for many sets.
 
 ## [2.6.1] - 2026-06-17
 

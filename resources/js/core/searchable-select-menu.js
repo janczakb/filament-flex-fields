@@ -4,6 +4,23 @@
 import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
 import { resolveIsDark, resolveTeleportedMenuZIndex } from './theme-utils.js'
 
+export function resolveScrollableParents(element) {
+    const parents = []
+    let node = element?.parentElement
+
+    while (node && node !== document.documentElement) {
+        const style = window.getComputedStyle(node)
+
+        if (/(auto|scroll|overlay)/.test(`${style.overflow}${style.overflowY}${style.overflowX}`)) {
+            parents.push(node)
+        }
+
+        node = node.parentElement
+    }
+
+    return parents
+}
+
 export function applyTeleportedMenuTheme(menu, { variant = 'default' } = {}) {
     if (! menu) {
         return
@@ -138,6 +155,7 @@ export function createSearchableSelectMenuMixin({
     readyKey = 'menuReady',
     scrollHandlerKey = 'menuScrollHandler',
     resizeHandlerKey = 'menuResizeHandler',
+    scrollParentsKey = 'menuScrollParents',
     triggerRef = 'menuTrigger',
     menuRef = 'menuMenu',
     minMenuWidth = 288,
@@ -246,6 +264,15 @@ export function createSearchableSelectMenuMixin({
             this[scrollHandlerKey] = () => this.updateMenuPosition()
             this[resizeHandlerKey] = () => this.updateMenuPosition()
 
+            const trigger = this.$refs[triggerRef]
+            const scrollParents = resolveScrollableParents(trigger)
+
+            this[scrollParentsKey] = scrollParents
+
+            for (const parent of scrollParents) {
+                parent.addEventListener('scroll', this[scrollHandlerKey], { passive: true })
+            }
+
             window.addEventListener('scroll', this[scrollHandlerKey], true)
             window.addEventListener('resize', this[resizeHandlerKey])
         },
@@ -255,11 +282,16 @@ export function createSearchableSelectMenuMixin({
                 return
             }
 
+            for (const parent of this[scrollParentsKey] ?? []) {
+                parent.removeEventListener('scroll', this[scrollHandlerKey])
+            }
+
             window.removeEventListener('scroll', this[scrollHandlerKey], true)
             window.removeEventListener('resize', this[resizeHandlerKey])
 
             this[scrollHandlerKey] = null
             this[resizeHandlerKey] = null
+            this[scrollParentsKey] = []
         },
 
         bindSelectMenuLifecycle({ wireExclusive = true } = {}) {

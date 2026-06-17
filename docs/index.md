@@ -1,10 +1,10 @@
 ---
 title: Filament Flex Fields
-description: 61 Filament v5 form components, layout primitives, and an optional JSON custom-field layer — one design system, lazy assets, zero Node.js in production.
+description: 68 Filament v5 form components, layout primitives, and an optional JSON custom-field layer — one design system, lazy assets, zero Node.js in production.
 icon: rocket
 ---
 
-**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for Laravel admin panels: **61 custom components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** without EAV tables or per-attribute migrations.
+**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for Laravel admin panels: **68 custom components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** without EAV tables or per-attribute migrations.
 
 Use any field as a standalone drop-in, or wire dynamic schemas through `HasFlexFields` and `FlexFieldFormBuilder`. Pre-built CSS and JavaScript ship in the package — **no Node.js in production**.
 
@@ -72,9 +72,10 @@ Optional Spatie packages (sluggable, translatable, media library, tags) integrat
 
 | Category | Count | Highlights |
 | --- | ---: | --- |
-| Form fields | 50 | `PhoneField`, `CurrencyField`, `MatrixChoiceField`, `FlexFileUpload`, `MapPickerField` |
+| Form fields | 56 | `PhoneField`, `CurrencyField`, `MatrixChoiceField`, `FlexFileUpload`, `MapPickerField`, `IconPickerField` |
 | Layout & schema | 9 | `ItemCardGroup`, `SegmentTabs`, `CoverCard`, `TranslatableFields` |
-| Table columns | 2 | `UserColumn`, `RatingColumn` |
+| Table columns | 3 | `UserColumn`, `RatingColumn`, `IconColumn` |
+| **Total** | **68** | |
 
 Every component loads **only its own CSS and JS** when rendered — including inside Filament modals and slide-overs.
 
@@ -101,7 +102,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Choice & selection
 
-[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [FlexChecklist](/docs/flexchecklist) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield)
+[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [FlexChecklist](/docs/flexchecklist) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield)
 
 ### Date & time
 
@@ -113,7 +114,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Rating & tables
 
-[RatingField](/docs/ratingfield) · [RatingColumn](/docs/ratingcolumn) · [UserColumn](/docs/usercolumn)
+[RatingField](/docs/ratingfield) · [RatingColumn](/docs/ratingcolumn) · [IconColumn](/docs/iconcolumn) · [UserColumn](/docs/usercolumn)
 
 ### Layout & display
 

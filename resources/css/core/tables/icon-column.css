@@ -1,0 +1,40 @@
+/* IconColumn (tables) */
+.fff-icon-column {
+    @apply inline-flex max-w-full items-center gap-2;
+    min-height: auto;
+}
+
+.fff-icon-column__icon {
+    @apply inline-flex shrink-0 items-center justify-center;
+}
+
+.fff-icon-column__icon svg {
+    @apply block;
+}
+
+.fff-icon-column--sm .fff-icon-column__icon svg {
+    width: var(--fff-icon-column-size-sm, 1rem);
+    height: var(--fff-icon-column-size-sm, 1rem);
+}
+
+.fff-icon-column--md .fff-icon-column__icon svg {
+    width: var(--fff-icon-column-size-md, 1.25rem);
+    height: var(--fff-icon-column-size-md, 1.25rem);
+}
+
+.fff-icon-column--lg .fff-icon-column__icon svg {
+    width: var(--fff-icon-column-size-lg, 1.5rem);
+    height: var(--fff-icon-column-size-lg, 1.5rem);
+}
+
+.fff-icon-column__text {
+    @apply inline-flex min-w-0 flex-col;
+}
+
+.fff-icon-column__label {
+    @apply truncate text-sm font-medium text-gray-950 dark:text-white;
+}
+
+.fff-icon-column__name {
+    @apply truncate font-mono text-xs text-gray-500 dark:text-gray-400;
+}

@@ -1,0 +1,119 @@
+## Custom Components (61)
+
+Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
+
+Full API for each component: **[docs/index.md](docs/index.md)**.
+
+### Text & input (12)
+
+| Component | Description |
+|-----------|-------------|
+| [`FlexTextInput`](docs/flextextinput.md) | Enhanced text input — speech dictation, emoji picker, password strength, clearable |
+| [`FlexTextareaField`](docs/flextextareafield.md) | Animated autosizing textarea with character counter |
+| [`PhoneField`](docs/phonefield.md) | International phone input with libphonenumber validation |
+| [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
+| [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
+| [`LinkPreviewField`](docs/link-preview-field.md) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
+| [`BarcodeScannerField`](docs/barcode-scanner-field.md) | Barcode/QR input — Filament modal camera scanner, format whitelist, EAN/UPC checksum, hybrid BarcodeDetector + ZXing, torch & front/back switch, iOS-safe preview *(v2.6.0)* |
+| [`SocialLinksField`](docs/social-links-field.md) | Social profile links — platform picker, URL validation, custom platforms, reorder |
+| [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
+| [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
+| [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox-powered address search with structured storage |
+| [`FlexVerificationCode`](docs/flexverificationcode.md) | OTP / 2FA verification code input with grouping |
+
+### Number & range (6)
+
+| Component | Description |
+|-----------|-------------|
+| [`NumberStepper`](docs/numberstepper.md) | +/- numeric stepper control |
+| [`CurrencyField`](docs/currencyfield.md) | Multi-currency money input with locale-aware formatting |
+| [`FlexSlider`](docs/flexslider.md) | Styled range slider with value display |
+| [`TrackSlider`](docs/trackslider.md) | Track-style slider — single value, percentage, or min/max range |
+| [`PriceRangeField`](docs/pricerangefield.md) | Dual-handle price filter with histogram |
+| [`TrafficSplit`](docs/trafficsplit.md) | Weighted segment split control (A/B-style traffic allocation) |
+
+### Choice & selection (13)
+
+| Component | Description |
+|-----------|-------------|
+| [`SwitchField`](docs/switchfield.md) | Animated toggle switch with row/inline layouts |
+| [`CellSwitch`](docs/switchfield.md) | Compact `SwitchField` variant for table cells |
+| [`SegmentControl`](docs/segmentcontrol.md) | Segmented button control |
+| [`ChoiceCards`](docs/choicecards.md) | Rich card-based radio selection |
+| [`ChoiceCheckboxCards`](docs/choicecheckboxcards.md) | Rich card-based multi-select |
+| [`FlexChecklist`](docs/flexchecklist.md) | Animated checklist with icons and descriptions |
+| [`FlexRadiolist`](docs/flexradiolist.md) | Animated radio list with icons and descriptions |
+| [`MatrixChoiceField`](docs/matrixchoicefield.md) | Survey / configurator matrix grid — radio or checkbox per row |
+| [`SelectField`](docs/selectfield.md) | Rich select with avatars, badges, and descriptions |
+| [`UserSelect`](docs/userselect.md) | User picker with avatar stacks and verification badges |
+| [`DualListboxField`](docs/duallistboxfield.md) | Two-panel reorderable transfer list |
+| [`TagsField`](docs/tags-field.md) | Tag input — pills below the field with inline remove buttons |
+| [`FlexSpatieTagsField`](docs/tags-field.md) | Spatie Tags integration for `TagsField` |
+
+### Date & time (11)
+
+| Component | Description |
+|-----------|-------------|
+| [`FlexDateField`](docs/date-and-time-fields.md) | Segmented date input without calendar popover |
+| [`FlexDatePicker`](docs/date-and-time-fields.md) | Date picker with calendar popover |
+| [`FlexTimeField`](docs/date-and-time-fields.md) | Segmented time input (12h / 24h, seconds optional) |
+| [`FlexTimeSegmentsField`](docs/date-and-time-fields.md) | Dropdown time picker (hour / minute columns, `HH:MM`) |
+| [`ScheduleField`](docs/schedule-field.md) | Weekly opening-hours editor — day toggles, slots, breaks, copy-to-weekdays, timezone |
+| [`FlexDateTimePicker`](docs/date-and-time-fields.md) | Combined date + time picker |
+| [`FlexDateRangeField`](docs/date-and-time-fields.md) | Start/end date range |
+| [`FlexDurationField`](docs/date-and-time-fields.md) | Duration input (hours / minutes) |
+| [`FlexTimeRangeField`](docs/date-and-time-fields.md) | Start/end time range |
+| [`FlexMonthPicker`](docs/date-and-time-fields.md) | Month picker |
+| [`FlexYearPicker`](docs/date-and-time-fields.md) | Year picker |
+
+### Media, color & location (12)
+
+| Component | Description |
+|-----------|-------------|
+| [`ColorSwatchField`](docs/colorswatchfield.md) | Preset color swatch picker |
+| [`FlexColorPickerField`](docs/flexcolorpickerfield.md) | Advanced color picker with grid and eyedropper |
+| [`FlexFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Styled file upload with webcam capture, URL import, and security presets *(v2.6.1)* |
+| [`FlexImageUpload`](docs/flexfileupload-and-fleximageupload.md) | Image upload with processing options |
+| [`FlexSpatieMediaLibraryFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Spatie Media Library upload integration |
+| [`VideoField`](docs/videofield.md) | Video URL / player with YouTube support |
+| [`AudioField`](docs/audiofield.md) | Audio URL / player with waveform |
+| [`VoiceNoteRecorderField`](docs/voicenoterecorderfield.md) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
+| [`MapPickerField`](docs/mappickerfield.md) | Interactive map pin picker with draggable marker and address autofill |
+| [`SignatureField`](docs/signaturefield.md) | Canvas signature pad |
+| [`CreditCardField`](docs/creditcardfield.md) | Card preview with Luhn validation and CVV flip |
+| [`CellSlider`](docs/trackslider.md) | Compact `TrackSlider` variant for table cells |
+
+### Rating (1)
+
+| Component | Description |
+|-----------|-------------|
+| [`RatingField`](docs/ratingfield.md) | Star rating input |
+
+### Layout & display — schemas (9)
+
+| Component | Description |
+|-----------|-------------|
+| [`SegmentTabs`](docs/segmenttabs.md) | Tabbed segment navigation for forms |
+| [`TranslatableFields`](docs/translatablefields.md) | Locale tabs wrapping any fields (JSON or Spatie Translatable) |
+| [`TranslatableTabs`](docs/translatablefields.md) | Legacy alias for `TranslatableFields` |
+| [`ItemCard`](docs/itemcard.md) | Single settings-style card row |
+| [`ItemCardGroup`](docs/itemcardgroup.md) | Polished card-based settings group |
+| [`ItemCardStack`](docs/itemcardstack.md) | Stacked card layout for profile / settings pages |
+| [`CoverCard`](docs/covercard.md) | Hero cover card for tabbed editors |
+| [`ProgressBar`](docs/progressbar.md) | Linear, pill, or segment progress bar |
+| [`ProgressCircle`](docs/progresscircle.md) | Circular or semicircle progress indicator |
+
+Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patterns).
+
+### Table columns (2)
+
+| Component | Description |
+|-----------|-------------|
+| [`UserColumn`](docs/usercolumn.md) | Avatar + name/email display with hover card |
+| [`RatingColumn`](docs/ratingcolumn.md) | Star rating display in Filament tables |
+
+**Total: 61 custom components** (50 form fields + 9 layout/schema + 2 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 61.
+
+---
+
+## Use cases

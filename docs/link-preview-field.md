@@ -421,6 +421,64 @@ LinkPreviewField::make('reference_url')
     ->previewMinSkeletonMs(400);
 ```
 
+### Recipe: reactive `live()` — drive sibling fields from preview URL
+
+```php
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
+
+LinkPreviewField::make('source_url')
+    ->label('Source URL')
+    ->live(debounce: 500)
+    ->afterStateUpdated(function (?string $state, Set $set): void {
+        if (blank($state)) {
+            $set('source_domain', null);
+
+            return;
+        }
+
+        $set('source_domain', parse_url($state, PHP_URL_HOST));
+    })
+    ->columnSpanFull();
+
+TextInput::make('source_domain')
+    ->label('Domain')
+    ->disabled()
+    ->dehydrated();
+```
+
+Use `live()` when other form fields should react to URL changes. Preview fetching still debounces independently via `previewDebounce()`.
+
+### Recipe: affix-only internal paths (preview disabled)
+
+For intranet or relative paths where server scraping is not useful — URL input only, no preview card:
+
+```php
+LinkPreviewField::make('help_path')
+    ->label('Help article path')
+    ->prefix('https://docs.acme.test/')
+    ->placeholder('getting-started/install')
+    ->preview(false)
+    ->rules(['required', 'max:255'])
+    ->helperText('Enter the path after the docs host — full URL is stored on save.');
+```
+
+### Recipe: scrape errors — longer debounce + no visit link
+
+When users paste slow or rate-limited URLs, reduce churn and keep the domain as plain text:
+
+```php
+LinkPreviewField::make('external_reference')
+    ->label('External reference')
+    ->previewDebounce(1000)
+    ->previewMinSkeletonMs(600)
+    ->showVisitLink(false)
+    ->visitLabel('Open reference')
+    ->helperText('If preview fails, the URL is still saved — check the address is public.');
+```
+
+Scrape failures render in `fff-link-preview__error` with `role="alert"`; they do not block form submission when `nullable` / `url` rules pass.
+
 ---
 
 ### Accessibility

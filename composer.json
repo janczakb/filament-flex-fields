@@ -1,7 +1,7 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "name": "janczakb/filament-flex-fields",
-    "description": "61 Filament v5 form components with unified design system, lazy CSS/JS, optional JSON custom fields, layout primitives, and built-in Playground — one plugin for modern Laravel admin forms.",
+    "description": "68 Filament v5 form components with unified design system, lazy CSS/JS, optional JSON custom fields, layout primitives, and built-in Playground — one plugin for modern Laravel admin forms.",
     "keywords": [
         "filament",
         "filament-plugin",

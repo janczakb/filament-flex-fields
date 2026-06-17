@@ -211,7 +211,62 @@ All methods accept `Closure` for dynamic configuration.
 | `variant()` | `primary`, `secondary`, `soft`, `flat`, `ghost` | `primary` |
 | `size()` | `sm`, `md`, `lg` | `md` |
 
+#### `placeholder(string|Closure|null $placeholder)`
+
+Inherited from Filament `HasPlaceholder`. Default translation: `filament-flex-fields::default.barcode_scanner.placeholder`.
+
+```php
+BarcodeScannerField::make('sku')->placeholder('Scan or type EAN…');
+```
+
+#### `readOnly(bool|Closure $condition = true)` / `disabled(bool|Closure $condition = true)`
+
+Inherited from Filament `CanBeReadOnly`. Read-only keeps the scanned value visible but blocks manual edits and opening the scanner modal.
+
+```php
+BarcodeScannerField::make('registered_sku')
+    ->default(fn ($record) => $record->sku)
+    ->readOnly();
+```
+
+#### `focusOutline(bool|Closure $condition = true)`
+
+Inherited from `HasFieldFocusOutline`. Default: **`false`**. When `true`, shows the shared focus ring on the FlexTextInput shell.
+
+```php
+BarcodeScannerField::make('sku')->focusOutline();
+```
+
+#### Public helper methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `getBeepUrl()` | `string` | URL for desktop confirmation MP3 |
+| `getAlpineConfiguration()` | `array` | Full config passed to Alpine (`supportedFormats`, labels, etc.) |
+| `getWrapperClasses()` | `array<string, bool>` | Root CSS class map |
+
 Standard Filament field methods (`required()`, `rule()`, `unique()`, `live()`, `helperText()`, …) work as usual.
+
+---
+
+### Model & persistence
+
+```php
+// Migration
+$table->string('sku')->nullable()->unique();
+
+// Model — plain string, no special cast
+protected $fillable = ['sku'];
+```
+
+```php
+BarcodeScannerField::make('sku')
+    ->default(fn (?Product $record): ?string => $record?->sku)
+    ->formats([BarcodeFormat::Ean13])
+    ->validateChecksum();
+```
+
+When `storeDetectedFormat()` is enabled, cast or accessor handling may be needed if you persist the full `{ value, format }` array — the default string column stores only the barcode value.
 
 ---
 

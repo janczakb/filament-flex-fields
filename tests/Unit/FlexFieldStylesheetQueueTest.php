@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
+use Illuminate\Http\Request;
 
 beforeEach(function () {
     FlexFieldStylesheetQueue::reset();
@@ -292,6 +293,19 @@ it('loads rating column stylesheet as a dedicated lazy bundle', function () {
         ->toBe(['rating-column']);
 });
 
+it('loads icon column stylesheet as a dedicated lazy bundle', function () {
+    expect(FlexFieldAssets::stylesheetsFor('icon-column'))
+        ->toBe(['icon-column'])
+        ->and(FlexFieldStylesheetQueue::enqueueFor('icon-column'))
+        ->toBe(['icon-column']);
+});
+
+it('suppresses icon column lazy css when playground slug bundle is active', function () {
+    FlexFieldStylesheetQueue::suppressForPlaygroundBundle(['icon-column']);
+
+    expect(FlexFieldStylesheetQueue::enqueueFor('icon-column'))->toBe([]);
+});
+
 it('keeps shared user display primitives in source bundles', function () {
     $userDisplayCss = file_get_contents(__DIR__.'/../../resources/css/components/user-display.css');
     $userColumnCss = file_get_contents(__DIR__.'/../../resources/css/core/tables/user-column.css');
@@ -421,7 +435,40 @@ it('renders queued playground component stylesheets in the page push block', fun
 
     expect($stylesPartial)
         ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain('suppressForPlaygroundBundle')
+        ->toContain('playgroundStylesheetsFor($playgroundSlug)')
         ->toContain("@push('styles')")
         ->toContain('data-fff-playground-bundle')
         ->toContain('data-navigate-track');
+});
+
+it('does not enqueue lazy stylesheets already bundled on playground slug pages', function () {
+    FlexFieldStylesheetQueue::suppressForPlaygroundBundle([
+        'teleported-menu',
+        'select-field',
+        'icon-picker-field',
+    ]);
+
+    expect(FlexFieldStylesheetQueue::enqueueFor('icon-picker-field'))->toBe([]);
+});
+
+it('preloads all critical stylesheets outside playground pages', function () {
+    app()->instance('request', Request::create('/admin/resources/posts/edit', 'GET'));
+
+    expect(FlexFieldAssets::criticalPreloadStylesheets())
+        ->toBe(['flex-text-input', 'teleported-menu']);
+});
+
+it('scopes critical stylesheet preloads to the active playground slug', function () {
+    app()->instance('request', Request::create('/admin/flex-fields-playground/icon-picker-field', 'GET'));
+
+    expect(FlexFieldAssets::hasPlaygroundBundleForSlug('icon-picker-field'))->toBeTrue()
+        ->and(FlexFieldAssets::criticalPreloadStylesheets())->toBe([]);
+});
+
+it('skips critical stylesheet preloads when the playground slug has a bundled stylesheet', function () {
+    app()->instance('request', Request::create('/admin/flex-fields-playground/select-field', 'GET'));
+
+    expect(FlexFieldAssets::hasPlaygroundBundleForSlug('select-field'))->toBeTrue()
+        ->and(FlexFieldAssets::criticalPreloadStylesheets())->toBe([]);
 });

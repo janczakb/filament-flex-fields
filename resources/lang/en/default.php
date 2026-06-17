@@ -30,6 +30,16 @@ return [
         'opacity' => 'Opacity',
     ],
 
+    'icon_picker' => [
+        'placeholder' => 'Select an icon',
+        'search' => 'Search icons',
+        'clear' => 'Clear icon',
+        'clear_search' => 'Clear search',
+        'no_results' => 'No icons found.',
+        'load_more' => 'Load more',
+        'all_sets' => 'All sets',
+    ],
+
     'slug' => [
         'placeholder' => 'your-permalink-slug',
         'permalink' => 'Permalink',
@@ -63,6 +73,7 @@ return [
         'search' => 'Search',
         'address_autocomplete' => 'Address autocomplete',
         'verification_code' => 'Verification code',
+        'icon_picker' => 'Icon picker',
         'integer' => 'Integer',
         'decimal' => 'Decimal',
         'number_stepper' => 'Number stepper',
@@ -471,6 +482,9 @@ return [
         ],
         'flex_color_picker' => [
             'invalid' => 'Please enter a valid color value.',
+        ],
+        'icon_picker' => [
+            'invalid' => 'Please select a valid icon.',
         ],
         'media' => [
             'invalid_url' => 'Please enter a valid media URL.',

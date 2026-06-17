@@ -310,6 +310,7 @@ ScheduleField::make('hours')->focusOutline();
 
 | Method | Returns | Description |
 |--------|---------|-------------|
+| `getRequiredValidationRule()` | `string\|Closure` | Returns `'nullable'` — emptiness checked inside schedule validator when `required()` is set |
 | `getDays()` | `list&lt;string&gt;` | Normalized day codes to render |
 | `showsTimezoneSelector()` | `bool` | Timezone block visible |
 | `getDefaultTimezoneIdentifier()` | `string\|null` | Default / fallback timezone |
@@ -525,6 +526,22 @@ Uses `wire:ignore` on the field root. After deploy, run:
 cd packages/filament-flex-fields && npm run build
 php artisan filament:assets
 ```
+
+---
+
+### Playground
+
+Slug: **`schedule-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Default block | Weekday 09:00–17:00 default, timezone selector |
+| Copy-to-weekdays | `copySourceDay('mon')` + workday targets |
+| Locked weekends | `lockedDays(['sat', 'sun'])` |
+| No timezone | `timezone(null)` — local hours only |
+| Size / variant | `size('md')`, `variant('soft')` |
+
+Enable the playground (`FLEX_FIELDS_PLAYGROUND=true`) and open **Flex Fields Playground → Schedule field**.
 
 ---
 

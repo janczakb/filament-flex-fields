@@ -1,0 +1,8 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/IconColumn.php";
+@source "../views/tables/columns/icon-column.blade.php";
+
+@import "../core/tables/icon-column.css";

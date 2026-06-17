@@ -1,8 +1,18 @@
 @php
     use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
+    use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 
     $playgroundStylesheetHref = FlexFieldAssets::playgroundStylesheetHrefForRequest();
     $playgroundSlug = FlexFieldAssets::resolvePlaygroundSlugFromRequest();
+
+    if (
+        filled($playgroundSlug)
+        && FlexFieldAssets::hasPlaygroundBundleForSlug($playgroundSlug)
+    ) {
+        FlexFieldStylesheetQueue::suppressForPlaygroundBundle(
+            FlexFieldAssets::playgroundStylesheetsFor($playgroundSlug),
+        );
+    }
 @endphp
 
 @if (filled($playgroundStylesheetHref))

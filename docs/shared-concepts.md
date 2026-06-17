@@ -64,6 +64,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 43. [TrafficSplit](/docs/trafficsplit)
 44. [RatingField](/docs/ratingfield)
 45. [RatingColumn](/docs/ratingcolumn)
+46. [IconColumn](/docs/iconcolumn)
 46. [CoverCard](/docs/covercard)
 47. [ProgressBar](/docs/progressbar)
 48. [ProgressCircle](/docs/progresscircle)
@@ -262,7 +263,7 @@ npm run build:js
 php artisan filament:assets
 ```
 
-Table column styles (`UserColumn`, `RatingColumn`, etc.) are **lazy-loaded per column** via the `load-stylesheet` partial (`UserColumn` → `user-display` + `user-column`; `RatingColumn` → `rating-column`). Request-scoped queue + `emit-assets` prevent duplicate `&lt;link&gt;` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean.
+Table column styles (`UserColumn`, `RatingColumn`, `IconColumn`, etc.) are **lazy-loaded per column** via `FlexFieldStylesheetQueue::enqueueFor()` in the column `setUp()` — not via `load-stylesheet` in table cell blades. The `queued-stylesheets` partial (render hooks at `STYLES_AFTER` and `BODY_END`) flushes pending bundles once; `markStylesheetsEmitted()` prevents duplicates. Playground slug pages use per-slug bundles with `suppressForPlaygroundBundle()` so lazy CSS is not injected twice.
 
 Playground CSS uses base `playground.css` plus per-slug `playground-{slug}.css` bundles pushed via `playground-page-stylesheets`.
 

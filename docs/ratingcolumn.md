@@ -92,6 +92,6 @@ All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`
 | Mechanism | What it does |
 |-----------|----------------|
 | **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
-| **Lazy CSS** | Loads `flex-fields-rating-column.css` only when a `RatingColumn` cell renders (via `load-stylesheet` partial). Request-scoped queue + `emit-assets` deduplication prevent duplicate `&lt;link&gt;` tags; `data-navigate-track` + `flex-field-asset-injector` keep SPA navigation clean. |
+| **Lazy CSS** | `RatingColumn::setUp()` registers `rating-column` in `FlexFieldStylesheetQueue`; `queued-stylesheets` render hooks emit `flex-fields-rating-column.css` once per request (no `load-stylesheet` in cell blades) |
 
 ---

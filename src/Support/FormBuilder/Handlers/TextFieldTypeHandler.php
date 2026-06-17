@@ -12,6 +12,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CreditCardField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexVerificationCode;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\IconPickerField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SlugField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TimezoneField;
@@ -22,6 +23,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\CreditCardFiel
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexTextareaFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexTextInputFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexVerificationCodeFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\IconPickerFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\PhoneFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SlugFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TimezoneFieldConfigurator;
@@ -43,6 +45,7 @@ final class TextFieldTypeHandler extends AbstractFieldTypeHandler
         private readonly SlugFieldConfigurator $slug = new SlugFieldConfigurator,
         private readonly AddressAutocompleteFieldConfigurator $addressAutocomplete = new AddressAutocompleteFieldConfigurator,
         private readonly FlexVerificationCodeFieldConfigurator $verificationCode = new FlexVerificationCodeFieldConfigurator,
+        private readonly IconPickerFieldConfigurator $iconPicker = new IconPickerFieldConfigurator,
     ) {}
 
     protected function supportedTypesList(): array
@@ -65,6 +68,7 @@ final class TextFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Search,
             FieldType::AddressAutocomplete,
             FieldType::VerificationCode,
+            FieldType::IconPicker,
         ];
     }
 
@@ -100,6 +104,7 @@ final class TextFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Search => TextInput::make($statePath)->prefixIcon('heroicon-o-magnifying-glass'),
             FieldType::AddressAutocomplete => $this->addressAutocomplete->configure(AddressAutocompleteField::make($statePath), $config),
             FieldType::VerificationCode => $this->verificationCode->configure(FlexVerificationCode::make($statePath), $config),
+            FieldType::IconPicker => $this->iconPicker->configure(IconPickerField::make($statePath), $config),
             default => throw new \InvalidArgumentException("Unsupported field type [{$definition->type->value}] for text handler."),
         };
     }

@@ -1,0 +1,9 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+@import "../base.css";
+
+@source "../../src/Filament/Forms/Components/IconPickerField.php";
+@source "../views/forms/components/icon-picker-field.blade.php";
+@source "../views/forms/components/partials/icon-picker-browser.blade.php";
+
+@import "../components/icon-picker-field.css";

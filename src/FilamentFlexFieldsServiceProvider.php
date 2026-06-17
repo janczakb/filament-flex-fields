@@ -23,6 +23,9 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\FieldComponentFactory;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Registry\FieldTypeHandlerRegistry;
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
+use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
+use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
+use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
 use Bjanczak\FilamentFlexFields\Support\UserSelectQueryCache;
 use Filament\Support\Assets\Js;
@@ -56,6 +59,8 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->app->scoped(FlexFieldAlpineQueue::class);
         $this->app->scoped(CountryRegistryQueue::class);
         $this->app->scoped(UserSelectQueryCache::class);
+        $this->app->singleton(IconCatalogResolver::class);
+        $this->app->singleton(IconSvgCache::class);
     }
 
     public function boot(): void
@@ -150,6 +155,12 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         }
 
         RegistersTranslatableFieldMacros::boot();
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                BuildIconManifestCommand::class,
+            ]);
+        }
 
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
     }

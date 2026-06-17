@@ -86,4 +86,20 @@ class FlexFieldStylesheetQueue
     {
         app(self::class)->markEmitted($stylesheets);
     }
+
+    /**
+     * Mark playground bundle stylesheets as already loaded so fields do not emit duplicates.
+     *
+     * @param  list<string>  $stylesheets
+     */
+    public static function suppressForPlaygroundBundle(array $stylesheets): void
+    {
+        $queue = app(self::class);
+
+        foreach ($stylesheets as $stylesheet) {
+            $queue->queue($stylesheet);
+        }
+
+        $queue->markEmitted($stylesheets);
+    }
 }

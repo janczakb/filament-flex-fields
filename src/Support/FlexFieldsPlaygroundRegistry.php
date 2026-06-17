@@ -27,6 +27,8 @@ use Bjanczak\FilamentFlexFields\Support\Playground\FlexTextInputPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexVerificationCodePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FocusOutlinePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FormLayoutPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\IconColumnPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\IconPickerFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ItemCardGroupPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\LinkPreviewFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MapPickerPlayground;
@@ -105,6 +107,8 @@ class FlexFieldsPlaygroundRegistry
                 'credit-card' => ['label' => 'Credit card', 'playground' => CreditCardPlayground::class, 'sort' => 280, 'icon' => GravityIcon::CreditCard],
                 'color-swatch' => ['label' => 'Color swatch', 'playground' => ColorSwatchPlayground::class, 'sort' => 290, 'icon' => GravityIcon::Palette],
                 'flex-color-picker' => ['label' => 'Flex color picker', 'playground' => FlexColorPickerPlayground::class, 'sort' => 300, 'icon' => GravityIcon::Palette],
+                'icon-picker-field' => ['label' => 'Icon picker', 'playground' => IconPickerFieldPlayground::class, 'sort' => 305, 'icon' => GravityIcon::Star],
+                'icon-column' => ['label' => 'IconColumn', 'playground' => IconColumnPlayground::class, 'sort' => 306, 'icon' => GravityIcon::Star],
                 'file-upload' => ['label' => 'File upload', 'playground' => FlexFileUploadPlayground::class, 'sort' => 310, 'icon' => GravityIcon::CloudArrowUpIn],
                 'video-field' => ['label' => 'Video field', 'playground' => VideoFieldPlayground::class, 'sort' => 320, 'icon' => GravityIcon::Video],
                 'audio-field' => ['label' => 'Audio field', 'playground' => AudioFieldPlayground::class, 'sort' => 330, 'icon' => GravityIcon::VolumeFill],

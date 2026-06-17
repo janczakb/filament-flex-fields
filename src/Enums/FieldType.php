@@ -25,6 +25,7 @@ enum FieldType: string
     case Search = 'search';
     case AddressAutocomplete = 'address_autocomplete';
     case VerificationCode = 'verification_code';
+    case IconPicker = 'icon_picker';
 
     // Number
     case Integer = 'integer';
@@ -104,7 +105,8 @@ enum FieldType: string
             self::Slug,
             self::Search,
             self::AddressAutocomplete,
-            self::VerificationCode => FieldCategory::Text,
+            self::VerificationCode,
+            self::IconPicker => FieldCategory::Text,
 
             self::Integer,
             self::Decimal,
@@ -187,6 +189,7 @@ enum FieldType: string
             self::Search => 'heroicon-o-magnifying-glass',
             self::AddressAutocomplete => 'heroicon-o-map-pin',
             self::VerificationCode => 'heroicon-o-shield-check',
+            self::IconPicker => 'heroicon-o-sparkles',
 
             self::Integer => 'heroicon-o-hashtag',
             self::Decimal => 'heroicon-o-variable',
@@ -267,6 +270,7 @@ enum FieldType: string
             self::FlexTextarea,
             self::FlexTextInput,
             self::VerificationCode,
+            self::IconPicker,
             self::CreditCard,
             self::Phone,
             self::Country,
