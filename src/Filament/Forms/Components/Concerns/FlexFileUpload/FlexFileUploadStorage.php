@@ -177,14 +177,16 @@ trait FlexFileUploadStorage
     {
         $this->afterStateHydrated(function (BaseFileUpload $component): void {
             /** @var static $component */
+            $component->hydrateFiles();
             $component->snapshotBaselineFilePaths();
         });
 
         $this->beforeStateDehydrated(function (BaseFileUpload $component): void {
             /** @var static $component */
+            $component->saveUploadedFiles();
             $component->deleteReplacedFilesFromDisk();
             $component->pruneOrphanedFilesFromDirectory();
-        });
+        }, true);
 
         $this->saveUploadedFileUsing(function (BaseFileUpload $component, TemporaryUploadedFile $file): ?string {
             /** @var static $component */

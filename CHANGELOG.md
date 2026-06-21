@@ -5,7 +5,11 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.7.1] - 2026-06-21
+## [2.7.2] - 2026-06-21
+
+### Fixed
+
+- **FlexFileUpload / FlexImageUpload** — fixed an issue where uploaded files were left in the Livewire temporary directory and not moved to the final disk because Filament's `saveUploadedFiles` and `hydrateFiles` lifecycle hooks were accidentally overwritten by the package's internal file storage hooks (#5).
 
 ### Fixed
 
