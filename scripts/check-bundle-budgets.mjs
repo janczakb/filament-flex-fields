@@ -14,13 +14,14 @@ if (! metrics) {
 const CSS_BUDGETS = {
     'core.css': { rawKb: 80, gzipKb: 50 },
     'phone-field.css': { rawKb: 35, gzipKb: 12 },
-    'country-field.css': { rawKb: 30, gzipKb: 10 },
-    'select-field.css': { rawKb: 120, gzipKb: 25 },
-    'user-display.css': { rawKb: 22, gzipKb: 5 },
-    'tag-chips.css': { rawKb: 23, gzipKb: 5 },
+    'country-field.css': { rawKb: 31, gzipKb: 10 },
+    'select-field.css': { rawKb: 120, gzipKb: 14 },
+    'user-display.css': { rawKb: 27, gzipKb: 6 },
+    'tag-chips.css': { rawKb: 28, gzipKb: 6 },
     'user-select.css': { rawKb: 130, gzipKb: 28 },
-    'flex-text-input.css': { rawKb: 40, gzipKb: 12 },
+    'flex-text-input.css': { rawKb: 43, gzipKb: 12 },
     'playground.css': { rawKb: 60, gzipKb: 20 },
+    'rich-editor-field.css': { rawKb: 45, gzipKb: 12 },
 };
 
 /** @type {Record<string, { rawKb?: number, gzipKb?: number }>} */
@@ -29,8 +30,14 @@ const JS_BUDGETS = {
     'flex-fields-emoji': { rawKb: 120, gzipKb: 40 },
     'flex-fields-mapbox': { rawKb: 20, gzipKb: 8 },
     'flex-fields-select-menu': { rawKb: 15, gzipKb: 6 },
+    'flex-fields-barcode-scanner': { rawKb: 420, gzipKb: 110 },
     'phone-field.js': { rawKb: 20, gzipKb: 8 },
     'country-field.js': { rawKb: 15, gzipKb: 6 },
+    'flex-rich-editor.js': { rawKb: 35, gzipKb: 12 },
+    'flex-rich-editor-youtube-extension.js': { rawKb: 10, gzipKb: 4 },
+    'flex-date-time-field.js': { rawKb: 48, gzipKb: 13 },
+    'flex-file-upload.js': { rawKb: 26, gzipKb: 8 },
+    'flex-slider.js': { rawKb: 38, gzipKb: 13 },
 };
 
 const violations = [];

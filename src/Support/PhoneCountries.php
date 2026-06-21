@@ -77,7 +77,7 @@ class PhoneCountries
     {
         $code = strtoupper($countryCode);
 
-        return (string) __("filament-flex-fields::countries.{$code}");
+        return Translations::get("filament-flex-fields::countries.{$code}");
     }
 
     public static function dialCode(string $countryCode): string

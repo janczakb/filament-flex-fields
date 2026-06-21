@@ -161,6 +161,17 @@ ItemCard::make('Delete account')
 
 `-&gt;itemCard()` is provided by the package `Action` class (`CanStyleItemCardAction`).
 
+For **press-and-hold** destructive actions (no accidental click), use `->holdConfirm()` instead of `->requiresConfirmation()` — see [Hold confirm action](/docs/hold-confirm-action).
+
+```php
+Action::make('delete')
+    ->label('Hold to Delete')
+    ->color('danger')
+    ->itemCard()
+    ->holdConfirm(2000)
+    ->action(fn () => $this->deleteAccount()),
+```
+
 ### Select & switch in item cards
 
 **Select** — use `SelectField` with `variant('item-card')`:

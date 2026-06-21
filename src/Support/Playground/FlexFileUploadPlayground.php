@@ -7,7 +7,11 @@ namespace Bjanczak\FilamentFlexFields\Support\Playground;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\BarcodeScannerField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexFileUpload;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexImageUpload;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl;
+use Filament\Actions\Action;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -45,8 +49,8 @@ class FlexFileUploadPlayground
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     View::make('filament-flex-fields::partials.playground-skeleton-demo-controls'),
-                    \Filament\Schemas\Components\Actions::make([
-                        \Filament\Actions\Action::make('skeleton_loading_demo')
+                    Actions::make([
+                        Action::make('skeleton_loading_demo')
                             ->label('2. Open skeleton demo modal')
                             ->color('warning')
                             ->icon('heroicon-m-sparkles')
@@ -60,7 +64,7 @@ class FlexFileUploadPlayground
                                     ->label('Barcode scanner'),
                             ])
                             ->modalWidth('2xl'),
-                        \Filament\Actions\Action::make('skeleton_loading_slide_over_demo')
+                        Action::make('skeleton_loading_slide_over_demo')
                             ->label('3. Open skeleton demo slide-over')
                             ->color('warning')
                             ->icon('heroicon-m-arrow-left-on-rectangle')
@@ -75,18 +79,18 @@ class FlexFileUploadPlayground
                                     ->label('Barcode scanner'),
                             ])
                             ->modalWidth('2xl'),
-                        \Filament\Actions\Action::make('test_modal_css')
+                        Action::make('test_modal_css')
                             ->label('Quick modal CSS test')
                             ->color('gray')
                             ->icon('heroicon-m-beaker')
                             ->form([
-                                \Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl::make('test_segment')
+                                SegmentControl::make('test_segment')
                                     ->options([
                                         'option_1' => 'Option 1',
                                         'option_2' => 'Option 2',
                                     ])
                                     ->default('option_1'),
-                                \Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField::make('test_phone')
+                                PhoneField::make('test_phone')
                                     ->label('Test Phone (Dependencies)'),
                             ])
                             ->modalWidth('md'),

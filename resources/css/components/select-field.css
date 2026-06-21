@@ -319,8 +319,7 @@
 }
 
 .fff-select-trigger-ssr.is-replaced {
-    visibility: hidden;
-    opacity: 0;
+    display: none;
     pointer-events: none;
 }
 

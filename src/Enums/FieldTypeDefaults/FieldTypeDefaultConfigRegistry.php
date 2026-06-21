@@ -8,6 +8,9 @@ use Bjanczak\FilamentFlexFields\Enums\FieldType;
 
 final class FieldTypeDefaultConfigRegistry
 {
+    /**
+     * @return array<string, mixed>
+     */
     public static function for(FieldType $type): array
     {
         return match ($type) {

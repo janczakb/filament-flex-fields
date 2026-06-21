@@ -94,7 +94,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Text & input
 
-[FlexTextInput](/docs/flextextinput) · [FlexTextareaField](/docs/flextextareafield) · [PhoneField](/docs/phonefield) · [CountryField](/docs/countryfield) · [TimezoneField](/docs/timezonefield) · [SlugField & TitleSlugField](/docs/slugfield-and-titleslugfield) · [AddressAutocompleteField](/docs/addressautocompletefield) · [FlexVerificationCode](/docs/flexverificationcode) · [TagsField](/docs/tags-field) · [LinkPreviewField](/docs/link-preview-field) · [SocialLinksField](/docs/social-links-field)
+[FlexTextInput](/docs/flextextinput) · [FlexTextareaField](/docs/flextextareafield) · [FlexRichEditor](/docs/flex-rich-editor) · [PhoneField](/docs/phonefield) · [CountryField](/docs/countryfield) · [TimezoneField](/docs/timezonefield) · [SlugField & TitleSlugField](/docs/slugfield-and-titleslugfield) · [AddressAutocompleteField](/docs/addressautocompletefield) · [FlexVerificationCode](/docs/flexverificationcode) · [TagsField](/docs/tags-field) · [LinkPreviewField](/docs/link-preview-field) · [SocialLinksField](/docs/social-links-field)
 
 ### Number & range
 
@@ -119,6 +119,10 @@ Every component loads **only its own CSS and JS** when rendered — including in
 ### Layout & display
 
 [ItemCard](/docs/itemcard) · [ItemCardGroup](/docs/itemcardgroup) · [ItemCardStack](/docs/itemcardstack) · [CoverCard](/docs/covercard) · [ProgressBar](/docs/progressbar) · [ProgressCircle](/docs/progresscircle) · [SegmentTabs](/docs/segmenttabs) · [TranslatableFields](/docs/translatablefields)
+
+### Actions
+
+[Hold confirm action](/docs/hold-confirm-action) — press-and-hold Filament actions for destructive or irreversible operations
 
 ---
 

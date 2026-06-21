@@ -13,6 +13,7 @@ export default function segmentControlFormComponent({
         disabled,
         indicatorStyle: '',
         indicatorAnimated: false,
+        indicatorHydrated: false,
         resizeObserver: null,
 
         normalize(value) {
@@ -75,6 +76,7 @@ export default function segmentControlFormComponent({
 
             if (! selected) {
                 this.indicatorStyle = 'opacity: 0;'
+                this.indicatorHydrated = false
 
                 return
             }
@@ -84,6 +86,7 @@ export default function segmentControlFormComponent({
                 'height: ' + selected.offsetHeight + 'px;' +
                 'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
                 'opacity: 1;'
+            this.indicatorHydrated = true
         },
 
         enableIndicatorAnimation() {

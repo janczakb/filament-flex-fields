@@ -1,0 +1,41 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/*
+ * Shared Tailwind theme tokens and utility aliases for component entry CSS.
+ * Entry files can `@import "../utilities-baseline.css"` plus `../base.css` when needed.
+ *
+ * Wiring this into every component bundle via build-component-css.mjs is optional;
+ * today only select-field uses it as a narrowed entry experiment.
+ */
+@theme {
+    --fff-track-h-sm: 2rem;
+    --fff-track-h-md: 2.5rem;
+    --fff-track-h-lg: 3rem;
+
+    --fff-text-sm: 0.75rem;
+    --fff-text-md: 0.875rem;
+    --fff-text-lg: 0.9375rem;
+
+    --fff-z-dropdown: 20;
+    --fff-z-dropdown-modal: 60;
+    --fff-z-overlay: 30;
+    --fff-z-modal: 40;
+}
+
+@utility fff-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+@utility fff-focus-ring {
+    outline: 2px solid var(--fff-field-focus-border, rgb(59 130 246));
+    outline-offset: 2px;
+}

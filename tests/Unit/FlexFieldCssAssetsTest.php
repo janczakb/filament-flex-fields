@@ -47,6 +47,17 @@ it('keeps table column styles in lazy bundles instead of core', function () {
         ->toContain('.fff-rating__icon-clip');
 });
 
+it('uses root css tokens for icon column label colors in dark mode', function () {
+    $iconColumnCss = file_get_contents(__DIR__.'/../../resources/dist/css/icon-column.css');
+
+    expect($iconColumnCss)
+        ->toContain('color:var(--fff-icon-column-text)')
+        ->toContain('color:var(--fff-icon-column-muted)')
+        ->toContain('--fff-icon-column-text:#fafafa')
+        ->toContain('--fff-icon-column-muted:#a1a1aa')
+        ->not->toContain('dark:text-white');
+});
+
 it('keeps hold confirm action styles in the lazy bundle', function () {
     $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
     $holdConfirmCss = file_get_contents(__DIR__.'/../../resources/dist/css/hold-confirm-action.css');

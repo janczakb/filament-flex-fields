@@ -60,4 +60,9 @@ trait ConfiguresUserSelectSearch
 
         return max(1, $limit);
     }
+
+    public function getApplySearchUsing(): ?Closure
+    {
+        return $this->applySearchUsing;
+    }
 }

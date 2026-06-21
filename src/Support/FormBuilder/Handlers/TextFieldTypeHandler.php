@@ -9,6 +9,7 @@ use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\AddressAutocompleteField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CountryField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CreditCardField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRichEditor;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexVerificationCode;
@@ -28,7 +29,6 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\PhoneFieldConf
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SlugFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TimezoneFieldConfigurator;
 use Filament\Forms\Components\MarkdownEditor;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -82,7 +82,7 @@ final class TextFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::FlexTextarea => $this->flexTextarea->configure(FlexTextareaField::make($statePath), $config),
             FieldType::FlexTextInput => $this->flexTextInput->configure(FlexTextInput::make($statePath), $config),
             FieldType::CreditCard => $this->creditCard->configure(CreditCardField::make($statePath), $config),
-            FieldType::RichText => RichEditor::make($statePath),
+            FieldType::RichText => FlexRichEditor::make($statePath),
             FieldType::Markdown => MarkdownEditor::make($statePath),
             FieldType::Email => TextInput::make($statePath)->email(),
             FieldType::Url => TextInput::make($statePath)->url(),

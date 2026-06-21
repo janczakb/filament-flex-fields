@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 it('exposes one registry entry per playground component', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(51)
-        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(51);
+    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(52)
+        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(52);
 });
 
 it('orders playground definitions by sort', function () {
@@ -71,7 +71,7 @@ it('uses registry labels for sub-navigation entries', function () {
     $labels = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'label');
 
     expect($labels)->toContain('RatingColumn', 'IconColumn', 'UserColumn', 'Phone field')
-        ->and(count($labels))->toBe(51);
+        ->and(count($labels))->toBe(52);
 });
 
 it('assigns a gravity icon to every playground sub-navigation entry', function () {

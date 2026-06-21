@@ -12,6 +12,10 @@
     $isIconOnly = $isIconOnly();
     $expandSelectedLabel = $shouldExpandSelectedLabel();
     $isDisabled = $isDisabled();
+    $currentState = $getState();
+    $normalizedCurrentState = filled($currentState) || $currentState === 0 || $currentState === '0'
+        ? (string) $currentState
+        : null;
 @endphp
 
 <x-dynamic-component
@@ -46,7 +50,7 @@
                 'fff-segment-track--'.$size,
                 'fff-segment-track--ghost' => $variant === 'ghost',
             ])
-            x-bind:class="{ 'is-animated': indicatorAnimated }"
+            x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
         >
             <div
                 x-ref="indicator"
@@ -60,6 +64,10 @@
             ></div>
 
             @foreach ($options as $value => $option)
+                @php
+                    $isSelected = $normalizedCurrentState !== null && (string) $value === $normalizedCurrentState;
+                @endphp
+
                 @if (! $loop->first && $hasSeparators)
                     <span
                         class="fff-segment-separator"
@@ -76,6 +84,8 @@
                         'fff-segment-item--'.$size,
                     ])
                     data-segment-value="{{ $value }}"
+                    data-segment-selected="{{ $isSelected ? 'true' : 'false' }}"
+                    aria-checked="{{ $isSelected ? 'true' : 'false' }}"
                     x-bind:data-segment-selected="isSelected(@js($value)) ? 'true' : 'false'"
                     x-bind:aria-checked="isSelected(@js($value)) ? 'true' : 'false'"
                     x-bind:disabled="disabled || isOptionDisabled(@js($value))"
@@ -92,8 +102,10 @@
                         <span class="sr-only">{{ $option['label'] }}</span>
                     @elseif ($expandSelectedLabel)
                         <span
-                            x-show="isSelected(@js($value))"
-                            x-cloak
+                            @unless ($isSelected)
+                                x-show="isSelected(@js($value))"
+                                x-cloak
+                            @endunless
                         >{{ $option['label'] }}</span>
                     @else
                         <span>{{ $option['label'] }}</span>

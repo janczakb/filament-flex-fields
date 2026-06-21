@@ -8,7 +8,7 @@ import {
     reviveVideoPlayback,
     stopMediaStreamTracks,
     waitForVideoFrames,
-} from './barcode-scanner-engine.js'
+} from './camera-stream.js'
 
 export function createSegmentControlBehavior({
     activeTab,

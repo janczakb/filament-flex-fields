@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Enums;
 
+use Bjanczak\FilamentFlexFields\Support\Translations;
+
 enum FieldCategory: string
 {
     case Text = 'text';
@@ -16,12 +18,12 @@ enum FieldCategory: string
     public function label(): string
     {
         return match ($this) {
-            self::Text => __('filament-flex-fields::default.categories.text'),
-            self::Number => __('filament-flex-fields::default.categories.number'),
-            self::Choice => __('filament-flex-fields::default.categories.choice'),
-            self::DateTime => __('filament-flex-fields::default.categories.datetime'),
-            self::Media => __('filament-flex-fields::default.categories.media'),
-            self::Advanced => __('filament-flex-fields::default.categories.advanced'),
+            self::Text => Translations::get('filament-flex-fields::default.categories.text'),
+            self::Number => Translations::get('filament-flex-fields::default.categories.number'),
+            self::Choice => Translations::get('filament-flex-fields::default.categories.choice'),
+            self::DateTime => Translations::get('filament-flex-fields::default.categories.datetime'),
+            self::Media => Translations::get('filament-flex-fields::default.categories.media'),
+            self::Advanced => Translations::get('filament-flex-fields::default.categories.advanced'),
         };
     }
 

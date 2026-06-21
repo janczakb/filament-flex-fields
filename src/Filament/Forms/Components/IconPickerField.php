@@ -385,9 +385,9 @@ class IconPickerField extends Field
         $query = trim($query);
         $perPage = $this->getPerPage();
         $includeSetSummaries = $page === 1 && $query === '' && $set === null;
-        
+
         $minutes = (int) config('filament-flex-fields.ui.icon_picker_search_cache_minutes', 60);
-        
+
         $whitelisted = $this->getWhitelistedIcons();
         $excluded = $this->getExcludedIcons();
 

@@ -12,6 +12,14 @@
 
 @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'hold-confirm-action'])
 
+@push('styles')
+    <link
+        rel="modulepreload"
+        href="{{ $alpineSrc }}"
+        data-navigate-track
+    />
+@endpush
+
 <span
     class="fff-hold-confirm-action-host"
     data-sweep="{{ $sweep }}"

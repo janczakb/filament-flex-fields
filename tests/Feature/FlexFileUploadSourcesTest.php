@@ -97,6 +97,15 @@ it('does not render upload source tabs when optional sources are disabled', func
         ->toBe(substr_count($html, '</div>'));
 });
 
+it('defaults upload source tabs to the standard segment-control variant', function () {
+    $field = FlexImageUpload::make('photo')
+        ->allowUrlUpload()
+        ->allowWebcamUpload();
+
+    expect($field->getUploadSourceTabsVariant())->toBe('default')
+        ->and($field->getUploadSourceTabsColor())->toBeNull();
+});
+
 it('renders upload source tabs and panels when optional sources are enabled', function () {
     TestableTranslatableForm::$formSchema = [
         FlexImageUpload::make('photo')
@@ -108,6 +117,7 @@ it('renders upload source tabs and panels when optional sources are enabled', fu
 
     expect($html)
         ->toContain('fff-flex-file-upload__source-tabs')
+        ->not->toContain('fff-segment-track--ghost')
         ->toContain('fff-flex-file-upload__source-panel--url')
         ->toContain('fff-flex-file-upload__url-dropzone')
         ->toContain('fff-flex-file-upload__source-dropzone')

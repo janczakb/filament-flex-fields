@@ -205,6 +205,8 @@ final class GravityIcon
 
     public const string ArrowRotateLeft = 'gravityui-arrow-rotate-left';
 
+    public const string ArrowRotateRight = 'gravityui-arrow-rotate-right';
+
     public const string Pencil = 'gravityui-pencil';
 
     public const string PencilToSquare = 'gravityui-pencil-to-square';

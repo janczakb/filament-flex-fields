@@ -1,5 +1,23 @@
-import { sharedEmojiPicker } from '../core/shared-emoji-picker.js'
 import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+
+let sharedEmojiPickerModule = null
+let sharedEmojiPickerPromise = null
+
+async function loadSharedEmojiPicker() {
+    if (sharedEmojiPickerModule) {
+        return sharedEmojiPickerModule
+    }
+
+    if (! sharedEmojiPickerPromise) {
+        sharedEmojiPickerPromise = import('../core/shared-emoji-picker.js').then((module) => {
+            sharedEmojiPickerModule = module
+
+            return module
+        })
+    }
+
+    return sharedEmojiPickerPromise
+}
 
 const exclusiveDropdown = createExclusiveDropdownMixin({
     openKey: 'emojiPickerOpen',
@@ -101,7 +119,9 @@ export default function flexTextareaFormComponent({
             }
 
             if (this.emojiPicker) {
-                sharedEmojiPicker.preload(this.emojiPickerLocale)
+                void loadSharedEmojiPicker().then(({ sharedEmojiPicker }) => {
+                    sharedEmojiPicker.preload(this.emojiPickerLocale)
+                })
             }
 
             if (this.shouldAutosize) {
@@ -113,11 +133,13 @@ export default function flexTextareaFormComponent({
             const handleWindowResize = () => this.resize()
             window.addEventListener('resize', handleWindowResize)
 
-            return () => {
+            return async () => {
                 window.removeEventListener('resize', handleWindowResize)
                 this.clearInsertTimeout()
                 this.clearDictationStatusTimeout()
                 this.abortDictation()
+
+                const { sharedEmojiPicker } = await loadSharedEmojiPicker()
 
                 if (sharedEmojiPicker.isOpenFor(this)) {
                     sharedEmojiPicker.close()
@@ -411,8 +433,9 @@ export default function flexTextareaFormComponent({
             this.$nextTick(() => this.resize())
         },
 
-        toggleEmojiPicker() {
+        async toggleEmojiPicker() {
             const anchor = this.$refs.emojiTrigger
+            const { sharedEmojiPicker } = await loadSharedEmojiPicker()
 
             if (sharedEmojiPicker.shouldSuppressToggle(anchor)) {
                 this.emojiPickerOpen = false
@@ -444,8 +467,9 @@ export default function flexTextareaFormComponent({
             this.emojiPickerReady = sharedEmojiPicker.isReady(this.emojiPickerLocale)
         },
 
-        closeEmojiPicker() {
+        async closeEmojiPicker() {
             const anchor = this.$refs.emojiTrigger
+            const { sharedEmojiPicker } = await loadSharedEmojiPicker()
 
             if (sharedEmojiPicker.isOpenForAnchor(anchor)) {
                 sharedEmojiPicker.close()

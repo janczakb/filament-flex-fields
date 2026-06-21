@@ -18,6 +18,7 @@ class FileUploadImageProcessor
         protected bool $optimizeImagesToWebp = false,
         protected ?int $maxImageWidth = null,
         protected ?int $maxImageHeight = null,
+        protected ?int $maxImageLongEdge = null,
         protected bool $stripExif = true,
     ) {}
 
@@ -35,11 +36,47 @@ class FileUploadImageProcessor
             return $path;
         }
 
+        if (! $this->shouldProcess()) {
+            return $path;
+        }
+
         if ($this->shouldUseInterventionImageProcessor()) {
             return $this->processWithIntervention($disk, $path, $absolutePath);
         }
 
         return $this->processWithGd($disk, $path, $absolutePath, $mime);
+    }
+
+    public function processLocalPath(string $absolutePath): string
+    {
+        if (! is_file($absolutePath)) {
+            return $absolutePath;
+        }
+
+        $mime = @mime_content_type($absolutePath);
+
+        if (! is_string($mime) || ! str_starts_with($mime, 'image/')) {
+            return $absolutePath;
+        }
+
+        if (! $this->shouldProcess()) {
+            return $absolutePath;
+        }
+
+        if ($this->shouldUseInterventionImageProcessor()) {
+            return $this->processLocalPathWithIntervention($absolutePath);
+        }
+
+        return $this->processLocalPathWithGd($absolutePath, $mime);
+    }
+
+    protected function shouldProcess(): bool
+    {
+        return $this->optimizeImages
+            || $this->optimizeImagesToWebp
+            || $this->maxImageWidth
+            || $this->maxImageHeight
+            || $this->maxImageLongEdge;
     }
 
     protected function shouldUseInterventionImageProcessor(): bool
@@ -88,12 +125,7 @@ class FileUploadImageProcessor
         $manager = $this->createInterventionImageManager();
         $image = $this->loadInterventionImage($manager, $absolutePath);
 
-        if ($this->maxImageWidth || $this->maxImageHeight) {
-            $image->scale(
-                width: $this->maxImageWidth,
-                height: $this->maxImageHeight,
-            );
-        }
+        $this->applyInterventionScaling($image);
 
         if ($this->optimizeImagesToWebp && $this->supportsWebp()) {
             $newPath = $this->replaceExtension($path, 'webp');
@@ -113,6 +145,68 @@ class FileUploadImageProcessor
         $image->save($absolutePath);
 
         return $path;
+    }
+
+    protected function processLocalPathWithIntervention(string $absolutePath): string
+    {
+        $manager = $this->createInterventionImageManager();
+        $image = $this->loadInterventionImage($manager, $absolutePath);
+
+        $this->applyInterventionScaling($image);
+        $image->save($absolutePath);
+
+        return $absolutePath;
+    }
+
+    protected function processLocalPathWithGd(string $absolutePath, string $mime): string
+    {
+        $resource = $this->createImageResource($absolutePath, $mime);
+
+        if ($resource === null) {
+            return $absolutePath;
+        }
+
+        $width = imagesx($resource);
+        $height = imagesy($resource);
+
+        [$targetWidth, $targetHeight] = $this->resolveTargetDimensions($width, $height);
+
+        if ($targetWidth !== $width || $targetHeight !== $height) {
+            $resized = imagecreatetruecolor($targetWidth, $targetHeight);
+
+            if ($resized !== false) {
+                imagecopyresampled($resized, $resource, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+                imagedestroy($resource);
+                $resource = $resized;
+            }
+        }
+
+        $this->saveGdResource($resource, $absolutePath, $mime);
+        imagedestroy($resource);
+
+        return $absolutePath;
+    }
+
+    protected function applyInterventionScaling(mixed $image): void
+    {
+        if ($this->maxImageLongEdge) {
+            $width = $image->width();
+            $height = $image->height();
+            [$targetWidth, $targetHeight] = $this->resolveTargetDimensions($width, $height);
+
+            if ($targetWidth !== $width || $targetHeight !== $height) {
+                $image->resize($targetWidth, $targetHeight);
+
+                return;
+            }
+        }
+
+        if ($this->maxImageWidth || $this->maxImageHeight) {
+            $image->scale(
+                width: $this->maxImageWidth,
+                height: $this->maxImageHeight,
+            );
+        }
     }
 
     protected function processWithGd(Filesystem $disk, string $path, string $absolutePath, string $mime): string
@@ -193,6 +287,21 @@ class FileUploadImageProcessor
      */
     protected function resolveTargetDimensions(int $width, int $height): array
     {
+        if ($this->maxImageLongEdge) {
+            $longEdge = max($width, $height);
+
+            if ($longEdge <= $this->maxImageLongEdge) {
+                return [$width, $height];
+            }
+
+            $scale = $this->maxImageLongEdge / $longEdge;
+
+            return [
+                (int) round($width * $scale),
+                (int) round($height * $scale),
+            ];
+        }
+
         $maxWidth = $this->maxImageWidth;
         $maxHeight = $this->maxImageHeight;
 

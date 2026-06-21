@@ -81,3 +81,22 @@ it('normalizes rich option arrays for segment control', function () {
         ->and($options['dark']['tooltip'])->toBe('Dark mode unavailable')
         ->and($options['light']['icon'])->toBe(GravityIcon::Sun);
 });
+
+it('server renders segment selected state before alpine hydrates', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/segment-control.blade.php');
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/segment-control.css');
+
+    expect($blade)
+        ->toContain('$currentState = $getState()')
+        ->toContain('$normalizedCurrentState')
+        ->toContain('$isSelected = $normalizedCurrentState !== null && (string) $value === $normalizedCurrentState')
+        ->toContain('data-segment-selected="{{ $isSelected ? \'true\' : \'false\' }}"')
+        ->toContain('aria-checked="{{ $isSelected ? \'true\' : \'false\' }}"')
+        ->toContain('@unless ($isSelected)')
+        ->toContain('x-show="isSelected(@js($value))"')
+        ->toContain("'is-hydrated': indicatorHydrated");
+
+    expect($css)
+        ->toContain('.fff-segment-track:not(.is-hydrated) .fff-segment-item[data-segment-selected=\'true\']')
+        ->toContain('.fff-segment-track.is-hydrated .fff-segment-item[data-segment-selected=\'true\']');
+});

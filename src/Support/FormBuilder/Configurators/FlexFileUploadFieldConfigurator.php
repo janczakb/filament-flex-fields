@@ -4,17 +4,26 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexFileUpload;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class FlexFileUploadFieldConfigurator implements FieldConfigurator
 {
+    /**
+     * @param  array<string, mixed>  $config
+     */
     public function configure(Component $field, array $config): Component
     {
+        assert($field instanceof FlexFileUpload);
+
         return $this->configureFlexFileUploadField($field, $config);
     }
 
-    public function configureFlexFileUploadField(Component $field, array $config): Component
+    /**
+     * @param  array<string, mixed>  $config
+     */
+    public function configureFlexFileUploadField(FlexFileUpload $field, array $config): FlexFileUpload
     {
         if (filled($config['disk'] ?? null)) {
             $field->disk((string) $config['disk']);
@@ -39,7 +48,9 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
         }
 
         if (array_key_exists('accepted_types', $config) && is_array($config['accepted_types'])) {
-            $field->acceptedFileTypes($config['accepted_types']);
+            /** @var list<string> $acceptedTypes */
+            $acceptedTypes = $config['accepted_types'];
+            $field->acceptedFileTypes($acceptedTypes);
         }
 
         if (array_key_exists('min_files', $config)) {

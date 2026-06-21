@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Field smoke fixture</title>
+        <script type="module" src="./field-smoke.harness.mjs"></script>
+    </head>
+    <body>
+        <div
+            id="immediate-coordinator"
+            class="fff-select-field__shell"
+            x-data="fffSelectFieldCoordinator({ patchConfig: { statePath: 'immediate.status' } })"
+            x-init="init()"
+        >
+            <div data-fff-select-root x-data="immediateSelectInner()"></div>
+        </div>
+
+        <div
+            id="delayed-coordinator"
+            class="fff-select-field__shell"
+            x-data="fffSelectFieldCoordinator({ patchConfig: { statePath: 'delayed.plan' } })"
+            x-init="init()"
+        >
+            <div data-fff-select-root x-data="delayedSelectInner()"></div>
+        </div>
+
+        <div
+            id="file-upload-smoke"
+            class="fff-flex-file-upload"
+            x-data="flexFileUploadFormComponent({
+                showUploadSummary: true,
+                summaryTemplate: ':count file(s), :size KB total',
+            })"
+            x-init="
+                getFileUploadComponent = () => ({
+                    pond: {
+                        getFiles: () => [{ origin: 1, fileSize: 2048, status: 5, serverId: 'demo' }],
+                    },
+                });
+                init();
+                refreshSummary();
+            "
+        >
+            <span data-fff-file-upload-summary x-text="summaryLabel"></span>
+        </div>
+
+        <div
+            id="schedule-smoke"
+            class="fff-schedule-field"
+            x-data="scheduleFieldFormComponent({
+                state: [],
+                days: ['mon', 'tue'],
+                dayLabels: { mon: 'Mon', tue: 'Tue' },
+            })"
+            x-init="init()"
+        >
+            <span data-fff-schedule-ready x-text="days?.length ?? 0"></span>
+        </div>
+    </body>
+</html>

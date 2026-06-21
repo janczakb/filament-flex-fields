@@ -27,6 +27,7 @@
     $initialSelectedHtml = filled($initialState) ? $field->renderIconHtml((string) $initialState) : '';
     $isInitialPlaceholder = blank($initialState);
     $showClearButton = $field->isClearable() && filled($initialState) && ! $isDisabled && ! $isReadOnly;
+    $hasInitialSelection = filled($initialState);
     $layout = $field->getSearchResultsLayout();
     $isGridLayout = in_array($layout, ['grid', 'icons'], true);
 @endphp
@@ -39,6 +40,15 @@
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'icon-picker-field'])
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'select-field'])
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'teleported-menu'])
+
+    @once
+        <link
+            rel="modulepreload"
+            href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('icon-picker-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+            as="script"
+            crossorigin
+        />
+    @endonce
 
     <x-filament::input.wrapper
         :disabled="$isDisabled"
@@ -63,6 +73,10 @@
                 ])
         "
     >
+        <x-filament-flex-fields::lazy-alpine-mount
+            :eager="$hasInitialSelection"
+            :mount-immediately="$isDisabled || $isReadOnly || $hasInitialSelection"
+        >
         <div
             wire:ignore
             wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$field->getVariant(), $layout, $field->getGridColumns(), $field->getResolvedSetNames()])), 0, 64) }}"
@@ -99,6 +113,7 @@
                 'fff-icon-picker',
                 'fff-icon-picker--layout-'.$layout,
             ])
+            x-bind:class="{ 'is-trigger-hydrated': triggerHydrated }"
             role="group"
             aria-label="{{ $getLabel() }}"
         >
@@ -130,10 +145,14 @@
                         >
                             <span
                                 class="fff-icon-picker__preview"
-                                x-show="state"
+                                data-ssr-visible="{{ $hasInitialSelection ? 'true' : 'false' }}"
+                                x-bind:hidden="triggerHydrated && ! state"
                                 x-html="selectedHtml"
                             >@if (filled($initialSelectedHtml)){!! $initialSelectedHtml !!}@endif</span>
-                            <span x-text="state || placeholder">{{ filled($initialState) ? e($initialState) : e($placeholder) }}</span>
+                            <span
+                                class="fff-icon-picker__name"
+                                x-text="state || placeholder"
+                            >{{ $hasInitialSelection ? e($initialState) : e($placeholder) }}</span>
                         </span>
                     </span>
                 </button>
@@ -176,5 +195,6 @@
                 </div>
             </template>
         </div>
+        </x-filament-flex-fields::lazy-alpine-mount>
     </x-filament::input.wrapper>
 </x-dynamic-component>

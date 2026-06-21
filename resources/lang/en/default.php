@@ -551,6 +551,64 @@ return [
         ],
     ],
 
+    'rich_editor' => [
+        'clear_content' => 'Clear content',
+        'toolbar_groups' => [
+            'heading' => 'Heading',
+            'alignment' => 'Alignment',
+            'lists' => 'Lists',
+        ],
+        'word_count' => [
+            'empty' => '0 characters, 0 words',
+            'line' => ':characters characters, :words words',
+        ],
+        'reading_time' => [
+            'line' => ':minutes min read',
+        ],
+        'limits' => [
+            'warning' => 'Approaching content limit',
+            'danger' => 'Content limit exceeded',
+            'min_characters' => 'Content must be at least :min characters.',
+            'max_characters' => 'Content may not exceed :max characters.',
+            'max_words' => 'Content may not exceed :max words.',
+        ],
+        'autosave' => [
+            'saving' => 'Saving draft…',
+            'saved' => 'Draft saved',
+            'restore_prompt' => 'A newer local draft was found. Restore it?',
+            'restore_confirm' => 'Restore draft',
+            'restore_dismiss' => 'Keep current',
+        ],
+        'alt_text' => [
+            'missing' => 'Images missing alt text',
+            'missing_suffix' => 'image(s) missing alt text',
+            'validation' => ':count image(s) are missing alt text.',
+        ],
+        'image' => [
+            'edit' => 'Edit',
+            'delete' => 'Delete',
+        ],
+        'youtube' => [
+            'tool' => 'YouTube',
+            'modal' => [
+                'heading' => 'Embed YouTube video',
+                'url' => 'YouTube URL',
+            ],
+        ],
+        'fullscreen' => [
+            'toggle' => 'Toggle fullscreen',
+            'enter' => 'Enter fullscreen',
+            'exit' => 'Exit fullscreen',
+        ],
+        'playground' => [
+            'native' => [
+                'section' => 'Filament RichEditor (native)',
+                'description' => 'Stock Filament rich editor with the same toolbar and attachments as FlexRichEditor below — for side-by-side comparison.',
+                'label' => 'Article body (native)',
+            ],
+        ],
+    ],
+
     'file_upload' => [
         'summary' => ':count file(s), :size KB total',
         'remaining_slots' => ':remaining of :max slots remaining',

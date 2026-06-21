@@ -203,11 +203,17 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const isChunkLinkReady = (url) => {
-        if (! window.performance?.getEntriesByName) {
-            return false
+        const link = findAssetLink(CHUNK_SELECTOR, url, chunkIndex)
+
+        if (link?.rel === 'modulepreload' && link.loaded === true) {
+            return true
         }
 
-        return window.performance.getEntriesByName(url).length > 0
+        if (window.performance?.getEntriesByName) {
+            return window.performance.getEntriesByName(url).length > 0
+        }
+
+        return false
     }
 
     const waitForExistingLink = (link, url, type, loadedSet, index) => {
@@ -560,6 +566,75 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         }
     }
 
+    const resolveHoverPreloadScope = (trigger) => {
+        if (! trigger?.closest) {
+            return null
+        }
+
+        const batch = trigger.closest('[data-fff-asset-batch]')
+
+        if (batch?.parentElement) {
+            return batch.parentElement
+        }
+
+        return trigger.closest('.fi-fo-field-wrp')
+            ?? trigger.closest('form')
+            ?? null
+    }
+
+    const isElementInViewport = (element) => {
+        if (! element?.getBoundingClientRect) {
+            return false
+        }
+
+        const rect = element.getBoundingClientRect()
+
+        return rect.bottom > 0
+            && rect.right > 0
+            && rect.top < (window.innerHeight || document.documentElement?.clientHeight || 0)
+            && rect.left < (window.innerWidth || document.documentElement?.clientWidth || 0)
+    }
+
+    const collectVisibleAssetBatches = (root = document) => {
+        if (! root?.querySelectorAll) {
+            return []
+        }
+
+        return [...root.querySelectorAll('[data-fff-asset-batch]')].filter((batch) => {
+            return isElementInViewport(batch)
+        })
+    }
+
+    const preloadVisibleBatchesIn = async (root = document) => {
+        const batches = collectVisibleAssetBatches(root)
+
+        if (batches.length === 0) {
+            return
+        }
+
+        const promises = []
+
+        for (const batch of batches) {
+            if (! batchNeedsLoading(batch)) {
+                continue
+            }
+
+            for (const href of parseJsonAttribute(batch, 'data-fff-stylesheets')) {
+                promises.push(loadStylesheet(href))
+            }
+
+            for (const href of parseJsonAttribute(batch, 'data-fff-chunks')) {
+                promises.push(loadChunk(href))
+            }
+        }
+
+        if (promises.length === 0) {
+            return
+        }
+
+        await Promise.allSettled(promises)
+    }
+
     const preloadBatchesIn = async (root = document) => {
         const scope = resolveAssetScope(root)
 
@@ -688,6 +763,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
                 await releasePendingState(modal)
             }
         }
+
+        void preloadVisibleBatchesIn(modal)
     }
 
     const beginPendingMorph = ({ el, toEl }) => {
@@ -715,7 +792,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
         const liveTarget = resolvePendingTarget(el)
 
-        if (! liveTarget?.classList || ! isModalPendingTarget(el)) {
+        if (! liveTarget?.classList) {
             return null
         }
 
@@ -739,9 +816,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             })
         }
 
-        ensureAssets(el)
-
-        return void preloadBatchesIn(el)
+        return ensureAssets(el).then(() => preloadBatchesIn(el))
     }
 
     const registerLivewireHooks = () => {
@@ -777,25 +852,16 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
             hoverPreloadTimer = setTimeout(() => {
                 hoverPreloadTimer = null
-                void preloadBatchesIn(document)
+
+                const scope = resolveHoverPreloadScope(trigger)
+
+                if (! scope) {
+                    return
+                }
+
+                void preloadBatchesIn(scope)
             }, 48)
         }, { passive: true })
-    }
-
-    const scheduleIdlePreload = (root = document) => {
-        if (injectorHooks.shouldSkipBackgroundPreload()) {
-            return
-        }
-
-        const run = () => {
-            void preloadBatchesIn(root)
-        }
-
-        if (typeof window.requestIdleCallback === 'function') {
-            window.requestIdleCallback(run, { timeout: 2000 })
-        } else {
-            setTimeout(run, 0)
-        }
     }
 
     const cleanupClosedModalPendingState = async (event) => {
@@ -822,11 +888,10 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
     const boot = () => {
         ensureAssets(document)
-        scheduleIdlePreload(document)
 
         document.addEventListener('livewire:navigated', () => {
+            purgeLazyAssets()
             ensureAssets(document)
-            scheduleIdlePreload(document)
         })
 
         window.addEventListener('x-modal-opened', prepareModal)
@@ -851,6 +916,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         resolvePendingTarget,
         batchNeedsLoading,
         preloadBatchesIn,
+        preloadVisibleBatchesIn,
+        resolveHoverPreloadScope,
         rootNeedsAssetLoading,
         prepareModal,
         applyPendingState,

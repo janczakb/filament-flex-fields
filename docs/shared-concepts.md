@@ -243,7 +243,9 @@ Every blade template rendering a component stylesheet registers CSS and Alpine c
 - **Full page** — `@push('styles')` into Filament `@stack('styles')` in `&lt;head&gt;`.
 - **Livewire partial** — inline `&lt;link&gt;` / `modulepreload` tags plus a hidden `data-fff-asset-batch` marker for the injector.
 
-`queued-stylesheets` flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END`. Critical bundles may preload via `critical-stylesheet-preloads` at `HEAD_END`.
+`queued-stylesheets` flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END`. At `HEAD_END`, `critical-stylesheet-preloads` may emit `teleported-menu` **only when** `FlexFieldStylesheetQueue` has already registered a component that depends on it (e.g. table columns in `setUp()`). Form fields enqueue during body render via `load-stylesheet` → `emit-assets` instead.
+
+`HoldConfirmAction` preloads its Alpine entry via `@push` `modulepreload` in `hold-confirm.blade.php` when the action renders — not globally in `HEAD_END`.
 
 #### Asset injector (SPA / modals)
 

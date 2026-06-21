@@ -52,7 +52,7 @@ class AddressAutocompleteField extends Field
         parent::setUp();
 
         $this->geocodedAddressFields = ['street', 'city', 'postcode', 'country', 'country_name', 'place_name'];
-        $this->language('pl');
+        $this->language(config('filament-flex-fields.mapbox.default_language'));
 
         $this->setUpGeocodedAddress();
     }

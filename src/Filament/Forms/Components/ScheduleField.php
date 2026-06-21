@@ -241,7 +241,10 @@ class ScheduleField extends Field
             return ScheduleDays::WEEKDAYS;
         }
 
-        return ScheduleDays::normalizeWorkdays($configured);
+        /** @var list<string> $days */
+        $days = array_values(array_map(static fn (mixed $day): string => (string) $day, $configured));
+
+        return ScheduleDays::normalizeWorkdays($days);
     }
 
     public function requireSlotsForEnabledDays(bool|Closure $condition = true): static
@@ -277,8 +280,11 @@ class ScheduleField extends Field
             return [];
         }
 
+        /** @var list<string> $days */
+        $days = array_values(array_map(static fn (mixed $day): string => (string) $day, $configured));
+
         return array_values(array_intersect(
-            ScheduleDays::onlyValidDays($configured),
+            ScheduleDays::onlyValidDays($days),
             $this->getDays(),
         ));
     }
@@ -307,6 +313,7 @@ class ScheduleField extends Field
     }
 
     /**
+     * @param  list<string>|null  $days
      * @return array{timezone?: string, days: array<string, array{enabled: bool, slots: list<array{from: string, to: string}>}>}
      */
     public static function defaultSchedule(?string $timezone = null, ?array $days = null): array
@@ -371,6 +378,9 @@ class ScheduleField extends Field
         return true;
     }
 
+    /**
+     * @param  array<string, mixed>  $normalized
+     */
     public function stateMatches(array $normalized, mixed $state): bool
     {
         if (! is_array($state)) {
@@ -393,7 +403,8 @@ class ScheduleField extends Field
      */
     public function getTimezoneOptionsForJs(): array
     {
-        return collect(Timezones::metadata(null, []))
+        /** @var list<array{id: string, label: string, offset: string}> $options */
+        $options = collect(Timezones::metadata(null, []))
             ->map(fn (array $timezone): array => [
                 'id' => $timezone['id'],
                 'label' => $timezone['label'],
@@ -401,6 +412,8 @@ class ScheduleField extends Field
             ])
             ->values()
             ->all();
+
+        return $options;
     }
 
     /**

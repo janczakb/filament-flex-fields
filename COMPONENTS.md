@@ -215,7 +215,15 @@ Każdy blade z `@include('...load-stylesheet', ['component' => '...'])` rejestru
 - **Pełna strona** — `@push('styles')` do Filament `@stack('styles')` w `<head>`.
 - **Partial Livewire** — inline `<link>` / `modulepreload` + ukryty `data-fff-asset-batch` dla injectora.
 
-`queued-stylesheets` opróżnia `pending()` kolejki na hookach `STYLES_AFTER` i `BODY_END`. Krytyczne bundle mogą być preloadowane przez `critical-stylesheet-preloads` na `HEAD_END`.
+`queued-stylesheets` opróżnia `pending()` kolejki na hookach `STYLES_AFTER` i `BODY_END`.
+
+**Critical preload (`HEAD_END`)** — tylko `teleported-menu`, i **wyłącznie** gdy kolejka request-scoped wymaga dropdownu (`FlexFieldStylesheetQueue::needsTeleportedMenu()`). Brak globalnego preloadu `flex-text-input` ani hold-confirm.
+
+**Hold confirm** — `HoldConfirmAction` ładuje swój moduł Alpine przez `@push` + `modulepreload` w `hold-confirm.blade.php` (per action), nie w `HEAD_END`.
+
+**Alpine** — rejestracja entry-only (`FlexFieldAssets::alpineEntryNames()`); chunki manifestu jako `loadedOnRequest` (dynamic `import()`), nie globalne `Alpine.data()` dla każdego chunku.
+
+**Lazy mount** — ciężkie pola (`flex-date-time-field`, `flex-file-upload`, `select-field` / `user-select`, `barcode-scanner-field`, `icon-picker-field`) owijaj interaktywną część w `<x-filament-flex-fields::lazy-alpine-mount>` (`x-intersect`; disabled → mount natychmiast).
 
 #### Asset injector (SPA / modals)
 

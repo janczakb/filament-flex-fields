@@ -56,7 +56,7 @@ final class FieldTypeHandlerRegistry
         throw new InvalidArgumentException("No handler registered for field type [{$type->value}].");
     }
 
-    public function makeComponent(FlexFieldDefinition $definition, string $statePathPrefix = 'flex_field_values'): ?Component
+    public function makeComponent(FlexFieldDefinition $definition, string $statePathPrefix = 'flex_field_values'): Component
     {
         $statePath = filled($statePathPrefix)
             ? "{$statePathPrefix}.{$definition->slug}"

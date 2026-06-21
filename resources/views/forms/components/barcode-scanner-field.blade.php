@@ -29,6 +29,7 @@
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'barcode-scanner-field'])
 
+    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly">
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getVariant(), $getSupportedFormats(), $getCameraFacing(), $getScanInterval(), $allowsCameraSwitch(), $getPreferredDeviceId(), $shouldStoreDetectedFormat(), $shouldPauseWhenHidden()])), 0, 64) }}"
@@ -253,4 +254,5 @@
             </div>
         </x-filament::modal>
     </div>
+    </x-filament-flex-fields::lazy-alpine-mount>
 </x-dynamic-component>

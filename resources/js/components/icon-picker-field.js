@@ -76,6 +76,7 @@ export default function iconPickerFieldFormComponent({
         labels,
         panelOpen: false,
         panelReady: false,
+        triggerHydrated: false,
         searchQuery: '',
         activeSet: null,
         loadedIconItems: [],
@@ -168,6 +169,10 @@ export default function iconPickerFieldFormComponent({
                 this.initialLoadPending = true
                 void this.fetchResults({ reset: true })
             }
+
+            this.$nextTick(() => {
+                this.triggerHydrated = true
+            })
         },
 
         bindPanelLifecycle() {

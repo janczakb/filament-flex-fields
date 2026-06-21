@@ -30,9 +30,9 @@ trait HasFlexFileUploadSources
 
     protected bool|Closure $flexAllowWebcamUpload = false;
 
-    protected string|Closure $flexUploadSourceTabsVariant = 'ghost';
+    protected string|Closure $flexUploadSourceTabsVariant = 'default';
 
-    protected string|Closure|null $flexUploadSourceTabsColor = 'primary';
+    protected string|Closure|null $flexUploadSourceTabsColor = null;
 
     /**
      * @var array<string, string|Closure>|Closure|null
@@ -156,9 +156,9 @@ trait HasFlexFileUploadSources
         }
 
         return match ($source) {
-            FileUploadSource::File => __('filament-flex-fields::default.file_upload.sources.tabs.file'),
-            FileUploadSource::Url => __('filament-flex-fields::default.file_upload.sources.tabs.url'),
-            FileUploadSource::Webcam => __('filament-flex-fields::default.file_upload.sources.tabs.webcam'),
+            FileUploadSource::File => $this->translateUploadSourceTab('file'),
+            FileUploadSource::Url => $this->translateUploadSourceTab('url'),
+            FileUploadSource::Webcam => $this->translateUploadSourceTab('webcam'),
         };
     }
 
@@ -240,7 +240,7 @@ trait HasFlexFileUploadSources
     {
         if (! $this->shouldAllowUrlUpload()) {
             throw ValidationException::withMessages([
-                $this->getStatePath() => __('filament-flex-fields::default.file_upload.sources.url_disabled'),
+                $this->flexFileUploadValidationKey() => __('filament-flex-fields::default.file_upload.sources.url_disabled'),
             ]);
         }
 
@@ -248,7 +248,7 @@ trait HasFlexFileUploadSources
 
         if ($url === '') {
             throw ValidationException::withMessages([
-                $this->getStatePath() => __('filament-flex-fields::default.file_upload.sources.url_required'),
+                $this->flexFileUploadValidationKey() => __('filament-flex-fields::default.file_upload.sources.url_required'),
             ]);
         }
 
@@ -257,7 +257,7 @@ trait HasFlexFileUploadSources
             $file = $importer->importFromUrl($url, $this->buildFileUploadImportConstraints());
         } catch (FileUploadImportException $exception) {
             throw ValidationException::withMessages([
-                $this->getStatePath() => $exception->getMessage(),
+                $this->flexFileUploadValidationKey() => $exception->getMessage(),
             ]);
         }
 
@@ -270,7 +270,7 @@ trait HasFlexFileUploadSources
     {
         if (blank($stagingFilename)) {
             throw ValidationException::withMessages([
-                $this->getStatePath() => __('filament-flex-fields::default.file_upload.sources.url_sync_failed'),
+                $this->flexFileUploadValidationKey() => __('filament-flex-fields::default.file_upload.sources.url_sync_failed'),
             ]);
         }
 
@@ -359,7 +359,7 @@ trait HasFlexFileUploadSources
     {
         if ($this->isDisabled()) {
             throw ValidationException::withMessages([
-                $this->getStatePath() => __('filament-flex-fields::default.file_upload.sources.disabled'),
+                $this->flexFileUploadValidationKey() => __('filament-flex-fields::default.file_upload.sources.disabled'),
             ]);
         }
 
@@ -371,7 +371,7 @@ trait HasFlexFileUploadSources
 
             if ($maxFiles !== null && count($state) >= $maxFiles) {
                 throw ValidationException::withMessages([
-                    $this->getStatePath() => __('filament-flex-fields::default.file_upload.sources.max_files_reached'),
+                    $this->flexFileUploadValidationKey() => __('filament-flex-fields::default.file_upload.sources.max_files_reached'),
                 ]);
             }
 
@@ -428,5 +428,19 @@ trait HasFlexFileUploadSources
                 'webcamRemove' => __('filament-flex-fields::default.file_upload.sources.webcam_remove'),
             ],
         ];
+    }
+
+    protected function flexFileUploadValidationKey(): string
+    {
+        $statePath = $this->getStatePath();
+
+        return filled($statePath) ? $statePath : $this->getName();
+    }
+
+    protected function translateUploadSourceTab(string $key): string
+    {
+        $translated = __('filament-flex-fields::default.file_upload.sources.tabs.'.$key);
+
+        return is_string($translated) ? $translated : $key;
     }
 }

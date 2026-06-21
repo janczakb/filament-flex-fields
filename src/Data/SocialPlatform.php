@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Data;
 
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 
 enum SocialPlatform: string
 {
@@ -29,12 +30,12 @@ enum SocialPlatform: string
 
     public function label(): string
     {
-        return __("filament-flex-fields::default.social_links.platforms.{$this->value}");
+        return Translations::get("filament-flex-fields::default.social_links.platforms.{$this->value}");
     }
 
     public function placeholder(): string
     {
-        return __("filament-flex-fields::default.social_links.placeholders.{$this->value}");
+        return Translations::get("filament-flex-fields::default.social_links.placeholders.{$this->value}");
     }
 
     /**

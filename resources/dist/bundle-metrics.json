@@ -1,80 +1,80 @@
 {
-  "generatedAt": "2026-06-17T21:33:02.288Z",
+  "generatedAt": "2026-06-19T17:19:45.305Z",
   "css": {
     "address-autocomplete.css": {
-      "bytes": 22513,
-      "kb": 21.99,
-      "gzipKb": 5.11
+      "bytes": 24983,
+      "kb": 24.4,
+      "gzipKb": 5.51
     },
     "audio-field.css": {
-      "bytes": 27074,
-      "kb": 26.44,
-      "gzipKb": 6.04
+      "bytes": 29544,
+      "kb": 28.85,
+      "gzipKb": 6.43
     },
     "barcode-scanner-field.css": {
-      "bytes": 30165,
-      "kb": 29.46,
-      "gzipKb": 6.39
-    },
-    "choice-cards.css": {
-      "bytes": 36585,
-      "kb": 35.73,
-      "gzipKb": 6.79
-    },
-    "color-swatch.css": {
-      "bytes": 25009,
-      "kb": 24.42,
-      "gzipKb": 5.4
-    },
-    "core.css": {
-      "bytes": 25977,
-      "kb": 25.37,
-      "gzipKb": 5.59
-    },
-    "country-field.css": {
-      "bytes": 28884,
-      "kb": 28.21,
-      "gzipKb": 6.01
-    },
-    "cover-card.css": {
-      "bytes": 25318,
-      "kb": 24.72,
-      "gzipKb": 5.58
-    },
-    "credit-card.css": {
-      "bytes": 35049,
-      "kb": 34.23,
-      "gzipKb": 7.08
-    },
-    "currency-field.css": {
-      "bytes": 28482,
-      "kb": 27.81,
-      "gzipKb": 6.19
-    },
-    "dual-listbox.css": {
-      "bytes": 30900,
-      "kb": 30.18,
-      "gzipKb": 6.22
-    },
-    "emoji-picker.css": {
-      "bytes": 22656,
-      "kb": 22.13,
-      "gzipKb": 5.13
-    },
-    "flex-checklist.css": {
-      "bytes": 40904,
-      "kb": 39.95,
-      "gzipKb": 6.99
-    },
-    "flex-color-picker.css": {
-      "bytes": 32055,
-      "kb": 31.3,
+      "bytes": 32635,
+      "kb": 31.87,
       "gzipKb": 6.77
     },
+    "choice-cards.css": {
+      "bytes": 39055,
+      "kb": 38.14,
+      "gzipKb": 7.17
+    },
+    "color-swatch.css": {
+      "bytes": 27479,
+      "kb": 26.83,
+      "gzipKb": 5.78
+    },
+    "core.css": {
+      "bytes": 28267,
+      "kb": 27.6,
+      "gzipKb": 5.96
+    },
+    "country-field.css": {
+      "bytes": 31354,
+      "kb": 30.62,
+      "gzipKb": 6.38
+    },
+    "cover-card.css": {
+      "bytes": 27788,
+      "kb": 27.14,
+      "gzipKb": 5.96
+    },
+    "credit-card.css": {
+      "bytes": 37519,
+      "kb": 36.64,
+      "gzipKb": 7.45
+    },
+    "currency-field.css": {
+      "bytes": 30952,
+      "kb": 30.23,
+      "gzipKb": 6.56
+    },
+    "dual-listbox.css": {
+      "bytes": 33370,
+      "kb": 32.59,
+      "gzipKb": 6.59
+    },
+    "emoji-picker.css": {
+      "bytes": 25126,
+      "kb": 24.54,
+      "gzipKb": 5.52
+    },
+    "flex-checklist.css": {
+      "bytes": 43374,
+      "kb": 42.36,
+      "gzipKb": 7.36
+    },
+    "flex-color-picker.css": {
+      "bytes": 34525,
+      "kb": 33.72,
+      "gzipKb": 7.15
+    },
     "flex-date-time-field.css": {
-      "bytes": 48036,
-      "kb": 46.91,
-      "gzipKb": 7.64
+      "bytes": 50506,
+      "kb": 49.32,
+      "gzipKb": 8.01
     },
     "flex-file-upload-test.css": {
       "bytes": 63388,
@@ -82,459 +82,469 @@
       "gzipKb": 9.24
     },
     "flex-file-upload.css": {
-      "bytes": 68240,
-      "kb": 66.64,
-      "gzipKb": 10.07
+      "bytes": 72431,
+      "kb": 70.73,
+      "gzipKb": 10.81
     },
     "flex-slider.css": {
-      "bytes": 43606,
-      "kb": 42.58,
-      "gzipKb": 7.57
+      "bytes": 46076,
+      "kb": 45,
+      "gzipKb": 7.97
     },
     "flex-text-input.css": {
-      "bytes": 40753,
-      "kb": 39.8,
-      "gzipKb": 7.37
+      "bytes": 43223,
+      "kb": 42.21,
+      "gzipKb": 7.74
     },
     "flex-textarea.css": {
-      "bytes": 44501,
-      "kb": 43.46,
-      "gzipKb": 7.36
+      "bytes": 46971,
+      "kb": 45.87,
+      "gzipKb": 7.73
     },
     "flex-time-segments.css": {
-      "bytes": 27686,
-      "kb": 27.04,
-      "gzipKb": 5.79
+      "bytes": 30156,
+      "kb": 29.45,
+      "gzipKb": 6.18
     },
     "flex-verification-code.css": {
-      "bytes": 29375,
-      "kb": 28.69,
-      "gzipKb": 5.92
+      "bytes": 31845,
+      "kb": 31.1,
+      "gzipKb": 6.29
     },
     "hold-confirm-action.css": {
-      "bytes": 26131,
-      "kb": 25.52,
-      "gzipKb": 5.65
+      "bytes": 28601,
+      "kb": 27.93,
+      "gzipKb": 6.04
     },
     "icon-column.css": {
-      "bytes": 22898,
-      "kb": 22.36,
-      "gzipKb": 5.05
+      "bytes": 25209,
+      "kb": 24.62,
+      "gzipKb": 5.43
     },
     "icon-picker-field.css": {
-      "bytes": 28052,
-      "kb": 27.39,
-      "gzipKb": 6.13
-    },
-    "item-card.css": {
-      "bytes": 24575,
-      "kb": 24,
-      "gzipKb": 5.47
-    },
-    "link-preview-field.css": {
-      "bytes": 30754,
-      "kb": 30.03,
-      "gzipKb": 6.34
-    },
-    "map-picker-dropdown.css": {
-      "bytes": 24688,
-      "kb": 24.11,
-      "gzipKb": 5.52
-    },
-    "map-picker.css": {
-      "bytes": 29874,
-      "kb": 29.17,
-      "gzipKb": 6.59
-    },
-    "matrix-choice-field.css": {
-      "bytes": 29072,
-      "kb": 28.39,
-      "gzipKb": 6.06
-    },
-    "number-stepper.css": {
-      "bytes": 30122,
-      "kb": 29.42,
-      "gzipKb": 6.02
-    },
-    "phone-field.css": {
-      "bytes": 32731,
-      "kb": 31.96,
-      "gzipKb": 6.5
-    },
-    "playground-address-autocomplete.css": {
-      "bytes": 175377,
-      "kb": 171.27,
-      "gzipKb": 20.68
-    },
-    "playground-audio-field.css": {
-      "bytes": 63340,
-      "kb": 61.86,
-      "gzipKb": 11.97
-    },
-    "playground-barcode-scanner-field.css": {
-      "bytes": 129842,
-      "kb": 126.8,
-      "gzipKb": 19.57
-    },
-    "playground-choice-cards.css": {
-      "bytes": 72851,
-      "kb": 71.14,
-      "gzipKb": 13.05
-    },
-    "playground-choice-checkbox-cards.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-color-swatch.css": {
-      "bytes": 61275,
-      "kb": 59.84,
-      "gzipKb": 11.34
-    },
-    "playground-country-field.css": {
-      "bytes": 157059,
-      "kb": 153.38,
-      "gzipKb": 20.65
-    },
-    "playground-cover-card.css": {
-      "bytes": 61584,
-      "kb": 60.14,
-      "gzipKb": 11.53
-    },
-    "playground-credit-card.css": {
-      "bytes": 71315,
-      "kb": 69.64,
-      "gzipKb": 13.32
-    },
-    "playground-currency-field.css": {
-      "bytes": 156657,
-      "kb": 152.99,
-      "gzipKb": 20.84
-    },
-    "playground-date-time-fields.css": {
-      "bytes": 203898,
-      "kb": 199.12,
-      "gzipKb": 27.32
-    },
-    "playground-dual-listbox.css": {
-      "bytes": 67166,
-      "kb": 65.59,
-      "gzipKb": 12.13
-    },
-    "playground-file-upload.css": {
-      "bytes": 104506,
-      "kb": 102.06,
-      "gzipKb": 16.31
-    },
-    "playground-flex-checklist.css": {
-      "bytes": 77170,
-      "kb": 75.36,
-      "gzipKb": 13.24
-    },
-    "playground-flex-color-picker.css": {
-      "bytes": 131732,
-      "kb": 128.64,
-      "gzipKb": 19.98
-    },
-    "playground-flex-radiolist.css": {
-      "bytes": 77170,
-      "kb": 75.36,
-      "gzipKb": 13.24
-    },
-    "playground-flex-slider.css": {
-      "bytes": 79872,
-      "kb": 78,
-      "gzipKb": 13.83
-    },
-    "playground-flex-text-input.css": {
-      "bytes": 99676,
-      "kb": 97.34,
-      "gzipKb": 14.16
-    },
-    "playground-flex-textarea.css": {
-      "bytes": 103424,
-      "kb": 101,
-      "gzipKb": 14.16
-    },
-    "playground-focus-outline.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-form-layouts.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-icon-picker-field.css": {
-      "bytes": 176487,
-      "kb": 172.35,
-      "gzipKb": 25.63
-    },
-    "playground-item-card-group.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-link-preview-field.css": {
-      "bytes": 130431,
-      "kb": 127.37,
-      "gzipKb": 19.55
-    },
-    "playground-map-picker.css": {
-      "bytes": 119327,
-      "kb": 116.53,
-      "gzipKb": 14.82
-    },
-    "playground-matrix-choice.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-number-stepper.css": {
-      "bytes": 66388,
-      "kb": 64.83,
-      "gzipKb": 11.89
-    },
-    "playground-phone-field.css": {
-      "bytes": 160906,
-      "kb": 157.13,
-      "gzipKb": 21.15
-    },
-    "playground-price-range.css": {
-      "bytes": 67664,
-      "kb": 66.08,
-      "gzipKb": 12.25
-    },
-    "playground-progress-bar.css": {
-      "bytes": 68868,
-      "kb": 67.25,
-      "gzipKb": 12.72
-    },
-    "playground-progress-circle.css": {
-      "bytes": 64472,
-      "kb": 62.96,
-      "gzipKb": 11.89
-    },
-    "playground-rating-column.css": {
-      "bytes": 62674,
-      "kb": 61.21,
-      "gzipKb": 11.65
-    },
-    "playground-rating.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-schedule-field.css": {
-      "bytes": 272404,
-      "kb": 266.02,
-      "gzipKb": 31.07
-    },
-    "playground-segment-control.css": {
-      "bytes": 65398,
-      "kb": 63.87,
-      "gzipKb": 12.11
-    },
-    "playground-segment-tabs.css": {
-      "bytes": 65398,
-      "kb": 63.87,
-      "gzipKb": 12.11
-    },
-    "playground-select-field.css": {
-      "bytes": 148434,
-      "kb": 144.96,
-      "gzipKb": 20.34
-    },
-    "playground-signature-field.css": {
-      "bytes": 65886,
-      "kb": 64.34,
-      "gzipKb": 12.16
-    },
-    "playground-slug-field.css": {
-      "bytes": 135356,
-      "kb": 132.18,
-      "gzipKb": 20.47
-    },
-    "playground-social-links-field.css": {
-      "bytes": 161237,
-      "kb": 157.46,
-      "gzipKb": 21.18
-    },
-    "playground-switch.css": {
-      "bytes": 80978,
-      "kb": 79.08,
-      "gzipKb": 13.87
-    },
-    "playground-tags-field.css": {
-      "bytes": 148712,
-      "kb": 145.23,
-      "gzipKb": 19.36
-    },
-    "playground-timezone-field.css": {
-      "bytes": 157018,
-      "kb": 153.34,
-      "gzipKb": 20.55
-    },
-    "playground-track-slider.css": {
-      "bytes": 63514,
-      "kb": 62.03,
-      "gzipKb": 11.55
-    },
-    "playground-traffic-split.css": {
-      "bytes": 61697,
-      "kb": 60.25,
-      "gzipKb": 11.38
-    },
-    "playground-translatable-fields.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "playground-user-column.css": {
-      "bytes": 84461,
-      "kb": 82.48,
-      "gzipKb": 11.8
-    },
-    "playground-user-select.css": {
-      "bytes": 230540,
-      "kb": 225.14,
-      "gzipKb": 27.34
-    },
-    "playground-verification-code.css": {
-      "bytes": 65641,
-      "kb": 64.1,
-      "gzipKb": 11.77
-    },
-    "playground-video-field.css": {
-      "bytes": 78676,
-      "kb": 76.83,
-      "gzipKb": 14.21
-    },
-    "playground.css": {
-      "bytes": 36265,
-      "kb": 35.42,
-      "gzipKb": 6.94
-    },
-    "price-range.css": {
-      "bytes": 31398,
-      "kb": 30.66,
-      "gzipKb": 6.34
-    },
-    "progress-bar.css": {
-      "bytes": 32602,
-      "kb": 31.84,
+      "bytes": 30660,
+      "kb": 29.94,
       "gzipKb": 6.55
     },
-    "progress-circle.css": {
-      "bytes": 28206,
-      "kb": 27.54,
-      "gzipKb": 5.95
+    "item-card.css": {
+      "bytes": 27045,
+      "kb": 26.41,
+      "gzipKb": 5.85
     },
-    "rating-column.css": {
-      "bytes": 26408,
-      "kb": 25.79,
-      "gzipKb": 5.76
+    "link-preview-field.css": {
+      "bytes": 33224,
+      "kb": 32.45,
+      "gzipKb": 6.71
     },
-    "rating-field.css": {
-      "bytes": 25668,
-      "kb": 25.07,
-      "gzipKb": 5.67
+    "map-picker-dropdown.css": {
+      "bytes": 27158,
+      "kb": 26.52,
+      "gzipKb": 5.91
     },
-    "schedule-field.css": {
-      "bytes": 42985,
-      "kb": 41.98,
-      "gzipKb": 7.38
+    "map-picker.css": {
+      "bytes": 32344,
+      "kb": 31.59,
+      "gzipKb": 6.97
     },
-    "segment-control.css": {
-      "bytes": 29132,
-      "kb": 28.45,
-      "gzipKb": 6.2
+    "matrix-choice-field.css": {
+      "bytes": 31542,
+      "kb": 30.8,
+      "gzipKb": 6.43
     },
-    "select-field.css": {
-      "bytes": 83670,
-      "kb": 81.71,
-      "gzipKb": 12.83
-    },
-    "signature-field.css": {
-      "bytes": 29620,
-      "kb": 28.93,
-      "gzipKb": 6.23
-    },
-    "slug-field.css": {
-      "bytes": 35679,
-      "kb": 34.84,
-      "gzipKb": 6.95
-    },
-    "social-links-field.css": {
-      "bytes": 33062,
-      "kb": 32.29,
-      "gzipKb": 6.26
-    },
-    "switch.css": {
-      "bytes": 44712,
-      "kb": 43.66,
-      "gzipKb": 7.65
-    },
-    "tag-chips.css": {
-      "bytes": 25458,
-      "kb": 24.86,
-      "gzipKb": 5.46
-    },
-    "tags-field.css": {
-      "bytes": 23576,
-      "kb": 23.02,
-      "gzipKb": 5.28
-    },
-    "teleported-menu.css": {
-      "bytes": 28497,
-      "kb": 27.83,
-      "gzipKb": 6.07
-    },
-    "timezone-field.css": {
-      "bytes": 28843,
-      "kb": 28.17,
-      "gzipKb": 5.9
-    },
-    "track-slider.css": {
-      "bytes": 27248,
-      "kb": 26.61,
-      "gzipKb": 5.65
-    },
-    "traffic-split.css": {
-      "bytes": 25431,
-      "kb": 24.83,
-      "gzipKb": 5.48
-    },
-    "user-column.css": {
-      "bytes": 23670,
-      "kb": 23.12,
-      "gzipKb": 5.19
-    },
-    "user-display.css": {
-      "bytes": 24524,
-      "kb": 23.95,
-      "gzipKb": 5.31
-    },
-    "user-select.css": {
-      "bytes": 32121,
-      "kb": 31.37,
+    "number-stepper.css": {
+      "bytes": 32592,
+      "kb": 31.83,
       "gzipKb": 6.4
     },
-    "video-field.css": {
-      "bytes": 42410,
-      "kb": 41.42,
-      "gzipKb": 7.95
+    "phone-field.css": {
+      "bytes": 35201,
+      "kb": 34.38,
+      "gzipKb": 6.87
     },
-    "voice-note-recorder-field.css": {
-      "bytes": 35500,
-      "kb": 34.67,
-      "gzipKb": 6.99
+    "playground-address-autocomplete.css": {
+      "bytes": 190017,
+      "kb": 185.56,
+      "gzipKb": 21.87
+    },
+    "playground-audio-field.css": {
+      "bytes": 68100,
+      "kb": 66.5,
+      "gzipKb": 12.7
+    },
+    "playground-barcode-scanner-field.css": {
+      "bytes": 139542,
+      "kb": 136.27,
+      "gzipKb": 20.98
+    },
+    "playground-choice-cards.css": {
+      "bytes": 77611,
+      "kb": 75.79,
+      "gzipKb": 13.78
+    },
+    "playground-choice-checkbox-cards.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
+    },
+    "playground-color-swatch.css": {
+      "bytes": 66035,
+      "kb": 64.49,
+      "gzipKb": 12.07
+    },
+    "playground-country-field.css": {
+      "bytes": 169229,
+      "kb": 165.26,
+      "gzipKb": 21.83
+    },
+    "playground-cover-card.css": {
+      "bytes": 66344,
+      "kb": 64.79,
+      "gzipKb": 12.27
+    },
+    "playground-credit-card.css": {
+      "bytes": 76075,
+      "kb": 74.29,
+      "gzipKb": 14.07
+    },
+    "playground-currency-field.css": {
+      "bytes": 168827,
+      "kb": 164.87,
+      "gzipKb": 22
+    },
+    "playground-date-time-fields.css": {
+      "bytes": 218538,
+      "kb": 213.42,
+      "gzipKb": 28.93
+    },
+    "playground-dual-listbox.css": {
+      "bytes": 71926,
+      "kb": 70.24,
+      "gzipKb": 13.16
+    },
+    "playground-file-upload.css": {
+      "bytes": 110987,
+      "kb": 108.39,
+      "gzipKb": 17.42
+    },
+    "playground-flex-checklist.css": {
+      "bytes": 81930,
+      "kb": 80.01,
+      "gzipKb": 13.98
+    },
+    "playground-flex-color-picker.css": {
+      "bytes": 141432,
+      "kb": 138.12,
+      "gzipKb": 21.45
+    },
+    "playground-flex-radiolist.css": {
+      "bytes": 81930,
+      "kb": 80.01,
+      "gzipKb": 13.98
+    },
+    "playground-flex-rich-editor.css": {
+      "bytes": 79667,
+      "kb": 77.8,
+      "gzipKb": 14.16
+    },
+    "playground-flex-slider.css": {
+      "bytes": 84632,
+      "kb": 82.65,
+      "gzipKb": 14.58
+    },
+    "playground-flex-text-input.css": {
+      "bytes": 106906,
+      "kb": 104.4,
+      "gzipKb": 14.94
+    },
+    "playground-flex-textarea.css": {
+      "bytes": 110654,
+      "kb": 108.06,
+      "gzipKb": 14.93
+    },
+    "playground-focus-outline.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
+    },
+    "playground-form-layouts.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
     },
     "playground-icon-column.css": {
-      "bytes": 59164,
-      "kb": 57.78,
-      "gzipKb": 11.03
+      "bytes": 63765,
+      "kb": 62.27,
+      "gzipKb": 11.76
+    },
+    "playground-icon-picker-field.css": {
+      "bytes": 186310,
+      "kb": 181.94,
+      "gzipKb": 26.79
+    },
+    "playground-item-card-group.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
+    },
+    "playground-link-preview-field.css": {
+      "bytes": 140131,
+      "kb": 136.85,
+      "gzipKb": 21.01
+    },
+    "playground-map-picker.css": {
+      "bytes": 129027,
+      "kb": 126,
+      "gzipKb": 15.58
+    },
+    "playground-matrix-choice.css": {
+      "bytes": 70098,
+      "kb": 68.46,
+      "gzipKb": 12.73
+    },
+    "playground-number-stepper.css": {
+      "bytes": 71148,
+      "kb": 69.48,
+      "gzipKb": 12.91
+    },
+    "playground-phone-field.css": {
+      "bytes": 173076,
+      "kb": 169.02,
+      "gzipKb": 22.62
+    },
+    "playground-price-range.css": {
+      "bytes": 72424,
+      "kb": 70.73,
+      "gzipKb": 13.28
+    },
+    "playground-progress-bar.css": {
+      "bytes": 73628,
+      "kb": 71.9,
+      "gzipKb": 13.51
+    },
+    "playground-progress-circle.css": {
+      "bytes": 69232,
+      "kb": 67.61,
+      "gzipKb": 12.62
+    },
+    "playground-rating-column.css": {
+      "bytes": 67434,
+      "kb": 65.85,
+      "gzipKb": 12.43
+    },
+    "playground-rating.css": {
+      "bytes": 66694,
+      "kb": 65.13,
+      "gzipKb": 12.35
+    },
+    "playground-schedule-field.css": {
+      "bytes": 291984,
+      "kb": 285.14,
+      "gzipKb": 32.75
+    },
+    "playground-segment-control.css": {
+      "bytes": 70846,
+      "kb": 69.19,
+      "gzipKb": 13.13
+    },
+    "playground-segment-tabs.css": {
+      "bytes": 70846,
+      "kb": 69.19,
+      "gzipKb": 13.13
+    },
+    "playground-select-field.css": {
+      "bytes": 155649,
+      "kb": 152,
+      "gzipKb": 21.08
+    },
+    "playground-signature-field.css": {
+      "bytes": 70646,
+      "kb": 68.99,
+      "gzipKb": 12.9
+    },
+    "playground-slug-field.css": {
+      "bytes": 145056,
+      "kb": 141.66,
+      "gzipKb": 21.64
+    },
+    "playground-social-links-field.css": {
+      "bytes": 173407,
+      "kb": 169.34,
+      "gzipKb": 22.37
+    },
+    "playground-switch.css": {
+      "bytes": 85738,
+      "kb": 83.73,
+      "gzipKb": 14.63
+    },
+    "playground-tags-field.css": {
+      "bytes": 160882,
+      "kb": 157.11,
+      "gzipKb": 20.55
+    },
+    "playground-timezone-field.css": {
+      "bytes": 169188,
+      "kb": 165.22,
+      "gzipKb": 21.74
+    },
+    "playground-track-slider.css": {
+      "bytes": 68274,
+      "kb": 66.67,
+      "gzipKb": 12.32
+    },
+    "playground-traffic-split.css": {
+      "bytes": 66457,
+      "kb": 64.9,
+      "gzipKb": 12.11
+    },
+    "playground-translatable-fields.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
+    },
+    "playground-user-column.css": {
+      "bytes": 91691,
+      "kb": 89.54,
+      "gzipKb": 12.57
+    },
+    "playground-user-select.css": {
+      "bytes": 245165,
+      "kb": 239.42,
+      "gzipKb": 28.76
+    },
+    "playground-verification-code.css": {
+      "bytes": 70401,
+      "kb": 68.75,
+      "gzipKb": 12.54
+    },
+    "playground-video-field.css": {
+      "bytes": 83436,
+      "kb": 81.48,
+      "gzipKb": 14.94
+    },
+    "playground.css": {
+      "bytes": 38555,
+      "kb": 37.65,
+      "gzipKb": 7.32
+    },
+    "price-range.css": {
+      "bytes": 33868,
+      "kb": 33.07,
+      "gzipKb": 6.71
+    },
+    "progress-bar.css": {
+      "bytes": 35072,
+      "kb": 34.25,
+      "gzipKb": 6.93
+    },
+    "progress-circle.css": {
+      "bytes": 30676,
+      "kb": 29.96,
+      "gzipKb": 6.33
+    },
+    "rating-column.css": {
+      "bytes": 28878,
+      "kb": 28.2,
+      "gzipKb": 6.15
+    },
+    "rating-field.css": {
+      "bytes": 28138,
+      "kb": 27.48,
+      "gzipKb": 6.06
+    },
+    "rich-editor-field.css": {
+      "bytes": 41111,
+      "kb": 40.15,
+      "gzipKb": 7.56
+    },
+    "schedule-field.css": {
+      "bytes": 45455,
+      "kb": 44.39,
+      "gzipKb": 7.75
+    },
+    "segment-control.css": {
+      "bytes": 32290,
+      "kb": 31.53,
+      "gzipKb": 6.64
+    },
+    "select-field.css": {
+      "bytes": 86125,
+      "kb": 84.11,
+      "gzipKb": 13.17
+    },
+    "signature-field.css": {
+      "bytes": 32090,
+      "kb": 31.34,
+      "gzipKb": 6.61
+    },
+    "slug-field.css": {
+      "bytes": 38149,
+      "kb": 37.25,
+      "gzipKb": 7.33
+    },
+    "social-links-field.css": {
+      "bytes": 35532,
+      "kb": 34.7,
+      "gzipKb": 6.62
+    },
+    "switch.css": {
+      "bytes": 47182,
+      "kb": 46.08,
+      "gzipKb": 8.03
+    },
+    "tag-chips.css": {
+      "bytes": 27928,
+      "kb": 27.27,
+      "gzipKb": 5.85
+    },
+    "tags-field.css": {
+      "bytes": 26046,
+      "kb": 25.44,
+      "gzipKb": 5.66
+    },
+    "teleported-menu.css": {
+      "bytes": 30967,
+      "kb": 30.24,
+      "gzipKb": 6.42
+    },
+    "timezone-field.css": {
+      "bytes": 31313,
+      "kb": 30.58,
+      "gzipKb": 6.28
+    },
+    "track-slider.css": {
+      "bytes": 29718,
+      "kb": 29.02,
+      "gzipKb": 6.04
+    },
+    "traffic-split.css": {
+      "bytes": 27901,
+      "kb": 27.25,
+      "gzipKb": 5.88
+    },
+    "user-column.css": {
+      "bytes": 26140,
+      "kb": 25.53,
+      "gzipKb": 5.57
+    },
+    "user-display.css": {
+      "bytes": 26994,
+      "kb": 26.36,
+      "gzipKb": 5.69
+    },
+    "user-select.css": {
+      "bytes": 34591,
+      "kb": 33.78,
+      "gzipKb": 6.79
+    },
+    "video-field.css": {
+      "bytes": 44880,
+      "kb": 43.83,
+      "gzipKb": 8.33
+    },
+    "voice-note-recorder-field.css": {
+      "bytes": 37938,
+      "kb": 37.05,
+      "gzipKb": 7.36
     }
   },
   "js": {
@@ -549,9 +559,9 @@
       "gzipKb": 1.15
     },
     "barcode-scanner-field.js": {
-      "bytes": 15830,
-      "kb": 15.46,
-      "gzipKb": 4.45
+      "bytes": 20231,
+      "kb": 19.76,
+      "gzipKb": 5.86
     },
     "country-field.js": {
       "bytes": 3977,
@@ -584,9 +594,9 @@
       "gzipKb": 3.65
     },
     "flex-date-time-field.js": {
-      "bytes": 47366,
-      "kb": 46.26,
-      "gzipKb": 12.74
+      "bytes": 22728,
+      "kb": 22.2,
+      "gzipKb": 5.52
     },
     "flex-fields-audio-7IBP5TOY.js": {
       "bytes": 2973,
@@ -598,30 +608,40 @@
       "kb": 26.17,
       "gzipKb": 6.77
     },
-    "flex-fields-barcode-scanner-W4FSKKOS.js": {
-      "bytes": 416751,
-      "kb": 406.98,
-      "gzipKb": 108.32
+    "flex-fields-calendar-panel-VCLAEADU.js": {
+      "bytes": 2460,
+      "kb": 2.4,
+      "gzipKb": 1.05
     },
-    "flex-fields-barcode-scanner-engine-UXRCIZA3.js": {
-      "bytes": 6823,
-      "kb": 6.66,
-      "gzipKb": 2.47
+    "flex-fields-camera-stream-RDR7IKFX.js": {
+      "bytes": 2479,
+      "kb": 2.42,
+      "gzipKb": 0.92
     },
     "flex-fields-components-flex-time-segments-SJ4FST3O.js": {
       "bytes": 6579,
       "kb": 6.42,
       "gzipKb": 2.01
     },
+    "flex-fields-date-time-format-parse-VDBPKOGE.js": {
+      "bytes": 19878,
+      "kb": 19.41,
+      "gzipKb": 6.31
+    },
+    "flex-fields-date-time-segmented-input-QZ6YOYTA.js": {
+      "bytes": 4130,
+      "kb": 4.03,
+      "gzipKb": 1.39
+    },
     "flex-fields-dynamic-bars-TC53IFLW.js": {
       "bytes": 840,
       "kb": 0.82,
       "gzipKb": 0.46
     },
-    "flex-fields-emoji-CIU7E6GF.js": {
-      "bytes": 20129,
-      "kb": 19.66,
-      "gzipKb": 6.23
+    "flex-fields-emoji-M3OVZJIS.js": {
+      "bytes": 20145,
+      "kb": 19.67,
+      "gzipKb": 6.24
     },
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js": {
       "bytes": 1738,
@@ -643,15 +663,15 @@
       "kb": 185.04,
       "gzipKb": 43.33
     },
+    "flex-fields-rich-editor-toolbar-a11y-SLY3K5DZ.js": {
+      "bytes": 978,
+      "kb": 0.96,
+      "gzipKb": 0.51
+    },
     "flex-fields-select-menu-7CIX76IA.js": {
       "bytes": 5519,
       "kb": 5.39,
       "gzipKb": 1.89
-    },
-    "flex-fields-shared-6QIOXHYQ.js": {
-      "bytes": 38369,
-      "kb": 37.47,
-      "gzipKb": 13.44
     },
     "flex-fields-shared-R7IEHECV.js": {
       "bytes": 2873,
@@ -662,6 +682,11 @@
       "bytes": 442,
       "kb": 0.43,
       "gzipKb": 0.27
+    },
+    "flex-fields-time-panel-HGFHPNNC.js": {
+      "bytes": 1353,
+      "kb": 1.32,
+      "gzipKb": 0.57
     },
     "flex-fields-timezone-picker-mixin-TJ74AQNW.js": {
       "bytes": 2493,
@@ -674,9 +699,14 @@
       "gzipKb": 2.53
     },
     "flex-file-upload.js": {
-      "bytes": 25019,
-      "kb": 24.43,
-      "gzipKb": 7.07
+      "bytes": 25938,
+      "kb": 25.33,
+      "gzipKb": 7.32
+    },
+    "flex-rich-editor.js": {
+      "bytes": 13632,
+      "kb": 13.31,
+      "gzipKb": 4.35
     },
     "flex-slider.js": {
       "bytes": 37285,
@@ -684,14 +714,14 @@
       "gzipKb": 12.41
     },
     "flex-text-input.js": {
-      "bytes": 10726,
-      "kb": 10.47,
-      "gzipKb": 3.12
+      "bytes": 10898,
+      "kb": 10.64,
+      "gzipKb": 3.18
     },
     "flex-textarea.js": {
-      "bytes": 8868,
-      "kb": 8.66,
-      "gzipKb": 2.6
+      "bytes": 9040,
+      "kb": 8.83,
+      "gzipKb": 2.66
     },
     "flex-time-segments.js": {
       "bytes": 312,
@@ -709,9 +739,9 @@
       "gzipKb": 1.21
     },
     "icon-picker-field.js": {
-      "bytes": 14956,
-      "kb": 14.61,
-      "gzipKb": 4.43
+      "bytes": 15021,
+      "kb": 14.67,
+      "gzipKb": 4.45
     },
     "link-preview-field.js": {
       "bytes": 7708,
@@ -749,9 +779,9 @@
       "gzipKb": 3.17
     },
     "segment-control.js": {
-      "bytes": 1564,
-      "kb": 1.53,
-      "gzipKb": 0.61
+      "bytes": 1637,
+      "kb": 1.6,
+      "gzipKb": 0.63
     },
     "segment-tabs.js": {
       "bytes": 2472,
@@ -759,9 +789,9 @@
       "gzipKb": 0.99
     },
     "select-field.js": {
-      "bytes": 14842,
-      "kb": 14.49,
-      "gzipKb": 4.7
+      "bytes": 14964,
+      "kb": 14.61,
+      "gzipKb": 4.75
     },
     "signature-field.js": {
       "bytes": 14576,

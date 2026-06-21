@@ -12,6 +12,12 @@ use Bjanczak\FilamentFlexFields\Tests\Support\TestableTranslatableForm;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
 
+it('defaults remove uploaded file button to the right', function () {
+    $field = FlexFileUpload::make('attachment');
+
+    expect($field->getRemoveUploadedFileButtonPosition())->toBe('right');
+});
+
 it('applies mime presets on flex file upload fields', function () {
     $documents = FlexFileUpload::make('attachment')->documentsOnly();
     $images = FlexImageUpload::make('photo')->imagesOnly();

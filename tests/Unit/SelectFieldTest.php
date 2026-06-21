@@ -491,6 +491,16 @@ it('loads select field stylesheet for enhanced select fields to coordinate ssr a
         ->toContain('fff-select-trigger-ssr');
 });
 
+it('renders select trigger ssr with eager lazy alpine mount when initial label exists', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain(':eager="$showInitialTriggerSsr"')
+        ->toContain(':mount-immediately="$isDisabled || $showInitialTriggerSsr"')
+        ->toContain('modulepreload')
+        ->toContain("getAlpineComponentSrc('select-field'");
+});
+
 it('uses coordinator shell for select field alpine patching without window globals', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
 

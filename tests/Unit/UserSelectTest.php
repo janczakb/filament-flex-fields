@@ -258,8 +258,10 @@ it('applies prefix search constraints to the query', function () {
 
     $query = $userModel::query();
 
-    $method = new ReflectionMethod($field, 'applySearchToQuery');
-    $method->invoke($field, $query, 'jan');
+    $queryEngine = (new ReflectionMethod($field, 'queryEngine'))->invoke($field);
+
+    $method = new ReflectionMethod($queryEngine, 'applySearchToQuery');
+    $method->invoke($queryEngine, $query, 'jan');
 
     $sql = $query->toSql();
     $bindings = $query->getBindings();
@@ -282,8 +284,10 @@ it('restricts model queries to display columns when resolvers are not customized
         ->nameColumn('name')
         ->emailColumn('email');
 
-    $method = new ReflectionMethod($field, 'buildModelQuery');
-    $query = $method->invoke($field);
+    $queryEngine = (new ReflectionMethod($field, 'queryEngine'))->invoke($field);
+
+    $method = new ReflectionMethod($queryEngine, 'buildModelQuery');
+    $query = $method->invoke($queryEngine);
 
     expect(strtolower($query->toSql()))->toContain('select');
 });

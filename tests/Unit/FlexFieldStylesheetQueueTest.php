@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Illuminate\Http\Request;
 
@@ -59,6 +59,17 @@ it('resolves playground slug aliases to lazy stylesheet component ids', function
         ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field']);
 });
 
+it('resolves matrix-choice and rating playground slugs to field bundle ids', function () {
+    expect(FlexFieldAssets::resolveStylesheetComponent('matrix-choice'))
+        ->toBe('matrix-choice-field')
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('matrix-choice'))
+        ->toContain('matrix-choice-field')
+        ->and(FlexFieldAssets::resolveStylesheetComponent('rating'))
+        ->toBe('rating-field')
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('rating'))
+        ->toContain('rating-field');
+});
+
 it('keeps flex text input in its own bundle separate from phone field', function () {
     $phoneCss = file_get_contents(__DIR__.'/../../resources/dist/css/phone-field.css');
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-text-input.css');
@@ -112,6 +123,17 @@ it('removes inactive upload source panels from layout flow', function () {
     expect($css)
         ->toContain('.fff-flex-file-upload__source-panels > .fff-flex-file-upload__source-panel:not(.is-active)')
         ->toContain('position: absolute');
+});
+
+it('uses flow layout with gaps for compact file lists', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/flex-file-upload.css');
+
+    expect($css)
+        ->toContain('--fff-flex-file-upload-list-offset')
+        ->toContain('--fff-flex-file-upload-list-gap')
+        ->toContain(".filepond--root[data-style-panel-layout='compact']:has(.filepond--item)")
+        ->toContain('gap: var(--fff-flex-file-upload-list-gap)')
+        ->toContain('contain: none !important');
 });
 
 it('shows skeleton overlays for pending modal and inline morph targets', function () {
@@ -420,14 +442,14 @@ it('keeps flex radiolist styles in the flex checklist bundle', function () {
         ->toContain('.fff-flex-radiolist__indicator-dot');
 });
 
-it('preloads hold confirm alpine module on panel pages through the head styles stack', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/partials/hold-confirm-action-preload.blade.php');
+it('preloads hold confirm alpine module when the action renders', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/actions/hold-confirm.blade.php');
 
     expect($blade)
-        ->toContain("@push('styles')")
         ->toContain('modulepreload')
         ->toContain('hold-confirm-action')
-        ->toContain('data-navigate-track');
+        ->toContain('data-navigate-track')
+        ->not->toContain('hold-confirm-action-preload');
 });
 
 it('renders queued playground component stylesheets in the page push block', function () {
@@ -452,11 +474,23 @@ it('does not enqueue lazy stylesheets already bundled on playground slug pages',
     expect(FlexFieldStylesheetQueue::enqueueFor('icon-picker-field'))->toBe([]);
 });
 
-it('preloads all critical stylesheets outside playground pages', function () {
+it('preloads teleported menu only when the stylesheet queue needs it', function () {
     app()->instance('request', Request::create('/admin/resources/posts/edit', 'GET'));
 
+    expect(FlexFieldAssets::criticalPreloadStylesheets())->toBe([]);
+
+    FlexFieldStylesheetQueue::enqueueFor('select-field');
+
     expect(FlexFieldAssets::criticalPreloadStylesheets())
-        ->toBe(['flex-text-input', 'teleported-menu']);
+        ->toBe(['teleported-menu']);
+});
+
+it('tracks teleported menu in the stylesheet queue', function () {
+    expect(FlexFieldStylesheetQueue::hasQueuedTeleportedMenu())->toBeFalse();
+
+    FlexFieldStylesheetQueue::enqueueFor('phone-field');
+
+    expect(FlexFieldStylesheetQueue::hasQueuedTeleportedMenu())->toBeTrue();
 });
 
 it('scopes critical stylesheet preloads to the active playground slug', function () {

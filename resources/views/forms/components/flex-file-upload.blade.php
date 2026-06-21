@@ -25,11 +25,8 @@
         $alignment = filled($alignment) ? (Alignment::tryFrom($alignment) ?? $alignment) : null;
     }
 
-    $initialSummaryLabel = $flexConfig['showUploadSummary']
-        ? __('filament-flex-fields::default.file_upload.summary', ['count' => 0, 'size' => '0'])
-        : null;
-    $hasUploadMeta = filled($initialSummaryLabel) || filled($flexConfig['remainingSlotsLabel']);
-    $hasDualUploadMeta = filled($initialSummaryLabel) && filled($flexConfig['remainingSlotsLabel']);
+    $hasUploadMeta = $flexConfig['showUploadSummary'] || filled($flexConfig['remainingSlotsTemplate']);
+    $hasDualUploadMeta = $flexConfig['showUploadSummary'] && filled($flexConfig['remainingSlotsTemplate']);
     $bindWebcamModalEvents = $hasUploadSourceTabs && $field->shouldAllowWebcamUpload();
 @endphp
 
@@ -45,6 +42,7 @@
     @if ($hasUploadSourceTabs)
         @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control'])
     @endif
+    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled">
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('flex-file-upload', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
@@ -53,10 +51,10 @@
             requireReplaceConfirmation: @js($flexConfig['requireReplaceConfirmation']),
             replaceConfirmationMessage: @js($flexConfig['replaceConfirmationMessage']),
             summaryTemplate: @js($flexConfig['summaryTemplate']),
-            remainingSlotsLabel: @js($flexConfig['remainingSlotsLabel']),
+            remainingSlotsTemplate: @js($flexConfig['remainingSlotsTemplate']),
+            maxFiles: @js($flexConfig['maxFiles']),
             showFileIcon: @js($flexConfig['showFileIcon']),
             isMultiple: @js($isMultiple),
-            initialSummaryLabel: @js($initialSummaryLabel ?? ''),
             hasUploadSourceTabs: @js($flexConfig['hasUploadSourceTabs']),
             uploadSourceTabKeys: @js($flexConfig['uploadSourceTabKeys']),
             defaultUploadSource: @js($flexConfig['defaultUploadSource']),
@@ -82,6 +80,7 @@
         @class([
             ...$field->getWrapperClasses(),
             'fff-flex-file-upload__shell',
+            'fff-flex-file-upload--multiple' => $isMultiple,
             'fff-flex-file-upload--has-meta' => $hasUploadMeta,
             'fff-flex-file-upload--has-dual-meta' => $hasDualUploadMeta,
         ])
@@ -293,20 +292,21 @@
                         x-cloak
                         class="fff-flex-file-upload__summary"
                     >
-                        <span x-text="summaryLabel">{{ $initialSummaryLabel }}</span>
+                        <span x-text="summaryLabel"></span>
                     </div>
                 @endif
 
-                @if (filled($flexConfig['remainingSlotsLabel']))
+                @if (filled($flexConfig['remainingSlotsTemplate']))
                     <div
                         x-show="remainingSlotsLabel"
                         x-cloak
                         class="fff-flex-file-upload__remaining-slots"
                     >
-                        <span x-text="remainingSlotsLabel">{{ $flexConfig['remainingSlotsLabel'] }}</span>
+                        <span x-text="remainingSlotsLabel"></span>
                     </div>
                 @endif
             </div>
         @endif
     </div>
+    </x-filament-flex-fields::lazy-alpine-mount>
 </x-dynamic-component>

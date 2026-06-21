@@ -21,6 +21,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\FlexChecklistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexColorPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexFileUploadPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexRadiolistPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\FlexRichEditorPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexSliderPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexTextareaPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexTextInputPlayground;
@@ -100,6 +101,7 @@ class FlexFieldsPlaygroundRegistry
                 'dual-listbox' => ['label' => 'Dual Listbox', 'playground' => DualListboxPlayground::class, 'sort' => 210, 'icon' => GravityIcon::ArrowRightArrowLeft],
                 'price-range' => ['label' => 'Price Range', 'playground' => PriceRangePlayground::class, 'sort' => 220, 'icon' => GravityIcon::CircleDollar],
                 'flex-textarea' => ['label' => 'Flex Textarea', 'playground' => FlexTextareaPlayground::class, 'sort' => 230, 'icon' => GravityIcon::FileText],
+                'flex-rich-editor' => ['label' => 'Flex Rich Editor', 'playground' => FlexRichEditorPlayground::class, 'sort' => 232, 'icon' => GravityIcon::FileText],
                 'flex-text-input' => ['label' => 'Flex text input', 'playground' => FlexTextInputPlayground::class, 'sort' => 240, 'icon' => GravityIcon::PencilToSquare],
                 'slug-field' => ['label' => 'Slug field', 'playground' => SlugFieldPlayground::class, 'sort' => 250, 'icon' => GravityIcon::Link],
                 'translatable-fields' => ['label' => 'Translatable Fields', 'playground' => TranslatableFieldsPlayground::class, 'sort' => 260, 'icon' => GravityIcon::Globe],

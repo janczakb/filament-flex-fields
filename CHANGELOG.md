@@ -5,6 +5,47 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.1] - 2026-06-21
+
+### Fixed
+
+- **AddressAutocompleteField** — fixed hardcoded Mapbox language to properly fallback to `FLEX_FIELDS_MAPBOX_LANGUAGE` (#4).
+- **SegmentControl** — server-rendered `data-segment-selected` / `aria-checked` from `$getState()` before Alpine `x-load` hydrates; CSS pre-hydration pill on the selected segment (`:not(.is-hydrated)`) so the white indicator is visible during `x-load` instead of appearing ~0.3s later.
+- **UserSelect / SelectField** — `lazy-alpine-mount` `eager` when SSR trigger is shown; `modulepreload` for `select-field` Alpine chunk; SSR layer uses `display: none` once replaced (was `visibility: hidden`, caused double height in grid).
+- **IconPickerField** — SSR SVG preview + label before `x-load`; `lazy-alpine-mount` `eager` when a value is selected; `modulepreload` for `icon-picker-field` chunk; `is-trigger-hydrated` handoff (replaces `x-show` on preview).
+
+### Changed
+
+- **FlexFileUpload / FlexImageUpload upload source tabs** — default segment style is now `default` (filled gray track) instead of `ghost` + `primary` accent; use `uploadSourceTabsVariant('ghost')` and `uploadSourceTabsColor('primary')` for the previous look.
+- **FlexFileUpload dropzone icons** — empty-state SVG icons use `--fff-flex-file-upload-accent` (`--primary-500`) via CSS masks instead of hardcoded indigo `#6366f1`.
+- **FlexFileUpload compact file list** — remove button defaults to the right; with uploaded files, compact layout switches to stacked flow (gap below dropzone + between file cards) instead of broken absolute positioning.
+- **VoiceNoteRecorderField** — red microphone record button no longer uses box-shadow.
+- **Conditional critical preload** — `criticalPreloadStylesheets()` emits `teleported-menu` only when `FlexFieldStylesheetQueue::hasQueuedTeleportedMenu()`; empty queue on non-playground pages skips HEAD preloads.
+- **Hold confirm assets** — Alpine `modulepreload` moved to per-action `hold-confirm.blade.php` (`@push`); removed global `hold-confirm-action-preload` partial.
+- **Lazy Alpine mount** — reusable `<x-filament-flex-fields::lazy-alpine-mount>` with `x-intersect` for heavy fields (date/time, file upload, select/user-select, barcode scanner, icon picker).
+- **flex-date-time-field** — calendar grid extracted to `calendar-panel.js` with dynamic `import()` on first calendar open.
+- **select-field.js** — trigger-label helpers and patch boot logic split into `components/select-field/` modules.
+- **UserSelect** — thin Filament class (**46 lines**) + traits `ConfiguresUserSelectColumns`, `ConfiguresUserSelectModel`, `InteractsWithUserSelectPresentation`, `HasUserSelectCollaborators`; services in `UserSelect/*`.
+- **flex-file-upload `pond-bridge`** — split into `pond-component-resolver`, `pond-upload-state`, `pond-server-sync`, `pond-file-status` (entry **21 lines**).
+- **CSS entries** — all **54** lazy bundles use `utilities-baseline.css` + `base.css` (was Tailwind×54 duplicate imports).
+- **InteractsWithFlexFileUpload** — split into `FlexFileUploadSecurity`, `FlexFileUploadStorage`, `FlexFileUploadDisplay` traits; composer trait ~25 lines.
+- **flex-date-time-field.js** — further split with lazy `time-panel.js`; main entry ~476 lines.
+- **PHPStan** — `Translations::get()` for type-safe `__()`; baseline regenerated (~385 entries); `composer analyse` in CI; `scripts/prune-phpstan-baseline.mjs` for stale-entry cleanup.
+- **CI E2E** — always-on unified fixture smoke (`field-smoke`: select coordinator + file-upload + schedule).
+- **Docs** — `COMPONENTS.md`, `README.md`, `DEVELOPMENT.md` §3/§20, `docs/shared-concepts.md`, `docs/hold-confirm-action.md` synced with conditional preload, hold-confirm per-action, alpine entry-only, lazy mount.
+
+### Added
+
+- **`Support/Translations.php`** — typed translation helper for PHPStan level 8.
+- **`resources/css/utilities-baseline.css`** — shared `@theme` / `@utility` baseline; imported by all **54** lazy CSS entries.
+- **`tests/js/flex-file-upload.test.mjs`** — unit tests for file-upload module factories.
+- **`tests/e2e/field-smoke.{spec.mjs,html,harness.mjs}`** — fixture smoke without playground URL.
+- **`scripts/audit-components.mjs`** + **`npm run audit:components`** — per-component matrix (blade ↔ lazy CSS ↔ dist ↔ Alpine manifest ↔ PHP/JS line budgets); exits non-zero on critical asset gaps.
+
+- **`FlexFieldAlpineManifestArchTest`** — guards LAZY stylesheet ↔ alpine manifest ↔ dist entry alignment.
+- **`docs/COMPATIBILITY.md`** — Filament ^5.0, PHP 8.3+, CI link.
+- **`scripts/compare-bundle-metrics.mjs`** — prints gzip deltas vs committed `bundle-metrics.json`.
+
 ## [2.7.0] - 2026-06-18
 
 ### Added

@@ -55,6 +55,22 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (_modules, inputs) => inputs.some((input) => input.includes('@zxing/')),
     },
     {
+        slug: 'flex-fields-time-panel',
+        matches: (modules) => modules.includes('core/date-time/time-panel.js'),
+    },
+    {
+        slug: 'flex-fields-calendar-interactions',
+        matches: (modules) => modules.includes('core/date-time/calendar-interactions.js'),
+    },
+    {
+        slug: 'flex-fields-segment-editing',
+        matches: (modules) => modules.includes('core/date-time/segment-editing.js'),
+    },
+    {
+        slug: 'flex-fields-calendar-panel',
+        matches: (modules) => modules.includes('core/date-time/calendar-panel.js'),
+    },
+    {
         slug: 'flex-fields-phone-lib',
         matches: (_modules, inputs) => inputs.some((input) => input.includes('libphonenumber-js')),
     },
@@ -62,7 +78,9 @@ const SEMANTIC_CHUNK_RULES = [
 
 fs.mkdirSync(distRoot, { recursive: true });
 
-const entryFiles = fs.readdirSync(componentsRoot).filter((file) => file.endsWith('.js'));
+const entryFiles = fs.readdirSync(componentsRoot).filter((file) => (
+    file.endsWith('.js') && file !== 'flex-rich-editor.js'
+));
 const entryNames = entryFiles.map((file) => file.replace(/\.js$/, ''));
 
 for (const file of fs.readdirSync(distRoot)) {
@@ -91,6 +109,28 @@ const result = await esbuild.build({
         '.svg': 'text',
     },
 });
+
+const flexRichEditorResult = await esbuild.build({
+    entryPoints: [path.join(componentsRoot, 'flex-rich-editor.js')],
+    outdir: distRoot,
+    entryNames: '[name]',
+    bundle: true,
+    splitting: true,
+    format: 'esm',
+    minify: true,
+    chunkNames: 'chunk-[hash]',
+    metafile: true,
+    loader: {
+        '.svg': 'text',
+    },
+});
+
+const combinedMetafile = {
+    outputs: {
+        ...result.metafile.outputs,
+        ...flexRichEditorResult.metafile.outputs,
+    },
+};
 
 function resolveSemanticChunkSlug(modules, inputs = []) {
     for (const rule of SEMANTIC_CHUNK_RULES) {
@@ -192,12 +232,14 @@ function extractChunkImports(source) {
     ].map((match) => match[1]);
 }
 
-const chunkModules = buildChunkModules(result.metafile);
+const chunkModules = buildChunkModules(combinedMetafile);
 const { semanticChunkModules } = renameChunksToSemanticNames(chunkModules);
+
+const allEntryNames = [...entryNames, 'flex-rich-editor'];
 
 const manifest = {};
 
-for (const entry of entryNames) {
+for (const entry of allEntryNames) {
     const outputPath = path.join(distRoot, `${entry}.js`);
 
     if (! fs.existsSync(outputPath)) {
@@ -224,6 +266,24 @@ for (const chunks of Object.values(manifest)) {
 manifest.__shared_chunks__ = [...sharedChunks].sort();
 manifest.__chunk_modules__ = semanticChunkModules;
 
+const referencedOutputs = new Set([
+    ...allEntryNames.map((entry) => `${entry}.js`),
+    ...manifest.__shared_chunks__,
+]);
+
+for (const file of fs.readdirSync(distRoot)) {
+    if (! file.endsWith('.js')) {
+        continue;
+    }
+
+    if (referencedOutputs.has(file)) {
+        continue;
+    }
+
+    fs.unlinkSync(path.join(distRoot, file));
+    console.warn(`Removed orphan chunk: ${file}`);
+}
+
 fs.writeFileSync(
     path.join(distRoot, 'alpine-manifest.json'),
     `${JSON.stringify(manifest, null, 2)}\n`,
@@ -240,8 +300,6 @@ if (fs.existsSync(audioSource)) {
     fs.copyFileSync(audioSource, audioDist);
 }
 
-const outputCount = Object.keys(result.metafile.outputs).length;
-
 console.log(
-    `Successfully built ${entryFiles.length} Javascript components (${outputCount} output files, ${sharedChunks.size} shared chunks).`,
+    `Successfully built ${allEntryNames.length} Javascript components (${Object.keys(combinedMetafile.outputs).length} output files, ${sharedChunks.size} shared chunks).`,
 );

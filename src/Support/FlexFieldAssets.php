@@ -21,6 +21,12 @@ class FlexFieldAssets
 
     public const ASSET_INJECTOR_SCRIPT_ID = 'flex-field-asset-injector';
 
+    public const FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-paste-extension';
+
+    public const FLEX_RICH_EDITOR_BLOCK_IMAGE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-block-image-extension';
+
+    public const FLEX_RICH_EDITOR_YOUTUBE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-youtube-extension';
+
     public const PLAYGROUND_SKELETON_DEMO_SCRIPT_ID = 'playground-skeleton-demo';
 
     /**
@@ -29,7 +35,6 @@ class FlexFieldAssets
      * @var list<string>
      */
     public const CRITICAL_PRELOAD_STYLESHEETS = [
-        'flex-text-input',
         'teleported-menu',
     ];
 
@@ -42,6 +47,7 @@ class FlexFieldAssets
         'dual-listbox',
         'price-range',
         'flex-textarea',
+        'rich-editor-field',
         'flex-text-input',
         'link-preview-field',
         'barcode-scanner-field',
@@ -156,6 +162,9 @@ class FlexFieldAssets
         'file-upload' => 'flex-file-upload',
         'verification-code' => 'flex-verification-code',
         'flex-radiolist' => 'flex-checklist',
+        'matrix-choice' => 'matrix-choice-field',
+        'rating' => 'rating-field',
+        'flex-rich-editor' => 'rich-editor-field',
     ];
 
     /**
@@ -248,6 +257,10 @@ class FlexFieldAssets
         ));
 
         if (! request()->is('*flex-fields-playground*')) {
+            if (! FlexFieldStylesheetQueue::hasQueuedTeleportedMenu()) {
+                return [];
+            }
+
             return $preloads;
         }
 
@@ -361,9 +374,9 @@ class FlexFieldAssets
     }
 
     /**
-     * @return list<string>
+     * @return array<string, mixed>
      */
-    public static function alpineChunksFor(string $component): array
+    public static function alpineManifest(): array
     {
         static $manifest = null;
 
@@ -374,6 +387,41 @@ class FlexFieldAssets
                 ? (json_decode((string) file_get_contents($path), true) ?: [])
                 : [];
         }
+
+        return $manifest;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function alpineEntryNames(): array
+    {
+        return array_values(array_filter(
+            array_keys(self::alpineManifest()),
+            fn (string $key): bool => ! str_starts_with($key, '__'),
+        ));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function alpineSharedChunkNames(): array
+    {
+        $chunks = self::alpineManifest()['__shared_chunks__'] ?? [];
+
+        if (! is_array($chunks)) {
+            return [];
+        }
+
+        return array_values(array_filter($chunks, fn (mixed $chunk): bool => is_string($chunk) && $chunk !== ''));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function alpineChunksFor(string $component): array
+    {
+        $manifest = self::alpineManifest();
 
         $chunks = $manifest[$component] ?? [];
 
@@ -389,7 +437,12 @@ class FlexFieldAssets
             }
         }
 
-        return array_values(array_filter(array_unique($chunks), fn (mixed $chunk): bool => is_string($chunk) && $chunk !== ''));
+        return array_values(array_filter(
+            array_unique($chunks),
+            fn (mixed $chunk): bool => is_string($chunk)
+                && $chunk !== ''
+                && ! str_starts_with($chunk, 'flex-fields-phone-lib'),
+        ));
     }
 
     public static function overlayCoordinatorChunk(?array $manifest = null): ?string
@@ -419,6 +472,14 @@ class FlexFieldAssets
     {
         return FilamentAsset::getAlpineComponentSrc(
             str_replace('.js', '', $chunk),
+            FilamentFlexFieldsPlugin::PACKAGE_NAME,
+        );
+    }
+
+    public static function alpineEntrySrc(string $component): string
+    {
+        return FilamentAsset::getAlpineComponentSrc(
+            $component,
             FilamentFlexFieldsPlugin::PACKAGE_NAME,
         );
     }

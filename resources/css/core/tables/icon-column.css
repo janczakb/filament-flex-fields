@@ -32,9 +32,11 @@
 }
 
 .fff-icon-column__label {
-    @apply truncate text-sm font-medium text-gray-950 dark:text-white;
+    @apply truncate text-sm font-medium;
+    color: var(--fff-icon-column-text);
 }
 
 .fff-icon-column__name {
-    @apply truncate font-mono text-xs text-gray-500 dark:text-gray-400;
+    @apply truncate font-mono text-xs;
+    color: var(--fff-icon-column-muted);
 }

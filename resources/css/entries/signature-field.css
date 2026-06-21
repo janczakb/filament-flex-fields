@@ -1,5 +1,4 @@
-@import "tailwindcss/theme";
-@import "tailwindcss/utilities";
+@import "../utilities-baseline.css";
 @import "../base.css";
 
 @source "../../src/Filament/Forms/Components/SignatureField.php";

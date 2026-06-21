@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\Barcode;
 
 use Bjanczak\FilamentFlexFields\Enums\BarcodeFormat;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 
 class BarcodeValidator
 {
@@ -17,7 +18,7 @@ class BarcodeValidator
         bool $validateChecksum = false,
     ): ?string {
         if (! is_string($value)) {
-            return __('filament-flex-fields::default.barcode_scanner.validation.invalid');
+            return Translations::get('filament-flex-fields::default.barcode_scanner.validation.invalid');
         }
 
         $value = trim($value);
@@ -41,11 +42,11 @@ class BarcodeValidator
         }
 
         if ($matched === null) {
-            return __('filament-flex-fields::default.barcode_scanner.validation.unrecognized');
+            return Translations::get('filament-flex-fields::default.barcode_scanner.validation.unrecognized');
         }
 
         if ($validateChecksum && self::supportsChecksum($matched) && ! self::isChecksumValid($value, $matched)) {
-            return __('filament-flex-fields::default.barcode_scanner.validation.checksum');
+            return Translations::get('filament-flex-fields::default.barcode_scanner.validation.checksum');
         }
 
         return null;
@@ -126,7 +127,7 @@ class BarcodeValidator
 
     public static function formatLabel(BarcodeFormat $format): string
     {
-        return __("filament-flex-fields::default.barcode_scanner.formats.{$format->value}");
+        return Translations::get("filament-flex-fields::default.barcode_scanner.formats.{$format->value}");
     }
 
     protected static function validateModulo10Checksum(string $digits, int $expectedLength): bool

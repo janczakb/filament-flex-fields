@@ -12,7 +12,7 @@ export default defineConfig({
     projects: [
         {
             name: 'coordinator-fixture',
-            testMatch: /select-field-coordinator\.spec\.mjs/,
+            testMatch: /field-smoke\.spec\.mjs/,
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: 'http://127.0.0.1:3456',
@@ -29,7 +29,7 @@ export default defineConfig({
     ],
     webServer: {
         command: `npx --yes serve "${packageRoot}" -p 3456`,
-        url: 'http://127.0.0.1:3456/tests/e2e/fixtures/select-field-coordinator.html',
+        url: 'http://127.0.0.1:3456/tests/e2e/fixtures/field-smoke.html',
         reuseExistingServer: ! process.env.CI,
         timeout: 120_000,
     },

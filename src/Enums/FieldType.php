@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Enums;
 
 use Bjanczak\FilamentFlexFields\Enums\FieldTypeDefaults\FieldTypeDefaultConfigRegistry;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 
 enum FieldType: string
 {
@@ -167,7 +168,7 @@ enum FieldType: string
 
     public function label(): string
     {
-        return __("filament-flex-fields::default.field_types.{$this->value}");
+        return Translations::get("filament-flex-fields::default.field_types.{$this->value}");
     }
 
     public function icon(): string
@@ -293,6 +294,9 @@ enum FieldType: string
         ], true);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function defaultConfig(): array
     {
         return FieldTypeDefaultConfigRegistry::for($this);

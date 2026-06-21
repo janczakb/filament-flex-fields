@@ -76,17 +76,17 @@ class ProgressColor
     {
         if (preg_match('/^#([0-9a-f]{3})$/i', $color, $matches) === 1) {
             return [
-                hexdec(str_repeat($matches[1][0], 2)),
-                hexdec(str_repeat($matches[1][1], 2)),
-                hexdec(str_repeat($matches[1][2], 2)),
+                (int) hexdec(str_repeat($matches[1][0], 2)),
+                (int) hexdec(str_repeat($matches[1][1], 2)),
+                (int) hexdec(str_repeat($matches[1][2], 2)),
             ];
         }
 
         if (preg_match('/^#([0-9a-f]{6})$/i', $color, $matches) === 1) {
             return [
-                hexdec(substr($matches[1], 0, 2)),
-                hexdec(substr($matches[1], 2, 2)),
-                hexdec(substr($matches[1], 4, 2)),
+                (int) hexdec(substr($matches[1], 0, 2)),
+                (int) hexdec(substr($matches[1], 2, 2)),
+                (int) hexdec(substr($matches[1], 4, 2)),
             ];
         }
 

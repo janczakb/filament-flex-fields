@@ -21,6 +21,7 @@ class FlexFileUpload extends FileUpload
     {
         parent::setUp();
 
+        $this->removeUploadedFileButtonPosition('right');
         $this->registerFlexFileUploadHooks();
     }
 

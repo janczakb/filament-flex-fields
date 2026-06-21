@@ -293,6 +293,41 @@ test('normalizeAssetUrl resolves relative and absolute urls to the same href', (
     )
 })
 
+test('resolveHoverPreloadScope prefers the nearest field wrapper over the document', () => {
+    const { document, window } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+
+    const form = createElement('form')
+    const field = createElement('div')
+    field.classList.add('fi-fo-field-wrp')
+
+    const batch = createElement('span')
+    batch.attributes = { 'data-fff-asset-batch': '' }
+    field.children.push(batch)
+    form.children.push(field)
+
+    const button = createElement('button')
+    field.children.push(button)
+    button.parentElement = field
+    button.closest = (selector) => {
+        if (selector === '[data-fff-asset-batch]') {
+            return batch
+        }
+
+        if (selector === '.fi-fo-field-wrp') {
+            return field
+        }
+
+        if (selector === 'form') {
+            return form
+        }
+
+        return null
+    }
+
+    assert.equal(injector.resolveHoverPreloadScope(button), field)
+})
+
 test('loadStylesheet deduplicates concurrent requests through the inflight cache', async () => {
     const { document, window, head } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
@@ -369,7 +404,7 @@ test('handleMorphUpdating applies pending state to the live modal root before mo
     assert.equal(injector.hasPendingState(el), true)
 })
 
-test('handleMorphUpdating skips pending state when morph target is outside a modal', () => {
+test('handleMorphUpdating applies pending state to inline morph targets outside modals', () => {
     const { document, window } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
 
@@ -387,8 +422,8 @@ test('handleMorphUpdating skips pending state when morph target is outside a mod
 
     injector.handleMorphUpdating({ el, toEl })
 
-    assert.equal(toEl.classList.contains('fff-flex-fields-assets-pending'), false)
-    assert.equal(injector.hasPendingState(el), false)
+    assert.equal(el.classList.contains('fff-flex-fields-assets-pending'), true)
+    assert.equal(injector.hasPendingState(el), true)
 })
 
 test('cleanupClosedModalPendingState force-releases stray pending loaders after modal close', async () => {

@@ -102,4 +102,24 @@ class FlexFieldStylesheetQueue
 
         $queue->markEmitted($stylesheets);
     }
+
+    public function needsTeleportedMenu(): bool
+    {
+        if ($this->hasKey('teleported-menu')) {
+            return true;
+        }
+
+        foreach (array_keys($this->enqueued) as $stylesheet) {
+            if ($stylesheet === 'teleported-menu') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static function hasQueuedTeleportedMenu(): bool
+    {
+        return app(self::class)->needsTeleportedMenu();
+    }
 }

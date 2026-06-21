@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\SocialLinks;
 
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Illuminate\Support\Str;
 
 final class SocialLinkValidator
@@ -22,27 +23,27 @@ final class SocialLinkValidator
         $url = trim($url);
 
         if ($platform === '' || $url === '') {
-            return __('filament-flex-fields::default.social_links.validation.required');
+            return Translations::get('filament-flex-fields::default.social_links.validation.required');
         }
 
         $definition = $definitions[$platform] ?? null;
 
         if ($definition === null) {
-            return __('filament-flex-fields::default.social_links.validation.unknown_platform');
+            return Translations::get('filament-flex-fields::default.social_links.validation.unknown_platform');
         }
 
         if ($allowedPlatforms !== [] && ! in_array($platform, $allowedPlatforms, true)) {
-            return __('filament-flex-fields::default.social_links.validation.platform_not_allowed');
+            return Translations::get('filament-flex-fields::default.social_links.validation.platform_not_allowed');
         }
 
         if (! filter_var($url, FILTER_VALIDATE_URL)) {
-            return __('filament-flex-fields::default.social_links.validation.invalid_url');
+            return Translations::get('filament-flex-fields::default.social_links.validation.invalid_url');
         }
 
         $scheme = parse_url($url, PHP_URL_SCHEME);
 
         if (! in_array($scheme, ['http', 'https'], true)) {
-            return __('filament-flex-fields::default.social_links.validation.invalid_url');
+            return Translations::get('filament-flex-fields::default.social_links.validation.invalid_url');
         }
 
         if ($definition->hosts === []) {
@@ -58,7 +59,7 @@ final class SocialLinkValidator
             }
         }
 
-        return __('filament-flex-fields::default.social_links.validation.platform_mismatch', [
+        return Translations::get('filament-flex-fields::default.social_links.validation.platform_mismatch', [
             'platform' => $definition->label,
         ]);
     }

@@ -228,6 +228,14 @@ return [
         'flex_text_input_microphone_icon' => 'gravityui-microphone',
         'flex_textarea_emoji_icon' => 'gravityui-face-smile',
         'flex_textarea_microphone_icon' => 'gravityui-microphone',
+        /*
+        | Default FlexRichEditor toolbar icons (override any key from RichEditorGravityIcons::icon()).
+        */
+        'flex_rich_editor_bold_icon' => 'gravityui-bold',
+        'flex_rich_editor_italic_icon' => 'gravityui-italic',
+        'flex_rich_editor_link_icon' => 'gravityui-link',
+        'flex_rich_editor_clear_formatting_icon' => 'gravityui-eraser',
+        'flex_rich_editor_clear_content_icon' => 'gravityui-trash-bin',
         'phone_size' => 'md',
         'phone_variant' => 'primary',
         'phone_default_country' => 'PL',
@@ -316,6 +324,37 @@ return [
         'icon_picker_catalog_cache_days' => 7,
         'icon_picker_search_cache_minutes' => 60,
         'icon_picker_use_bundled_manifest' => true,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | FlexRichEditor
+    |--------------------------------------------------------------------------
+    */
+    'rich_editor' => [
+        'reading_time_words_per_minute' => 200,
+        'toolbar_roles' => [
+            'author' => [
+                ['bold', 'italic', 'underline'],
+                ['link', 'attachFiles'],
+            ],
+            'editor' => [
+                ['undo', 'redo'],
+                ['bold', 'italic', 'underline', 'strike'],
+                ['link', 'attachFiles'],
+                ['bulletList', 'orderedList'],
+            ],
+            'admin' => [
+                ['undo', 'redo'],
+                ['bold', 'italic', 'underline', 'strike', 'code'],
+                ['h1', 'h2', 'h3'],
+                ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'],
+                ['blockquote', 'codeBlock'],
+                ['bulletList', 'orderedList'],
+                ['link', 'attachFiles'],
+                ['clearFormatting', 'clearContent'],
+            ],
+        ],
     ],
 
     /*

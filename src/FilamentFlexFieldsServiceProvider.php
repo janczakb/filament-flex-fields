@@ -12,6 +12,7 @@ namespace Bjanczak\FilamentFlexFields;
 
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsAlpineComponent;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
+use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
@@ -23,9 +24,9 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\FieldComponentFactory;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Registry\FieldTypeHandlerRegistry;
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
-use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
+use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
 use Bjanczak\FilamentFlexFields\Support\UserSelectQueryCache;
 use Filament\Support\Assets\Js;
@@ -65,6 +66,8 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        RichEditorGravityIcons::register();
+
         $this->publishes([
             __DIR__.'/../config/filament-flex-fields.php' => config_path('filament-flex-fields.php'),
         ], 'filament-flex-fields-config');
@@ -85,6 +88,7 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             ...$this->registeredStylesheets(),
             ...$this->registeredScripts(),
             ...$this->registeredAlpineComponents(),
+            ...$this->registeredAlpineChunkComponents(),
         ], package: FilamentFlexFieldsPlugin::PACKAGE_NAME);
 
         $this->publishStalePackageAssets();
@@ -99,11 +103,6 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
             fn (): string => view('filament-flex-fields::partials.critical-stylesheet-preloads')->render(),
-        );
-
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::HEAD_END,
-            fn (): string => view('filament-flex-fields::partials.hold-confirm-action-preload')->render(),
         );
 
         FilamentView::registerRenderHook(
@@ -174,7 +173,6 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
         $assets = [
             FlexFieldsCss::make(FlexFieldAssets::CORE_STYLESHEET_ID, $distPath.'/core.css'),
-            FlexFieldsCss::make('filament-flex-fields', $distPath.'/core.css'),
         ];
 
         if (FlexFieldsConfig::isPlaygroundEnabled()) {
@@ -210,6 +208,18 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
                 FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID,
                 __DIR__.'/../resources/dist/core/flex-field-asset-injector.js',
             ),
+            Js::make(
+                FlexFieldAssets::FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID,
+                __DIR__.'/../resources/dist/support/flex-rich-editor-paste-extension.js',
+            )->loadedOnRequest(),
+            Js::make(
+                FlexFieldAssets::FLEX_RICH_EDITOR_BLOCK_IMAGE_EXTENSION_SCRIPT_ID,
+                __DIR__.'/../resources/dist/support/flex-rich-editor-block-image-extension.js',
+            )->loadedOnRequest(),
+            Js::make(
+                FlexFieldAssets::FLEX_RICH_EDITOR_YOUTUBE_EXTENSION_SCRIPT_ID,
+                __DIR__.'/../resources/dist/support/flex-rich-editor-youtube-extension.js',
+            )->loadedOnRequest(),
         ];
 
         if (FlexFieldsConfig::isPlaygroundEnabled()) {
@@ -230,10 +240,37 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $distPath = __DIR__.'/../resources/dist/components';
         $assets = [];
 
-        foreach (glob($distPath.'/*.js') ?: [] as $path) {
-            $id = basename($path, '.js');
+        foreach (FlexFieldAssets::alpineEntryNames() as $entry) {
+            $path = $distPath.'/'.$entry.'.js';
 
-            $assets[] = FlexFieldsAlpineComponent::make($id, $path);
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $assets[] = FlexFieldsAlpineComponent::make($entry, $path);
+        }
+
+        return $assets;
+    }
+
+    /**
+     * @return list<FlexFieldsAlpineComponent>
+     */
+    protected function registeredAlpineChunkComponents(): array
+    {
+        $distPath = __DIR__.'/../resources/dist/components';
+        $assets = [];
+
+        foreach (FlexFieldAssets::alpineSharedChunkNames() as $chunk) {
+            $path = $distPath.'/'.$chunk;
+
+            if (! is_file($path)) {
+                continue;
+            }
+
+            $id = str_replace('.js', '', $chunk);
+
+            $assets[] = FlexFieldsAlpineComponent::make($id, $path)->loadedOnRequest();
         }
 
         return $assets;

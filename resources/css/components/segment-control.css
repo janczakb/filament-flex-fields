@@ -66,6 +66,34 @@
         opacity 0.2s ease;
 }
 
+/* Pre-hydration pill: visible before x-load Alpine positions the sliding indicator */
+.fff-segment-track:not(.is-hydrated) .fff-segment-item[data-segment-selected='true'] {
+    background-color: #fff;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.06),
+        0 2px 6px rgb(0 0 0 / 0.08);
+}
+
+.dark .fff-segment-track:not(.is-hydrated) .fff-segment-item[data-segment-selected='true'] {
+    background-color: rgb(63 63 70);
+    box-shadow: none;
+}
+
+.fff-segment-track--ghost:not(.is-hydrated) .fff-segment-item[data-segment-selected='true'] {
+    background-color: var(--color-600);
+    box-shadow: none;
+}
+
+.dark .fff-segment-track--ghost:not(.is-hydrated) .fff-segment-item[data-segment-selected='true'] {
+    background-color: var(--color-500);
+    box-shadow: none;
+}
+
+.fff-segment-track.is-hydrated .fff-segment-item[data-segment-selected='true'] {
+    background-color: transparent;
+    box-shadow: none;
+}
+
 .dark .fff-segment-indicator:not(.fff-segment-indicator--ghost) {
     background-color: rgb(63 63 70);
     box-shadow: none;

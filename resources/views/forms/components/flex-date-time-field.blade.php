@@ -41,6 +41,7 @@
     "
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-date-time-field'])
+    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly">
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $showCalendar, $field->getMode()->value])), 0, 64) }}"
@@ -398,4 +399,5 @@
                 </template>
             @endif
     </div>
+    </x-filament-flex-fields::lazy-alpine-mount>
 </x-dynamic-component>

@@ -157,7 +157,7 @@ Title (live) → debounce 400ms → Str::slug() → normalizeSlug() → slug fie
 
 No server requests. No model configuration required.
 
-#### Three ways to add title + slug
+#### Four ways to add title + slug
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SlugField;
@@ -169,10 +169,17 @@ TitleSlugField::make(),
 // 2) Same layout, different import
 SlugField::withTitle(),
 
-// 3) Manual — full control
+// 3) Manual — full control (title embedded in slug field)
 SlugField::make('slug')
     ->source('title')
     ->titleField(FlexTextInput::make('title')->required()),
+
+// 4) Title elsewhere in the schema — slug syncs via ->source() (playground: slug__standalone)
+FlexTextInput::make('title')->label('Title')->live(),
+SlugField::make('slug')
+    ->label('Slug')
+    ->source('title')
+    ->helperText('Auto-syncs from title until you edit or reset the slug.'),
 ```
 
 #### When to switch to Spatie?
@@ -544,11 +551,24 @@ TitleSlugField::make(
 
 #### Scenario 7: CMS Homepage (`/`)
 
+Standalone `SlugField` (matches playground **Homepage slug**):
+
+```php
+SlugField::make('slug')
+    ->label('Homepage slug')
+    ->allowHomepageSlug()
+    ->urlHost('https://wyachts.test')
+    ->slugPattern('/^(\/)?[a-z0-9]+(?:-[a-z0-9]+)*$/')
+    ->helperText('Supports "/" as homepage slug.'),
+```
+
+Inside `TitleSlugField`:
+
 ```php
 TitleSlugField::make(
     slugConfigurator: fn (SlugField $slug) => $slug
         ->allowHomepageSlug()
-        ->slugPattern('/^(\/|[a-z0-9]+(?:-[a-z0-9]+)*)$/'),
+        ->slugPattern('/^(\/)?[a-z0-9]+(?:-[a-z0-9]+)*$/'),
 ),
 ```
 
@@ -570,17 +590,33 @@ Repeater::make('sections')
 
 Ścieżki zagnieżdżone (`sections.0.title` → `sections.0.slug`) są rozwiązywane automatycznie.
 
-#### Scenario 9: Standalone slug without title (manual)
+#### Scenario 9: Manual slug only (no title, no auto-generate)
+
+Use when there is **no title field** — user types the slug by hand. This is **not** the same as playground `slug__standalone` (that name means “slug field alone in the layout”, but it still uses `->source('title')`).
 
 ```php
 SlugField::make('slug')
     ->label('URL slug')
     ->autoGenerate(false)
     ->inlineEditing(false)
+    ->urlHost(config('app.url'))
+    ->urlPath('/posts/')
     ->required(),
 ```
 
-#### Scenario 10: Spatie + multiple source fields
+#### Scenario 10: Form read-only (whole field)
+
+Matches playground **Form readonly**:
+
+```php
+SlugField::make('slug')
+    ->label('Form readonly')
+    ->urlHost('https://wyachts.test')
+    ->urlPath('/docs/')
+    ->readOnly(),
+```
+
+#### Scenario 11: Spatie + multiple source fields (optional package)
 
 ```php
 // Model
@@ -2009,27 +2045,256 @@ FLEX_FIELDS_PLAYGROUND=true
 Panel navigation: **Settings & Tools → Flex Fields Playground** — cluster with left sub-navigation (Filament `SubNavigationPosition::Start`).
 
 - Root URL: `/admin/flex-fields-playground` (redirects to first component)
-- Component URL: `/admin/flex-fields-playground/{slug}` — e.g. `/admin/flex-fields-playground/rating-column`, `/admin/flex-fields-playground/phone-field`
+- **Slug field page:** `/admin/flex-fields-playground/slug-field`
 - Routes are registered **only** when `FLEX_FIELDS_PLAYGROUND=true` (or `filament-flex-fields.playground.enabled` is `true`).
 
-The **Slug field** tab (`SlugFieldPlayground`) contains:
+> **Spatie is optional for every recipe below.** All playground demos work with browser `Str::slug()` only. To align preview and save with `laravel-sluggable`, see [Optional Spatie upgrade (playground recipes)](#optional-spatie-upgrade-playground-recipes) at the end of this section.
 
-| Playground Example | Demonstrates |
-|-------------------|--------------|
-| Title (source) + Slug | Standalone auto-sync |
-| Title + slug (one-liner) | `TitleSlugField` + permalink |
-| Translatable title + slug | `translatableLocales` + `slugSourceLocale` + `SegmentTabs` |
-| Title + slug pair | `titleField()` + `recordSlug()` |
-| Permalink preview | `urlHost`, `urlPath`, `visitRoute`, debounce |
-| URL slug sandwich | `slugLabelPostfix` + complex visit URL |
-| Form readonly | `readOnly()` on the whole group |
-| Slug readonly | `slugReadOnly()` |
-| Homepage slug | `allowHomepageSlug()` + `/` |
+Source of truth: `SlugFieldPlayground` in the package (`src/Support/Playground/SlugFieldPlayground.php`). Default form state keys (`slug__title`, `slug__standalone`, …) live in `SlugFieldPlayground::defaultState()`.
 
-Default test state (e.g. `slug__title`, `slug__permalink`) is in `SlugFieldPlayground::defaultState()`.
+#### Playground recipes — 1:1 with `SlugFieldPlayground`
+
+Full section schema (copy-paste ready):
 
 ```php
-// Programowe sprawdzenie rejestracji w testach pakietu
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SlugField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TitleSlugField;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+
+Section::make('Slug field')
+    ->description('Permalink editor with inline Edit/OK/Cancel/Reset, auto-sync, unique validation hooks, Spatie Sluggable integration and FlexFields styling.')
+    ->schema([
+        // … recipes 1–9 below …
+    ]);
+```
+
+---
+
+##### Recipe 1 — Shared title source + slug field (`slug__standalone`)
+
+A **separate** title field drives one or more slug fields on the same form. Playground reuses `slug__title` for recipes 1, 5, and 6.
+
+```php
+FlexTextInput::make('slug__title') // or 'title' in your app
+    ->label('Title (source)')
+    ->live()
+    ->columnSpanFull(),
+
+SlugField::make('slug__standalone') // or SlugField::make('slug')
+    ->label('Slug')
+    ->source('slug__title') // or ->source('title')
+    ->helperText('Auto-syncs from title until you edit or reset the slug.')
+    ->columnSpanFull(),
+```
+
+| | |
+|---|---|
+| **Demonstrates** | `SlugField` + `->source()` pointing at a sibling field (not embedded `titleField()`) |
+| **Cookbook** | [Four ways to add title + slug](#four-ways-to-add-title--slug) — pattern **4** |
+| **Spatie** | Optional — `->spatieModel(Post::class)` on `SlugField` |
+
+---
+
+##### Recipe 2 — Title + slug one-liner (`TitleSlugField`)
+
+```php
+TitleSlugField::make(
+    fieldTitle: 'slug__one_liner_title',
+    fieldSlug: 'slug__one_liner_slug',
+    urlHost: 'https://wyachts.test',
+    urlPath: '/posts/',
+)
+    ->label('Title + slug (one-liner)')
+    ->columnSpanFull(),
+```
+
+| | |
+|---|---|
+| **Demonstrates** | `TitleSlugField` fused group, permalink bar, default create/edit behaviour |
+| **Cookbook** | [Scenario 1](#scenario-1-blog--create--edit-default-behaviour) |
+| **Spatie** | Optional — `TitleSlugField::make(..., spatieModel: Post::class)` |
+
+---
+
+##### Recipe 3 — Translatable title + single slug (`slug__i18n_*`)
+
+```php
+TitleSlugField::make(
+    fieldTitle: 'slug__i18n_title',
+    fieldSlug: 'slug__i18n_slug',
+    translatableLocales: ['pl' => 'PL', 'en' => 'EN', 'fr' => 'FR'],
+    slugSourceLocale: 'pl',
+    urlHost: 'https://wyachts.test',
+    urlPath: '/guides/',
+)
+    ->label('Translatable title + slug')
+    ->helperText('Single slug generated from the Polish title tab. Other locales do not change the permalink.')
+    ->columnSpanFull(),
+```
+
+Default state shape: `'slug__i18n_title' => ['pl' => '…', 'en' => '…']`, `'slug__i18n_slug' => 'przewodnik-po-morzu-srodziemnym'`.
+
+| | |
+|---|---|
+| **Demonstrates** | `translatableLocales`, `slugSourceLocale`, `TranslatableFields` tabs |
+| **Cookbook** | [Translatable titles (single slug)](#translatable-titles-single-slug) |
+| **Spatie** | Optional — `spatieTranslatable: true` when using [Spatie Translatable](#storage-with-spatie-laravel-translatable-optional) |
+
+---
+
+##### Recipe 4 — Title + slug pair (`titleField()` + `recordSlug()`)
+
+```php
+SlugField::make('slug__pair_slug')
+    ->label('Title + slug pair')
+    ->titleField(
+        FlexTextInput::make('slug__pair_title')
+            ->label('Title')
+            ->placeholder('Enter a post title…'),
+    )
+    ->urlHost('https://wyachts.test')
+    ->urlPath('/blog/')
+    ->recordSlug('premium-catamaran-experience')
+    ->columnSpanFull(),
+```
+
+| | |
+|---|---|
+| **Demonstrates** | Embedded title via `->titleField()`, `->recordSlug()` for visit URL on edit |
+| **Cookbook** | [Four ways](#four-ways-to-add-title--slug) — pattern **3** |
+| **Spatie** | Optional — `->spatieModel(Post::class)` |
+
+---
+
+##### Recipe 5 — Permalink preview + Visit link (`slug__permalink`)
+
+Uses the shared title field from recipe 1 (`slug__title`).
+
+```php
+SlugField::make('slug__permalink')
+    ->label('Permalink preview')
+    ->source('slug__title')
+    ->urlHost('https://wyachts.test')
+    ->urlPath('/charters/')
+    ->visitRoute(fn (?string $slug): ?string => filled($slug) ? "https://wyachts.test/charters/{$slug}" : null)
+    ->generationDebounce(250)
+    ->columnSpanFull(),
+```
+
+| | |
+|---|---|
+| **Demonstrates** | `urlHost`, `urlPath`, `visitRoute`, `generationDebounce` |
+| **Cookbook** | [Permalink preview & URL actions](#permalink-preview--url-actions) |
+| **Spatie** | Optional — visit URL still works; preview uses Spatie rules when `->spatieModel()` is set |
+
+---
+
+##### Recipe 6 — URL slug sandwich (`slug__sandwich`)
+
+Uses the shared title field from recipe 1 (`slug__title`).
+
+```php
+SlugField::make('slug__sandwich')
+    ->label('URL slug sandwich')
+    ->source('slug__title')
+    ->urlHost('https://wyachts.test')
+    ->urlPath('/books/')
+    ->slugLabelPostfix('/detail/')
+    ->visitRoute(fn (?string $slug): ?string => filled($slug) ? "https://wyachts.test/books/{$slug}/detail" : null)
+    ->columnSpanFull(),
+```
+
+Preview: `wyachts.test/books/my-slug/detail/`
+
+| | |
+|---|---|
+| **Demonstrates** | `slugLabelPostfix`, complex `visitRoute` |
+| **Cookbook** | [Sandwich URL](#sandwich-url-prefix--slug--postfix) |
+| **Spatie** | Optional |
+
+---
+
+##### Recipe 7 — Read-only variants (grid)
+
+```php
+Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])
+    ->schema([
+        SlugField::make('slug__readonly')
+            ->label('Form readonly')
+            ->urlHost('https://wyachts.test')
+            ->urlPath('/docs/')
+            ->readOnly(),
+
+        SlugField::make('slug__slug_readonly')
+            ->label('Slug readonly')
+            ->urlHost('https://wyachts.test')
+            ->urlPath('/docs/')
+            ->slugReadOnly(),
+
+        SlugField::make('slug__homepage')
+            ->label('Homepage slug')
+            ->allowHomepageSlug()
+            ->urlHost('https://wyachts.test')
+            ->slugPattern('/^(\/)?[a-z0-9]+(?:-[a-z0-9]+)*$/')
+            ->helperText('Supports "/" as homepage slug.'),
+    ]),
+```
+
+| Demo | Method | Cookbook |
+|------|--------|----------|
+| Form readonly | `readOnly()` | [Scenario 10](#scenario-10-form-read-only-whole-field) |
+| Slug readonly | `slugReadOnly()` | [Scenario 3](#scenario-3-slug-read-only-on-edit) |
+| Homepage `/` | `allowHomepageSlug()` + `slugPattern()` | [Scenario 7](#scenario-7-cms-homepage-) |
+
+**Spatie:** optional for all three.
+
+---
+
+#### Optional Spatie upgrade (playground recipes)
+
+None of the playground recipes require `composer require spatie/laravel-sluggable`. Add it only when you need model-level suffixes (`-2`), `preventOverwrite`, `extraScope`, or identical rules on save and in the form preview.
+
+**`TitleSlugField` recipes (2, 3):**
+
+```php
+TitleSlugField::make(
+    fieldTitle: 'title',
+    fieldSlug: 'slug',
+    urlHost: config('app.url'),
+    urlPath: '/posts/',
+    spatieModel: Post::class, // optional
+),
+```
+
+**`SlugField` recipes (1, 4–7):**
+
+```php
+SlugField::make('slug')
+    ->source('title')
+    ->spatieModel(Post::class), // optional
+```
+
+Full integration: [Spatie `laravel-sluggable` integration](#spatie-laravel-sluggable-integration-v4x) (install, `HasSlug`, `getSlugOptions()`, `#[Sluggable]`, translatable models).
+
+#### Playground quick reference
+
+| Playground label | State key(s) | Primary API |
+|------------------|--------------|-------------|
+| Title (source) | `slug__title` | `FlexTextInput` + `live()` |
+| Slug | `slug__standalone` | `SlugField` + `->source('slug__title')` |
+| Title + slug (one-liner) | `slug__one_liner_*` | `TitleSlugField::make(...)` |
+| Translatable title + slug | `slug__i18n_*` | `translatableLocales` + `slugSourceLocale` |
+| Title + slug pair | `slug__pair_*` | `->titleField()` + `->recordSlug()` |
+| Permalink preview | `slug__permalink` | `visitRoute` + `generationDebounce` |
+| URL slug sandwich | `slug__sandwich` | `slugLabelPostfix` + `visitRoute` |
+| Form readonly | `slug__readonly` | `readOnly()` |
+| Slug readonly | `slug__slug_readonly` | `slugReadOnly()` |
+| Homepage slug | `slug__homepage` | `allowHomepageSlug()` |
+
+```php
+// Verify playground registration in package tests
 $builder = app(\Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder::class);
 expect($builder->components())->not->toBeEmpty();
 ```

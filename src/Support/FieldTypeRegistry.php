@@ -21,10 +21,10 @@ class FieldTypeRegistry
      */
     public static function all(): array
     {
-        return array_map(
+        return array_values(array_map(
             fn (FieldType $type): array => self::describe($type),
             FieldType::cases(),
-        );
+        ));
     }
 
     /**

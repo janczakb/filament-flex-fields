@@ -110,6 +110,34 @@
     --fff-rating-column-gap-sm: 0.125rem;
     --fff-rating-column-gap-md: 0.1875rem;
     --fff-rating-column-gap-lg: 0.25rem;
+
+    --fff-icon-column-text: rgb(24 24 27);
+    --fff-icon-column-muted: rgb(113 113 122);
+
+    --fff-rich-editor-bg: var(--fff-field-secondary-bg);
+    --fff-rich-editor-border: var(--fff-field-secondary-border);
+    --fff-rich-editor-border-width: var(--fff-field-secondary-border-width);
+    --fff-rich-editor-text: rgb(24 24 27);
+    --fff-rich-editor-muted: rgb(113 113 122);
+    --fff-rich-editor-toolbar-bg: var(--fff-field-secondary-bg);
+    --fff-rich-editor-footer-bg: var(--fff-field-secondary-bg);
+    --fff-rich-editor-toolbar-divider: rgb(212 212 216);
+    --fff-rich-editor-tool-bg: transparent;
+    --fff-rich-editor-tool-bg-hover: #ebebec;
+    --fff-rich-editor-tool-text: rgb(39 39 42);
+    --fff-rich-editor-tool-text-active: rgb(24 24 27);
+    --fff-rich-editor-bubble-bg: rgb(255 255 255);
+    --fff-rich-editor-bubble-border: transparent;
+    --fff-rich-editor-bubble-shadow: 0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014;
+    --fff-rich-editor-bubble-radius: 1.5rem;
+    --fff-rich-editor-bubble-padding: 4px;
+    --fff-rich-editor-bubble-gap: 4px;
+    --fff-rich-editor-focus-ring: var(--fff-field-focus-ring);
+    --fff-rich-editor-min-h: 12rem;
+    --fff-rich-editor-radius: 1rem;
+    --fff-rich-editor-tool-size: 2rem;
+    --fff-rich-editor-icon-size: 1.0625rem;
+    --fff-rich-editor-content-p: 1rem;
 }
 
 .dark {
@@ -141,4 +169,23 @@
     --fff-traffic-split-segment-border: var(--fff-surface-border);
     --fff-traffic-split-handle-bg: rgb(82 82 91);
     --fff-traffic-split-handle-bg-hover: rgb(113 113 122);
+
+    --fff-icon-column-text: rgb(250 250 250);
+    --fff-icon-column-muted: rgb(161 161 170);
+
+    --fff-rich-editor-bg: rgb(39 39 42);
+    --fff-rich-editor-border: var(--fff-field-secondary-border);
+    --fff-rich-editor-border-width: var(--fff-field-secondary-border-width);
+    --fff-rich-editor-text: rgb(250 250 250);
+    --fff-rich-editor-muted: rgb(161 161 170);
+    --fff-rich-editor-toolbar-bg: rgb(39 39 42);
+    --fff-rich-editor-footer-bg: rgb(39 39 42);
+    --fff-rich-editor-toolbar-divider: rgb(82 82 91);
+    --fff-rich-editor-tool-bg: transparent;
+    --fff-rich-editor-tool-bg-hover: rgb(63 63 70);
+    --fff-rich-editor-tool-text: rgb(228 228 231);
+    --fff-rich-editor-tool-text-active: rgb(250 250 250);
+    --fff-rich-editor-bubble-bg: rgb(63 63 70);
+    --fff-rich-editor-bubble-border: transparent;
+    --fff-rich-editor-bubble-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.24), 0 -6px 12px 0 rgb(0 0 0 / 0.16), 0 14px 28px 0 rgb(0 0 0 / 0.32);
 }

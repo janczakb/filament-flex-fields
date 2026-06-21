@@ -60,7 +60,7 @@
     border-radius: 9999px;
     border: 0;
     background-color: var(--fff-voice-rec-primary-bg);
-    box-shadow: 0 4px 10px rgb(244 63 94 / 0.3);
+    box-shadow: none;
     transition: transform 160ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 160ms ease;
 }
 
@@ -75,7 +75,6 @@
 
 .fff-voice-recorder__record-btn:disabled {
     @apply opacity-50 cursor-not-allowed;
-    box-shadow: none;
 }
 
 .fff-voice-recorder__record-btn .fi-icon,

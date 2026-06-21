@@ -12,6 +12,7 @@ use Bjanczak\FilamentFlexFields\Support\Barcode\BarcodeStateNormalizer;
 use Bjanczak\FilamentFlexFields\Support\Barcode\BarcodeValidator;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasPlaceholder;
@@ -74,9 +75,9 @@ class BarcodeScannerField extends Field
     {
         parent::setUp();
 
-        $this->placeholder(__('filament-flex-fields::default.barcode_scanner.placeholder'));
-        $this->scanButtonLabel(__('filament-flex-fields::default.barcode_scanner.scan'));
-        $this->modalHeading(__('filament-flex-fields::default.barcode_scanner.modal_heading'));
+        $this->placeholder(Translations::get('filament-flex-fields::default.barcode_scanner.placeholder'));
+        $this->scanButtonLabel(Translations::get('filament-flex-fields::default.barcode_scanner.scan'));
+        $this->modalHeading(Translations::get('filament-flex-fields::default.barcode_scanner.modal_heading'));
 
         $this->afterStateHydrated(function (BarcodeScannerField $component, mixed $state): void {
             $component->state(BarcodeStateNormalizer::dehydrate(
@@ -414,9 +415,6 @@ class BarcodeScannerField extends Field
         return $this->barcodeRule;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
     public function getBeepUrl(): string
     {
         return FlexFieldAssets::barcodeScanBeepUrl();

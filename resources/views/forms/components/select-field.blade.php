@@ -188,10 +188,20 @@
                     as="script"
                     crossorigin
                 />
+                <link
+                    rel="modulepreload"
+                    href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+                    as="script"
+                    crossorigin
+                />
             @endonce
             @if ($shouldPatchUserSelectClient)
                 @include('filament-flex-fields::forms.components.partials.user-select-scripts')
             @endif
+            <x-filament-flex-fields::lazy-alpine-mount
+                :eager="$showInitialTriggerSsr"
+                :mount-immediately="$isDisabled || $showInitialTriggerSsr"
+            >
             <div
                 x-load
                 x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
@@ -397,6 +407,7 @@
                 <div x-ref="select"></div>
                 </div>
             </div>
+            </x-filament-flex-fields::lazy-alpine-mount>
         @endif
     </x-filament::input.wrapper>
 

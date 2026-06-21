@@ -322,6 +322,68 @@ return [
         'search_timezones' => 'Szukaj strefy czasowej…',
     ],
 
+    'rich_editor' => [
+        'clear_content' => 'Wyczyść treść',
+        'toolbar_groups' => [
+            'heading' => 'Nagłówek',
+            'alignment' => 'Wyrównanie',
+            'lists' => 'Listy',
+        ],
+        'word_count' => [
+            'empty' => '0 znaków, 0 słów',
+            'line' => ':characters znaków, :words słów',
+        ],
+        'reading_time' => [
+            'line' => ':minutes min czytania',
+        ],
+        'limits' => [
+            'warning' => 'Blisko limitu treści',
+            'danger' => 'Przekroczono limit treści',
+            'min_characters' => 'Treść musi mieć co najmniej :min znaków.',
+            'max_characters' => 'Treść nie może przekraczać :max znaków.',
+            'max_words' => 'Treść nie może przekraczać :max słów.',
+        ],
+        'autosave' => [
+            'saving' => 'Zapisywanie szkicu…',
+            'saved' => 'Szkic zapisany',
+            'restore_prompt' => 'Znaleziono nowszy lokalny szkic. Przywrócić go?',
+            'restore_confirm' => 'Przywróć szkic',
+            'restore_dismiss' => 'Zostaw obecną treść',
+        ],
+        'alt_text' => [
+            'missing' => 'Brak tekstu alternatywnego',
+            'missing_suffix' => 'obraz(ów) bez alt',
+            'validation' => ':count obraz(ów) nie ma tekstu alternatywnego.',
+        ],
+        'image' => [
+            'edit' => 'Edytuj',
+            'delete' => 'Usuń',
+        ],
+        'youtube' => [
+            'tool' => 'YouTube',
+            'modal' => [
+                'heading' => 'Osadź wideo YouTube',
+                'url' => 'Adres URL YouTube',
+            ],
+        ],
+        'fullscreen' => [
+            'toggle' => 'Przełącz pełny ekran',
+            'enter' => 'Pełny ekran',
+            'exit' => 'Wyjdź z pełnego ekranu',
+        ],
+        'playground' => [
+            'native' => [
+                'section' => 'Filament RichEditor (natywny)',
+                'description' => 'Domyślny edytor Filament z tym samym toolbarem i załącznikami co FlexRichEditor poniżej — do porównania obok siebie.',
+                'label' => 'Treść artykułu (natywny)',
+            ],
+        ],
+    ],
+
+    'field_types' => [
+        'json' => 'JSON',
+    ],
+
     'file_upload' => [
         'summary' => ':count plik(ow), lacznie :size KB',
         'remaining_slots' => 'Pozostalo :remaining z :max miejsc',

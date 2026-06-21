@@ -68,6 +68,9 @@ class FlexFieldSchema
         return $this;
     }
 
+    /**
+     * @param  FlexFieldDefinition|array<string, mixed>  $field
+     */
     public function addField(FlexFieldDefinition|array $field): static
     {
         $this->fields[] = $field instanceof FlexFieldDefinition
@@ -82,10 +85,13 @@ class FlexFieldSchema
      */
     public function getFields(): array
     {
-        return collect($this->fields)
+        /** @var list<FlexFieldDefinition> $fields */
+        $fields = collect($this->fields)
             ->filter(fn (FlexFieldDefinition $field): bool => $field->isActive && $field->isVisible)
             ->sortBy('sort')
             ->values()
             ->all();
+
+        return $fields;
     }
 }

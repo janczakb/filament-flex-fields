@@ -32,6 +32,36 @@ it('renders icon picker field shell and alpine configuration', function (): void
         ->toContain('x-teleport="body"');
 });
 
+it('server renders icon picker trigger before alpine hydrates', function (): void {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/icon-picker-field.blade.php');
+
+    expect($blade)
+        ->toContain('$hasInitialSelection = filled($initialState)')
+        ->toContain('data-ssr-visible="{{ $hasInitialSelection ? \'true\' : \'false\' }}"')
+        ->toContain(':eager="$hasInitialSelection"')
+        ->toContain(':mount-immediately="$isDisabled || $isReadOnly || $hasInitialSelection"')
+        ->toContain('is-trigger-hydrated')
+        ->toContain("getAlpineComponentSrc('icon-picker-field'")
+        ->toContain('modulepreload');
+});
+
+it('renders selected icon svg in trigger html when form has a value', function (): void {
+    TestableIconPickerForm::$formSchema = [
+        IconPickerField::make('icon')
+            ->sets(['heroicons'])
+            ->default('heroicon-o-star'),
+    ];
+
+    $html = Livewire::test(TestableIconPickerForm::class)
+        ->fillForm(['icon' => 'heroicon-o-star'])
+        ->html(false);
+
+    expect($html)
+        ->toContain('data-ssr-visible="true"')
+        ->toContain('heroicon-o-star')
+        ->toContain('<svg');
+});
+
 it('returns paginated icon search results through livewire', function (): void {
     TestableIconPickerForm::$formSchema = [
         IconPickerField::make('icon')

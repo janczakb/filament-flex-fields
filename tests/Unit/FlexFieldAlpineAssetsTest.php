@@ -35,13 +35,41 @@ it('deduplicates alpine chunk preloads across multiple fields on one request', f
     expect($second)->toBe([]);
 });
 
-it('deduplicates emoji picker chunk preloads across flex text input and textarea', function () {
+it('lazy-loads emoji picker chunks only when fields request shared chunks', function () {
     $inputChunks = FlexFieldAlpineQueue::enqueueChunksFor('flex-text-input');
     $textareaChunks = FlexFieldAlpineQueue::enqueueChunksFor('flex-textarea');
 
-    expect($inputChunks)->not->toBeEmpty()
-        ->and($textareaChunks)->toBe([])
-        ->and($inputChunks)->toBe(FlexFieldAssets::alpineChunksFor('flex-textarea'));
+    expect($inputChunks)->toBe(FlexFieldAssets::alpineChunksFor('flex-text-input'))
+        ->and($textareaChunks)->toBe([]);
+});
+
+it('registers only alpine manifest entry names as primary alpine components', function () {
+    $provider = new \Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider(app());
+    $method = new ReflectionMethod($provider, 'registeredAlpineComponents');
+
+    $registeredIds = array_map(
+        fn ($asset) => $asset->getId(),
+        $method->invoke($provider),
+    );
+
+    $expected = array_values(array_filter(
+        FlexFieldAssets::alpineEntryNames(),
+        fn (string $entry): bool => is_file(__DIR__.'/../../resources/dist/components/'.$entry.'.js'),
+    ));
+
+    sort($registeredIds);
+    sort($expected);
+
+    expect($registeredIds)->toBe($expected)
+        ->and(collect($registeredIds)->filter(fn (string $id): bool => str_starts_with($id, 'flex-fields-')))->toBeEmpty();
+});
+
+it('does not preload phone lib chunks from the alpine queue', function () {
+    $phoneChunks = FlexFieldAssets::alpineChunksFor('phone-field');
+
+    foreach ($phoneChunks as $chunk) {
+        expect($chunk)->not->toStartWith('flex-fields-phone-lib');
+    }
 });
 
 it('deduplicates mapbox chunk preloads across map picker and address autocomplete', function () {

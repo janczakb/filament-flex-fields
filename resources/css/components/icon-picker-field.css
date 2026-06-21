@@ -37,6 +37,14 @@
     color: currentColor;
 }
 
+.fff-icon-picker:not(.is-trigger-hydrated) .fff-icon-picker__preview[data-ssr-visible='false'] {
+    display: none;
+}
+
+.fff-icon-picker__preview:empty {
+    display: none;
+}
+
 .fff-icon-picker__preview svg {
     width: 100%;
     height: 100%;

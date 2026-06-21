@@ -141,10 +141,12 @@ Teams building **Filament v5** backends that need more than native inputs — **
 <details>
 <summary>Asset pipeline (technical)</summary>
 
-1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only; high-priority bundles may preload at `HEAD_END`.
-2. **Per-component bundles** — queued when the field renders, deduped per request via `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue`.
-3. **Head delivery** — `emit-assets` pushes `<link>` / `modulepreload` via `@stack('styles')` on full pages; Livewire partials emit inline asset batches.
-4. **SPA injector** — `flex-field-asset-injector.js` loads missing lazy CSS/JS on morph and navigation, with FOUC prevention inside Filament modals.
+1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only.
+2. **Conditional critical preload** — `teleported-menu` at `HEAD_END` only when a dropdown field is on the page (`FlexFieldStylesheetQueue::needsTeleportedMenu()`). Hold-confirm preloads per action via `@push` in `hold-confirm.blade.php`, not globally.
+3. **Per-component bundles** — queued when the field renders, deduped per request via `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue`. Alpine entries register once; manifest chunks load on demand.
+4. **Head delivery** — `emit-assets` pushes `<link>` / `modulepreload` via `@stack('styles')` on full pages; Livewire partials emit inline asset batches.
+5. **SPA injector** — `flex-field-asset-injector.js` loads missing lazy CSS/JS on morph and navigation, with FOUC prevention inside Filament modals.
+6. **Lazy Alpine mount** — heavy fields defer `x-data` init until `x-intersect` (see `lazy-alpine-mount` Blade component).
 
 See [Performance-first assets](#performance-first-assets) for classes, manifest, and bundle metrics.
 
@@ -320,12 +322,13 @@ Every item below is a **custom class shipped by this package** — own Blade vie
 
 Full API for each component: **[docs/index.md](docs/index.md)**.
 
-### Text & input (12)
+### Text & input (13)
 
 | Component | Description |
 |-----------|-------------|
 | [`FlexTextInput`](docs/flextextinput.md) | Enhanced text input — speech dictation, emoji picker, password strength, clearable |
 | [`FlexTextareaField`](docs/flextextareafield.md) | Animated autosizing textarea with character counter |
+| [`FlexRichEditor`](docs/flex-rich-editor.md) | JSON-first rich editor — responsive images, limits, fullscreen, autosave, optional Spatie |
 | [`PhoneField`](docs/phonefield.md) | International phone input with libphonenumber validation |
 | [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
 | [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
@@ -779,6 +782,8 @@ No. Sluggable, Translatable, and Media Library integrations are optional `compos
 
 ## Development
 
+**Główna instrukcja dla osób piszących kod pakietu** (CSS/JS, `FlexFieldStylesheetQueue`, współdzielenie bundle'i, antywzorce): **[DEVELOPMENT.md](DEVELOPMENT.md)**.
+
 ```bash
 composer install
 composer test          # Pest — 99+ PHP tests
@@ -838,18 +843,18 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 25.4 (gzip 5.6) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 32 (gzip 6.5) + deps 68.6 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 28.2 (gzip 6) + deps 68.6 |
-| FlexTextInput | 10.5 (gzip 3.1) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 39.8 (gzip 7.4) + deps 22.1 |
-| TagsField | 3.1 (gzip 1.1) | 23 (gzip 5.3) + deps 64.7 |
-| RatingField | 0.7 (gzip 0.3) | 25.1 (gzip 5.7) |
-| SwitchField | Alpine inline | 43.7 (gzip 7.7) |
-| UserSelect | 14.5 (gzip 4.7) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.4 (gzip 6.4) + deps 158.3 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 29.2 (gzip 6.6) + deps 51.9 |
-| SelectField | 14.5 (gzip 4.7) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 81.7 (gzip 12.8) + deps 27.8 |
+| core (always) | — | 27.6 (gzip 6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 34.4 (gzip 6.9) + deps 72.5 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 30.6 (gzip 6.4) + deps 72.5 |
+| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 42.2 (gzip 7.7) + deps 24.5 |
+| TagsField | 3.1 (gzip 1.1) | 25.4 (gzip 5.7) + deps 69.5 |
+| RatingField | 0.7 (gzip 0.3) | 27.5 (gzip 6.1) |
+| SwitchField | Alpine inline | 46.1 (gzip 8) |
+| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 33.8 (gzip 6.8) + deps 168 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 31.6 (gzip 7) + deps 56.8 |
+| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 84.1 (gzip 13.2) + deps 30.2 |
 
-Sample bundles (10 of **54** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **56** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---
