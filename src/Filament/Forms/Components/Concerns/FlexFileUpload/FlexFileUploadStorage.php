@@ -141,6 +141,13 @@ trait FlexFileUploadStorage
         return $this;
     }
 
+    /**
+     * WARNING: This method deletes all files in the current upload directory that are not part
+     * of the current component's state upon saving.
+     * 
+     * Do NOT use this with a shared static `directory()`, as it will delete files belonging 
+     * to other records. Always use `scopedDirectory()` or a dynamic directory closure when enabling this.
+     */
     public function pruneOrphanedOnSave(bool|Closure $condition = true): static
     {
         $this->flexPruneOrphanedOnSave = $condition;

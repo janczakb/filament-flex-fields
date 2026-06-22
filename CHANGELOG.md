@@ -5,6 +5,13 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.3] - 2026-06-22
+
+### Fixed
+
+- **FlexFileUpload / FlexImageUpload** — fixed an issue where `optimizeImagesToWebp()` was disabled by default when called without arguments (#6).
+- **FlexFileUpload / FlexImageUpload** — added a developer warning and updated documentation to clarify that `pruneOrphanedOnSave()` should never be used with a static `directory()` to prevent accidental data loss in shared folders (#6).
+
 ## [2.7.2] - 2026-06-21
 
 ### Fixed

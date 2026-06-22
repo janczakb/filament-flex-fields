@@ -162,7 +162,7 @@ trait FlexFileUploadSecurity
         return $this;
     }
 
-    public function optimizeImagesToWebp(bool|Closure $condition = false): static
+    public function optimizeImagesToWebp(bool|Closure $condition = true): static
     {
         $this->flexOptimizeImagesToWebp = $condition;
 

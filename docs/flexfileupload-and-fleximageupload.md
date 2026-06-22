@@ -279,8 +279,12 @@ FlexFileUpload::make('document')
 
 Removes old, unreferenced files from the upload directory when saving the model.
 
+> **Warning**
+> **Do not use this with a shared static `directory()`** (e.g., `->directory('gallery')`). This method deletes ALL files in the specified directory that do not belong to the current record. Using it on a shared directory will cause you to lose files from other records! You must use this method in combination with `->scopedDirectory()` or a closure that provides a unique directory per record.
+
 ```php
 FlexFileUpload::make('gallery')
+    ->scopedDirectory('galleries')
     ->pruneOrphanedOnSave();
 ```
 
