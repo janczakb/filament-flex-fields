@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\StateCasts\PhoneFieldStateCast;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistry;
@@ -28,6 +29,7 @@ class PhoneField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
 
@@ -544,7 +546,9 @@ class PhoneField extends Field
             'fff-phone-field',
             'fff-flex-text-input-field',
             'fff-phone-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-phone-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

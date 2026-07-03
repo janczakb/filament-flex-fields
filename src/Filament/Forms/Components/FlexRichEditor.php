@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithFlexRichEditorEnhancements;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithFlexRichEditorFileAttachments;
@@ -22,6 +23,7 @@ use InvalidArgumentException;
 class FlexRichEditor extends RichEditor
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use InteractsWithFlexRichEditorEnhancements;
     use InteractsWithFlexRichEditorFileAttachments;
@@ -151,6 +153,7 @@ class FlexRichEditor extends RichEditor
         $classes = [
             'fff-rich-editor-field',
             'fff-rich-editor-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-rich-editor-field--'.$this->getVariant(),
         ];
 

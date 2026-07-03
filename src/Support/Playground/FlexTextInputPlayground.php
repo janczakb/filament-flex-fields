@@ -29,6 +29,9 @@ class FlexTextInputPlayground
             'flex_text_input__sm' => 'Small input',
             'flex_text_input__lg' => 'Large input with more presence',
             'flex_text_input__disabled' => 'Disabled value',
+            'flex_text_input__rounding_native' => 'Native rounding',
+            'flex_text_input__rounding_md' => 'Medium rounding',
+            'flex_text_input__rounding_full' => 'Full rounding',
         ];
     }
 
@@ -118,6 +121,26 @@ class FlexTextInputPlayground
                             ->emojiPicker()
                             ->speechDictation(),
                     ]),
+
+                    Section::make('Border Radius Variants')
+                        ->schema([
+                            Grid::make(3)->schema([
+                                FlexTextInput::make('flex_text_input__rounding_native')
+                                    ->label('Native')
+                                    ->rounding('native')
+                                    ->speechDictation(),
+
+                                FlexTextInput::make('flex_text_input__rounding_md')
+                                    ->label('Medium (md)')
+                                    ->rounding('md')
+                                    ->speechDictation(),
+
+                                FlexTextInput::make('flex_text_input__rounding_full')
+                                    ->label('Full')
+                                    ->rounding('full')
+                                    ->speechDictation(),
+                            ]),
+                        ]),
                 ]),
         ];
     }

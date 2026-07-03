@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Closure;
 use Filament\Forms\Components\Field;
@@ -13,6 +14,7 @@ use InvalidArgumentException;
 class CreditCardField extends Field
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     protected string $view = 'filament-flex-fields::forms.components.credit-card-field';
@@ -365,6 +367,7 @@ class CreditCardField extends Field
         return [
             'fff-credit-card-field',
             'fff-credit-card-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-credit-card-field--'.$this->getVariant(),
             'fff-credit-card-field--input-'.$this->getInputVariant(),
         ];

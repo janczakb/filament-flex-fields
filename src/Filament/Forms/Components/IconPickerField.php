@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasSelectFieldIcons;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogIndex;
@@ -29,6 +30,7 @@ class IconPickerField extends Field
     use CanBeReadOnly;
     use HasAffixes;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
     use HasSelectFieldIcons;

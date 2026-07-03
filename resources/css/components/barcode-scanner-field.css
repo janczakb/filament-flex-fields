@@ -262,7 +262,7 @@
     pointer-events: none;
     border: 2px solid rgb(255 255 255 / 0.88);
     border-radius: 1.125rem;
-    box-shadow: 0 0 0 9999px rgb(0 0 0 / 0.5);
+    box-shadow: 0 0 0 var(--fff-global-radius, 0.75rem) rgb(0 0 0 / 0.5);
 }
 
 .fff-barcode-scanner__scan-line {
@@ -298,7 +298,7 @@
     justify-content: center;
     width: 4rem;
     height: 4rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     color: white;
     background: rgb(22 163 74 / 0.92);
     box-shadow: 0 12px 30px rgb(22 163 74 / 0.45);
@@ -340,7 +340,7 @@
 .fff-barcode-scanner__spinner {
     width: 2rem;
     height: 2rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 2px solid rgb(255 255 255 / 0.18);
     border-top-color: rgb(147 197 253);
     animation: fff-barcode-scanner-spin 0.85s linear infinite;

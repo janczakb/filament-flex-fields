@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
@@ -15,6 +16,7 @@ use InvalidArgumentException;
 class FlexVerificationCode extends Field
 {
     use HasControlSize;
+    use HasFieldRounding;
 
     protected string $view = 'filament-flex-fields::forms.components.flex-verification-code';
 
@@ -495,6 +497,7 @@ class FlexVerificationCode extends Field
         $classes = [
             'fff-verification-code',
             'fff-verification-code--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
         ];
 
         if ($color = $this->getColor()) {

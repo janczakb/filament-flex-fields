@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Closure;
 use Filament\Forms\Components\Field;
@@ -18,6 +19,7 @@ use InvalidArgumentException;
 class DualListboxField extends Field
 {
     use HasControlSize;
+    use HasFieldRounding;
 
     public const int VIRTUAL_SCROLL_THRESHOLD = 100;
 
@@ -670,6 +672,7 @@ class DualListboxField extends Field
         return [
             'fff-dual-listbox-field',
             'fff-dual-listbox-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-dual-listbox-field--'.$this->getVariant(),
         ];
     }

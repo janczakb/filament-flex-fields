@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Security\SafeMediaUrl;
@@ -20,6 +21,7 @@ class VideoField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use ResolvesConfiguredIcons;
 
     protected string $view = 'filament-flex-fields::forms.components.video-field';
@@ -721,6 +723,7 @@ class VideoField extends Field
         return [
             'fff-video-field-field',
             'fff-video-field-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

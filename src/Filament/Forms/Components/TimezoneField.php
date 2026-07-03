@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Timezones;
@@ -20,6 +21,7 @@ class TimezoneField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
 
@@ -349,7 +351,9 @@ class TimezoneField extends Field
             'fff-timezone-field',
             'fff-flex-text-input-field',
             'fff-timezone-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-timezone-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

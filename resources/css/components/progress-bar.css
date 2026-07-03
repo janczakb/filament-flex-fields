@@ -105,7 +105,7 @@
     min-width: 0;
     height: var(--fff-progress-bar-rail-h);
     overflow: hidden;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-progress-bar-rail);
 }
 
@@ -116,7 +116,7 @@
 }
 
 .fff-progress-bar.has-dashed-remainder .fff-progress-bar__fill {
-    border-radius: 9999px 0 0 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem) 0 0 var(--fff-global-radius, 0.75rem);
 }
 
 .fff-progress-bar__fill {
@@ -158,7 +158,7 @@
     flex-shrink: 0;
     width: var(--fff-progress-bar-marker-size);
     height: var(--fff-progress-bar-marker-size);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     color: var(--fff-progress-bar-text-muted);
     background: rgb(255 255 255);
     box-shadow:
@@ -220,7 +220,7 @@
     top: 50%;
     height: var(--fff-progress-bar-rail-h);
     transform: translateY(-50%);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
 }
 
 .fff-progress-bar__rail-fill {
@@ -282,7 +282,7 @@
     width: 100%;
     height: var(--fff-progress-bar-rail-h);
     overflow: visible;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-progress-bar-rail);
 }
 
@@ -302,7 +302,7 @@
     z-index: 1;
     width: calc(var(--fff-progress-bar-rail-h) + 0.25rem);
     height: calc(var(--fff-progress-bar-rail-h) + 0.25rem);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-progress-bar-accent);
     box-shadow:
         0 0 0 2px rgb(255 255 255),
@@ -456,7 +456,7 @@
 .fff-progress-bar__value-badge {
     flex-shrink: 0;
     padding: 0.1875rem 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     font-size: calc(var(--fff-progress-bar-value-size) - 0.0625rem);
     font-weight: 700;
     line-height: 1.2;
@@ -523,7 +523,7 @@
     flex: 0 0 var(--fff-progress-bar-pill-width);
     width: var(--fff-progress-bar-pill-width);
     min-width: var(--fff-progress-bar-pill-width);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-progress-bar-rail);
 }
 

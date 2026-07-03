@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeFieldMode;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
@@ -17,6 +18,7 @@ use InvalidArgumentException;
 trait InteractsWithDateTimeConfiguration
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     protected string|Closure $variant = 'primary';
@@ -450,7 +452,9 @@ trait InteractsWithDateTimeConfiguration
             'fff-flex-text-input-field',
             'fff-date-time-field--'.$this->getMode()->value,
             'fff-date-time-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-date-time-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

@@ -193,6 +193,14 @@ return [
     | Track heights: 32px · 40px · 48px — see --fff-track-* in base.css.
     */
     'ui' => [
+        /*
+        | Defines the rounding of the fields.
+        | Options:
+        | - 'default': The package's default light and flat design (fully rounded/pill-like)
+        | - 'md': A bit smaller rounding (e.g. 0.75rem)
+        | - 'native': The smallest rounding, matching Filament's native fields (0.5rem)
+        */
+        'field_rounding' => 'default',
         'cell_height' => 'md',
         'number_stepper_size' => 'md',
         /*

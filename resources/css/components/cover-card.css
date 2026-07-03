@@ -170,7 +170,7 @@
 
 .fff-cover-card__footer-action .fi-btn {
     min-height: 2.25rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 0;
     background: rgb(255 255 255);
     color: rgb(24 24 27);

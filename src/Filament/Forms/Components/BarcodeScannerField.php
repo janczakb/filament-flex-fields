@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Enums\BarcodeFormat;
 use Bjanczak\FilamentFlexFields\Support\Barcode\BarcodeStateNormalizer;
@@ -24,6 +25,7 @@ class BarcodeScannerField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
 

@@ -189,3 +189,28 @@
     --fff-rich-editor-bubble-border: transparent;
     --fff-rich-editor-bubble-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.24), 0 -6px 12px 0 rgb(0 0 0 / 0.16), 0 14px 28px 0 rgb(0 0 0 / 0.32);
 }
+
+.fff-rounding-md {
+    --fff-global-radius: 0.75rem;
+    --fff-global-menu-radius: 0.75rem;
+}
+
+.fff-rounding-lg {
+    --fff-global-radius: 1rem;
+    --fff-global-menu-radius: 1rem;
+}
+
+.fff-rounding-xl {
+    --fff-global-radius: 1.25rem;
+    --fff-global-menu-radius: 1.25rem;
+}
+
+.fff-rounding-native {
+    --fff-global-radius: 0.5rem;
+    --fff-global-menu-radius: 0.5rem;
+}
+
+.fff-rounding-full {
+    --fff-global-radius: 9999px;
+    --fff-global-menu-radius: 1.5rem;
+}

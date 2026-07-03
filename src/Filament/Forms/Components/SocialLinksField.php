@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Data\SocialPlatform;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
@@ -20,6 +21,7 @@ class SocialLinksField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     protected string $view = 'filament-flex-fields::forms.components.social-links-field';

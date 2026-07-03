@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithRestrictedModelQueries;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasSelectFieldIcons;
@@ -22,6 +23,7 @@ use InvalidArgumentException;
 class SelectField extends Select
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasSelectFieldIcons;
     use InteractsWithRestrictedModelQueries;
@@ -589,6 +591,7 @@ class SelectField extends Select
         $classes = [
             'fff-select-field',
             'fff-select-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-select-field--'.$this->getVariant(),
             'fff-select-field--layout-'.$this->getOptionLayout(),
             'fff-select-field--chips-'.$this->getChipColor(),

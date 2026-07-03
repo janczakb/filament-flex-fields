@@ -20,6 +20,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\DualListboxPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexChecklistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexColorPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexFileUploadPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\FlexMatrixTablePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexRadiolistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexRichEditorPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexSliderPlayground;
@@ -62,7 +63,7 @@ use Filament\Pages\PageConfiguration;
 class FlexFieldsPlaygroundRegistry
 {
     /**
-     * @var array<string, array{label: string, playground: class-string, sort: int, icon: string}>|null
+     * @var array<string, array{label: string, playground: class-string, sort: int, icon: string, badge?: string, badgeColor?: string}>|null
      */
     private static ?array $definitionsCache = null;
 
@@ -124,6 +125,7 @@ class FlexFieldsPlaygroundRegistry
                 'verification-code' => ['label' => 'Verification Code', 'playground' => FlexVerificationCodePlayground::class, 'sort' => 370, 'icon' => GravityIcon::ShieldCheck],
                 'flex-checklist' => ['label' => 'Flex Checklist', 'playground' => FlexChecklistPlayground::class, 'sort' => 380, 'icon' => GravityIcon::Check],
                 'flex-radiolist' => ['label' => 'Flex Radiolist', 'playground' => FlexRadiolistPlayground::class, 'sort' => 390, 'icon' => GravityIcon::Circles3Plus],
+                'flex-matrix-table' => ['label' => 'Flex Matrix Table', 'playground' => FlexMatrixTablePlayground::class, 'sort' => 393, 'icon' => GravityIcon::LayoutCells, 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'matrix-choice' => ['label' => 'Matrix Choice', 'playground' => MatrixChoiceFieldPlayground::class, 'sort' => 395, 'icon' => GravityIcon::LayoutCells],
                 'tags-field' => ['label' => 'Tags field', 'playground' => TagsFieldPlayground::class, 'sort' => 398, 'icon' => GravityIcon::make('tag')],
                 'item-card-group' => ['label' => 'ItemCardGroup', 'playground' => ItemCardGroupPlayground::class, 'sort' => 400, 'icon' => GravityIcon::LayoutCells],
@@ -137,7 +139,7 @@ class FlexFieldsPlaygroundRegistry
     }
 
     /**
-     * @return array<string, array{label: string, playground: class-string, sort: int, icon: string}>
+     * @return array<string, array{label: string, playground: class-string, sort: int, icon: string, badge?: string, badgeColor?: string}>
      */
     public static function ordered(): array
     {
@@ -156,7 +158,7 @@ class FlexFieldsPlaygroundRegistry
     }
 
     /**
-     * @return array{label: string, playground: class-string, sort: int, icon: string}|null
+     * @return array{label: string, playground: class-string, sort: int, icon: string, badge?: string, badgeColor?: string}|null
      */
     public static function find(?string $slug): ?array
     {

@@ -65,6 +65,7 @@
         "docs/flexchecklist",
         "docs/flexradiolist",
         "docs/matrixchoicefield",
+        "docs/flex-matrix-table",
         "docs/selectfield",
         "docs/icon-picker-field",
         "docs/userselect",

@@ -14,7 +14,7 @@
     --fff-flex-text-input-group-inset: 0.25rem;
     --fff-flex-text-input-group-h: calc(var(--fff-flex-text-input-h) - (var(--fff-flex-text-input-group-inset) * 2));
     --fff-flex-text-input-group-inner-gap: 0.125rem;
-    --fff-flex-text-input-action-size: calc(var(--fff-flex-text-input-group-h) - (var(--fff-flex-text-input-group-inner-gap) * 2));
+    --fff-flex-text-input-action-size: var(--fff-flex-text-input-group-h);
     --fff-flex-text-input-icon-size: 1rem;
     --fff-flex-text-input-hint-icon-size: 0.75rem;
 }
@@ -66,7 +66,6 @@
     --fff-flex-text-input-border: var(--fff-field-soft-border);
     --fff-flex-text-input-border-width: var(--fff-field-soft-border-width);
     --fff-flex-text-input-shadow: var(--fff-field-soft-shadow);
-    --fff-flex-text-input-radius: var(--fff-field-soft-radius);
 }
 
 .fff-flex-text-input-field--flat,
@@ -85,7 +84,7 @@
 }
 
 .fff-flex-text-input__shell {
-    border-radius: var(--fff-flex-text-input-radius, 9999px);
+    border-radius: var(--fff-flex-text-input-radius, var(--fff-global-radius, 0.75rem));
     @apply transition-[border-color,box-shadow] duration-200 ease-out;
     position: relative;
     height: var(--fff-flex-text-input-h);
@@ -199,14 +198,15 @@
 }
 
 .fff-flex-text-input__action-group {
-    @apply inline-flex shrink-0 items-center justify-center rounded-full border border-zinc-200/90 bg-white;
+    @apply inline-flex shrink-0 items-center justify-center border border-zinc-200/90 bg-white;
+    border-radius: max(0px, calc(var(--fff-flex-text-input-radius, var(--fff-global-radius, 0.75rem)) - var(--fff-flex-text-input-group-inset)));
     box-sizing: border-box;
     height: var(--fff-flex-text-input-group-h);
     max-height: var(--fff-flex-text-input-group-h);
-    padding-block: var(--fff-flex-text-input-group-inner-gap);
-    padding-inline: 0.125rem;
+    padding: 0;
     gap: 0;
     box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+    overflow: hidden;
 }
 
 .fff-flex-text-input__action-group--loading-only {
@@ -304,7 +304,8 @@
 .fff-flex-text-input__action-item > .fi-icon-btn,
 .fff-flex-text-input__action-item .fi-dropdown-trigger .fi-icon-btn,
 .fff-flex-text-input__action-item .fi-ac-btn-group .fi-icon-btn {
-    @apply inline-flex shrink-0 items-center justify-center self-center rounded-full bg-transparent text-zinc-600 shadow-none outline-none ring-0 transition-[background-color,color,box-shadow] duration-200;
+    @apply inline-flex shrink-0 items-center justify-center self-center bg-transparent text-zinc-600 shadow-none outline-none ring-0 transition-[background-color,color,box-shadow] duration-200;
+    border-radius: 0;
     box-sizing: border-box;
     margin: 0 !important;
     padding: 0 !important;
@@ -316,7 +317,6 @@
     min-height: 0 !important;
     max-width: 100% !important;
     max-height: 100% !important;
-    aspect-ratio: 1 / 1;
     box-shadow: none;
 }
 
@@ -419,21 +419,27 @@
 }
 
 .fff-flex-text-input__action-group > * + *::before {
-    content: '';
+    content: "";
+    pointer-events: none;
+    z-index: 10;
+    background: rgb(228 228 231 / 0.8);
+    width: 1px;
+    height: calc(100% - 0.5rem);
+    transition: opacity 0.15s ease;
     position: absolute;
     top: 50%;
     left: 0;
-    width: 1px;
-    height: calc(100% - (var(--fff-flex-text-input-group-inner-gap) * 2));
-    background: rgb(228 228 231);
-    pointer-events: none;
     transform: translateY(-50%);
-    transition: opacity 0.15s ease;
 }
 
-.fff-flex-text-input__dictation:has(.fff-flex-text-input__action-btn--dictation.is-listening:hover)::before,
-.fff-flex-text-input__action-group:has(.fff-flex-text-input__action-btn--dictation.is-listening):hover
-    > .fff-flex-text-input__dictation::before {
+.fff-flex-text-input__action-group > *:hover::before,
+.fff-flex-text-input__action-group > *:has(.is-listening)::before,
+.fff-flex-text-input__dictation:has(.fff-flex-text-input__action-btn--dictation.is-listening:hover)::before {
+    opacity: 0;
+}
+
+.fff-flex-text-input__action-group > *:hover + *::before,
+.fff-flex-text-input__action-group > *:has(.is-listening) + *::before {
     opacity: 0;
 }
 
@@ -527,7 +533,7 @@
 }
 
 .dark .fff-flex-text-input__action-group > * + *::before {
-    background: rgb(63 63 70);
+    background: rgb(63 63 70 / 0.6);
 }
 
 .dark .fff-flex-text-input__counter {

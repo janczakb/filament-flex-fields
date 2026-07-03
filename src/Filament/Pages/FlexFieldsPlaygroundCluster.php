@@ -71,11 +71,17 @@ class FlexFieldsPlaygroundCluster extends Cluster
         $items = [];
 
         foreach (FlexFieldsPlaygroundRegistry::ordered() as $slug => $definition) {
-            $items[] = NavigationItem::make($definition['label'])
+            $item = NavigationItem::make($definition['label'])
                 ->icon($definition['icon'])
                 ->url(FlexFieldsPlaygroundComponentPage::getUrl(configuration: $slug))
                 ->sort($definition['sort'])
                 ->isActiveWhen(fn (): bool => Filament::getCurrentPageConfigurationKey() === $slug);
+
+            if (isset($definition['badge'])) {
+                $item->badge($definition['badge'], $definition['badgeColor'] ?? null);
+            }
+
+            $items[] = $item;
         }
 
         return $items;

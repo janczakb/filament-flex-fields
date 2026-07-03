@@ -22,10 +22,6 @@
     --fff-currency-field-chip-bg: var(--fff-field-soft-chip-bg);
 }
 
-.fff-currency-field.fff-flex-text-input--soft .fff-currency-field__currency-trigger {
-    border-radius: 0 calc(var(--fff-field-soft-radius) - 0.25rem) calc(var(--fff-field-soft-radius) - 0.25rem) 0;
-}
-
 .fff-currency-field.fff-flex-text-input--flat {
     --fff-currency-field-chip-bg: var(--fff-field-secondary-bg);
 }
@@ -84,7 +80,7 @@
     padding-inline-start: calc(var(--fff-flex-text-input-p) * 1.15);
     padding-inline-end: calc(var(--fff-flex-text-input-p) * 0.85);
     border: 0;
-    border-radius: 0 9999px 9999px 0;
+    border-radius: 0 var(--fff-global-radius, 0.75rem) var(--fff-global-radius, 0.75rem) 0;
     background-color: var(--fff-currency-field-chip-bg);
     font-size: var(--fff-flex-text-input-text-size);
     font-weight: 600;

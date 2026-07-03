@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithFlexTimeValueConfiguration;
 use Closure;
@@ -16,6 +17,7 @@ class FlexTimeSegmentsField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use InteractsWithFlexTimeValueConfiguration;
 
@@ -156,7 +158,9 @@ class FlexTimeSegmentsField extends Field
             'fff-flex-time-segments-field',
             'fff-flex-text-input-field',
             'fff-flex-time-segments-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-time-segments-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

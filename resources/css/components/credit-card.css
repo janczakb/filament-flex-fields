@@ -414,7 +414,8 @@
 .fff-credit-card__flip-btn {
     position: relative;
     z-index: 2;
-    @apply inline-flex items-center justify-center rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-zinc-600 shadow-sm transition-[background-color,color,transform] duration-200;
+    @apply inline-flex items-center justify-center border border-zinc-200 bg-white px-3 py-1.5 text-zinc-600 shadow-sm transition-[background-color,color,transform] duration-200;
+    border-radius: var(--fff-global-radius, 0.75rem);
     font-size: calc(var(--fff-credit-card-field-text) - 0.0625rem);
 }
 
@@ -450,7 +451,8 @@
 }
 
 .fff-credit-card__input {
-    @apply w-full rounded-full px-3 text-zinc-900 outline-none ring-0 transition-[border-color,box-shadow,background-color] duration-200;
+    @apply w-full px-3 text-zinc-900 outline-none ring-0 transition-[border-color,box-shadow,background-color] duration-200;
+    border-radius: var(--fff-global-radius, 0.75rem);
     height: var(--fff-credit-card-input-h);
     font-size: var(--fff-credit-card-field-text);
     color: var(--fff-credit-card-input-text);

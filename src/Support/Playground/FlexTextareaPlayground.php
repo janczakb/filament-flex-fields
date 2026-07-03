@@ -68,6 +68,7 @@ class FlexTextareaPlayground
                 ->schema([
                     FlexTextareaField::make('flex_textarea__basic')
                         ->label('Message')
+                        ->rounding('xl')
                         ->placeholder('What do you want to know?')
                         ->helperText('Attach file, pick a model from the pill dropdown, use the action menu, dictate, or send.')
                         ->maxLength(500)
@@ -136,6 +137,7 @@ class FlexTextareaPlayground
                         ->columnSpanFull(),
                     FlexTextareaField::make('flex_textarea__counter_only')
                         ->label('Counter only')
+                        ->rounding('xl')
                         ->placeholder('No toolbar — just animated autosize and character counter.')
                         ->maxLength(240)
                         ->characterCounter()
@@ -145,6 +147,7 @@ class FlexTextareaPlayground
                         ->schema([
                             FlexTextareaField::make('flex_textarea__secondary')
                                 ->label('Secondary')
+                                ->rounding('xl')
                                 ->variant('secondary')
                                 ->placeholder('Secondary shell')
                                 ->characterCounter()
@@ -159,6 +162,7 @@ class FlexTextareaPlayground
                                 ),
                             FlexTextareaField::make('flex_textarea__soft')
                                 ->label('Soft')
+                                ->rounding('xl')
                                 ->variant('soft')
                                 ->placeholder('Saving this for later…')
                                 ->characterCounter()
@@ -173,6 +177,7 @@ class FlexTextareaPlayground
                                 ),
                             FlexTextareaField::make('flex_textarea__flat')
                                 ->label('Flat')
+                                ->rounding('xl')
                                 ->variant('flat')
                                 ->placeholder('Flat variant without heavy chrome')
                                 ->characterCounter(),
@@ -182,12 +187,14 @@ class FlexTextareaPlayground
                         ->schema([
                             FlexTextareaField::make('flex_textarea__sm')
                                 ->label('Small')
+                                ->rounding('xl')
                                 ->size('sm')
                                 ->placeholder('Small box, larger text')
                                 ->characterCounter()
                                 ->maxLength(120),
                             FlexTextareaField::make('flex_textarea__lg')
                                 ->label('Large')
+                                ->rounding('xl')
                                 ->size('lg')
                                 ->placeholder('Large textarea')
                                 ->characterCounter()
@@ -209,6 +216,7 @@ class FlexTextareaPlayground
                                 ),
                             FlexTextareaField::make('flex_textarea__disabled')
                                 ->label('Disabled')
+                                ->rounding('xl')
                                 ->disabled()
                                 ->placeholder('Disabled textarea'),
                         ]),

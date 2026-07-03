@@ -363,6 +363,7 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`FlexChecklist`](docs/flexchecklist.md) | Animated checklist with icons and descriptions |
 | [`FlexRadiolist`](docs/flexradiolist.md) | Animated radio list with icons and descriptions |
 | [`MatrixChoiceField`](docs/matrixchoicefield.md) | Survey / configurator matrix grid — radio or checkbox per row |
+| [`FlexMatrixTable`](docs/flex-matrix-table.md) | Advanced matrix grid with full Filament components inside cells |
 | [`SelectField`](docs/selectfield.md) | Rich select with avatars, badges, and descriptions |
 | [`UserSelect`](docs/userselect.md) | User picker with avatar stacks and verification badges |
 | [`DualListboxField`](docs/duallistboxfield.md) | Two-panel reorderable transfer list |
@@ -843,16 +844,16 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 27.6 (gzip 6) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 34.4 (gzip 6.9) + deps 72.5 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 30.6 (gzip 6.4) + deps 72.5 |
-| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 42.2 (gzip 7.7) + deps 24.5 |
-| TagsField | 3.1 (gzip 1.1) | 25.4 (gzip 5.7) + deps 69.5 |
-| RatingField | 0.7 (gzip 0.3) | 27.5 (gzip 6.1) |
-| SwitchField | Alpine inline | 46.1 (gzip 8) |
-| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 33.8 (gzip 6.8) + deps 168 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 31.6 (gzip 7) + deps 56.8 |
-| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 84.1 (gzip 13.2) + deps 30.2 |
+| core (always) | — | 28 (gzip 6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 34.7 (gzip 6.9) + deps 73.2 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31 (gzip 6.5) + deps 73.2 |
+| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 42.6 (gzip 7.8) + deps 24.9 |
+| TagsField | 3.1 (gzip 1.1) | 25.8 (gzip 5.7) + deps 70.3 |
+| RatingField | 0.7 (gzip 0.3) | 27.9 (gzip 6.1) |
+| SwitchField | Alpine inline | 46.5 (gzip 8.1) |
+| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 34.4 (gzip 6.9) + deps 169.7 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 32.2 (gzip 7) + deps 57.6 |
+| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 84.6 (gzip 13.2) + deps 30.6 |
 
 Sample bundles (10 of **56** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->

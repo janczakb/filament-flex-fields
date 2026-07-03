@@ -84,7 +84,7 @@
 .fff-matrix-choice__header,
 .fff-matrix-choice__row {
     display: grid;
-    grid-template-columns: var(--fff-matrix-choice-row-label-width) repeat(var(--fff-matrix-choice-columns), minmax(0, 1fr));
+    grid-template-columns: var(--fff-matrix-choice-columns-template, var(--fff-matrix-choice-row-label-width) repeat(var(--fff-matrix-choice-columns), minmax(0, 1fr)));
     align-items: center;
 }
 

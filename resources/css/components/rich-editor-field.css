@@ -48,7 +48,7 @@
     --fff-rich-editor-bg: var(--fff-field-soft-bg);
     --fff-rich-editor-border: var(--fff-field-soft-border);
     --fff-rich-editor-border-width: var(--fff-field-soft-border-width);
-    --fff-rich-editor-radius: var(--fff-field-soft-radius, 1rem);
+    --fff-rich-editor-shadow: var(--fff-field-soft-shadow);
     --fff-rich-editor-toolbar-bg: transparent;
 }
 
@@ -104,7 +104,7 @@
 }
 
 .fff-rich-editor__toolbar::-webkit-scrollbar-thumb {
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-rich-editor-toolbar-divider);
 }
 
@@ -485,7 +485,7 @@
 
 .tippy-box[data-theme~='fff-rich-editor'] {
     z-index: var(--fff-rich-editor-tooltip-z, 20) !important;
-    border-radius: 9999px !important;
+    border-radius: var(--fff-global-radius, 0.75rem) !important;
     background: rgb(255 255 255) !important;
     background-color: rgb(255 255 255) !important;
     border: none !important;

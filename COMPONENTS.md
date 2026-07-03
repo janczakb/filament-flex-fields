@@ -41,6 +41,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 25. [FlexChecklist](#flexchecklist)
 26. [FlexRadiolist](#flexradiolist)
 27. [MatrixChoiceField](#matrixchoicefield)
+28. [FlexMatrixTable](#flexmatrixtable)
 28. [SwitchField](#switchfield)
 29. [CurrencyField](#currencyfield)
 30. [CountryField](#countryfield)
@@ -2947,6 +2948,25 @@ FlexRadiolist::make('delivery')
 ### Implementation notes
 
 - Row styles live in the shared `flex-checklist.css` bundle (`.fff-flex-radiolist*` classes). The radiolist blade loads that bundle via the `flex-radiolist` → `flex-checklist` stylesheet alias — no separate CSS file.
+
+---
+
+## FlexMatrixTable
+
+### Summary
+
+**FlexMatrixTable** is an advanced grid layout component based on `MatrixChoiceField`. Instead of hardcoding simple radio buttons or checkboxes in every cell, it allows you to inject **any** standard Filament or Flex Fields components into the columns (such as `SelectField`, `FlexTextInput`, `SwitchField`, etc.).
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexMatrixTable` |
+| **State type** | `array<string, array<string, mixed>>` |
+| **FieldType** | `flex_matrix_table` |
+| **Playground** | `flex-matrix-table` |
+| **Stylesheet** | Shared with `matrix-choice-field` |
+| **Model cast** | `'data' => 'array'` or `'data' => 'json'` |
+
+Full documentation available at [docs/flex-matrix-table.md](docs/flex-matrix-table.md).
 
 ---
 

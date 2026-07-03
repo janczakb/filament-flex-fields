@@ -28,7 +28,6 @@
     --fff-schedule-border: var(--fff-field-soft-border);
     --fff-schedule-border-width: var(--fff-field-soft-border-width);
     --fff-schedule-shadow: var(--fff-field-soft-shadow);
-    --fff-schedule-radius: var(--fff-field-soft-radius);
 }
 
 .fff-schedule-field--flat {

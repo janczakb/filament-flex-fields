@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
 use Bjanczak\FilamentFlexFields\Support\AudioWaveformGenerator;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
@@ -20,6 +21,7 @@ class AudioField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use ResolvesConfiguredIcons;
 
     protected string $view = 'filament-flex-fields::forms.components.audio-field';
@@ -225,6 +227,7 @@ class AudioField extends Field
         return [
             'fff-audio-field-field',
             'fff-audio-field-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

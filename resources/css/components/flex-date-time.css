@@ -401,14 +401,14 @@
 
 .fff-date-time-field__day.is-in-range.is-range-row-start::before,
 .fff-date-time-field__day.is-range-end.is-range-row-start:not(.is-range-single)::before {
-    border-top-left-radius: 9999px;
-    border-bottom-left-radius: 9999px;
+    border-top-left-radius: var(--fff-global-radius, 0.75rem);
+    border-bottom-left-radius: var(--fff-global-radius, 0.75rem);
 }
 
 .fff-date-time-field__day.is-in-range.is-range-row-end::before,
 .fff-date-time-field__day.is-range-start.is-range-row-end:not(.is-range-single)::before {
-    border-top-right-radius: 9999px;
-    border-bottom-right-radius: 9999px;
+    border-top-right-radius: var(--fff-global-radius, 0.75rem);
+    border-bottom-right-radius: var(--fff-global-radius, 0.75rem);
 }
 
 .fff-date-time-field__day.is-range-start:not(.is-range-single) .fff-date-time-field__day-label,

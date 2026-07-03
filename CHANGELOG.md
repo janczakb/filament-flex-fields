@@ -5,6 +5,14 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.6] - 2026-07-03
+
+### Added
+
+- **`FlexMatrixTable`** — new advanced grid component based on `MatrixChoiceField`. Allows defining arbitrary Filament components in the `schema()` instead of just radio/checkbox fields. You can now inject `SelectField`, `FlexTextInput`, `SwitchField`, etc., directly into matrix rows.
+- **Matrix table column widths** — added `columnWidths([])` method to dynamically control CSS grid template columns for matrix-based fields, allowing elements like inline switches to perfectly fit `max-content` and align to the right.
+- **Matrix table playground** — added `FlexMatrixTablePlayground` with `flex_matrix_table__basic` and `flex_matrix_table__specs` examples, demonstrating dynamic suffix injection, component size overrides, and column width control.
+
 ## [2.7.5] - 2026-07-03
 
 ### Fixed

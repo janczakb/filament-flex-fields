@@ -47,7 +47,7 @@
 .fff-voice-recorder__idle {
     @apply flex items-center gap-3 w-full;
     padding: 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid var(--fff-voice-rec-border);
     background-color: var(--fff-voice-rec-bg);
     box-shadow: var(--fff-voice-rec-shadow);
@@ -57,7 +57,7 @@
     @apply flex items-center justify-center shrink-0 text-white outline-none cursor-pointer;
     width: var(--fff-voice-rec-btn-size);
     height: var(--fff-voice-rec-btn-size);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 0;
     background-color: var(--fff-voice-rec-primary-bg);
     box-shadow: none;
@@ -106,7 +106,7 @@
 .fff-voice-recorder__recording {
     @apply flex items-center gap-3 w-full justify-between;
     padding: 0.5rem 0.875rem 0.5rem 0.75rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid var(--fff-voice-rec-border);
     background-color: var(--fff-voice-rec-bg);
     box-shadow: var(--fff-voice-rec-shadow);
@@ -160,7 +160,7 @@
     @apply flex items-center justify-center outline-none cursor-pointer;
     width: var(--fff-voice-rec-btn-size);
     height: var(--fff-voice-rec-btn-size);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid rgb(228 228 231);
     background-color: rgb(244 244 245);
     color: rgb(63 63 70);
@@ -197,7 +197,7 @@
 .fff-voice-recorder__uploading {
     @apply flex items-center justify-center gap-3 w-full;
     padding: 0.75rem 1rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid var(--fff-voice-rec-border);
     background-color: var(--fff-voice-rec-bg);
     box-shadow: var(--fff-voice-rec-shadow);
@@ -219,7 +219,7 @@
 .fff-voice-recorder__playback-pill {
     @apply flex w-full min-w-0 items-center gap-3;
     padding: 0.5rem 0.875rem 0.5rem 0.5rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid var(--fff-voice-rec-border);
     background-color: var(--fff-voice-rec-bg);
     box-shadow: var(--fff-voice-rec-shadow);
@@ -229,7 +229,7 @@
     @apply inline-flex shrink-0 items-center justify-center outline-none cursor-pointer;
     width: calc(var(--fff-voice-rec-btn-size) * 0.9);
     height: calc(var(--fff-voice-rec-btn-size) * 0.9);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 0;
     background-color: rgb(244 244 245);
     color: rgb(63 63 70);
@@ -390,7 +390,7 @@
     @apply flex items-center justify-center outline-none shrink-0 cursor-pointer;
     width: calc(var(--fff-voice-rec-btn-size) * 0.8);
     height: calc(var(--fff-voice-rec-btn-size) * 0.8);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid transparent;
     background-color: transparent;
     color: rgb(161 161 170);

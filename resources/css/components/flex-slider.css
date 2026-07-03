@@ -242,7 +242,7 @@
     width: var(--fff-flex-slider-step-dot-size);
     height: var(--fff-flex-slider-step-dot-size);
     transform: translate(-50%, -50%);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: rgb(0 0 0 / 0.22);
 }
 

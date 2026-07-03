@@ -111,7 +111,7 @@
 .fff-dual-listbox__search-input {
     @apply w-full border-0 bg-white shadow-none outline-none ring-0;
     min-height: 2.25rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid rgb(228 228 231) !important;
     background-color: #fff !important;
     padding: 0.4375rem 0.875rem 0.4375rem 2.25rem !important;

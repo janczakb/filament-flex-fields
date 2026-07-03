@@ -46,7 +46,7 @@
 .fff-action--rounded-full,
 .fff-hold-confirm-action.fff-action--rounded-full,
 .fff-hold-confirm-action--palette-danger.fff-action--rounded-full {
-    border-radius: 9999px !important;
+    border-radius: var(--fff-global-radius, 0.75rem) !important;
 }
 
 .fff-hold-confirm-action--palette-danger {

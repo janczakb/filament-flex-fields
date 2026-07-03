@@ -62,7 +62,6 @@
     --fff-flex-textarea-border: var(--fff-field-soft-border);
     --fff-flex-textarea-border-width: var(--fff-field-soft-border-width);
     --fff-flex-textarea-shadow: var(--fff-field-soft-shadow);
-    --fff-flex-textarea-radius: var(--fff-field-soft-radius);
     --fff-flex-textarea-toolbar-btn-bg: rgb(255 255 255 / 0.72);
     --fff-flex-textarea-toolbar-btn-bg-hover: rgb(255 255 255 / 0.92);
 }
@@ -79,7 +78,7 @@
 }
 
 .fff-flex-textarea__shell {
-    border-radius: var(--fff-flex-textarea-radius, 1rem);
+    border-radius: var(--fff-flex-textarea-radius, var(--fff-global-radius, 0.75rem));
     @apply transition-[border-color,box-shadow] duration-200 ease-out;
     overflow: visible;
     border: var(--fff-flex-textarea-border-width) solid var(--fff-flex-textarea-border);
@@ -90,8 +89,8 @@
 .fff-flex-textarea__content {
     padding: var(--fff-flex-textarea-p);
     padding-bottom: 0.375rem;
-    border-top-left-radius: calc(var(--fff-flex-textarea-radius, 1rem) - 0.125rem);
-    border-top-right-radius: calc(var(--fff-flex-textarea-radius, 1rem) - 0.125rem);
+    border-top-left-radius: calc(var(--fff-flex-textarea-radius, var(--fff-global-radius, 0.75rem)) - 0.125rem);
+    border-top-right-radius: calc(var(--fff-flex-textarea-radius, var(--fff-global-radius, 0.75rem)) - 0.125rem);
     overflow: visible;
 }
 

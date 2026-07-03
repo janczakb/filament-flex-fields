@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithSlugUnique;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\ConfiguresSlugActionButtons;
@@ -32,6 +33,7 @@ class SlugField extends Field
     use ConfiguresSlugTitleField;
     use GeneratesSlugFromSource;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
     use InteractsWithSlugTranslatableTitle;
@@ -250,7 +252,9 @@ class SlugField extends Field
             'fff-slug-field-field',
             'fff-flex-text-input-field',
             'fff-slug-field-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-slug-field-field--'.$this->getVariant(),
         ];
     }

@@ -1,6 +1,6 @@
 /* SelectField — SaaS-style skin on top of Filament select.js */
 .fff-select-field {
-    --fff-select-radius: 9999px;
+    --fff-select-radius: var(--fff-global-radius, 0.75rem);
     --fff-select-bg: var(--fff-field-bg);
     --fff-select-border: var(--fff-field-border);
     --fff-select-border-width: var(--fff-field-border-width);
@@ -74,7 +74,6 @@
 }
 
 .fff-select-field--soft {
-    --fff-select-radius: var(--fff-field-soft-radius);
     --fff-select-bg: var(--fff-field-soft-bg);
     --fff-select-border: var(--fff-field-soft-border);
     --fff-select-border-width: var(--fff-field-soft-border-width);
@@ -351,7 +350,7 @@
 }
 
 .fff-select-trigger-ssr .fi-select-input-value-label .fff-select-option--trigger {
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-select-trigger-chip-bg);
     padding-inline: 0.5rem;
     padding-block: 0.25rem;
@@ -819,7 +818,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 .fff-select-field .fi-select-input-search-ctn .fi-input {
     width: 100%;
     min-height: 2.375rem;
-    border-radius: 9999px !important;
+    border-radius: var(--fff-global-radius, 0.75rem) !important;
     border: 1px solid var(--fff-select-search-border) !important;
     background-color: var(--fff-select-search-bg) !important;
     background-image: var(--fff-select-search-icon) !important;
@@ -1197,7 +1196,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     height: 1.25rem;
     margin-inline-start: 0;
     padding-inline-start: 0;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background-color: var(--fff-select-grid-check-bg);
     color: var(--fff-select-grid-check-fg);
     box-shadow:
@@ -1324,7 +1323,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     margin: 0;
     height: var(--fff-select-affix-icon-size);
     width: var(--fff-select-affix-icon-size);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     line-height: 0;
 }
 
@@ -1376,7 +1375,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 }
 
 .fff-select-field .fi-select-input-value-label .fff-select-option--trigger {
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-select-trigger-chip-bg);
     padding-inline: 0.5rem;
     padding-block: 0.25rem;
@@ -1424,7 +1423,7 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
 
 .fff-select-field .fi-select-input-value-badges-ctn .fi-badge {
     @apply inline-flex max-w-full min-w-0 items-center gap-1 shadow-none ring-0;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid rgb(228 228 231);
     background: rgb(250 250 250);
     color: rgb(39 39 42);

@@ -59,7 +59,7 @@
 .fff-tags-field__suggestion {
     display: inline-flex;
     align-items: center;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid rgb(228 228 231);
     background: var(--fff-tags-field-suggestion-bg);
     padding: 0.25rem 0.625rem;

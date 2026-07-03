@@ -18,6 +18,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\DualListboxPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexChecklistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexColorPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexFileUploadPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\FlexMatrixTablePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexRadiolistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexSliderPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexTextareaPlayground;
@@ -90,6 +91,7 @@ class FlexFieldsPlaygroundBuilder
         protected FlexVerificationCodePlayground $flexVerificationCodePlayground = new FlexVerificationCodePlayground,
         protected FlexChecklistPlayground $flexChecklistPlayground = new FlexChecklistPlayground,
         protected FlexRadiolistPlayground $flexRadiolistPlayground = new FlexRadiolistPlayground,
+        protected FlexMatrixTablePlayground $flexMatrixTablePlayground = new FlexMatrixTablePlayground,
         protected MatrixChoiceFieldPlayground $matrixChoiceFieldPlayground = new MatrixChoiceFieldPlayground,
         protected ItemCardGroupPlayground $itemCardGroupPlayground = new ItemCardGroupPlayground,
         protected FormLayoutPlayground $formLayoutPlayground = new FormLayoutPlayground,
@@ -143,6 +145,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->flexVerificationCodePlayground->components(),
             ...$this->flexChecklistPlayground->components(),
             ...$this->flexRadiolistPlayground->components(),
+            ...$this->flexMatrixTablePlayground->components(),
             ...$this->matrixChoiceFieldPlayground->components(),
             ...$this->itemCardGroupPlayground->components(),
             ...$this->coverCardPlayground->components(),
@@ -192,6 +195,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->flexVerificationCodePlayground->defaultState(),
             ...$this->flexChecklistPlayground->defaultState(),
             ...$this->flexRadiolistPlayground->defaultState(),
+            ...$this->flexMatrixTablePlayground->defaultState(),
             ...$this->matrixChoiceFieldPlayground->defaultState(),
             ...$this->itemCardGroupPlayground->defaultState(),
         ];

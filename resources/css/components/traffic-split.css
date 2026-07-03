@@ -92,7 +92,7 @@
     display: block;
     width: 0.25rem;
     height: var(--fff-traffic-split-handle-h);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-traffic-split-handle-bg);
     transition: background-color 0.15s ease;
 }

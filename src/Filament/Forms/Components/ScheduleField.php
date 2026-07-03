@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleDays;
@@ -21,6 +22,7 @@ class ScheduleField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     protected string $view = 'filament-flex-fields::forms.components.schedule-field';

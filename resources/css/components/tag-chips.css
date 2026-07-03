@@ -30,7 +30,7 @@
     max-width: 100%;
     align-items: center;
     gap: 0.375rem;
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     border: 1px solid var(--fff-tags-field-tag-border);
     background: var(--fff-tags-field-tag-bg);
     padding-block: 0.3125rem;
@@ -75,7 +75,7 @@
     margin: 0;
     padding: 0;
     border: 1px solid var(--fff-tags-field-remove-border);
-    border-radius: 9999px;
+    border-radius: var(--fff-global-radius, 0.75rem);
     background: var(--fff-tags-field-remove-bg);
     color: var(--fff-tags-field-remove-text);
     cursor: pointer;

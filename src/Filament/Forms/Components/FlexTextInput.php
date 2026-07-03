@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Closure;
@@ -20,6 +21,7 @@ use InvalidArgumentException;
 class FlexTextInput extends TextInput
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     protected string $view = 'filament-flex-fields::forms.components.flex-text-input-field';
@@ -637,6 +639,7 @@ class FlexTextInput extends TextInput
         return [
             'fff-flex-text-input-field',
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];
     }

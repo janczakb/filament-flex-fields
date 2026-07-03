@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Closure;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Arr;
@@ -14,6 +15,7 @@ use InvalidArgumentException;
 class MatrixChoiceField extends Field
 {
     use HasControlSize;
+    use HasFieldRounding;
 
     protected string $view = 'filament-flex-fields::forms.components.matrix-choice-field';
 
@@ -471,6 +473,7 @@ class MatrixChoiceField extends Field
         $classes = [
             'fff-matrix-choice',
             'fff-matrix-choice--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-matrix-choice--'.$this->getMode(),
         ];
 

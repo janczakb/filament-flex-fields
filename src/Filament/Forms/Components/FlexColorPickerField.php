@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -15,6 +16,7 @@ class FlexColorPickerField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
 
     public const string LAYOUT_ADVANCED = 'advanced';
@@ -275,7 +277,9 @@ class FlexColorPickerField extends Field
             'fff-flex-color-picker-field',
             'fff-flex-text-input-field',
             'fff-flex-color-picker-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-color-picker-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

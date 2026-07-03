@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\StateCasts\PriceRangeFieldStateCast;
 use Closure;
 use Filament\Forms\Components\Field;
@@ -14,6 +15,7 @@ use InvalidArgumentException;
 class PriceRangeField extends Field
 {
     use HasControlSize;
+    use HasFieldRounding;
 
     protected string $view = 'filament-flex-fields::forms.components.price-range-field';
 
@@ -325,6 +327,7 @@ class PriceRangeField extends Field
         return [
             'fff-price-range-field',
             'fff-price-range-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-price-range-field--'.$this->getVariant(),
         ];
     }

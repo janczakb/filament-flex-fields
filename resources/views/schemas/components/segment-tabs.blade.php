@@ -36,6 +36,7 @@
         separators: @js($hasSeparators),
         indicatorStyle: '',
         indicatorAnimated: false,
+        indicatorHydrated: false,
         resizeObserver: null,
         boundResetHandler: null,
         unsubscribeLivewireHook: null,
@@ -81,6 +82,7 @@
 
             if (! selected) {
                 this.indicatorStyle = 'opacity: 0;';
+                this.indicatorHydrated = false;
 
                 return;
             }
@@ -90,6 +92,7 @@
                 'height: ' + selected.offsetHeight + 'px;' +
                 'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
                 'opacity: 1;';
+            this.indicatorHydrated = true;
         },
         enableIndicatorAnimation() {
             requestAnimationFrame(() => {
@@ -212,7 +215,7 @@
                 'fff-segment-track--'.$size,
                 'fff-segment-track--ghost' => $variant === 'ghost',
             ])
-            x-bind:class="{ 'is-animated': indicatorAnimated }"
+            x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
         >
             <div
                 x-ref="indicator"

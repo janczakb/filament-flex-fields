@@ -94,7 +94,7 @@
 <x-dynamic-component
     :component="$fieldWrapperView"
     :field="$field"
-    :label-sr-only="$showInlineFieldLabel"
+    :label-sr-only="$showInlineFieldLabel || $isLabelHidden()"
     class="fi-fo-select-wrp fff-select-field-wrapper fi-fixed-positioning-context"
 >
     @if (! $isNative)

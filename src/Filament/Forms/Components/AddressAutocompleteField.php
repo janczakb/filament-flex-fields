@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithGeocodedAddress;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
@@ -20,6 +21,7 @@ class AddressAutocompleteField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use HasPlaceholder;
     use InteractsWithGeocodedAddress;
@@ -164,7 +166,9 @@ class AddressAutocompleteField extends Field
             'fff-address-autocomplete-field',
             'fff-flex-text-input-field',
             'fff-address-autocomplete-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-address-autocomplete-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

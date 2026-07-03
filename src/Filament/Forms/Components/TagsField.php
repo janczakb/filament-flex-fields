@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithTagSearch;
 use Closure;
@@ -14,6 +15,7 @@ use InvalidArgumentException;
 class TagsField extends TagsInput
 {
     use HasControlSize;
+    use HasFieldRounding;
     use HasFieldFocusOutline;
     use InteractsWithTagSearch;
 
@@ -114,7 +116,9 @@ class TagsField extends TagsInput
             'fff-tags-field',
             'fff-flex-text-input',
             'fff-tags-field--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input--'.$this->getSize(),
+            'fff-rounding-'.$this->getRounding(),
             'fff-tags-field--'.$this->getVariant(),
             'fff-flex-text-input--'.$this->getVariant(),
             'fi-color-'.($this->getColor() ?? 'primary'),
