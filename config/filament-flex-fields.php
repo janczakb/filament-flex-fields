@@ -196,9 +196,13 @@ return [
         /*
         | Defines the rounding of the fields.
         | Options:
-        | - 'default': The package's default light and flat design (fully rounded/pill-like)
-        | - 'md': A bit smaller rounding (e.g. 0.75rem)
-        | - 'native': The smallest rounding, matching Filament's native fields (0.5rem)
+        | - 'native': Matches Filament's native fields perfectly (0.5rem)
+        | - 'md': The package's default rounding for flat SaaS design (0.75rem)
+        | - 'lg': Slightly larger rounding (1rem)
+        | - 'xl': Large rounding (1.25rem)
+        | - 'full': Fully rounded / pill shape (9999px)
+        | 
+        | (Using 'default' acts as an alias for 'md').
         */
         'field_rounding' => 'default',
         'cell_height' => 'md',
