@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-21T21:48:25.970Z",
+  "generatedAt": "2026-07-03T05:24:02.725Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 24983,
@@ -559,8 +559,8 @@
       "gzipKb": 1.15
     },
     "barcode-scanner-field.js": {
-      "bytes": 20231,
-      "kb": 19.76,
+      "bytes": 20226,
+      "kb": 19.75,
       "gzipKb": 5.86
     },
     "country-field.js": {
@@ -607,6 +607,11 @@
       "bytes": 26798,
       "kb": 26.17,
       "gzipKb": 6.77
+    },
+    "flex-fields-barcode-scanner-W4FSKKOS.js": {
+      "bytes": 416751,
+      "kb": 406.98,
+      "gzipKb": 108.32
     },
     "flex-fields-calendar-panel-VCLAEADU.js": {
       "bytes": 2460,
@@ -672,6 +677,11 @@
       "bytes": 5519,
       "kb": 5.39,
       "gzipKb": 1.89
+    },
+    "flex-fields-shared-6QIOXHYQ.js": {
+      "bytes": 38369,
+      "kb": 37.47,
+      "gzipKb": 13.44
     },
     "flex-fields-shared-R7IEHECV.js": {
       "bytes": 2873,

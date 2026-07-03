@@ -263,6 +263,24 @@ for (const chunks of Object.values(manifest)) {
     }
 }
 
+let newChunksFound = true;
+while (newChunksFound) {
+    newChunksFound = false;
+    for (const chunk of [...sharedChunks]) {
+        const chunkPath = path.join(distRoot, chunk);
+        if (fs.existsSync(chunkPath)) {
+            const source = fs.readFileSync(chunkPath, 'utf8');
+            const imports = extractChunkImports(source);
+            for (const imp of imports) {
+                if (!sharedChunks.has(imp)) {
+                    sharedChunks.add(imp);
+                    newChunksFound = true;
+                }
+            }
+        }
+    }
+}
+
 manifest.__shared_chunks__ = [...sharedChunks].sort();
 manifest.__chunk_modules__ = semanticChunkModules;
 

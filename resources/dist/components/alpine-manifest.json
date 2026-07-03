@@ -127,6 +127,7 @@
   "__shared_chunks__": [
     "flex-fields-audio-7IBP5TOY.js",
     "flex-fields-barcode-scanner-RBWMZ7Z6.js",
+    "flex-fields-barcode-scanner-W4FSKKOS.js",
     "flex-fields-calendar-panel-VCLAEADU.js",
     "flex-fields-camera-stream-RDR7IKFX.js",
     "flex-fields-components-flex-time-segments-SJ4FST3O.js",
@@ -140,6 +141,7 @@
     "flex-fields-phone-lib-XLJG7A36.js",
     "flex-fields-rich-editor-toolbar-a11y-SLY3K5DZ.js",
     "flex-fields-select-menu-7CIX76IA.js",
+    "flex-fields-shared-6QIOXHYQ.js",
     "flex-fields-shared-R7IEHECV.js",
     "flex-fields-theme-utils-JOEZLVV2.js",
     "flex-fields-time-panel-HGFHPNNC.js",

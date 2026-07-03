@@ -189,10 +189,6 @@ async function createNativeScanner({
         return null
     }
 
-    if (isMobileCameraDevice()) {
-        return null
-    }
-
     const requestedFormats = resolveNativeFormats(supportedFormats)
     const formats = requestedFormats.length > 0
         ? await resolveSupportedNativeFormats(requestedFormats)
