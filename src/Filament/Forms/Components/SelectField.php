@@ -793,16 +793,20 @@ class SelectField extends Select
     }
 
     /**
+     * @param array<mixed>|null $options
      * @return array<string, string>
      */
     public function getOptionLabels(bool $withDefaults = true, ?array $options = null): array
     {
         if ($this->getOptionLabelsUsing) {
-            return parent::getOptionLabels($withDefaults);
+            // We unconditionally pass $options to support Filament beta signatures.
+            // In older versions, PHP silently ignores the extra userland argument.
+            /** @phpstan-ignore-next-line */
+            return parent::getOptionLabels($withDefaults, $options);
         }
 
         $labels = [];
-        $options = $this->getOptions();
+        $options ??= $this->getOptions();
 
         foreach ($this->getState() ?? [] as $value) {
             if ($value instanceof BackedEnum) {
