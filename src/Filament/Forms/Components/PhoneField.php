@@ -94,7 +94,6 @@ class PhoneField extends Field
                 }
 
                 $normalized = $component->normalizeState($value);
-
                 if ($component->isRequired()) {
                     if ($normalized['national'] === '') {
                         $fail(__('validation.required', ['attribute' => $component->getLabel()]));
@@ -108,7 +107,6 @@ class PhoneField extends Field
                 }
 
                 $message = $component->getPhoneValidationMessage($normalized);
-
                 if ($message !== null) {
                     $fail($message);
                 }
@@ -441,7 +439,7 @@ class PhoneField extends Field
 
                 if ($util->isValidNumber($parsed)) {
                     $e164 = $util->format($parsed, PhoneNumberFormat::E164);
-                    $national = (string) $parsed->getNationalNumber();
+                    $national = $util->format($parsed, PhoneNumberFormat::NATIONAL);
                 } elseif ($e164 === '') {
                     $e164 = PhoneCountries::dialCode($country).$national;
                 }
@@ -525,7 +523,7 @@ class PhoneField extends Field
 
             return [
                 'country' => $region,
-                'national' => (string) $parsed->getNationalNumber(),
+                'national' => $util->format($parsed, PhoneNumberFormat::NATIONAL),
                 'e164' => $util->format($parsed, PhoneNumberFormat::E164),
             ];
         } catch (NumberParseException) {

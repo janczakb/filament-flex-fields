@@ -795,7 +795,7 @@ class SelectField extends Select
     /**
      * @return array<string, string>
      */
-    public function getOptionLabels(bool $withDefaults = true): array
+    public function getOptionLabels(bool $withDefaults = true, ?array $options = null): array
     {
         if ($this->getOptionLabelsUsing) {
             return parent::getOptionLabels($withDefaults);
