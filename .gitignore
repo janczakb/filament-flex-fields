@@ -54,3 +54,7 @@ pnpm-debug.log*
 /test-results/
 /reference/
 /bin/
+
+# Local Dev
+/DEMO/
+/scratch/
