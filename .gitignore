@@ -58,3 +58,4 @@ pnpm-debug.log*
 # Local Dev
 /DEMO/
 /scratch/
+/.reference/
