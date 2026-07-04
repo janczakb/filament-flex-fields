@@ -59,3 +59,23 @@ test('resolveTeleportedMenuZIndex uses default dropdown layer without an open mo
     assert.equal(resolveTeleportedMenuZIndex(), 'var(--fff-z-dropdown, 20)')
     dom.reset()
 })
+
+test('resolveCalculatorPanelZIndex uses elevated layer when a Filament modal is open', async () => {
+    const dom = installDomStub()
+    const { resolveCalculatorPanelZIndex } = await import('../../resources/js/core/theme-utils.js')
+
+    document.querySelector = () => ({ classList: { contains: () => true } })
+
+    assert.equal(resolveCalculatorPanelZIndex(), 120)
+    dom.reset()
+})
+
+test('resolveCalculatorPanelZIndex uses default panel layer without an open modal', async () => {
+    const dom = installDomStub()
+    const { resolveCalculatorPanelZIndex } = await import('../../resources/js/core/theme-utils.js')
+
+    document.querySelector = () => null
+
+    assert.equal(resolveCalculatorPanelZIndex(), 100)
+    dom.reset()
+})

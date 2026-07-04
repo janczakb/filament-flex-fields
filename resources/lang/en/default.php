@@ -510,6 +510,15 @@ return [
         'search_currencies' => 'Search currencies…',
     ],
 
+    'calculator' => [
+        'title' => 'Calculator',
+        'placeholder' => '0',
+        'open' => 'Open calculator',
+        'apply' => 'Insert result',
+        'cancel' => 'Cancel',
+        'close' => 'Close calculator',
+    ],
+
     'country' => [
         'placeholder' => 'Select country',
         'search_countries' => 'Search countries…',

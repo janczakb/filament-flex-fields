@@ -5,6 +5,23 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.2] - 2026-07-04
+
+### Added
+
+- **`CalculatorField`** — numeric input with a shared iOS-style calculator panel (one panel per page, per-field session memory).
+  - **Input:** direct typing or **Insert** from the keypad; built on FlexTextInput styling (`primary`, `secondary`, `flat`, `soft` variants; `sm` / `md` / `lg`).
+  - **Numeric API:** `minValue()`, `maxValue()`, `step()`, `integer()`, `decimalPlaces()`, `maxLength()`, `roundingMode()` (`round`, `ceil`, `floor`, `truncate` — default `truncate`).
+  - **Panel:** floating glass panel on desktop (draggable); bottom sheet on mobile; iOS keypad layout (`AC`, `±`, `%`, operators); live preview without field rounding until Insert.
+  - **JS core:** `calculator-engine`, `calculator-coordinator`, `calculator-panel-behavior`, `numeric-field-normalizer`.
+  - **Playground** slug `calculator-field`; full docs in `docs/calculator-field.md`.
+- **Tests** — `CalculatorFieldTest`, `CalculatorPanelMountTest`, `CalculatorFieldRenderTest`, JS unit tests (`calculator-engine`, `calculator-coordinator`, `calculator-keypad-icons`, `numeric-field-normalizer`), E2E `playground-calculator-field.spec.mjs`.
+
+### Changed
+
+- **README** — CalculatorField gallery entry (`art/sc-34.png`); component count **70**; Number & range table updated.
+- **Docs** — `docs/calculator-field.md` registered in `docs.json` and `docs/index.md`.
+
 ## [2.8.0] - 2026-07-04
 
 ### Added

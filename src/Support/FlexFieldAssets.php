@@ -64,6 +64,8 @@ class FlexFieldAssets
         'flex-time-segments',
         'flex-file-upload',
         'currency-field',
+        'calculator-field',
+        'calculator-panel',
         'slug-field',
         'video-field',
         'audio-field',
@@ -136,6 +138,8 @@ class FlexFieldAssets
         'country-field' => ['flex-text-input', 'teleported-menu'],
         'timezone-field' => ['flex-text-input', 'teleported-menu'],
         'currency-field' => ['flex-text-input', 'teleported-menu'],
+        'calculator-field' => ['flex-text-input'],
+        'calculator-panel' => [],
         'address-autocomplete' => ['flex-text-input', 'teleported-menu', 'map-picker-dropdown'],
         'flex-color-picker' => ['flex-text-input'],
         'icon-picker-field' => ['teleported-menu', 'select-field'],
@@ -178,6 +182,7 @@ class FlexFieldAssets
      * @var array<string, list<string>>
      */
     public const PLAYGROUND_EXTRA_STYLESHEETS = [
+        'calculator-field' => ['calculator-panel'],
         'date-time-fields' => ['flex-time-segments'],
     ];
 

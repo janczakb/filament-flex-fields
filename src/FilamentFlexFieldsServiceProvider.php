@@ -13,6 +13,7 @@ namespace Bjanczak\FilamentFlexFields;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsAlpineComponent;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
+use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
@@ -59,6 +60,7 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->app->scoped(FlexFieldStylesheetQueue::class);
         $this->app->scoped(FlexFieldAlpineQueue::class);
         $this->app->scoped(CountryRegistryQueue::class);
+        $this->app->scoped(CalculatorPanelMount::class);
         $this->app->scoped(UserSelectQueryCache::class);
         $this->app->singleton(IconCatalogResolver::class);
         $this->app->singleton(IconSvgCache::class);
@@ -113,6 +115,11 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         FilamentView::registerRenderHook(
             PanelsRenderHook::BODY_END,
             fn (): string => view('filament-flex-fields::partials.queued-stylesheets')->render(),
+        );
+
+        FilamentView::registerRenderHook(
+            PanelsRenderHook::BODY_END,
+            fn (): string => CalculatorPanelMount::renderOnce(),
         );
 
         FilamentView::registerRenderHook(

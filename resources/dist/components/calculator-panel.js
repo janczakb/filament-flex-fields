@@ -1,0 +1,1 @@
+import{e as a}from"./flex-fields-calculator-coordinator-TSE3PH2I.js";import"./flex-fields-theme-utils-4LQ7HT7A.js";function o(l){let t=a(l);return{...t,init(){t.initCalculatorPanel.call(this)},destroy(){t.destroyCalculatorPanel.call(this)}}}export{a as createCalculatorPanelBehavior,o as default};

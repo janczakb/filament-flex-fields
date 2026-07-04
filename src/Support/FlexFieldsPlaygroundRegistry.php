@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundComponentPage
 use Bjanczak\FilamentFlexFields\Support\Playground\AddressAutocompletePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\AudioFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\BarcodeScannerFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\CalculatorFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCheckboxCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ColorSwatchPlayground;
@@ -85,6 +86,7 @@ class FlexFieldsPlaygroundRegistry
                 'country-field' => ['label' => 'Country field', 'playground' => CountryFieldPlayground::class, 'sort' => 30, 'icon' => GravityIcon::Globe],
                 'timezone-field' => ['label' => 'Timezone field', 'playground' => TimezoneFieldPlayground::class, 'sort' => 40, 'icon' => GravityIcon::Clock],
                 'currency-field' => ['label' => 'Currency field', 'playground' => CurrencyFieldPlayground::class, 'sort' => 50, 'icon' => GravityIcon::CircleDollar],
+                'calculator-field' => ['label' => 'Calculator field', 'playground' => CalculatorFieldPlayground::class, 'sort' => 55, 'icon' => GravityIcon::make('calculator'), 'badge' => 'NEW'],
                 'number-stepper' => ['label' => 'Number Stepper', 'playground' => NumberStepperPlayground::class, 'sort' => 60, 'icon' => GravityIcon::Plus],
                 'choice-cards' => ['label' => 'Choice Cards', 'playground' => ChoiceCardsPlayground::class, 'sort' => 70, 'icon' => GravityIcon::LayoutCells],
                 'choice-checkbox-cards' => ['label' => 'Choice Checkbox Cards', 'playground' => ChoiceCheckboxCardsPlayground::class, 'sort' => 80, 'icon' => GravityIcon::Check],

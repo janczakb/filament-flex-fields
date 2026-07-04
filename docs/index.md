@@ -98,7 +98,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Number & range
 
-[NumberStepper](/docs/numberstepper) · [CurrencyField](/docs/currencyfield) · [FlexSlider](/docs/flexslider) · [TrackSlider](/docs/trackslider) · [PriceRangeField](/docs/pricerangefield) · [TrafficSplit](/docs/trafficsplit)
+[NumberStepper](/docs/numberstepper) · [CalculatorField](/docs/calculator-field) · [CurrencyField](/docs/currencyfield) · [FlexSlider](/docs/flexslider) · [TrackSlider](/docs/trackslider) · [PriceRangeField](/docs/pricerangefield) · [TrafficSplit](/docs/trafficsplit)
 
 ### Choice & selection
 

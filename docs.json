@@ -47,6 +47,7 @@
       "group": "Number & Range",
       "pages": [
         "docs/numberstepper",
+        "docs/calculator-field",
         "docs/currencyfield",
         "docs/flexslider",
         "docs/trackslider",

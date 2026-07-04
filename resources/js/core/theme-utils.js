@@ -6,6 +6,14 @@ export function resolveTeleportedMenuZIndex() {
     return 'var(--fff-z-dropdown, 20)'
 }
 
+export function resolveCalculatorPanelZIndex() {
+    if (document.querySelector('.fi-modal.fi-modal-open') !== null) {
+        return 120
+    }
+
+    return 100
+}
+
 export function resolveIsDark() {
     if (document.documentElement.classList.contains('dark')) {
         return true

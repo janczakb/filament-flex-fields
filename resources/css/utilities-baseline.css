@@ -21,6 +21,7 @@
     --fff-z-dropdown-modal: 60;
     --fff-z-overlay: 30;
     --fff-z-modal: 40;
+    --fff-z-calculator-panel: 100;
 }
 
 @utility fff-sr-only {

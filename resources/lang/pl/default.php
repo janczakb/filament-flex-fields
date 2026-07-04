@@ -311,6 +311,15 @@ return [
         'search_currencies' => 'Szukaj walut…',
     ],
 
+    'calculator' => [
+        'title' => 'Kalkulator',
+        'placeholder' => '0',
+        'open' => 'Otwórz kalkulator',
+        'apply' => 'Wstaw wynik',
+        'cancel' => 'Anuluj',
+        'close' => 'Zamknij kalkulator',
+    ],
+
     'country' => [
         'country' => 'Kraj',
         'placeholder' => 'Wybierz kraj',
