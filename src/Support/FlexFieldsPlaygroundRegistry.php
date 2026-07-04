@@ -35,6 +35,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\ItemCardGroupPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\LinkPreviewFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MapPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MatrixChoiceFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\NpsFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\NumberStepperPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\PhoneFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\PriceRangePlayground;
@@ -88,6 +89,7 @@ class FlexFieldsPlaygroundRegistry
                 'choice-cards' => ['label' => 'Choice Cards', 'playground' => ChoiceCardsPlayground::class, 'sort' => 70, 'icon' => GravityIcon::LayoutCells],
                 'choice-checkbox-cards' => ['label' => 'Choice Checkbox Cards', 'playground' => ChoiceCheckboxCardsPlayground::class, 'sort' => 80, 'icon' => GravityIcon::Check],
                 'segment-control' => ['label' => 'Segment Control', 'playground' => SegmentControlPlayground::class, 'sort' => 90, 'icon' => GravityIcon::ChartColumn],
+                'nps-field' => ['label' => 'NPS Field', 'playground' => NpsFieldPlayground::class, 'sort' => 95, 'icon' => GravityIcon::ChartColumn, 'badge' => 'NEW'],
                 'segment-tabs' => ['label' => 'Segment Tabs', 'playground' => SegmentTabsPlayground::class, 'sort' => 100, 'icon' => GravityIcon::LayoutColumns],
                 'form-layouts' => ['label' => 'Modern form layouts', 'playground' => FormLayoutPlayground::class, 'sort' => 110, 'icon' => GravityIcon::Display],
                 'track-slider' => ['label' => 'Track Slider', 'playground' => TrackSliderPlayground::class, 'sort' => 120, 'icon' => GravityIcon::ChartBar],

@@ -69,6 +69,8 @@ php artisan filament:assets
 
 That is the full required workflow for most apps.
 
+`php artisan filament:assets` syncs **both** Filament CSS/JS/Alpine bundles and bundled static media (MP3, emoji images, etc.) into `public/filament-flex-fields-assets/`. Fields resolve those files through `FlexFieldAssets::assetUrl()` with automatic cache busting.
+
 ### Path repository (monorepo / local package)
 
 ```bash
@@ -99,6 +101,7 @@ With that hook in place, `composer update janczakb/filament-flex-fields` alone i
 | Step | Needed? |
 |------|---------|
 | `npm install` / `npm run build` in the host app | **No** — assets are pre-built in the package |
+| Manual copy of `public/filament-flex-fields-assets/` | **No** — synced automatically by `filament:assets` (or on non-production app boot) |
 | `php artisan vendor:publish --tag=filament-flex-fields-config` | **No** — unless [CHANGELOG](CHANGELOG.md) documents a new config key you want to set |
 | `php artisan vendor:publish --tag=filament-flex-fields-translations` | **No** — see [Updating translations after a plugin upgrade](#updating-translations-after-a-plugin-upgrade) |
 | `php artisan optimize:clear` | **Only** if the panel still serves stale CSS/JS after `filament:assets` (rare) |
@@ -180,6 +183,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 ## Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="docs/nps-field.md"><img src="art/sc-33.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NpsField - Enterprise NPS, CSAT, and Likert scale inputs with pills, segments, and emoji variants, color-coded detractor/passive/promoter ranges, and optional deselect"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">NpsField — NPS, CSAT & Likert Survey Scales</p>
+  </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="docs/signaturefield.md"><img src="art/sc-1.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SignatureField — Canvas Handwriting Signature Pad</p>
@@ -316,7 +323,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 ---
 
-## Custom Components (68)
+## Custom Components (69)
 
 Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
 
@@ -404,11 +411,12 @@ Full API for each component: **[docs/index.md](docs/index.md)**.
 | [`CreditCardField`](docs/creditcardfield.md) | Card preview with Luhn validation and CVV flip |
 | [`CellSlider`](docs/trackslider.md) | Compact `TrackSlider` variant for table cells |
 
-### Rating (1)
+### Rating (2)
 
 | Component | Description |
 |-----------|-------------|
 | [`RatingField`](docs/ratingfield.md) | Star rating input |
+| [`NpsField`](docs/nps-field.md) | NPS, CSAT & Likert survey scales — pills, segments, and emoji variants *(v2.8.0)* |
 
 ### Layout & display — schemas (9)
 
@@ -434,7 +442,7 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 | [`RatingColumn`](docs/ratingcolumn.md) | Star rating display in Filament tables |
 | [`IconColumn`](docs/iconcolumn.md) | Blade-icons display for `IconPickerField` values *(v2.7.0)* |
 
-**Total: 68 custom components** (56 form fields + 9 layout/schema + 3 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 68.
+**Total: 69 custom components** (57 form fields + 9 layout/schema + 3 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 69.
 
 ---
 
@@ -445,7 +453,7 @@ Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patt
 | **CRM / SaaS custom attributes** | JSON flex fields + `PhoneField`, `CountryField`, `UserSelect` |
 | **CMS / page builder** | `TitleSlugField`, `TranslatableFields`, `FlexFileUpload`, `FlexImageUpload` |
 | **Product configurator** | `MatrixChoiceField`, `ChoiceCards`, `PriceRangeField`, `ColorSwatchField` |
-| **Surveys & assessments** | `MatrixChoiceField`, `FlexRadiolist`, `RatingField` |
+| **Surveys & assessments** | `NpsField`, `MatrixChoiceField`, `FlexRadiolist`, `RatingField` |
 | **SaaS onboarding** | `ChoiceCards`, `SegmentTabs`, `CoverCard`, `ProgressCircle` |
 | **E-commerce filters** | `PriceRangeField`, `TrackSlider`, `DualListboxField` |
 | **User profile settings** | `ItemCardGroup`, `PhoneField`, `TimezoneField`, `SignatureField` |
@@ -844,22 +852,22 @@ npm run check:budgets  # fail if any bundle exceeds limits
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 28 (gzip 6) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 34.7 (gzip 6.9) + deps 73.2 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31 (gzip 6.5) + deps 73.2 |
-| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 42.6 (gzip 7.8) + deps 24.9 |
-| TagsField | 3.1 (gzip 1.1) | 25.8 (gzip 5.7) + deps 70.3 |
-| RatingField | 0.7 (gzip 0.3) | 27.9 (gzip 6.1) |
-| SwitchField | Alpine inline | 46.5 (gzip 8.1) |
-| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 34.4 (gzip 6.9) + deps 169.7 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 32.2 (gzip 7) + deps 57.6 |
-| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 84.6 (gzip 13.2) + deps 30.6 |
+| core (always) | — | 26.2 (gzip 5.6) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + phone-lib 185 (gzip 43.3) | 32.9 (gzip 6.5) + deps 69.6 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 29.2 (gzip 6) + deps 69.6 |
+| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.8 (gzip 7.4) + deps 23.1 |
+| TagsField | 3.1 (gzip 1.1) | 24.1 (gzip 5.3) + deps 66.7 |
+| RatingField | 0.7 (gzip 0.3) | 26.1 (gzip 5.7) |
+| SwitchField | Alpine inline | 44.7 (gzip 7.7) |
+| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 32.6 (gzip 6.5) + deps 162.6 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 30.4 (gzip 6.6) + deps 54 |
+| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.8 (gzip 12.8) + deps 28.8 |
 
-Sample bundles (10 of **56** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **57** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---
 
-See [LICENSE](LICENSE) for license details.
+See [LICENSE](LICENSE) for license details. Third-party attributions: [CREDITS.md](CREDITS.md).
 
 <p align="center">Made with ❤️ by <a href="mailto:barek122@gmail.com">Bartłomiej Janczak</a></p>

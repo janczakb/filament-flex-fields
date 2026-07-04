@@ -62,6 +62,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 45. [TrackSlider](#trackslider)
 46. [TrafficSplit](#trafficsplit)
 47. [RatingField](#ratingfield)
+47.1. [NpsField](#npsfield)
 48. [RatingColumn](#ratingcolumn)
 49. [CoverCard](#covercard)
 50. [ProgressBar](#progressbar)
@@ -7277,6 +7278,155 @@ Extra Alpine bindings on the root element. From Filament `HasExtraAlpineAttribut
 | `read_only` | `readOnly()` |
 
 For **read-only rating display in tables**, use [RatingColumn](#ratingcolumn) instead.
+
+---
+
+## NpsField
+
+Enterprise-grade **NPS**, **CSAT**, and **Likert** scale input with three visual variants (`pills`, `segments`, `emojis`). Full documentation: [NpsField docs](/docs/nps-field) (Mintlify: `docs/nps-field.md`).
+
+### Summary
+
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField` |
+| **State type** | `string\|int\|null` — one option key, or `null` when unset |
+| **Default scale** | `0`–`10` |
+| **Default variant** | `pills` |
+| **Default state** | `null` (no pre-selection) |
+| **Playground** | `nps-field` |
+
+### Variants
+
+| Variant | Description |
+|---------|-------------|
+| `pills` | Sliding pill on gray track (default) — classic NPS |
+| `segments` | Full-width bordered bar with dividers |
+| `emojis` | Icon or image rings + labels below |
+
+### Basic usage
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField;
+
+NpsField::make('nps_score')
+    ->label('How likely are you to recommend us?')
+    ->minLabel('Not at all likely')
+    ->maxLabel('Extremely likely')
+    ->colorCoded()
+    ->required();
+```
+
+### Configuration API
+
+| Method | Default | Description |
+|--------|---------|-------------|
+| `variant(string\|Closure $variant)` | `'pills'` | `pills`, `segments`, or `emojis` |
+| `options(array\|Closure $options)` | `0`–`10` | Option keys => labels |
+| `minLabel(string\|Closure\|null)` | `null` | Left extreme caption |
+| `maxLabel(string\|Closure\|null)` | `null` | Right extreme caption |
+| `colorCoded(bool\|Closure $condition = true)` | `false` | Detractor / passive / promoter colors |
+| `colors(array\|Closure\|null $colors)` | `[]` | Custom selected background per key |
+| `textColors(array\|Closure\|null $textColors)` | `[]` | Custom selected text color per key |
+| `icons(array\|Closure $icons)` | `[]` | Emoji variant: Filament icon strings |
+| `emojiImages(array\|Closure\|null $images)` | `null` | Emoji variant: custom image URLs |
+| `disabledOptions(array\|Closure $keys)` | `[]` | Non-selectable option keys |
+| `size(string\|ControlSize\|Closure $size)` | `'md'` | `sm`, `md`, `lg` |
+| `rounding(string\|Closure\|null $rounding)` | config | Border radius token |
+
+Plus standard Filament field APIs: `required()`, `disabled()`, `default()`, `live()`, validation rules, etc.
+
+### Validation
+
+| Rule | When |
+|------|------|
+| `nullable` | Unless `required()` |
+| `Rule::in(...)` | Value must match an option key |
+| `required` | When `->required()` |
+
+### Selection behavior
+
+- **Default state** is `null` — all variants start with no selection.
+- **Optional fields** — clicking the active option again clears back to `null`.
+- **Required fields** — one option must always remain selected.
+
+### Examples
+
+#### Color-coded NPS
+
+```php
+NpsField::make('nps_score')
+    ->colorCoded()
+    ->minLabel('Detractor')
+    ->maxLabel('Promoter');
+```
+
+#### 5-point CSAT
+
+```php
+NpsField::make('csat')
+    ->options(array_combine(range(1, 5), range(1, 5)))
+    ->minLabel('Poor')
+    ->maxLabel('Excellent');
+```
+
+#### Likert (segments)
+
+```php
+NpsField::make('agreement')
+    ->variant('segments')
+    ->options([
+        'sd' => 'Strongly Disagree',
+        'd' => 'Disagree',
+        'n' => 'Neutral',
+        'a' => 'Agree',
+        'sa' => 'Strongly Agree',
+    ]);
+```
+
+#### Emojis with Gravity icons
+
+```php
+use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+
+NpsField::make('mood')
+    ->variant('emojis')
+    ->options([0 => 'Awful', 1 => 'Poor', 2 => 'Neutral', 3 => 'Good', 4 => 'Excellent'])
+    ->icons([
+        0 => GravityIcon::CircleXmark,
+        1 => GravityIcon::Hand,
+        2 => GravityIcon::FaceSmile,
+        3 => GravityIcon::Heart,
+        4 => GravityIcon::Star,
+    ]);
+```
+
+#### Custom emoji images
+
+```php
+NpsField::make('mood')
+    ->variant('emojis')
+    ->options([0 => 'Awful', 1 => 'Good'])
+    ->emojiImages([
+        0 => asset('images/survey/awful.svg'),
+        1 => asset('images/survey/good.svg'),
+    ]);
+```
+
+#### Disabled options
+
+```php
+NpsField::make('nps_score')
+    ->disabledOptions([0, 1]);
+```
+
+### Assets
+
+Bundled emoji webp files publish to `public/filament-flex-fields-assets/nps-field/emojis/` via `php artisan filament:assets`. See [NpsField docs — Assets](/docs/nps-field#assets--deployment).
+
+### Related
+
+[SegmentControl](#segmentcontrol) · [RatingField](#ratingfield) · [MatrixChoiceField](#matrixchoicefield)
 
 ---
 

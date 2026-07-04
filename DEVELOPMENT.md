@@ -792,7 +792,7 @@ php artisan test packages/filament-flex-fields/tests/Unit/FlexFieldStylesheetQue
 
 ### Dev bez `filament:assets`
 
-W **non-production** `publishStalePackageAssets()` kopiuje przestarzałe dist → `public/` (w tym beep MP3 dla barcode). Lokalnie możesz ominąć `filament:assets`, ale w CI/produkcji zawsze go uruchamiaj.
+W **non-production** `publishStalePackageAssets()` kopiuje przestarzałe dist → `public/` (CSS/JS/Alpine oraz static media w `public/filament-flex-fields-assets/` — MP3 barcode, webp emoji NPS itd.). Lokalnie możesz ominąć `filament:assets`, ale w CI/produkcji zawsze go uruchamiaj.
 
 Kluczowe pliki testów assetów:
 

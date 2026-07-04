@@ -101,6 +101,7 @@
       "group": "Rating & Tables",
       "pages": [
         "docs/ratingfield",
+        "docs/nps-field",
         "docs/ratingcolumn",
         "docs/iconcolumn",
         "docs/usercolumn"

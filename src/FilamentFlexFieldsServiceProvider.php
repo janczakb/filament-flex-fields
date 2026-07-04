@@ -278,45 +278,10 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
 
     protected function publishStalePackageAssets(): void
     {
-        if (app()->isProduction() && ! app()->runningInConsole()) {
+        if (! FlexFieldAssets::shouldPublishStalePackageAssets()) {
             return;
         }
 
-        $filesystem = $this->app->make(Filesystem::class);
-
-        $assets = [
-            ...FilamentAsset::getStyles([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
-            ...FilamentAsset::getScripts([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
-            ...FilamentAsset::getAlpineComponents([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
-        ];
-
-        foreach ($assets as $asset) {
-            if ($asset->isRemote()) {
-                continue;
-            }
-
-            $source = $asset->getPath();
-
-            if (! is_string($source) || ! is_file($source)) {
-                continue;
-            }
-
-            $destination = $asset->getPublicPath();
-
-            if (is_file($destination) && filemtime($source) <= filemtime($destination)) {
-                continue;
-            }
-
-            $filesystem->ensureDirectoryExists(dirname($destination));
-            $filesystem->copy($source, $destination);
-        }
-
-        $beepSource = FlexFieldAssets::barcodeScanBeepSourcePath();
-        $beepDestination = public_path(FlexFieldAssets::barcodeScanBeepRelativePath());
-
-        if (is_file($beepSource) && (! is_file($beepDestination) || filemtime($beepSource) > filemtime($beepDestination))) {
-            $filesystem->ensureDirectoryExists(dirname($beepDestination));
-            $filesystem->copy($beepSource, $beepDestination);
-        }
+        FlexFieldAssets::publishStalePackageAssets($this->app->make(Filesystem::class));
     }
 }

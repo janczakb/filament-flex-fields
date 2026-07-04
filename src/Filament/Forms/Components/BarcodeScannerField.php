@@ -417,9 +417,9 @@ class BarcodeScannerField extends Field
         return $this->barcodeRule;
     }
 
-    public function getBeepUrl(): string
+    public function getBeepUrl(): ?string
     {
-        return FlexFieldAssets::barcodeScanBeepUrl();
+        return FlexFieldAssets::assetUrl('barcode-scanner-field/barcode-scan-success.mp3');
     }
 
     /**

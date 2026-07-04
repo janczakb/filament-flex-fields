@@ -12,6 +12,7 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Filament\Support\Facades\FilamentAsset;
+use Illuminate\Filesystem\Filesystem;
 
 class FlexFieldAssets
 {
@@ -28,6 +29,8 @@ class FlexFieldAssets
     public const FLEX_RICH_EDITOR_YOUTUBE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-youtube-extension';
 
     public const PLAYGROUND_SKELETON_DEMO_SCRIPT_ID = 'playground-skeleton-demo';
+
+    public const STATIC_ASSETS_PUBLIC_DIRECTORY = 'filament-flex-fields-assets';
 
     /**
      * Most common lazy bundles preloaded in <head> to reduce modal and form FOUC.
@@ -93,6 +96,7 @@ class FlexFieldAssets
         'hold-confirm-action',
         'track-slider',
         'segment-control',
+        'nps-field',
         'teleported-menu',
     ];
 
@@ -146,6 +150,7 @@ class FlexFieldAssets
         'map-picker-dropdown' => ['teleported-menu'],
         'map-picker' => ['teleported-menu', 'map-picker-dropdown'],
         'select-field' => ['teleported-menu'],
+        'nps-field' => ['segment-control'],
         'user-select' => ['teleported-menu', 'select-field', 'tag-chips', 'user-display'],
         'user-column' => ['user-display'],
         'voice-note-recorder-field' => ['emoji-picker'],
@@ -508,24 +513,89 @@ class FlexFieldAssets
         return $map;
     }
 
-    public static function barcodeScanBeepRelativePath(): string
+    public static function assetUrl(string $path): string
     {
-        $path = config('filament.assets_path', '');
-
-        return ltrim("{$path}/audio/".FilamentFlexFieldsPlugin::PACKAGE_NAME.'/barcode-scan-success.mp3', '/');
-    }
-
-    public static function barcodeScanBeepSourcePath(): string
-    {
-        return dirname(__DIR__, 2).'/resources/dist/audio/barcode-scan-success.mp3';
-    }
-
-    public static function barcodeScanBeepUrl(): string
-    {
-        $relative = self::barcodeScanBeepRelativePath();
+        $relative = self::STATIC_ASSETS_PUBLIC_DIRECTORY.'/'.ltrim($path, '/');
         $public = public_path($relative);
         $version = is_file($public) ? (string) filemtime($public) : '1';
 
         return asset($relative).'?v='.$version;
+    }
+
+    public static function staticAssetsSourceDirectory(): string
+    {
+        return __DIR__.'/../../resources/dist/assets';
+    }
+
+    public static function staticAssetsPublicDirectory(): string
+    {
+        return public_path(self::STATIC_ASSETS_PUBLIC_DIRECTORY);
+    }
+
+    public static function shouldPublishStalePackageAssets(?bool $runningInConsole = null): bool
+    {
+        $runningInConsole ??= app()->runningInConsole();
+
+        return ! (app()->isProduction() && ! $runningInConsole);
+    }
+
+    public static function publishRegisteredFilamentAssetsIfStale(Filesystem $filesystem): void
+    {
+        $assets = [
+            ...FilamentAsset::getStyles([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
+            ...FilamentAsset::getScripts([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
+            ...FilamentAsset::getAlpineComponents([FilamentFlexFieldsPlugin::PACKAGE_NAME]),
+        ];
+
+        foreach ($assets as $asset) {
+            if ($asset->isRemote()) {
+                continue;
+            }
+
+            $source = $asset->getPath();
+
+            if (! is_string($source) || ! is_file($source)) {
+                continue;
+            }
+
+            $destination = $asset->getPublicPath();
+
+            if (is_file($destination) && filemtime($source) <= filemtime($destination)) {
+                continue;
+            }
+
+            $filesystem->ensureDirectoryExists(dirname($destination));
+            $filesystem->copy($source, $destination);
+        }
+    }
+
+    public static function publishStaticAssetsIfStale(Filesystem $filesystem): void
+    {
+        $source = self::staticAssetsSourceDirectory();
+        $destination = self::staticAssetsPublicDirectory();
+
+        if (! is_dir($source)) {
+            return;
+        }
+
+        $filesystem->ensureDirectoryExists($destination);
+
+        foreach ($filesystem->allFiles($source) as $file) {
+            $relativePath = str_replace('\\', '/', substr($file->getPathname(), strlen($source) + 1));
+            $target = $destination.'/'.$relativePath;
+
+            if (is_file($target) && filemtime($file->getPathname()) <= filemtime($target)) {
+                continue;
+            }
+
+            $filesystem->ensureDirectoryExists(dirname($target));
+            $filesystem->copy($file->getPathname(), $target);
+        }
+    }
+
+    public static function publishStalePackageAssets(Filesystem $filesystem): void
+    {
+        self::publishRegisteredFilamentAssetsIfStale($filesystem);
+        self::publishStaticAssetsIfStale($filesystem);
     }
 }

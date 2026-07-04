@@ -5,6 +5,30 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-07-04
+
+### Added
+
+- **`NpsField`** — enterprise survey scale input for NPS (0–10), CSAT, Likert, and custom option sets.
+  - **Variants:** `pills` (sliding segment control), `segments` (full-width bordered bar), `emojis` (icon or image rings with labels).
+  - **API:** `options()`, `variant()`, `colorCoded()`, `colors()`, `textColors()`, `icons()`, `emojiImages()`, `disabledOptions()`, `minLabel()`, `maxLabel()`, `size()`, `rounding()`.
+  - **State:** defaults to `null` (empty initial selection on all variants); optional fields deselect when the active option is clicked again.
+  - **Assets:** bundled mood emoji webp (`resources/dist/assets/nps-field/emojis/`) published to `public/filament-flex-fields-assets/` via `php artisan filament:assets`.
+  - **Playground** slug `nps-field`; full docs in `docs/nps-field.md`.
+- **`CREDITS.md`** — third-party attributions (Microsoft [Fluent UI Emoji](https://github.com/microsoft/fluentui-emoji), [Gravity UI Icons](https://github.com/gravity-ui/icons)); linked from README.
+- **`FlexFieldStaticAssetsTest`** — coverage for static media publishing and `FlexFieldAssets::assetUrl()`.
+- **`FlexFieldAssets::publishStaticAssetsIfStale()`** — incremental sync of bundled media; shared `publishStalePackageAssets()` helper for Filament + static assets.
+
+### Changed
+
+- **Static asset pipeline** — media under `resources/dist/assets/` copies file-by-file only when the package source is newer (instead of full directory copy on every boot).
+- **README** — NpsField gallery entry (`art/sc-33.png`); component count **69**; `CREDITS.md` link in license footer.
+
+### Fixed
+
+- **NpsField (pills)** — sliding indicator no longer animates from `(0, 0)` on first selection from an empty state.
+- **NpsField (segments)** — improved dark mode contrast for borders and unselected labels.
+
 ## [2.7.6] - 2026-07-03
 
 ### Added
