@@ -11401,9 +11401,3 @@ The dev playground includes single-field and multi-field variants with RTL, empt
 Update imports and class names; behaviour is unchanged.
 
 ---
-
-## Document maintenance
-
-Update this file whenever a component gains a new public method, validation rule, config key, or default value change.
-
-**Last reviewed:** Full component reference including CoverCard, FlexFileUpload, FlexImageUpload, UserColumn, RatingColumn, form layout patterns (`item-card--form-panel`, `fff-form-layout--grid`), and all form fields, table columns, and layout/schema components listed in the table of contents.

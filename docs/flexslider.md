@@ -1,13 +1,15 @@
 ---
 title: "FlexSlider"
+description: Styled wrapper around Filament's Slider with SaaS-like track, step dots, and server-rendered pips.
 ---
+
+![FlexSlider](/art/sc-16.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Styled wrapper around Filament's `Slider` with SaaS-like track, step dots, server-rendered pips, fill segments, and formatted value display.
+Styled wrapper around Filament's **Slider** with a SaaS-like pill rail, accent fill, capsule thumb, and optional in-track step dots. Supports single values or dual-handle ranges with server-rendered pips and fill segments to prevent layout shift.
 
 | | |
 |---|---|
@@ -15,9 +17,15 @@ Styled wrapper around Filament's `Slider` with SaaS-like track, step dots, serve
 | **State type** | `int\|float` or `[min, max]` for range |
 | **FieldType** | `flex_slider` |
 | **Parent** | `Filament\Forms\Components\Slider` |
+| **Playground** | `flex-slider` slug in Flex Fields playground |
+
+Inherits all functionality from the standard Filament Slider while adding advanced visual customization.
+
+---
 
 ### Basic usage
 
+#### Standard Volume Slider
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexSlider;
 
@@ -27,131 +35,111 @@ FlexSlider::make('volume')
     ->showValue()
     ->suffix('%')
     ->color('primary');
+```
 
+#### Dual-Handle Price Range
+```php
 FlexSlider::make('price_range')
     ->range(0, 1000)
     ->step(10)
-    ->fillTrack([false, true, false])
+    ->fillTrack([false, true, false]) // Fill between handles
     ->prefix('$')
-    ->trackLabel('Budget')
-    ->decimalPlaces(0);
+    ->trackLabel('Budget');
 ```
 
-Range with auto-fill between handles:
+---
+
+### State & validation
+
+#### Stored value
+State is a numeric value or an array of two numeric values for range mode.
 
 ```php
-FlexSlider::make('age_range')
-    ->range(18, 80)
-    ->step(1)
-    ->autoFill()
-    ->showValue()
-    ->valuePosition('start');
+$record->volume; // 65
+$record->price_range; // [200, 800]
 ```
 
-### State format
-
-Same as Filament Slider: single numeric or array of two values for dual-handle range. Normalized via `normalizeNumeric()` respecting `step()` and `decimalPlaces()`.
-
-### Validation
-
+#### Validation rules
 Inherits Filament Slider rules (`min`, `max`, `step`, etc.).
 
-### Configuration API (FlexSlider-specific)
+---
 
-#### `showStepDots(bool|Closure $condition = true)`
+### Configuration API
 
+All methods accept `Closure` unless noted.
 
-Renders indicator dots on the slider track corresponding to each step interval. Requires a `step()` to be defined.
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `showValue(bool $condition)` | Setup | `false` | Display current value in footer |
+| `prefix(string $prefix)` | Setup | `null` | Value prefix |
+| `suffix(string $suffix)` | Setup | `null` | Value suffix |
+| `variant(string $variant)` | Setup | `'default'` | `default`, `secondary` |
+| `trackLabel(string $label)` | Setup | `null` | Label shown inside or above track |
+| `hideThumbUntilInteraction(bool $condition)` | Setup | `false` | Thumb appears on hover/drag |
+| `valuePosition(string $position)` | Setup | `'end'` | Footer value position: `start`, `center`, `end` |
+| `autoFill(bool $condition)` | Setup | `false` | Automatically fill segments between handles |
+| `color(string $color)` | Setup | `'primary'` | Filament color for track/thumb |
+| `fillColor(string $color)` | Setup | `null` | Custom hex/rgb for fill accent |
+| `showStepDots(bool $condition)` | Setup | `false` | Render dots at each step interval |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
 
+---
+
+### Real-world examples
+
+#### Opacity Control with Tooltips
+```php
+FlexSlider::make('opacity')
+    ->range(0, 100)
+    ->step(5)
+    ->suffix('%')
+    ->fillTrack()
+    ->tooltips()
+    ->default(100);
+```
+
+#### Rating Scale with Pips
 ```php
 FlexSlider::make('rating')
-    ->min(1)
-    ->max(5)
+    ->range(0, 5)
     ->step(1)
+    ->pips(\Filament\Forms\Components\Slider\Enums\PipsMode::Steps)
     ->showStepDots();
 ```
-### Inherited Filament Slider API
 
-Also configure via parent methods:
+---
 
-| Method | Purpose |
-|--------|---------|
-| `range($min, $max)` | Bounds |
-| `step($step)` | Step increment |
-| `fillTrack(array\|bool)` | Which segments are filled |
-| `decimalPlaces(int)` | Fixed decimal display |
-| `pips(PipsMode)` | Pip mode: Steps, Positions, Count, etc. |
-| `pipsValues(...)` / `pipsDensity(...)` | Pip configuration |
-| `vertical()` | Vertical orientation |
-| `rangePadding(...)` | Padding beyond min/max |
-| `default($value)` | Initial value |
-| `disabled()` / `nullable()` | State modifiers |
+### Playground
 
-See [Filament Slider documentation](https://filamentphp.com/docs/forms/fields/slider) for full parent API.
+`/admin/flex-fields-playground/flex-slider`
 
-### Public helper methods
+See [Playground](/docs/index#playground) for setup.
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `shouldShowValue()` | `bool` | Value visible |
-| `getDisplayPrefix()` / `getDisplaySuffix()` | `string\|null` | Affixes |
-| `getVariant()` | `string` | Variant name |
-| `getTrackLabel()` | `string\|null` | Header label |
-| `shouldHideThumbUntilInteraction()` | `bool` | Thumb hidden initially |
-| `getValuePosition()` | `string` | Label position |
-| `shouldAutoFill()` | `bool` | Auto fill segments |
-| `getColor()` / `getFillColor()` | `string\|null` | Colors |
-| `getNormalizedStateValues()` | `list&lt;float&gt;` | Current handle values |
-| `isRangeState()` | `bool` | Range mode |
-| `valueToPercent()` / `valueToRatio()` | `float` | Position math |
-| `getInitialValueRatios()` | `list&lt;float&gt;` | SSR thumb positions |
-| `formatDisplayValue(?float $value)` | `string` | Formatted label |
-| `shouldShowStepDots()` | `bool` | Step dots visible |
-| `getStepDotRatios()` | `list&lt;float&gt;` | Dot positions |
-| `shouldRenderServerPips()` | `bool` | SSR pips mode |
-| `getServerRenderedPips()` | `list&lt;array&gt;` | Pip markup data |
-| `resolveConnectForChrome()` | `array\|false` | Fill connection flags |
-| `getInitialFillSegments()` | `list&lt;array&gt;` | SSR fill segments |
-| `normalizeNumeric(float\|int $value)` | `float` | Step-aligned value |
+---
 
-### FlexField schema config
+### Related components
 
-| Config key | Maps to |
-|------------|---------|
-| `min` / `max` | `range()` |
-| `step` | `step()` |
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `show_value` | `showValue()` |
-| `prefix` | `prefix()` |
-| `suffix` | `suffix()` |
-| `track_label` | `trackLabel()` |
-| `hide_thumb_until_interaction` | `hideThumbUntilInteraction()` |
-| `value_position` | `valuePosition()` |
-| `fill_track` / `auto_fill` | `fillTrack()` / `autoFill()` |
-| `color` | `color()` |
-| `fill_color` | `fillColor()` |
-| `decimal_places` | `decimalPlaces()` |
+| Component | When to use instead |
+|-----------|---------------------|
+| [TrackSlider](/docs/trackslider) | Minimalist track-based slider without handles |
+| [NumberStepper](/docs/numberstepper) | Precise numeric stepping with buttons |
+| [RatingField](/docs/ratingfield) | Star-based rating input |
 
-### CSS classes
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
 | `fff-flex-slider` | Root wrapper |
-| `fff-flex-slider--{sm\|md\|lg}` | Size modifier |
-| `fff-flex-slider--secondary` | Secondary variant |
-| `fff-flex-slider__rail` | Track hit area |
-| `fff-flex-slider__fill` | Filled segment |
+| `fff-flex-slider--{sm\|md\|lg}` | Size variant |
+| `fff-flex-slider--{variant}` | Visual variant |
+| `fff-flex-slider__control` | Main slider container |
+| `fff-flex-slider__rail` | Interactive track area |
+| `fff-flex-slider__fill` | Active range fill |
 | `fff-flex-slider__thumb` | Draggable handle |
-| `fff-flex-slider__pip` | Scale pip |
-| `fff-flex-slider__step-dot` | Step indicator dot |
-
-Uses CSS variables `--fff-flex-slider-accent`, `--fff-flex-slider-value-ratio`, etc.
-
-### Implementation notes
-
-- Server-rendered pips and fill segments reduce layout shift before Alpine hydrates.
-- Step dots capped at 11 visible dots (`MAX_STEP_DOTS`); excess steps are sampled.
-- Vertical sliders disable step dots and server pips.
-
----
+| `fff-flex-slider__pip` | Scale marker |
+| `fff-flex-slider__step-dot` | Step interval indicator |
+| `fff-flex-slider__footer` | Value display area |
+| `is-disabled` | Disabled state |
+| `is-range` | Range mode active |

@@ -434,3 +434,15 @@ node --test packages/filament-flex-fields/tests/js/barcode-scanner-field.test.mj
 ```
 
 Use playground values `5901234123457` (valid EAN-13) and `5901234123450` (invalid checksum) to verify validation.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexTextInput](/docs/flextextinput) | Manual barcode entry without camera |
+| [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) | Upload product photos or documents |
+| [FlexVerificationCode](/docs/flexverificationcode) | Short numeric codes, not product barcodes |
+
+---

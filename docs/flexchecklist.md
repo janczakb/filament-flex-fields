@@ -1,22 +1,27 @@
 ---
 title: "FlexChecklist"
+description: Multi-select checklist with row animations, icons, descriptions, and locked disabled options.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-SaaS-style **multi-select** checklist. Same row layout as [FlexRadiolist](/docs/flexradiolist) but stores an array of selected keys.
+**Multi-select** checklist with row layout, optional icons and descriptions, and animated checkbox indicators.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist` |
-| **State type** | `list&lt;string\|int&gt;` — selected option keys |
+| **State type** | `list<string\|int>` — selected option keys |
 | **FieldType** | `flex_checklist` |
+| **Playground** | `flex-checklist` slug in Flex Fields playground |
 | **State cast** | `OptionsArrayStateCast` |
 
+---
+
 ### Basic usage
+
+#### Standard checklist
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist;
@@ -25,169 +30,128 @@ FlexChecklist::make('features')
     ->label('Included features')
     ->options([
         'wifi' => 'Wi‑Fi',
-        'parking' => [
-            'label' => 'Parking',
-            'description' => 'On-site parking included',
-            'icon' => 'heroicon-o-truck',
-        ],
-    ])
-    ->minSelections(1)
-    ->maxSelections(3)
-    ->color('primary');
-
-FlexChecklist::make('permissions')
-    ->options(['read' => 'Read', 'write' => 'Write', 'admin' => 'Admin'])
-    ->exactSelections(2)
-    ->disabledOptions(['admin']);
+        'parking' => 'Parking',
+        'breakfast' => 'Breakfast',
+    ]);
 ```
 
-### State format
+#### Rich options with icons and descriptions
 
-Array of unique string keys. Default: `[]`. Duplicate values are deduplicated on validation.
+```php
+FlexChecklist::make('permissions')
+    ->options([
+        'read' => [
+            'label' => 'Read',
+            'description' => 'Can view records',
+            'icon' => 'heroicon-o-eye',
+        ],
+        'write' => [
+            'label' => 'Write',
+            'description' => 'Can edit records',
+            'icon' => 'heroicon-o-pencil',
+        ],
+    ])
+    ->color('success');
+```
 
-### Validation
+---
 
-| Rule | Detail |
-|------|--------|
-| `array` | State must be an array |
-| Option keys | Each value must exist in `options()` |
-| `exactSelections(n)` | Exactly `n` items selected |
-| `minSelections(n)` | At least `n` items |
-| `maxSelections(n)` | At most `n` items |
-| `required()` | Implies `minSelections(1)` when no explicit min |
+### State & validation
+
+#### Stored value
+
+State is an **array** of unique string or integer keys.
+
+```php
+$record->features; // ['wifi', 'breakfast']
+```
+
+#### Validation rules (built-in)
+
+| Rule | Description |
+|------|-------------|
+| `array` | Always enforced. |
+| Option keys | Selected keys must exist in `options()`. |
+| `minSelections(n)` | Minimum items (default 1 if `required()`). |
+| `maxSelections(n)` | Maximum items allowed. |
+| `exactSelections(n)` | Requires exactly `n` items. |
+
+---
 
 ### Configuration API
 
-#### `options(array|Closure $options)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `options(array\|Closure $options)` | Setup | `[]` | Option map: `key => label` or rich array (`label`, `description`, `icon`, `disabled`). |
+| `icons(array\|Closure $icons)` | Setup | `[]` | Per-key icon map (overrides `options`). |
+| `descriptions(array\|Closure $desc)` | Setup | `[]` | Per-key description map (overrides `options`). |
+| `disabledOptions(array\|Closure $keys)` | Setup | `[]` | Keys rendered locked with a lock icon. |
+| `color(string\|Closure\|null $color)` | Setup | `'primary'` | Accent color for selected rows. |
+| `size(string\|Closure $size)` | Setup | `'md'` | Row scale: `sm`, `md`, `lg`. |
+| `minSelections(int\|Closure $n)` | Validation | `null` | Minimum required selections. |
+| `maxSelections(int\|Closure $n)` | Validation | `null` | Maximum allowed selections. |
+| `exactSelections(int\|Closure $n)` | Validation | `null` | Requires exactly `n` selections. |
 
-`key =&gt; label` or rich array (`label`, `description`, `desc`, `icon`, `disabled`). From `HasChecklistOptions`.
-
-```php
-FlexChecklist::make('field_name')
-    ->options([
-        'option_1' => 'Option 1',
-        'option_2' => 'Option 2',
-    ]);
-```
-#### `icons(array|Closure $icons)`
-
-
-Per-key icon map merged into options.
-
-```php
-FlexChecklist::make('field_name')
-    ->icons([
-        'option_1' => 'heroicon-o-star',
-        'option_2' => 'heroicon-o-heart',
-    ]);
-```
-#### `descriptions(array|Closure $descriptions)`
-
-
-Per-key description map. Config key `desc` also supported.
-
-```php
-FlexChecklist::make('field_name')
-    ->descriptions(['value1', 'value2']);
-```
-#### `disabledOptions(array|Closure $keys)`
-
-
-Keys rendered locked with lock icon.
-
-```php
-FlexChecklist::make('field_name')
-    ->disabledOptions(['option_2']);
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-`sm`, `md` (default), `lg`.
-
-```php
-FlexChecklist::make('field_name')
-    ->size('md');
-```
-#### `color(string|Closure|null $color)`
-
-
-Filament color for selected rows. Default: `primary`.
-
-```php
-FlexChecklist::make('field_name')
-    ->color('primary');
-```
-#### `minSelections(int|Closure|null $count)`
-
-
-Minimum selections. `null` = no minimum (unless `required()`).
-
-```php
-FlexChecklist::make('field_name')
-    ->minSelections(10);
-```
-#### `maxSelections(int|Closure|null $count)`
-
-
-Maximum selections.
-
-```php
-FlexChecklist::make('field_name')
-    ->maxSelections(10);
-```
-#### `exactSelections(int|Closure|null $count)`
-
-
-Exact count; overrides min/max semantics when set.
-
-```php
-FlexChecklist::make('field_name')
-    ->exactSelections(10);
-```
-
-### Public helper methods
+#### Public helper methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getColor()` | `string\|null` | Accent color |
-| `getLockIcon()` | `string\|BackedEnum\|Htmlable` | Lock icon for disabled rows |
-| `getMinSelections()` | `int\|null` | Min count |
-| `getMaxSelections()` | `int\|null` | Max count |
-| `getExactSelections()` | `int\|null` | Exact count |
-| `getOptionKeys()` | `list` | Valid keys |
-| `getNormalizedOptions()` | `array` | Merged option metadata |
-| `getDisabledOptions()` | `array` | Disabled keys |
-| `isOptionDisabled(string\|int $key)` | `bool` | Row disabled |
-| `getChecklistSizeStyles()` | `array` | CSS custom properties |
-| `getWrapperClasses()` | `list&lt;string&gt;` | `fff-flex-checklist` |
+| `getLockIcon()` | `mixed` | Resolved icon for disabled rows. |
+| `getNormalizedOptions()` | `array` | Merged metadata for all options. |
+| `getWrapperClasses()` | `array` | List of CSS classes for the root element. |
 
-### FlexField schema config
+---
 
-| Config key | Maps to |
-|------------|---------|
-| `options` | `options()` |
-| `icons` | `icons()` |
-| `descriptions` / `desc` | `descriptions()` |
-| `disabled_options` | `disabledOptions()` |
-| `size` | `size()` |
-| `color` | `color()` |
-| `min_selections` | `minSelections()` |
-| `max_selections` | `maxSelections()` |
-| `exact_selections` | `exactSelections()` |
+### Real-world examples
 
-### CSS classes
+#### Project file manager
+
+```php
+FlexChecklist::make('files')
+    ->label('Project files')
+    ->options([
+        'budget' => 'Budget.xlsx',
+        'reports' => 'Reports.pdf',
+        'archive' => 'Archive.zip',
+    ])
+    ->icons([
+        'budget' => 'heroicon-o-table-cells',
+        'reports' => 'heroicon-o-document-text',
+        'archive' => 'heroicon-o-archive-box',
+    ])
+    ->disabledOptions(['archive']);
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/flex-checklist`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexRadiolist](/docs/flexradiolist) | For single-select lists with the same row layout. |
+| [ChoiceCheckboxCards](/docs/choicecheckboxcards) | For larger, more prominent multi-select cards. |
+| [ItemCardGroup](/docs/itemcardgroup) | For grouping rows that aren't form inputs. |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
 | `fff-flex-checklist` | Root wrapper |
 | `fff-flex-checklist--{sm\|md\|lg}` | Size modifier |
-| `fff-flex-checklist__row` | Option row |
-| `fff-flex-checklist__indicator` | Checkbox indicator |
-
-### Implementation notes
-
-- Pair with `live()` + `afterStateUpdated()` for autosave patterns (same as FlexRadiolist).
-- Locked options show `getLockIcon()` and cannot be toggled.
-
----
+| `fff-flex-checklist__row` | Individual option row |
+| `fff-flex-checklist__row--selected` | Active row state |
+| `fff-flex-checklist__row--disabled` | Disabled/locked state |
+| `fff-flex-checklist__indicator` | Checkbox container |
+| `fff-flex-checklist__content` | Text and icon container |

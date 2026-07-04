@@ -1176,9 +1176,11 @@ FLEX_FIELDS_PLAYGROUND_URL=https://your-app.test/admin/flex-fields-playground \
 
 ---
 
-## Playground
+### Playground
 
-Enable `FLEX_FIELDS_PLAYGROUND=true` and open **Flex Rich Editor** (`/flex-fields-playground/flex-rich-editor`).
+`/admin/flex-fields-playground/flex-rich-editor` — see [Playground](/docs/index#playground).
+
+Slug: **`flex-rich-editor`**
 
 Includes:
 
@@ -1191,7 +1193,7 @@ Includes:
 
 ## Assets (CSS & JS)
 
-Follows the lazy-asset pattern from `DEVELOPMENT.md` (§3–§5 in the package repo): one lazy CSS bundle per field, Alpine `x-load` per component, optional support scripts `loadedOnRequest()`.
+Each field loads its own CSS bundle and Alpine component on demand (`x-load`). Optional support scripts load only when configured.
 
 | Asset | Kind | When it loads |
 |-------|------|----------------|
@@ -1243,3 +1245,14 @@ cd packages/filament-flex-fields && npm run check:budgets
 
 - [Filament Rich Editor documentation](https://filamentphp.com/docs/forms/rich-editor)
 - JSON storage is enabled by default in `setUp()` (`json()`)
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexTextareaField](/docs/flextextareafield) | Plain multiline text without rich formatting |
+| [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) | Inline image attachments without TipTap |
+| [TranslatableFields](/docs/translatablefields) | Locale tabs wrapping a translatable rich body |
+| Filament `RichEditor` | Native editor without Flex chrome — see [Filament docs](https://filamentphp.com/docs/forms/rich-editor) |

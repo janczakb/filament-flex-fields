@@ -541,7 +541,7 @@ Slug: **`schedule-field`**
 | No timezone | `timezone(null)` — local hours only |
 | Size / variant | `size('md')`, `variant('soft')` |
 
-Enable the playground (`FLEX_FIELDS_PLAYGROUND=true`) and open **Flex Fields Playground → Schedule field**.
+`/admin/flex-fields-playground/schedule-field` — see [Playground](/docs/index#playground).
 
 ---
 
@@ -552,5 +552,15 @@ Enable the playground (`FLEX_FIELDS_PLAYGROUND=true`) and open **Flex Fields Pla
 - Day constants: `ScheduleDays::ALL`, `ScheduleDays::WEEKDAYS`.
 - Click-outside on the field closes open time menus and the timezone dropdown.
 - Mobile layout reflows day header (copy button moves below label row).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [Date & time fields](/docs/date-and-time-fields) | Single date/time pickers, not weekly schedules |
+| [TimezoneField](/docs/timezonefield) | Standalone IANA timezone selector |
+| [FlexTimeSegments](/docs/date-and-time-fields#granularity-and-time-precision) | Inline HH:MM segments inside other fields |
 
 ---

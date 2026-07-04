@@ -2401,3 +2401,28 @@ $field->generateSlugFromSource('Hello World'); // PHP preview
 | Gravity icons | Yes | Heroicons |
 
 ---
+
+### Playground
+
+Slug: **`slug-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Standalone slug | Permalink preview, regenerate, scoped unique |
+| TitleSlugField | Fused title + slug, translatable titles |
+| Spatie integration | `SlugOptions` preview and attribute slugs |
+
+`/admin/flex-fields-playground/slug-field` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [TranslatableFields](/docs/translatablefields) | Generic translatable attributes without slug sync |
+| [FlexTextInput](/docs/flextextinput) | Plain text slug without permalink UI |
+| [LinkPreviewField](/docs/link-preview-field) | URL preview card, not slug generation |
+| [TitleSlugField](/docs/slugfield-and-titleslugfield#titleslugfield) | Fused title + slug factory (same doc) |
+
+---

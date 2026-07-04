@@ -486,8 +486,26 @@ npx playwright test tests/e2e/playground-social-links-field.spec.mjs
 
 ---
 
+### Playground
+
+Slug: **`social-links-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Default | Platform picker, URL validation, branded icons |
+| Custom platforms | Extended platform list |
+| Submit guard | Invalid URL blocking on save |
+
+`/admin/flex-fields-playground/social-links-field` — see [Playground](/docs/index#playground).
+
+---
+
 ### Related components
 
-- **LinkPreviewField** — fetch Open Graph preview for a single URL
-- **PhoneField** — similar teleported picker + validation patterns
-- **ScheduleField** — submit guard reference implementation
+| Component | When to use instead |
+|-----------|---------------------|
+| [LinkPreviewField](/docs/link-preview-field) | Open Graph preview for a single URL |
+| [PhoneField](/docs/phonefield) | Similar teleported picker + validation patterns |
+| [TagsField](/docs/tags-field) | Free-form tag chips without platform presets |
+
+---

@@ -1,154 +1,139 @@
 ---
 title: "TrackSlider"
+description: Minimalist track-based range slider with optional live value output.
 ---
 
 ![TrackSlider](/art/sc-16.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Track-based range slider with optional live value output.
-
-Also used internally for `FieldType::Percentage` and `FieldType::RangeSlider`.
+Minimalist track-based range slider where the entire bar acts as the interactive surface. Features a clean, handle-less design with optional live value output and track labels. Often used for percentage inputs or subtle settings.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrackSlider` |
 | **State type** | `int\|float` |
-| **Model cast** | `'volume' =&gt; 'integer'` or `'float'` |
+| **Model cast** | `'volume' => 'integer'` or `'float'` |
 | **FieldType** | `range_slider`, `percentage` |
+| **Playground** | `track-slider` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
 
+#### Standard Percentage
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrackSlider;
 
-TrackSlider::make('volume')
-    ->label('Volume')
+TrackSlider::make('progress')
+    ->label('Progress')
     ->min(0)
     ->max(100)
-    ->step(5)
-    ->suffix('%')
-    ->trackLabel('Volume level')
-    ->variant('secondary')
-    ->showOutput()
-    ->size('md');
+    ->suffix('%');
 ```
 
-### Validation
+#### Settings Control
+```php
+TrackSlider::make('font_size')
+    ->trackLabel('Font Size')
+    ->min(0.5)
+    ->max(2)
+    ->step(0.1)
+    ->integer(false)
+    ->decimalPlaces(1);
+```
 
-No built-in min/max rules. Add manually:
+---
+
+### State & validation
+
+#### Stored value
+State is a numeric value (`int` or `float`).
 
 ```php
-->rule('min:0')
-->rule('max:100')
+$record->progress; // 75
 ```
 
-Or define rules in `FlexFieldDefinition`.
+#### Validation rules
+Built-in `NumberStateCast` ensures numeric state. Standard Filament `rule('min:0')` etc. can be added.
+
+---
 
 ### Configuration API
 
-#### `min(int|float|Closure $min = 0)` / `max(int|float|Closure $max = 100)`
+All methods accept `Closure` unless noted.
 
-
-Range boundaries.
-
-```php
-TrackSlider::make('field_name')
-    ->min(1)
-    ->max(10);
-```
-#### `step(int|float|Closure $step = 1)`
-
-
-Slider step increment.
-
-```php
-TrackSlider::make('field_name')
-    ->step(1);
-```
-#### `integer(bool|Closure $condition = true)`
-
-
-Snap to integer values. **Default: true.**
-
-```php
-TrackSlider::make('field_name')
-    ->integer(true);
-```
-#### `showOutput(bool|Closure $condition = true)`
-
-
-Display the current value. **Default: true.**
-
-```php
-TrackSlider::make('field_name')
-    ->showOutput(true);
-```
-#### `suffix(string|Closure|null $suffix)`
-
-
-Text after the value, e.g. `%`, `px`.
-
-```php
-TrackSlider::make('field_name')
-    ->suffix('zł');
-```
-#### `variant(string|Closure $variant)`
-
-
-| Value | Description |
-|-------|-------------|
-| `default` | Standard filled track. |
-| `secondary` | Subtle track styling. |
-
-```php
-TrackSlider::make('field_name')
-    ->variant('primary');
-```
-#### `decimalPlaces(int|Closure|null $places)`
-
-
-Decimal precision for displayed value.
-
-```php
-TrackSlider::make('field_name')
-    ->decimalPlaces(2);
-```
-#### `trackLabel(string|Closure|null $label)`
-
-
-Accessible label / ARIA description for the track.
-
-```php
-TrackSlider::make('field_name')
-    ->trackLabel('Progress');
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-See [Control size](/docs/shared-concepts).
-
-```php
-TrackSlider::make('field_name')
-    ->size('md');
-```
-
-### FlexField schema config
-
-| Config key | Maps to |
-|------------|---------|
-| `min` | `min()` |
-| `max` | `max()` |
-| `step` | `step()` |
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `show_output` | `showOutput()` |
-| `suffix` | `suffix()` |
-| `decimal_places` | `decimalPlaces()` |
-| `track_label` | `trackLabel()` |
-| `integer` | `integer()` |
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `min(int\|float $min)` | Setup | `0` | Lower bound |
+| `max(int\|float $max)` | Setup | `100` | Upper bound |
+| `step(int\|float $step)` | Setup | `1` | Increment step |
+| `integer(bool $condition)` | Setup | `true` | Snap to whole numbers |
+| `showOutput(bool $condition)` | Setup | `true` | Display current value inside track |
+| `suffix(string $suffix)` | Setup | `null` | Value suffix (e.g. `%`) |
+| `variant(string $variant)` | Setup | `'default'` | `default`, `secondary` |
+| `decimalPlaces(int $places)` | Setup | `null` | Fixed decimal precision |
+| `trackLabel(string $label)` | Setup | `null` | Label shown inside the track |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
 
 ---
+
+### Real-world examples
+
+#### Volume Control
+```php
+TrackSlider::make('volume')
+    ->trackLabel('Volume')
+    ->min(0)
+    ->max(100)
+    ->variant('secondary')
+    ->size('lg');
+```
+
+#### Fine-tuned Spacing
+```php
+TrackSlider::make('spacing')
+    ->min(0)
+    ->max(1)
+    ->step(0.01)
+    ->integer(false)
+    ->decimalPlaces(2)
+    ->showOutput(false);
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/track-slider`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexSlider](/docs/flexslider) | Traditional slider with draggable handles |
+| [NumberStepper](/docs/numberstepper) | Numeric input with increment/decrement buttons |
+| [ProgressBar](/docs/progressbar) | Read-only visual progress indicator |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-track-slider` | Root wrapper |
+| `fff-track-slider--{sm\|md\|lg}` | Size variant |
+| `fff-track-slider--{variant}` | Visual variant |
+| `fff-track-slider__track` | Main interactive bar |
+| `fff-track-slider__fill` | Active range indicator |
+| `fff-track-slider__thumb` | Subtle indicator (visible on hover/drag) |
+| `fff-track-slider__track-label` | Label inside the track |
+| `fff-track-slider__output` | Value output inside the track |
+| `is-disabled` | Disabled state |
+| `is-dragging` | Active drag state |

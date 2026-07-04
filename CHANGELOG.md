@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Static asset pipeline** — media under `resources/dist/assets/` copies file-by-file only when the package source is newer (instead of full directory copy on every boot).
 - **README** — NpsField gallery entry (`art/sc-33.png`); component count **69**; `CREDITS.md` link in license footer.
+- **Component documentation** — expanded reference pages under `docs/` for all form fields, columns, and layout components.
 
 ### Fixed
 

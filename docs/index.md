@@ -128,13 +128,13 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ## Playground
 
-Enable the built-in dev Playground in your Filament panel to preview every component interactively:
+Enable the playground in your Filament panel to preview components interactively:
 
 ```dotenv
 FLEX_FIELDS_PLAYGROUND=true
 ```
 
-Open **Settings & Tools → Flex Fields Playground** in the admin panel. Useful for comparing variants, testing lazy CSS loading, and validating modal / slide-over behaviour before shipping forms to production.
+Open **Settings & Tools → Flex Fields Playground** in the admin panel. Use it to compare variants and test form behaviour before shipping to production.
 
 ---
 

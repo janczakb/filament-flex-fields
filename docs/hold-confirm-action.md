@@ -398,8 +398,6 @@ For critical destructive actions, consider adding helper text in the surrounding
 
 ## Playground
 
-Enable the Flex Fields playground and open **Item card group**:
-
 ```dotenv
 FLEX_FIELDS_PLAYGROUND=true
 ```
@@ -446,8 +444,11 @@ When `true`, applies package danger palette for `color('danger')`. When `false`,
 
 ---
 
-## Related
+### Related components
 
-- [ItemCard](/docs/itemcard) — trailing `Action` slots and `itemCard()` styling
-- [ItemCardGroup](/docs/itemcardgroup) — grouped settings rows with hold confirm demos
-- [Shared concepts](/docs/shared-concepts) — lazy assets and design tokens
+| Component | When to use instead |
+|-----------|---------------------|
+| [ItemCard](/docs/itemcard) | Trailing `Action` slots and `itemCard()` styling |
+| [ItemCardGroup](/docs/itemcardgroup) | Grouped settings rows with hold-confirm demos |
+| Filament `Action` | Standard click-to-run without hold delay |
+| [Shared concepts](/docs/shared-concepts) | Lazy assets and design tokens |

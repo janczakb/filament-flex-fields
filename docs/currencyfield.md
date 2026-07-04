@@ -1,11 +1,11 @@
 ---
 title: "CurrencyField"
+description: Revolut-style currency input with locale-aware formatting, digit animations, optional currency picker, and minor-unit storage.
 ---
 
 ![CurrencyField](/art/sc-5.png)
 
 [← Back to Table of Contents](/docs/index)
-
 
 ### Summary
 
@@ -14,23 +14,32 @@ Revolut-style currency input: locale-aware formatting, digit animations, optiona
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField` |
-| **State type (internal)** | `int\|null` (single currency) or `array&lt;amount: int\|null, currency: string&gt;\|null` (multi-currency) |
-| **Default DB format** | **Minor units** as integer — e.g. `66 666,60 PLN` → `6666660` |
+| **State type** | `int\|null` (single) or `array<amount: int\|null, currency: string>` (multi) |
+| **Model cast** | `'price' => 'integer'` · `'budget' => 'array'` |
 | **FieldType** | `currency` |
+| **Playground** | `currency-field` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
+
+#### Fixed currency (PLN)
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField;
 
-// Fixed currency (PLN only)
 CurrencyField::make('price')
     ->label('Amount')
     ->currency('PLN')
     ->locale('pl_PL')
     ->required();
+```
 
-// Multi-currency with picker
+#### Multi-currency with picker
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CurrencyField;
+
 CurrencyField::make('budget')
     ->currencies(['EUR', 'USD', 'GBP', 'PLN'])
     ->currency('EUR')
@@ -40,19 +49,11 @@ CurrencyField::make('budget')
 
 ---
 
-### Storage format vs display format
-
-**Important:** commas, spaces, and currency symbols (`zł`, `€`) are **display only**. They are controlled by `locale()` and never written to the database by default.
-
-| Layer | Example (PLN) | Format |
-|-------|---------------|--------|
-| **UI** | `66 666,60 zł` | Locale grouping + symbol |
-| **Form state (Alpine / Livewire)** | `6666660` | Integer, minor units |
-| **Database (default dehydrate)** | `6666660` | Integer, minor units |
+### State & storage
 
 #### Minor units
 
-Amounts are stored as the smallest currency unit (e.g. grosze, cents):
+Amounts are stored as the smallest currency unit (e.g. grosze, cents). Commas, spaces, and currency symbols are **display only**.
 
 | Display | Minor units (`int`) |
 |---------|---------------------|
@@ -69,159 +70,138 @@ Multi-currency state:
 ]
 ```
 
-#### What the field accepts on load (`normalizeState`)
+#### Hydration (`normalizeState`)
 
-On hydrate, `afterStateHydrated` normalizes incoming values:
-
-| Value from DB / model | Result in form state |
-|-----------------------|----------------------|
-| `6666660` (`int`) | Treated as **minor units** → `6666660` |
-| `66666.60` (`float`) | Treated as **major units** → converted to `6666660` |
-| `"12.50"` (`string` with `.`) | Major units → `1250` |
-| `"66666,60"` (`string` with `,`) | **Not supported** out of the box |
-| `"66 666,60"` | **Not supported** out of the box |
-| `null` | `null` |
-
-> `min()` / `max()` are defined in **major units** (e.g. `10.50`) but validated internally as minor units.
-
----
-
-### Custom database formats
-
-By default, `dehydrateStateUsing()` saves **minor units** as `int` (or `array` with multi-currency). There is **no** built-in `-&gt;storeAsMajor()` method — override dehydration (and optionally hydration) when your column uses a different format.
-
-#### When to override `dehydrateStateUsing()`
-
-Call **after** other field configuration. Your closure receives the **normalized minor-unit state** from the component (unless you also override hydration).
-
-| Your DB column | Strategy |
-|----------------|----------|
-| `integer` minor units (recommended) | **Default** — no override needed |
-| `decimal(12,2)` major units | `dehydrateStateUsing` → divide by `10^decimals` |
-| `varchar` e.g. `"66666,60"` | `dehydrateStateUsing` → format string; `afterStateHydrated` → parse string |
-| Legacy mixed data | Eloquent **cast** on the model (preferred) |
-
-#### Example: store major units (`decimal`)
-
-```php
-CurrencyField::make('price')
-    ->currency('PLN')
-    ->dehydrateStateUsing(function (?int $state): ?float {
-        if ($state === null) {
-            return null;
-        }
-
-        return $state / 100; // 6666660 → 66666.60
-    });
-```
-
-On load, floats with a dot are already converted to minor units by `normalizeState()` (e.g. `66666.60` → `6666660`), so no extra hydration hook is required for plain floats.
-
-#### Example: store formatted string with comma
-
-```php
-CurrencyField::make('price')
-    ->currency('PLN')
-    ->afterStateHydrated(function (CurrencyField $component, mixed $state): void {
-        if (! is_string($state)) {
-            return;
-        }
-
-        // "66 666,60" → minor units
-        $normalized = str_replace([' ', ','], ['', '.'], $state);
-        $component->state((int) round((float) $normalized * 100));
-    })
-    ->dehydrateStateUsing(function (?int $state): ?string {
-        if ($state === null) {
-            return null;
-        }
-
-        return number_format($state / 100, 2, ',', ''); // 6666660 → "66666,60"
-    });
-```
-
-#### Example: keep dehydration default, only transform on save
-
-If you only need a one-off transform when persisting the parent form, you can still use `dehydrateStateUsing` on the field — it runs when Filament dehydrates form state to the model:
-
-```php
-CurrencyField::make('price')
-    ->currency('PLN')
-    ->dehydrateStateUsing(fn (CurrencyField $component, mixed $state) => $state === null
-        ? null
-        : $state / 100
-    );
-```
-
-> **Note:** The built-in closure is `fn (CurrencyField $component, mixed $state) =&gt; $component-&gt;normalizeState($state)`. When overriding, you receive state that is already in the component’s internal shape (minor units). Use `normalizeState()` only if you need to re-normalize arbitrary input.
-
-#### Recommended: Eloquent cast
-
-Keep `CurrencyField` on minor units in the form and map at the model layer:
-
-```php
-// Model — illustrative custom cast
-protected function casts(): array
-{
-    return [
-        'price' => MinorUnitsCast::class, // DB decimal ↔ app int
-    ];
-}
-```
-
-This avoids duplicating conversion logic across forms and API resources.
-
-#### Migration recommendation
-
-For legacy projects, prefer a **one-time migration** to `integer` minor units or `decimal` major units rather than storing locale-specific strings long term.
+On load, the field normalizes incoming values:
+- `6666660` (`int`) → Treated as **minor units** → `6666660`
+- `66666.60` (`float`) → Treated as **major units** → converted to `6666660`
+- `"12.50"` (`string` with `.`) → Major units → `1250`
 
 ---
 
 ### Configuration API
 
-#### `variant(string|Closure $variant)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `currency(string\|Closure $currencyCode)` | Setup | `'PLN'` | Default currency code |
+| `currencies(array\|Closure\|null $currencies)` | Setup | `null` | Whitelist for currency picker |
+| `locale(string\|Closure\|null $locale)` | Setup | auto | Formatting locale (e.g. `en_US`) |
+| `min(float\|int\|Closure\|null $value)` | Setup | `null` | Minimum value in **major units** |
+| `max(float\|int\|Closure\|null $value)` | Setup | `null` | Maximum value in **major units** |
+| `allowNegative(bool\|Closure $condition = true)` | Setup | `false` | Allow negative amounts |
+| `animated(bool\|Closure $condition = true)` | Setup | `true` | Enable digit animations |
+| `commitDecimalsOnBlur(bool\|Closure $condition = true)` | Setup | `true` | Pad decimals when field loses focus |
+| `searchable(bool\|Closure $condition = true)` | Setup | `true` | Enable search in currency picker |
+| `variant(string\|Closure $variant)` | Setup | `'primary'` | Visual style: `primary`, `secondary`, `flat`, `soft` |
+| `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |
+| `rounding(string\|Closure\|null $rounding)` | Setup | config | Border radius token |
 
-Sets the styling variant of the currency field. Available: `primary` (default), `secondary`, `flat`.
+#### `min()` / `max()`
+
+Defined in **major units** (e.g. `10.50`) but validated internally as minor units.
 
 ```php
 CurrencyField::make('price')
-    ->variant('flat');
+    ->min(0)
+    ->max(10000);
 ```
-### Public helper methods
 
-| Method | Description |
-|--------|-------------|
-| `normalizeState(mixed $state)` | Convert arbitrary input to minor-unit state shape |
-| `extractAmount(int\|array\|null $state)` | Get amount in minor units |
-| `extractCurrency(int\|array\|null $state)` | Get currency code |
-| `getInitialDisplay(?mixed $state = null)` | Server-rendered segments for first paint (no layout flash) |
-| `hasCurrencySelect()` | Whether `currencies()` is configured |
-| `getCurrenciesMetadata()` | Metadata for Alpine (`code`, `symbol`, `decimals`, `locale`) |
+---
 
-### FlexField schema config
+### Custom database formats
 
-| Config key | Maps to |
-|------------|---------|
-| `currency` | `currency()` |
-| `locale` | `locale()` |
-| `currencies` | `currencies()` |
-| `min` | `min()` |
-| `max` | `max()` |
-| `allow_negative` | `allowNegative()` |
-| `animated` | `animated()` |
-| `commit_decimals_on_blur` | `commitDecimalsOnBlur()` |
-| `searchable` | `searchable()` |
-| `size` | `size()` |
+By default, `CurrencyField` saves minor units as integers. If your database uses decimals, override dehydration:
 
-### CSS classes
+#### Store major units (`decimal`)
 
-| Class | Meaning |
-|-------|---------|
+```php
+CurrencyField::make('price')
+    ->currency('PLN')
+    ->dehydrateStateUsing(fn (?int $state) => $state === null ? null : $state / 100);
+```
+
+#### Eloquent cast (Recommended)
+
+Map at the model layer to keep form logic clean:
+
+```php
+// Model
+protected function casts(): array
+{
+    return [
+        'price' => MinorUnitsCast::class, // Custom cast: DB decimal ↔ app int
+    ];
+}
+```
+
+---
+
+### Real-world examples
+
+#### Product price in a resource
+
+```php
+public static function form(Form $form): Form
+{
+    return $form->schema([
+        CurrencyField::make('price')
+            ->currency('USD')
+            ->locale('en_US')
+            ->min(0.01)
+            ->required(),
+    ]);
+}
+```
+
+#### Multi-currency donation form
+
+```php
+CurrencyField::make('donation_amount')
+    ->currencies(['USD', 'EUR', 'GBP'])
+    ->currency('USD')
+    ->variant('flat')
+    ->size('lg');
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/currency-field`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexTextInput](/docs/flextextinput) | For simple numeric inputs without currency formatting |
+| [PriceRangeField](/docs/pricerangefield) | For selecting a range of prices (min/max) |
+| [CountryField](/docs/countryfield) | For picking a country instead of a currency |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
 | `fff-currency-field` | Root wrapper |
 | `fff-currency-field--{sm\|md\|lg}` | Size modifier |
+| `fff-currency-field--{variant}` | Visual variant |
 | `fff-currency-field__currency-trigger` | Currency picker chip |
 | `fff-currency-field__digits` | Animated digit display |
 | `fff-currency-field__symbol` | Trailing currency symbol |
 
 ---
+
+### Performance
+
+| Mechanism | What it does |
+|-----------|--------------|
+| **SSR Pre-render** | `getInitialDisplay()` renders segments server-side to prevent layout flash |
+| **Memoized Metadata** | Currency metadata (symbols, decimals) is cached for Alpine |
+| **Efficient Validation** | Normalizes state to minor units for consistent server-side validation |

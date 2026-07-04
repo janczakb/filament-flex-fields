@@ -1,97 +1,125 @@
 ---
 title: "RatingColumn"
+description: Visual star or icon rating display for Filament tables with fractional fill support.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Read-only **table column** for displaying ratings with the same visual language as [RatingField](/docs/ratingfield). Supports fractional values with partial icon fill, custom icons, semantic colors, sizes, and optional numeric value display.
+A table column for displaying numeric ratings as a series of stars or custom icons. It supports fractional fills (e.g., 4.5 stars), custom icons, and color-coded states. Pair this with [RatingField](/docs/ratingfield) for a complete rating system.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Tables\Columns\RatingColumn` |
-| **Context** | Filament tables (`$table-&gt;columns([...])`) |
-| **State type** | `int|float|string|null` (numeric values only) |
-| **Parent** | `Filament\Tables\Columns\TextColumn` |
+| **State type** | `float\|int\|null` |
+| **Model cast** | `'rating' => 'float'` |
+| **Playground** | `rating-column` slug in Flex Fields playground |
+| **Default max** | `5` |
+| **Default icon** | `heroicon-s-star` |
 
-Shares rating display configuration with RatingField via matching fluent API. Column methods use a `rating*` prefix where they would conflict with `TextColumn` (`ratingSize()`, `ratingColor()`, `ratingIcon()`).
+---
 
 ### Basic usage
 
+#### Standard 5-star rating
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\RatingColumn;
-use Filament\Support\Icons\Heroicon;
 
-RatingColumn::make('score')
-    ->label('Rating');
+RatingColumn::make('average_rating')
+    ->label('Score');
+```
 
-RatingColumn::make('average_score')
-    ->stars(10)
-    ->ratingColor('success')
-    ->ratingSize('lg');
-
+#### Custom icons and colors
+```php
 RatingColumn::make('satisfaction')
-    ->ratingIcon(Heroicon::Heart)
-    ->ratingColor('danger')
+    ->ratingIcon('heroicon-s-face-smile')
+    ->ratingColor('success')
+    ->stars(10);
+```
+
+---
+
+### State & formatting
+
+#### Stored value
+The column expects a numeric value (integer or float). Values exceeding the `stars()` count are capped at the maximum.
+
+```php
+$record->rating; // 4.5
+```
+
+#### Fractional Fills
+`RatingColumn` automatically calculates fractional fills for non-integer values. A rating of `3.7` will show three full stars and one star filled to 70%.
+
+#### Displaying the numeric value
+By default, the numeric value is shown next to the icons. You can hide it if needed:
+
+```php
+RatingColumn::make('rating')
     ->showValue(false);
 ```
 
-Filament resolves `$record-&gt;score` as column state from the model attribute or relationship. Fractional values (e.g. `3.7`) render with partial star fill.
+---
 
-### Configuration API (RatingColumn-specific)
+### Configuration API
 
-No column-only methods beyond inherited table APIs. All visual options come from the shared rating display API below.
+All methods accept `Closure` unless noted.
 
-### Shared rating display API
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `stars(int\|Closure $count)` | Setup | `5` | Maximum number of icons to show |
+| `ratingColor(string\|Closure $color)` | Setup | `'warning'` | Icon fill color |
+| `ratingIcon(string\|Closure $icon)` | Setup | `star` | Filament icon string |
+| `showValue(bool\|Closure $cond)` | Setup | `true` | Show numeric value text |
+| `ratingSize(string\|Closure $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
 
-These methods are identical to [RatingField](/docs/ratingfield):
+---
 
-| Method | Description |
-|--------|-------------|
-| `stars(int\|Closure $count)` | Number of rating items. Default: **5** |
-| `ratingSize(string\|ControlSize\|Closure $size)` | Icon control size (`sm`, `md`, `lg`). Default: `md` (table scale: 16 / 18 / 20 px) |
-| `ratingColor(string\|Closure\|null $color)` | Semantic fill color (`warning`, `primary`, `danger`, `success`) |
-| `ratingIcon(string\|BackedEnum\|Htmlable\|Closure\|null $icon)` | Custom icon. Default: `Heroicon::Star` |
-| `showValue(bool\|Closure $condition = true)` | Show numeric value (one decimal) beside icons. Default: `true` |
+### Real-world examples
 
-### Inherited TextColumn API
+#### Product Reviews Table
+```php
+public static function table(Table $table): Table
+{
+    return $table
+        ->columns([
+            TextColumn::make('title'),
+            RatingColumn::make('rating')
+                ->stars(5)
+                ->ratingColor(fn ($state) => $state >= 4 ? 'success' : 'warning')
+                ->sortable(),
+        ]);
+}
+```
 
-All Filament `TextColumn` methods apply: `label()`, `sortable()`, `searchable()`, `toggleable()`, `alignStart()` / `alignCenter()`, `url()`, `tooltip()`, etc. The column uses `html()` internally — do not call `html(false)` unless you override `formatStateUsing()`.
+---
 
-### Public helper methods
+### Playground
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `formatRatingDisplay(mixed $state)` | `string` | Rendered HTML for a state value |
-| `normalizeRatingFromState(mixed $state)` | `?float` | Parsed numeric value clamped to `0…max`, or `null` |
-| `getFillPercentageForValue(float\|int\|null $value, int $index)` | `float` | Fill ratio `0.0–1.0` for icon at 1-based `$index` |
-| `getMax()` | `int` | Star count |
-| `getRatingColor()` | `string` | Semantic color name |
-| `getRatingIcon()` | `string\|BackedEnum\|Htmlable` | Icon reference |
-| `getRatingDisplaySize()` | `string` | Icon control size (`sm`, `md`, `lg`) |
-| `shouldShowValue()` | `bool` | Whether numeric value is shown |
-| `getItemIndexes()` | `list&lt;int&gt;` | 1-based indexes for each star |
+`/admin/flex-fields-playground/rating-column`
 
-### CSS classes
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [RatingField](/docs/ratingfield) | Form input for collecting ratings |
+| [NpsField](/docs/nps-field) | Survey-style NPS or Likert scales |
+| [ProgressBar](/docs/progressbar) | Linear progress instead of icon rating |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
-| `fff-rating-column` | Cell wrapper (inline flex) |
-| `fff-rating` | Shared rating root (reused from RatingField) |
-| `fff-rating--{size}` | Size variant (`sm`, `md`, `lg`) |
-| `fff-rating--with-value` | Layout when numeric value is shown |
-| `is-read-only` | Non-interactive display mode |
-| `fff-rating__items` | Icon row |
-| `fff-rating__icon-clip` | Partial fill clip for fractional values |
-| `fff-rating__value` | Numeric value label |
-
-### Performance
-
-| Mechanism | What it does |
-|-----------|----------------|
-| **`RatingColumnRenderCache`** | Per-request cache of rendered rating HTML keyed by normalized value and column options. Identical ratings across rows reuse one Blade render. |
-| **Lazy CSS** | `RatingColumn::setUp()` registers `rating-column` in `FlexFieldStylesheetQueue`; `queued-stylesheets` render hooks emit `flex-fields-rating-column.css` once per request (no `load-stylesheet` in cell blades) |
-
----
+| `fff-rating-column` | Root wrapper |
+| `fff-rating-column__icons` | Container for all icons |
+| `fff-rating-column__icon-wrapper` | Individual icon container |
+| `fff-rating-column__icon-bg` | Background (empty) icon |
+| `fff-rating-column__icon-fill` | Foreground (filled) icon |
+| `fff-rating-column__value` | Numeric value text |

@@ -1,345 +1,144 @@
 ---
 title: "VoiceNoteRecorderField"
+description: In-browser voice recorder with real-time visualizer, inline playback, and Filament storage integration.
 ---
 
 ![VoiceNoteRecorderField](/art/sc-12.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-In-browser voice recorder with real-time frequency visualizer, inline playback (waveform + play/pause), and Filament `FileUpload` storage integration. Records audio from the microphone, previews locally, then uploads to Livewire temporary storage and persists to disk on form save.
+In-browser voice recorder featuring a real-time frequency visualizer, inline playback (waveform + play/pause), and seamless Filament **FileUpload** storage integration. Records audio from the microphone, previews locally, and handles the entire upload/persistence pipeline.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\VoiceNoteRecorderField` |
-| **State type** | `string\|null` — stored path on disk after save; keyed `TemporaryUploadedFile` object during upload |
-| **FieldType** | — (use the PHP class directly; not mapped via `FieldType`) |
+| **State type** | `string\|null` — stored path on disk after save |
+| **FieldType** | *(use the class directly)* |
 | **Extends** | `FlexFileUpload` → `Filament\Forms\Components\FileUpload` |
+| **Playground** | `audio-field` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
 
-#### Default — upload on form submit
-
-Recording stays in the browser until the form is submitted. A loader is shown while the file uploads before save.
-
+#### Default — Upload on Form Submit
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VoiceNoteRecorderField;
 
 VoiceNoteRecorderField::make('voice_note')
     ->label('Voice message')
-    ->required()
     ->disk('public')
     ->directory('voice-notes')
-    ->maxDuration(120);
+    ->maxDuration(120); // 2 minutes
 ```
 
-#### Immediate upload after recording
-
-Uploads to Livewire temporary storage right after recording stops. Delete removes the file from storage (when `deleteFileOnRemove()` is enabled — default in `setUp()`).
-
+#### Immediate Upload after Recording
 ```php
-VoiceNoteRecorderField::make('voice_note')
+VoiceNoteRecorderField::make('feedback_audio')
     ->uploadImmediately()
-    ->disk('public')
-    ->directory('voice-notes');
+    ->disk('s3')
+    ->directory('feedback');
 ```
 
-Equivalent explicit defer:
+---
+
+### State & validation
+
+#### Stored value
+State is a relative path string to the stored audio file on your configured disk.
 
 ```php
-VoiceNoteRecorderField::make('voice_note')
-    ->uploadOnSubmit(); // default behaviour
+$record->voice_note; // 'voice-notes/01H….webm'
 ```
 
-### Upload flow
+#### Validation rules
+Inherits all `FileUpload` validation rules (`maxSize()`, `required()`, etc.). Default accepted MIME types include `audio/*`, `audio/mpeg`, `audio/wav`, `audio/webm`, `audio/aac`.
 
-| Stage | What happens |
-|-------|----------------|
-| **Record** | Audio captured in the browser (`MediaRecorder`); playback uses a local blob URL |
-| **JS upload** | `$wire.upload('{statePath}.{uuid}', file)` — file lands in **Livewire temp** (`config/livewire.php` → `temporary_file_upload`) |
-| **Form save** | Filament `beforeStateDehydrated` → `saveUploadedFiles()` moves/stores the file to **`disk()` + `directory()`** |
-| **Persisted state** | Relative path string, e.g. `voice-notes/01H….webm` |
-
-**Temporary path** is configured **globally** for all Livewire uploads (not per field):
-
-```php
-// config/livewire.php
-'temporary_file_upload' => [
-    'disk' => env('LIVEWIRE_TEMPORARY_FILE_UPLOAD_DISK'),
-    'directory' => 'livewire-tmp', // default when null
-],
-```
-
-**Final path** is configured **per field** with inherited `FileUpload` API:
-
-```php
-->disk('public')
-->directory('voice-notes/recordings')
-->visibility('public')
-->moveFiles() // optional: move instead of copy when temp and target share the same disk
-```
-
-### State format
-
-| Phase | State shape | Example |
-|-------|-------------|---------|
-| Empty | `null` | — |
-| After JS upload (before save) | Associative array keyed by UUID | `['a1b2…' =&gt; TemporaryUploadedFile]` |
-| After form dehydrate / save | `string` — path on `disk()` | `'voice-notes/01H….webm'` |
-| Existing record (edit) | `string` path | Loaded for playback via `getInitialAudioUrl()` |
-
-### Validation
-
-| Rule | Detail |
-|------|--------|
-| `required()` | Recording must be present before submit |
-| Inherited `FileUpload` | `maxSize()`, `acceptedFileTypes()`, etc. |
-
-Default accepted MIME types (set in `setUp()`): `audio/*`, `audio/mpeg`, `audio/wav`, `audio/webm`, `audio/ogg`, `audio/x-m4a`, `audio/aac`.
+---
 
 ### Configuration API
 
-#### `maxDuration(int|Closure $seconds)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `maxDuration(int $seconds)` | Setup | `120` | Max recording length |
+| `uploadImmediately(bool $cond)` | Setup | `false` | Upload to temp storage right after recording |
+| `uploadOnSubmit(bool $cond)` | Setup | `true` | Defer upload until form submit |
+| `microphoneIcon(string $icon)` | Setup | config | Custom microphone icon |
+| `stopIcon(string $icon)` | Setup | config | Custom stop icon |
+| `trashIcon(string $icon)` | Setup | config | Custom delete icon |
+| `playIcon(string $icon)` | Setup | config | Custom play icon |
+| `pauseIcon(string $icon)` | Setup | config | Custom pause icon |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
+| `focusOutline(bool $cond)` | Setup | `false` | Enable shared focus ring |
 
-Maximum recording length in seconds. Timer stops recording automatically. Default: `120` (2 minutes).
-
-```php
-->maxDuration(30)
-```
-
-#### `uploadImmediately(bool|Closure $condition = true)`
-
-
-Upload to Livewire temp storage immediately after recording. Playback stays visible; background upload progress is shown on the pill.
-
-```php
-VoiceNoteRecorderField::make('field_name')
-    ->uploadImmediately(true);
-```
-#### `uploadOnSubmit(bool|Closure $condition = true)`
-
-
-Defer upload until form submit (default). Shows “Preparing voice note for save…” while uploading on submit.
-
-```php
-VoiceNoteRecorderField::make('field_name')
-    ->uploadOnSubmit(true);
-```
-#### Icon overrides
-
-
-| Method | Default (Gravity UI) | Config key (`filament-flex-fields.ui`) |
-|--------|----------------------|----------------------------------------|
-| `playIcon()` | `PlayFill` | `audio_play_icon` |
-| `pauseIcon()` | `PauseFill` | `audio_pause_icon` |
-| `microphoneIcon()` | `Microphone` | `microphone_icon` |
-| `stopIcon()` | `Minus` | `stop_icon` |
-| `trashIcon()` | `TrashBin` | `trash_icon` |
-| `checkmarkIcon()` | `Check` | `checkmark_icon` |
-
-```php
-VoiceNoteRecorderField::make('voice_note')
-    ->microphoneIcon('heroicon-o-microphone')
-    ->maxDuration(60)
-    ->size('lg');
-```
-
-#### `size(string|ControlSize|Closure $size)`
-
-
-`sm`, `md`, `lg`. Inherited from `FlexFileUpload` / `HasControlSize`.
-
-```php
-VoiceNoteRecorderField::make('field_name')
-    ->size('md');
-```
-
-#### `focusOutline(bool|Closure $condition = true)`
-
-Inherited from `HasFieldFocusOutline` via `FlexFileUpload`. Default: **`false`**. Adds the shared focus ring on the recorder shell when enabled.
-
-```php
-VoiceNoteRecorderField::make('voice_note')->focusOutline();
-```
+---
 
 ### Inherited FileUpload API
 
-`VoiceNoteRecorderField` uses the standard Filament file upload pipeline (not FilePond UI). Common options:
+Commonly used methods from the standard Filament FileUpload:
+- `disk(string $name)`
+- `directory(string $directory)`
+- `visibility(string $visibility)`
+- `maxSize(int $size)`
+- `deleteFileOnRemove()` (Enabled by default)
 
-| Method | Description |
-|--------|-------------|
-| `disk(string\|Closure\|null $name)` | Target filesystem disk for persisted files |
-| `directory(string\|Closure\|null $directory)` | Subdirectory on that disk |
-| `visibility(string\|Closure\|null $visibility)` | `public` or `private` |
-| `maxSize(int\|Closure\|null $size)` | Max file size in KB |
-| `required()` / `nullable()` | Validation |
-| `deleteFileOnRemove()` | Remove file from disk when user deletes recording (enabled by default) |
-| `storeFileNamesIn(string\|Closure\|null $path)` | Sibling state for original filenames |
-| `preserveFilenames()` / `moveFiles()` | See [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) |
-| `acceptedFileTypes(array\|Closure $types)` | Override MIME whitelist (defaults set in `setUp()`) |
-| `imageEditor(bool\|Closure $condition = true)` | Not used by voice UI — leave disabled (default) |
-| `multiple(bool\|Closure $condition = true)` | Single recording per field — keep `multiple(false)` |
-| `maxFiles(int\|Closure $max)` | Typically `1` for a single voice note |
-| `openable()` / `downloadable()` / `previewable()` | FileUpload flags; voice field uses custom playback UI |
+---
 
+### Real-world examples
+
+#### Support Ticket Voice Note
 ```php
-VoiceNoteRecorderField::make('voice_note')
-    ->disk('s3')
-    ->directory('support/voice-notes')
-    ->visibility('private')
-    ->maxSize(5120) // KB
-    ->acceptedFileTypes(['audio/webm', 'audio/mp4', 'audio/mpeg'])
-    ->maxFiles(1);
-```
-
-### Flex fields context
-
-There is **no** `FieldType` enum mapping for `VoiceNoteRecorderField`. Use the PHP class directly in Filament schemas, or register a custom flex-field handler if you need schema-driven forms.
-
-### Model & persistence
-
-```php
-// Migration
-$table->string('voice_note_path')->nullable();
-
-// Model
-protected $fillable = ['voice_note_path'];
-```
-
-Optional URL accessor for playback outside the form:
-
-```php
-public function getVoiceNoteUrlAttribute(): ?string
-{
-    if (blank($this->voice_note_path)) {
-        return null;
-    }
-
-    return Storage::disk('public')->url($this->voice_note_path);
-}
-```
-
-Edit form with existing recording:
-
-```php
-VoiceNoteRecorderField::make('voice_note_path')
-    ->label('Voice note')
-    ->disk('public')
-    ->directory('voice-notes')
-    ->default(fn (?Ticket $record): ?string => $record?->voice_note_path);
-// getInitialAudioUrl() resolves playback URL from persisted path on load
-```
-
-### Recipes
-
-#### Support ticket voice note — deferred upload
-
-```php
-VoiceNoteRecorderField::make('voice_note_path')
+VoiceNoteRecorderField::make('issue_description')
     ->label('Describe the issue')
     ->disk('public')
     ->directory('tickets/voice-notes')
-    ->maxDuration(120)
+    ->maxDuration(60)
     ->required()
-    ->helperText('Record up to 2 minutes. Upload runs when you submit the form.');
+    ->helperText('Record up to 1 minute.');
 ```
 
-#### Immediate upload — feedback widget
-
+#### Private S3 Recording
 ```php
-VoiceNoteRecorderField::make('feedback_audio')
-    ->label('Voice feedback')
-    ->uploadImmediately()
-    ->disk('public')
-    ->directory('feedback')
-    ->maxDuration(60);
-```
-
-#### Edit form — existing file playback
-
-```php
-VoiceNoteRecorderField::make('voice_note_path')
-    ->label('Voice message')
-    ->default(fn (?Message $record): ?string => $record?->voice_note_path)
-    ->disk('public')
-    ->directory('messages/voice')
-    ->uploadOnSubmit();
-```
-
-#### Private S3 disk — short 30s limit
-
-```php
-VoiceNoteRecorderField::make('voice_note_path')
-    ->label('Quick voice reply')
+VoiceNoteRecorderField::make('private_note')
     ->disk('s3')
-    ->directory('voice-notes')
+    ->directory('internal/voice')
     ->visibility('private')
-    ->maxDuration(30)
-    ->maxSize(2048)
     ->uploadImmediately();
 ```
 
-#### Custom control icons
+---
 
-```php
-use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+### Playground
 
-VoiceNoteRecorderField::make('voice_note_path')
-    ->microphoneIcon(GravityIcon::Microphone)
-    ->playIcon('heroicon-o-play')
-    ->pauseIcon('heroicon-o-pause')
-    ->stopIcon('heroicon-o-stop')
-    ->trashIcon('heroicon-o-trash')
-    ->checkmarkIcon('heroicon-o-check')
-    ->size('lg');
-```
+`/admin/flex-fields-playground/audio-field`
 
-### Public helper methods
+See [Playground](/docs/index#playground) for setup.
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `getMaxDuration()` | `int` | Max recording seconds |
-| `shouldUploadImmediately()` | `bool` | Immediate vs deferred upload |
-| `getInitialAudioUrl()` | `string\|null` | Public URL for existing persisted file (edit forms) |
-| `getPlayIcon()` / `getPauseIcon()` / … | `string\|BackedEnum\|Htmlable` | Resolved control icons |
+---
 
-### CSS classes
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [AudioField](/docs/audiofield) | Playback-only audio pill |
+| [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) | Standard file picker for existing audio files |
+| [VideoField](/docs/videofield) | Video playback and recording (if supported) |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
 | `fff-voice-recorder` | Root wrapper |
-| `fff-voice-recorder--{sm\|md\|lg}` | Size modifier |
-| `fff-voice-recorder__record-btn` | Start recording |
-| `fff-voice-recorder__recording` | Active recording UI + canvas visualizer |
-| `fff-voice-recorder__playback-pill` | Playback bar (play, waveform, time, delete) |
-| `fff-voice-recorder__waveform` | Scrubbable waveform bars |
-| `fff-voice-recorder__container.is-submitting` | Deferred upload in progress on submit |
-
-Alpine component: `voice-note-recorder-field` (built to `resources/dist/components/voice-note-recorder-field.js`).
-
-### Playground
-
-Registered under **Audio field** playground (`AudioFieldPlayground`):
-
-| Variant key | Description |
-|-------------|-------------|
-| `voice_note__basic` | Default recorder, deferred upload |
-| `voice_note__sm` / `voice_note__lg` | Size variants |
-| `voice_note__with_limit` | `maxDuration(30)` |
-| `voice_note__immediate` | `uploadImmediately()` |
-
-Use **Dump JSON** in the playground to inspect temp upload state (`livewire-file:…`). Permanent disk storage requires a real form save (playground has no save action).
-
-### Implementation notes
-
-- Requires **microphone permission** and a browser with `MediaRecorder` (Chrome, Safari, Firefox).
-- Prefers `audio/mp4` when supported (Safari), falls back to `audio/webm` / `audio/ogg`.
-- Local playback uses blob URLs; duration falls back to measured recording time when WebM metadata is missing.
-- Deferred upload hooks the parent `&lt;form&gt;` `submit` event (capture phase), uploads via Livewire, then calls `form.requestSubmit()`.
-- Delete calls `removeUploadedFile` (temp) or `deleteUploadedFile` (persisted) via `callSchemaComponentMethod` when `schemaComponentKey` is available.
-- Translations: `filament-flex-fields::default.audio.*` (`record_label`, `uploading_on_submit`, etc.).
-
----
+| `fff-voice-recorder--{sm\|md\|lg}` | Size variant |
+| `fff-voice-recorder__record-btn` | Microphone button |
+| `fff-voice-recorder__recording` | Active recording UI |
+| `fff-voice-recorder__visualizer` | Real-time frequency canvas |
+| `fff-voice-recorder__playback-pill` | Playback bar wrapper |
+| `fff-voice-recorder__waveform` | Scrubbable waveform |
+| `is-submitting` | Deferred upload in progress |

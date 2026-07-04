@@ -971,4 +971,16 @@ Nowy scraper/proxy: kopiuj walidację hostów i timeouty z `UrlMetaScraper` / ko
 
 ---
 
-*Ostatnia aktualizacja: v2.7.x — world-class maintenance: UserSelect modules, file-upload/date-time splits, fixture E2E smoke, baseline sync.*
+## 15. Konserwacja dokumentacji (`docs/`)
+
+Pliki w `docs/` są dokumentacją **dla użytkowników pakietu**. Nie umieszczaj tam metadanych wewnętrznych (`Last reviewed`, checklist dla autorów, odniesień do tego pliku).
+
+Przy zmianie publicznego API zaktualizuj odpowiedni plik w `docs/`, wpis w `COMPONENTS.md` i nawigację w `docs.json`.
+
+- Playground URL: `/admin/flex-fields-playground/{slug}` (slug z `FlexFieldsPlaygroundRegistry`)
+- Hero: `art/sc-N.png` — dodaj przy nowym komponencie z galerią
+- Kolejność nowego komponentu: PHP → playground → `docs/{name}.md` → `docs.json` / `COMPONENTS.md`
+
+---
+
+*Ostatnia aktualizacja: v2.8.0*

@@ -530,3 +530,27 @@ Uses `wire:ignore` on the Alpine root — prefer changing Livewire state or sibl
 - Invalid `variant()` or `previewLayout()` values throw `InvalidArgumentException` at render time.
 
 ---
+
+### Playground
+
+Slug: **`link-preview-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Default | Horizontal card, debounced scrape |
+| Layout variants | Vertical and card layouts |
+| Affixes | URL prefix/suffix on the pill shell |
+
+`/admin/flex-fields-playground/link-preview-field` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexTextInput](/docs/flextextinput) | URL input without Open Graph preview |
+| [SocialLinksField](/docs/social-links-field) | Multiple branded social profile URLs |
+| [SlugField](/docs/slugfield-and-titleslugfield) | Permalink slug with live preview |
+
+---

@@ -1,21 +1,27 @@
 ---
 title: "CountryField"
+description: Searchable country picker with circle flags and ISO 3166-1 alpha-2 code storage.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Searchable country picker with circle flags. Stores a single **ISO 3166-1 alpha-2** code. Uses the full country list (~255 codes) — broader than `PhoneField`’s libphonenumber region set — with the same flag assets as the phone country dropdown.
+Searchable country picker with circle flags. Stores a single **ISO 3166-1 alpha-2** code. Uses the full country list (~255 codes) with optimized flag assets.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\CountryField` |
 | **State type** | `string\|null` — ISO alpha-2 country code |
+| **Model cast** | `'country_code' => 'string'` |
 | **FieldType** | `country` |
+| **Playground** | `country-field` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
+
+#### Standard country picker
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CountryField;
@@ -24,215 +30,139 @@ CountryField::make('country')
     ->label('Country')
     ->defaultCountry('PL')
     ->required();
+```
+
+#### Whitelist and browser detection
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CountryField;
 
 CountryField::make('shipping_country')
-    ->countries(['PL', 'DE', 'GB', 'US'])
-    ->exceptCountries(['RU', 'BY'])
+    ->countries(['PL', 'DE', 'GB', 'US', 'FR'])
+    ->exceptCountries(['RU'])
     ->showCountryCode()
     ->browserLocaleDefault()
     ->browserLocaleSortFirst();
 ```
 
-### State format
+---
 
-| Value | Description | Example |
-|-------|-------------|---------|
-| Selected country | Uppercase ISO 3166-1 alpha-2 | `PL`, `US`, `DE` |
-| Empty | `null` when cleared or invalid | `null` |
+### State & validation
 
-On hydrate and dehydrate, `normalizeState()` uppercases and validates against the resolved country list. Invalid stored values fall back to `defaultCountry()` when allowed, otherwise `null`.
+#### Stored value
 
-### Validation
+State is a single **uppercase ISO 3166-1 alpha-2 string**.
 
-| Behaviour | Detail |
-|-----------|--------|
-| Built-in | Custom rule — submitted code must be in resolved list |
-| `required()` | Value must not be blank |
-| Filament `required` rule | Overridden to `nullable` — validation handled by custom rule |
+```php
+$record->country_code; // string|null — e.g. "PL", "US", "DE"
+```
+
+#### Validation rules
+
+Built-in validation ensures the submitted code is in the resolved country list.
+
+| Rule | Detail |
+|------|--------|
+| `nullable` | Always (unless `required()`) |
+| `in(...)` | Value must match a configured ISO alpha-2 code |
+
+---
 
 ### Configuration API
 
-#### `variant(string|Closure $variant)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `countries(array\|Closure\|null $countries)` | Setup | `null` | Whitelist of ISO alpha-2 codes |
+| `exceptCountries(array\|Closure $countries)` | Setup | `[]` | Blacklist of ISO alpha-2 codes |
+| `defaultCountry(string\|Closure\|null $countryCode)` | Setup | `'PL'` | Fallback ISO code |
+| `browserLocaleDefault(bool\|Closure $condition = true)` | Setup | `false` | Pre-select from browser locale |
+| `browserLocaleSortFirst(bool\|Closure $condition = true)` | Setup | `false` | Sort browser country to top of list |
+| `showCountryCode(bool\|Closure $condition = true)` | Setup | `false` | Show ISO code (e.g. `PL`) next to name |
+| `showDialCode(bool\|Closure $condition = true)` | Setup | `false` | Show international dial code (e.g. `+48`) |
+| `searchable(bool\|Closure $condition = true)` | Setup | `true` | Show search input in dropdown |
+| `variant(string\|Closure $variant)` | Setup | `'primary'` | Visual style: `primary`, `secondary`, `flat`, `soft` |
+| `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |
+| `rounding(string\|Closure\|null $rounding)` | Setup | config | Border radius token |
 
-Visual style shared with FlexTextInput. Values: `primary` (default), `secondary`, `flat`.
+#### `countries()` / `exceptCountries()`
 
-```php
-CountryField::make('field_name')
-    ->variant('primary');
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-Control height. See [Control size](/docs/shared-concepts). Default: `md` (config: `filament-flex-fields.ui.country_size`).
-
-```php
-CountryField::make('field_name')
-    ->size('md');
-```
-#### `defaultCountry(string|Closure|null $countryCode)`
-
-
-ISO code when no value is selected. Default: `PL` (config: `filament-flex-fields.ui.country_default_country`). Falls back to first allowed country when the default is not in the list.
+Limit the list to specific markets:
 
 ```php
-CountryField::make('field_name')
-    ->defaultCountry('value');
+CountryField::make('country')
+    ->countries(['US', 'CA', 'MX']);
 ```
-#### `countries(array|Closure|null $countries)`
 
+#### `showDialCode()`
 
-Whitelist of ISO codes. `null` = all countries from the built-in ISO list (minus `exceptCountries`).
+Useful for address forms where phone context is helpful:
 
 ```php
-->countries(['PL', 'DE', 'FR'])
+CountryField::make('country')->showDialCode();
 ```
 
-#### `exceptCountries(array|Closure $countries)`
+---
 
+### Real-world examples
 
-Blacklist applied after the whitelist. Default: `[]`.
+#### Shipping address form
 
 ```php
-CountryField::make('field_name')
-    ->exceptCountries(['value1', 'value2']);
-```
-#### `searchable(bool|Closure $condition = true)`
-
-
-Show search input in the dropdown. Default: `true`. Search matches country name, code, and dial code.
-
-```php
-CountryField::make('field_name')
-    ->searchable(true);
-```
-#### `showCountryCode(bool|Closure $condition = true)`
-
-
-Show ISO code next to the country name in the trigger and menu. Default: `false`.
-
-```php
-CountryField::make('field_name')
-    ->showCountryCode(true);
-```
-#### `showDialCode(bool|Closure $condition = true)`
-
-
-Show international dial code when available (libphonenumber-supported regions). Default: `false`.
-
-```php
-CountryField::make('field_name')
-    ->showDialCode(true);
-```
-#### `browserLocaleDefault(bool|Closure $condition = true)`
-
-
-When enabled and state is empty on hydrate, pre-select country from `Accept-Language` (server) or `navigator.languages` (client Alpine).
-
-```php
-CountryField::make('field_name')
-    ->browserLocaleDefault(true);
-```
-#### `browserLocaleSortFirst(bool|Closure $condition = true)`
-
-
-Sort country list with browser-detected country first.
-
-```php
-CountryField::make('field_name')
-    ->browserLocaleSortFirst(true);
-```
-#### `placeholder(string|Closure|null $placeholder)`
-
-
-Inherited from Filament `HasPlaceholder`. Default translation: `filament-flex-fields::country.placeholder`.
-
-```php
-CountryField::make('field_name')
-    ->placeholder('Enter value...');
-```
-#### `readOnly(bool|Closure $condition = true)`
-
-
-Inherited from Filament `CanBeReadOnly`.
-
-```php
-CountryField::make('field_name')
-    ->readOnly(true);
-```
-#### `focusOutline(bool|Closure $condition = true)`
-
-
-Inherited from `HasFieldFocusOutline`. Default: `false`.
-
-```php
-CountryField::make('field_name')
-    ->focusOutline(true);
+public static function form(Form $form): Form
+{
+    return $form->schema([
+        CountryField::make('shipping_country')
+            ->label('Delivery Country')
+            ->countries(config('app.shipping_countries'))
+            ->browserLocaleDefault()
+            ->required(),
+    ]);
+}
 ```
 
-### Public helper methods
+#### Multi-language support
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `getVariant()` | `string` | Resolved variant |
-| `getAllowedCountryCodes()` | `list&lt;string&gt;\|null` | Whitelist or `null` |
-| `getExceptCountryCodes()` | `list&lt;string&gt;` | Blacklist |
-| `getResolvedCountryCodes()` | `list&lt;string&gt;` | Effective allowed codes |
-| `getDefaultCountryCode()` | `string\|null` | Effective default |
-| `isSearchable()` | `bool` | Search enabled |
-| `shouldShowCountryCode()` | `bool` | ISO code visible |
-| `shouldShowDialCode()` | `bool` | Dial code visible |
-| `shouldUseBrowserLocaleDefault()` | `bool` | Browser locale default |
-| `shouldSortCountriesByBrowserLocale()` | `bool` | Browser locale sort |
-| `getBrowserLocaleCountryCode()` | `string\|null` | Detected locale country |
-| `getCountriesMetadata()` | `list&lt;array&gt;` | `code`, `name`, `dial_code`, `flag_url` |
-| `getCountrySelectOptions()` | `array` | Options map for internal select |
-| `normalizeState(mixed $state)` | `string\|null` | Canonical country code |
-| `getWrapperClasses()` | `list&lt;string&gt;` | CSS class list |
+Country names are automatically translated based on the application locale using the package's built-in translation files.
 
-### FlexField schema config
+---
 
-| Config key | Maps to |
-|------------|---------|
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `default_country` | `defaultCountry()` |
-| `countries` | `countries()` |
-| `except_countries` | `exceptCountries()` |
-| `searchable` | `searchable()` |
-| `browser_locale_default` | `browserLocaleDefault()` |
-| `browser_locale_sort_first` | `browserLocaleSortFirst()` |
-| `show_country_code` | `showCountryCode()` |
-| `show_dial_code` | `showDialCode()` |
+### Playground
 
-Config defaults (`config/filament-flex-fields.php` → `ui`):
+`/admin/flex-fields-playground/country-field`
 
-| Config key | Default |
-|------------|---------|
-| `country_size` | `md` |
-| `country_variant` | `primary` |
-| `country_default_country` | `PL` |
+See [Playground](/docs/index#playground) for setup.
 
-### CSS classes
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [PhoneField](/docs/phonefield) | For picking a country as part of a phone number input |
+| [TimezoneField](/docs/timezonefield) | For picking a timezone instead of a country |
+| [AddressAutocompleteField](/docs/addressautocompletefield) | For full address search with Mapbox |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
 | `fff-country-field` | Root wrapper |
 | `fff-country-field--{sm\|md\|lg}` | Size modifier |
-| `fff-country-field__trigger` | Picker button (flag + label) |
+| `fff-country-field__trigger` | Picker button |
 | `fff-country-field__flag` | Circle flag image |
-| `fff-country-field__menu` | Teleported dropdown (`is-positioned` when open) |
-| `fff-country-field__search` | Dropdown search input |
-| `fff-country-field__option` | Menu row |
-
-Shares FlexTextInput shell classes (`fff-flex-text-input-field`, variant modifiers).
-
-### Implementation notes
-
-- Country names use `filament-flex-fields::countries.{CODE}` translations when published, then `locale_get_display_region()` as fallback.
-- Flag URLs reuse `PhoneCountries::flagUrl()` (same CDN as `PhoneField`).
-- Dropdown uses `x-teleport="body"` to avoid overflow clipping.
-- SSR label is rendered server-side; Alpine `displayReady` swaps to live state without layout flash on reload.
-- Dial codes are only shown for regions supported by libphonenumber — not every ISO code has a dial code.
+| `fff-country-field__menu` | Dropdown panel |
+| `fff-country-field__search` | Search input |
 
 ---
+
+### Performance
+
+| Mechanism | What it does |
+|-----------|--------------|
+| **Flag CDN** | Optimized SVG flags served via a fast CDN for minimal bundle size |
+| **Memoized Metadata** | Country lists and translations are cached per-request |
+| **Teleport** | Uses `x-teleport="body"` to avoid overflow clipping in modals |

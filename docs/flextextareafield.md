@@ -1,116 +1,158 @@
 ---
 title: "FlexTextareaField"
+description: Smart auto-sizing textarea with character counters, speech dictation, and emoji support.
 ---
 
 ![FlexTextareaField](/art/sc-3.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-SaaS-style **multi-line** textarea with optional toolbar, autosize, emoji picker, and speech dictation. Extends Filament `Textarea`.
+A highly capable alternative to Filament's native Textarea. `FlexTextareaField` features smooth animated auto-sizing, character counters, integrated speech-to-text dictation, and an emoji picker. It also supports custom toolbar actions and selects.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField` |
-| **Extends** | `Filament\Forms\Components\Textarea` |
 | **State type** | `string\|null` |
-| **FieldType** | `flex_textarea` |
+| **Model cast** | `'bio' => 'string'` · `'content' => 'text'` |
+| **FieldType** | `flex-textarea` |
+| **Playground** | `flex-textarea` slug in Flex Fields playground |
+| **Extends** | `Filament\Forms\Components\Textarea` |
+
+---
 
 ### Basic usage
 
+#### Auto-sizing with counter
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
-use Filament\Actions\Action;
-use Filament\Support\Icons\Heroicon;
 
-FlexTextareaField::make('message')
-    ->label('Message')
-    ->placeholder('Write something…')
-    ->maxLength(500)
+FlexTextareaField::make('comment')
+    ->label('Your Comment')
     ->characterCounter()
+    ->maxLength(500);
+```
+
+#### Speech and Emoji support
+```php
+FlexTextareaField::make('message')
     ->emojiPicker()
     ->speechDictation()
-    ->footer('Markdown supported')
-    ->toolbarSelect(
-        'model',
-        ['claude-4.6-opus' => 'Claude 4.6 Opus', 'gpt-5' => 'GPT-5'],
-        icon: Heroicon::CpuChip,
-    )
-    ->toolbarAction(
-        Action::make('bold')->icon(Heroicon::Bold)->action(fn () => null),
-    )
+    ->footer('Pro tip: Use the microphone icon to dictate your message.');
+```
+
+---
+
+### State & validation
+
+#### Stored value
+The field stores a standard string. It inherits all validation rules from Filament's `Textarea`.
+
+```php
+$record->comment; // "Hello world!"
+```
+
+#### Character Counter
+When `characterCounter()` is enabled, a live counter appears in the footer. If `maxLength()` is set, it shows "X / Max".
+
+---
+
+### Toolbar & Actions
+
+#### Toolbar Selects
+Add pill-style dropdowns to the field header to quickly insert templates or change states.
+
+```php
+FlexTextareaField::make('response')
+    ->toolbarSelect('template_id', [
+        'welcome' => 'Welcome Message',
+        'support' => 'Support Reply',
+    ], icon: 'heroicon-o-document-text');
+```
+
+#### Submit Actions
+Add a primary action button (like "Send") directly into the textarea suffix.
+
+```php
+FlexTextareaField::make('chat_message')
     ->submitAction(
-        Action::make('send')->icon(Heroicon::PaperAirplane)->color('primary'),
+        Action::make('send')
+            ->icon('heroicon-s-paper-airplane')
+            ->action(fn ($state) => /* ... */)
     );
 ```
 
-### Layout
+---
 
-- Rounded shell with autosizing textarea
-- Optional **toolbar** row: emoji, prefix actions, toolbar selects, suffix actions (e.g. Send)
-- Optional **footer** text and character counter
-- Default textarea content is **server-rendered** for instant display on page load
+### Configuration API
 
-### Custom configuration API
+All methods accept `Closure` unless noted.
 
-#### Caching actions
-
-
-Improves rendering performance by caching prefix and suffix action definitions:
-
-```php
-FlexTextareaField::make('body')
-    ->cachePrefixActions()
-    ->cacheSuffixActions();
-```
-
-#### Icon overrides
-
-
-Override trigger icons for toolbar actions:
-
-```php
-FlexTextareaField::make('body')
-    ->emojiPicker()
-    ->speechDictation()
-    ->emojiIcon('heroicon-o-face-smile')
-    ->microphoneIcon('heroicon-o-microphone');
-```
-### Inherited Textarea API
-
-Includes `rows()`, `cols()`, `autosize()`, `disableGrammarly()`, `maxLength()`, `minLength()`, `live()`, and all standard Filament `Field` methods.
-
-Default setup calls `autosize()`, `rows(1)`, and `disableGrammarly()`.
-
-### FlexField schema config
-
-| Config key | Maps to |
-|------------|---------|
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `character_counter` | `characterCounter()` |
-| `animated_autosize` | `animatedAutosize()` |
-| `max_height` | `maxHeight()` |
-| `footer` | `footer()` |
-| `rows` | `rows()` |
-| `max_length` | `maxLength()` |
-| `speech_dictation` | `speechDictation()` |
-| `speech_dictation_language` | `speechDictationLanguage()` |
-| `emoji_picker` | `emojiPicker()` |
-| `emoji_picker_locale` | `emojiPickerLocale()` |
-| `speech_dictation_label` | `speechDictationLabel()` |
-| `emoji_picker_label` | `emojiPickerLabel()` |
-
-Toolbar selects, toolbar actions, and `submitAction()` are **not** configurable via `FlexFieldFormBuilder` — use the fluent API in PHP.
-
-### Public helper methods
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `getInitialHeightRem()` | `float` | Server-rendered initial textarea height in `rem` from `rows()` (formula: `max(rows × 1.5 + 0.25, 2.25)`). |
-| `getToolbarSelects()` | `list&lt;array&lt;statePath, options, placeholder, icon, initialValue, initialLabel&gt;&gt;` | Resolved toolbar dropdown configs with server-rendered initial labels. |
-| `isSubmitDisabled()` | `bool` | Whether the submit action should be disabled (trimmed state is blank). |
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `variant(string\|Closure $variant)` | Setup | `'primary'` | `primary`, `secondary`, `flat`, `soft` |
+| `characterCounter(bool\|Closure $cond)`| Setup | `false` | Show live character count |
+| `animatedAutosize(bool\|Closure $cond)`| Setup | `true` | Smooth height transitions |
+| `maxHeight(string\|Closure\|null $h)` | Setup | `'24rem'` | Maximum auto-grow height |
+| `footer(string\|Closure\|null $text)` | Setup | `null` | Help text below the field |
+| `speechDictation(bool\|Closure $cond)` | Setup | `false` | Enable browser speech-to-text |
+| `emojiPicker(bool\|Closure $cond)`    | Setup | `false` | Enable native emoji picker |
+| `toolbarSelect(...)`                  | Setup | — | Add dropdown to toolbar |
+| `submitAction(Action\|Closure $act)`  | Setup | — | Add primary suffix action |
+| `size(string\|Closure $size)`         | Setup | `'md'` | `sm`, `md`, `lg` |
+| `rounding(string\|Closure $round)`    | Setup | config | Border radius token |
 
 ---
+
+### Real-world examples
+
+#### Modern Chat Input
+```php
+FlexTextareaField::make('message')
+    ->placeholder('Type a message...')
+    ->rows(1)
+    ->maxHeight('12rem')
+    ->emojiPicker()
+    ->speechDictation()
+    ->submitAction(
+        Action::make('send')
+            ->icon('heroicon-s-paper-airplane')
+            ->color('primary')
+    )
+    ->variant('soft')
+    ->rounding('full');
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/flex-textarea`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| `RichEditor` | When HTML formatting (bold, links) is required |
+| [FlexTextInput](/docs/flextextinput) | Single-line inputs |
+| [VoiceNoteRecorder](/docs/voicenoterecorderfield) | Recording audio files instead of dictation |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-flex-textarea-field` | Root wrapper |
+| `fff-flex-textarea-field--{variant}` | Theme variant |
+| `fff-flex-textarea-field__input` | The actual textarea element |
+| `fff-flex-textarea-field__toolbar` | Top actions area |
+| `fff-flex-textarea-field__footer` | Bottom info area |
+| `fff-flex-textarea-field__counter` | Character count text |
+| `fff-flex-textarea-field__speech-btn` | Microphone button |
+| `fff-flex-textarea-field__emoji-btn` | Emoji button |

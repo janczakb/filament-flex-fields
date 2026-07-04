@@ -1,166 +1,126 @@
 ---
 title: "FlexColorPickerField"
+description: Full-featured color picker with advanced HSV panel, eyedropper, and preset grid layouts.
 ---
 
 ![FlexColorPickerField](/art/sc-11.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Full-featured color picker with **advanced** (HSV square + hue/alpha sliders + eyedropper) or **grid** (preset swatches) layouts. Output format is configurable as hex, rgb, hsl, or rgba.
+Full-featured color picker with two distinct layouts: **Advanced** (HSV square + hue/alpha sliders + eyedropper) and **Grid** (preset swatches). Supports multiple output formats (Hex, RGB, HSL, RGBA) and features a modern, compact UI.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexColorPickerField` |
 | **State type** | `string\|null` — color in the configured output format |
 | **FieldType** | `flex_color_picker` |
+| **Playground** | `flex-color-picker` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
 
+#### Advanced HSV Picker
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexColorPickerField;
 
 FlexColorPickerField::make('brand_color')
     ->label('Brand color')
-    ->alpha()
+    ->alpha() // Enable opacity
     ->required();
-
-FlexColorPickerField::make('accent')
-    ->layout(FlexColorPickerField::LAYOUT_GRID)
-    ->gridColumns(17)
-    ->gridRows(11)
-    ->rgba()
-    ->alpha();
 ```
 
-### State format
+#### Grid Palette
+```php
+FlexColorPickerField::make('accent')
+    ->layout(FlexColorPickerField::LAYOUT_GRID)
+    ->gridColumns(10)
+    ->gridRows(5)
+    ->rgba();
+```
 
-Stores a CSS color string in the format selected via `hex()`, `rgb()`, `hsl()`, or `rgba()` (default: hex). When alpha is disabled, rgba output falls back to rgb.
+---
+
+### State & validation
+
+#### Stored value
+State is a CSS color string in the format selected via `hex()`, `rgb()`, `hsl()`, or `rgba()`.
+
+```php
+$record->brand_color; // '#6366F1' or 'rgba(99, 102, 241, 0.8)'
+```
+
+#### Validation rules (built-in)
+Ensures the input is a valid color string matching the expected format.
+
+---
 
 ### Configuration API
 
-#### `layout('advanced'|'grid')`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `layout(string $layout)` | Setup | `'advanced'` | `advanced` or `grid` |
+| `hex()` | Format | active | Set output format to Hex |
+| `rgb()` | Format | — | Set output format to RGB |
+| `hsl()` | Format | — | Set output format to HSL |
+| `rgba()` | Format | — | Set output format to RGBA |
+| `format(string $format)` | Setup | `'hex'` | `hex`, `rgb`, `hsl`, `rgba` |
+| `alpha(bool $enabled)` | Setup | `false` | Enable opacity slider and inputs |
+| `eyedropper(bool $enabled)` | Setup | `true` | Show browser EyeDropper button |
+| `gridColumns(int $cols)` | Setup | `17` | Grid columns (generated palette) |
+| `gridRows(int $rows)` | Setup | `11` | Grid rows (generated palette) |
+| `gridColors(array $colors)` | Setup | `null` | Custom hex list for grid layout |
+| `variant(string $variant)` | Setup | `'primary'` | `primary`, `secondary`, `flat` |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
+| `rounding(string $rounding)` | Setup | config | Border radius token |
 
-Picker panel layout. **Default: `advanced`.**
+---
 
+### Real-world examples
+
+#### Transparent Background Color
 ```php
-FlexColorPickerField::make('field_name')
-    ->layout();
-```
-#### `hex()` / `rgb()` / `hsl()` / `rgba()`
-
-
-Shorthand for output `format()`. **Default: hex.**
-
-```php
-FlexColorPickerField::make('field_name')
-    ->hex()
-    ->rgb()
-    ->hsl()
-    ->rgba();
-```
-#### `format(string|Closure $format)`
-
-
-Explicit format: `hex`, `rgb`, `hsl`, or `rgba`.
-
-```php
-FlexColorPickerField::make('field_name')
-    ->format('value');
-```
-#### `alpha(bool|Closure $enabled = true)`
-
-
-Enable opacity slider and `%` input. **Default: false.**
-
-```php
-FlexColorPickerField::make('field_name')
-    ->alpha(true);
-```
-#### `eyedropper(bool|Closure $enabled = true)`
-
-
-Show browser EyeDropper button in advanced layout (when supported). **Default: true.**
-
-```php
-FlexColorPickerField::make('field_name')
-    ->eyedropper(true);
-```
-#### `gridColumns(int|Closure $columns)` / `gridRows(int|Closure $rows)`
-
-
-Generated palette size when `gridColors()` is not set. **Defaults: 17 × 11** (Tailwind hue palette: lime → yellow, shades 50–950).
-
-```php
-FlexColorPickerField::make('field_name')
-    ->gridColumns(10)
-    ->gridRows(10);
-```
-#### `gridColors(array|Closure|null $colors)`
-
-
-Custom hex list for grid layout; when omitted, palette is generated from columns/rows.
-
-```php
-FlexColorPickerField::make('field_name')
-    ->gridColors(['value1', 'value2']);
-```
-#### `variant(string|Closure $variant)`
-
-
-| Value | Description |
-|-------|-------------|
-| `primary` | Grey pill track. **Default.** |
-| `secondary` | Lighter background. |
-| `flat` | Transparent background and border. |
-
-Uses the same FlexTextInput shell as phone and address fields.
-
-```php
-FlexColorPickerField::make('field_name')
-    ->variant('primary');
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-`sm`, `md`, `lg`. Default: `md`.
-
-```php
-FlexColorPickerField::make('field_name')
-    ->size('md');
+FlexColorPickerField::make('bg_color')
+    ->rgba()
+    ->alpha()
+    ->label('Background Color')
+    ->helperText('Select a color with transparency');
 ```
 
-### Public helper methods
+#### Fixed Palette Selection
+```php
+FlexColorPickerField::make('theme')
+    ->layout('grid')
+    ->gridColors([
+        '#000000', '#ffffff', '#ff0000', '#00ff00', '#0000ff'
+    ])
+    ->withoutPrefix();
+```
 
-| Method | Description |
-|--------|-------------|
-| `getLayout()` | `advanced` or `grid` |
-| `getVariant()` | `primary`, `secondary`, or `flat` |
-| `getFormat()` | Resolved output format |
-| `isAlphaEnabled()` | Whether opacity controls are shown |
-| `isEyedropperEnabled()` | Whether eyedropper is configured |
-| `getGridColumns()` / `getGridRows()` | Grid dimensions |
-| `getGridColors()` | Custom grid palette or `null` |
-| `isValidColorString(?string $value)` | PHP-side color validation |
+---
 
-### FlexField schema config
+### Playground
 
-| Config key | Maps to |
-|------------|---------|
-| `layout` | `layout()` |
-| `format` | `format()` |
-| `alpha` | `alpha()` |
-| `eyedropper` | `eyedropper()` |
-| `grid_columns` | `gridColumns()` |
-| `grid_rows` | `gridRows()` |
-| `grid_colors` | `gridColors()` |
-| `variant` | `variant()` |
-| `size` | `size()` |
+`/admin/flex-fields-playground/flex-color-picker`
 
-### CSS classes
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [ColorSwatchField](/docs/colorswatchfield) | Simple preset selection with keys |
+| [FlexTextInput](/docs/flextextinput) | Standard text input for hex codes |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
@@ -175,9 +135,3 @@ FlexColorPickerField::make('field_name')
 | `fff-flex-color-picker__alpha` | Opacity slider track |
 | `fff-flex-color-picker__grid` | Grid swatch container |
 | `fff-flex-color-picker__bottom-bar` | Format + value + opacity inputs |
-
-### Assets
-
-Alpine component: `flex-color-picker` (`resources/js/components/flex-color-picker.js`).
-
----

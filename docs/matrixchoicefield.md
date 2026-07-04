@@ -441,6 +441,28 @@ Also supports standard [Inherited Filament field API](/docs/shared-concepts):
 - Radio/checkbox indicators reuse Flex Radiolist / Flex Checklist animation tokens (`fff-choice-cards-indicator-pop`).
 - All clicks are handled on `fff-matrix-choice__cell`; inner inputs use `pointer-events-none` to prevent double-toggle.
 - Conditional rules run in Alpine on every state change; `pruneDisabledSelections()` clears invalid picks.
-- Playground slug: `matrix-choice` (demos: mood radio grid + feature priorities checkbox).
+---
+
+### Playground
+
+Slug: **`matrix-choice`**
+
+| Demo field | Shows |
+|------------|-------|
+| Mood grid | Radio mode, compact size |
+| Feature priorities | Checkbox mode, per-row limits, conditional disabling |
+
+`/admin/flex-fields-playground/matrix-choice` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexMatrixTable](/docs/flex-matrix-table) | Editable spreadsheet-style matrix |
+| [FlexRadiolist](/docs/flexradiolist) | Single column of options, not a grid |
+| [FlexChecklist](/docs/flexchecklist) | Vertical checklist without column headers |
+| [NpsField](/docs/nps-field) | Single-axis survey scale (NPS / CSAT) |
 
 ---

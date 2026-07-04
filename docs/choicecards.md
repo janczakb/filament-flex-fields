@@ -1,31 +1,34 @@
 ---
 title: "ChoiceCards"
+description: Single-select card group with rich options, layouts, and Material-style ripple effects.
 ---
 
 ![ChoiceCards](/art/sc-14.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-SaaS-style **single-select** card group (radio behaviour).
+Premium **single-select** card group (radio behavior). Ideal for pricing plans, delivery methods, and feature selection. Supports rich option metadata (descriptions, prices, icons, badges) and multiple responsive layouts.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCards` |
-| **State type** | `string\|null` — one option key |
-| **Model cast** | `'plan' =&gt; 'string'` or backed enum |
+| **State type** | `string\|int\|null` — one option key |
+| **Model cast** | `'plan' => 'string'` · `'type' => 'integer'` |
 | **FieldType** | `choice_cards` |
+| **Playground** | `choice-cards` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
+
+#### Pricing plans (Stack layout)
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCards;
 
 ChoiceCards::make('plan')
-    ->label('Select a plan')
-    ->helperText('Choose the plan that suits your needs')
     ->options([
         'starter' => [
             'label' => 'Starter',
@@ -33,152 +36,131 @@ ChoiceCards::make('plan')
             'price' => '$5',
             'price_suffix' => '/mo',
         ],
-        'pro' => 'Pro',
+        'pro' => [
+            'label' => 'Pro',
+            'description' => 'For teams',
+            'price' => '$15',
+            'price_suffix' => '/mo',
+        ],
     ])
-    ->layout('stack')
     ->default('pro');
 ```
 
-### Validation
+#### Delivery methods (Media layout)
 
-| Behaviour | Detail |
-|-----------|--------|
-| Built-in | `Rule::in(...)` — value must be a key from `options()` |
-| `required()` | At least one option must be selected |
+```php
+ChoiceCards::make('delivery')
+    ->layout('media')
+    ->gridColumns(['default' => 1, 'sm' => 3])
+    ->options([
+        'standard' => ['label' => 'Standard', 'icon' => 'heroicon-o-truck'],
+        'express' => ['label' => 'Express', 'icon' => 'heroicon-o-bolt'],
+        'rocket' => ['label' => 'Rocket', 'icon' => 'heroicon-o-rocket'],
+    ]);
+```
+
+---
+
+### State & validation
+
+#### Stored value
+
+State is the **option key** from `options()`.
+
+```php
+$record->plan; // string|null — e.g. 'pro'
+```
+
+#### Validation rules (built-in)
+
+| Rule | When |
+|------|------|
+| `nullable` | Always (unless `required()`) |
+| `Rule::in(...)` | Value must match a configured option key |
+| `required` | When `->required()` |
+
+---
 
 ### Configuration API
 
-#### `options(array|Closure $options)`
+All methods accept `Closure` unless noted.
 
-
-Option list. See [Rich card option shape](/docs/shared-concepts).
-
-```php
-ChoiceCards::make('field_name')
-    ->options([
-        'option_1' => 'Option 1',
-        'option_2' => 'Option 2',
-    ]);
-```
-#### `disabledOptions(array|Closure $keys)`
-
-
-Disables options by key. Merged with per-option `disabled`.
-
-```php
-ChoiceCards::make('field_name')
-    ->disabledOptions(['option_2']);
-```
-#### `layout(string|Closure $layout)`
-
-
-| Value | Description |
-|-------|-------------|
-| `stack` | Vertical list of cards. **Default.** |
-| `grid` | Responsive column grid. Use with `gridColumns()`. |
-| `media` | Horizontal row: icon + text. Best for icon-led options. |
-| `featured` | Plan-style cards: icon box, badge, large price. |
-
-```php
-ChoiceCards::make('field_name')
-    ->layout('value');
-```
-#### `gridColumns(int|array|Closure $columns)`
-
-
-Column count for `grid` and multi-column `media` layouts.
-
-```php
-->gridColumns(3)
-
-->gridColumns([
-    'default' => 1,
-    'sm' => 2,
-    'md' => 3,
-    'lg' => 4,
-])
-```
-
-Breakpoints cascade upward (`sm` → `md` → `lg`). Maximum: **4 columns**.
-
-#### `indicator(string|Closure|null $indicator)`
-
-
-Selection marker in the top-right corner.
-
-| Value | Description |
-|-------|-------------|
-| `radio` | Radio dot. Default for `stack`. |
-| `check` | Filled circle with checkmark. Default for `featured`. |
-| `none` | Border-only selection. Default for `media`. |
-
-When omitted, the default is resolved from `layout()`.
-
-```php
-ChoiceCards::make('field_name')
-    ->indicator('value');
-```
-#### `variant(string|Closure $variant)`
-
-
-| Value | Description |
-|-------|-------------|
-| `default` | Standard grey card background. |
-| `primary` | Stronger selected state (featured plans). |
-| `secondary` | Subtle grid styling. |
-
-```php
-ChoiceCards::make('field_name')
-    ->variant('primary');
-```
-#### `color(string|Closure|null $color)`
-
-
-Accent color for the selected border. Default: `primary`. Supports Filament color tokens (`success`, `danger`, etc.).
-
-```php
-ChoiceCards::make('field_name')
-    ->color('primary');
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-Scales padding, typography, indicators, and icons. See [Control size](/docs/shared-concepts).
-
-```php
-ChoiceCards::make('field_name')
-    ->size('md');
-```
-#### `ripple(bool|Closure $condition = true)`
-
-
-Enables a Material-style click ripple on each card.
-
-```php
-ChoiceCards::make('field_name')
-    ->ripple(true);
-```
-
-### Animations
-
-- Smooth border and background transitions on select/deselect
-- Indicator scale animation for `check` / `radio` states
-- Respects `prefers-reduced-motion`
-
-### FlexField schema config
-
-When built via `FlexFieldFormBuilder`:
-
-| Config key | Maps to |
-|------------|---------|
-| `options` | `options()` |
-| `layout` | `layout()` |
-| `grid_columns` / `columns` | `gridColumns()` |
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `color` | `color()` |
-| `ripple` | `ripple()` |
-| `indicator` | `indicator()` |
-| `disabled_options` | `disabledOptions()` |
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `options(array\|Closure $options)` | Setup | `[]` | Rich option map. Keys: `label`, `description`, `price`, `price_suffix`, `icon`, `badge`, `badge_color`, `disabled`. |
+| `disabledOptions(array\|Closure $keys)` | Setup | `[]` | Keys that cannot be selected. |
+| `layout(string\|Closure $layout)` | Setup | `'stack'` | `stack`, `grid`, `media`, `featured`. |
+| `gridColumns(int\|array\|Closure $cols)` | Setup | `1` | Responsive columns for `grid`/`media` (max 4). |
+| `indicator(string\|Closure\|null $type)` | Setup | `auto` | Selection marker: `radio`, `check`, `none`. |
+| `variant(string\|Closure $variant)` | Setup | `'default'` | `default`, `primary` (stronger selection), `secondary`. |
+| `color(string\|Closure\|null $color)` | Setup | `'primary'` | Accent color for selection borders/indicators. |
+| `size(string\|Closure $size)` | Setup | `'md'` | Padding and typography scale: `sm`, `md`, `lg`. |
+| `ripple(bool\|Closure $on)` | Setup | `false` | Enable Material-style click ripple. |
 
 ---
+
+### Real-world examples
+
+#### Featured plan selector
+
+```php
+ChoiceCards::make('tier')
+    ->layout('featured')
+    ->variant('primary')
+    ->indicator('check')
+    ->options([
+        'basic' => ['label' => 'Basic', 'price' => '$0'],
+        'pro' => [
+            'label' => 'Pro', 
+            'price' => '$29', 
+            'badge' => 'Recommended',
+            'badge_color' => 'success'
+        ],
+    ]);
+```
+
+#### Payment method selector
+
+```php
+ChoiceCards::make('payment_method')
+    ->layout('media')
+    ->gridColumns(2)
+    ->options([
+        'visa' => ['label' => '**** 1234', 'icon' => 'heroicon-o-credit-card'],
+        'paypal' => ['label' => 'PayPal', 'icon' => 'heroicon-o-circle-stack'],
+    ]);
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/choice-cards`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [ChoiceCheckboxCards](/docs/choicecheckboxcards) | For multi-select card groups. |
+| [FlexChecklist](/docs/flexchecklist) | For a more compact multi-select list. |
+| [ItemCardGroup](/docs/itemcardgroup) | For grouping rows that aren't necessarily selectable form fields. |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-choice-cards` | Root wrapper |
+| `fff-choice-cards--layout-{stack\|grid\|media\|featured}` | Layout modifier |
+| `fff-choice-cards--variant-{default\|primary\|secondary}` | Visual variant |
+| `fff-choice-cards--{sm\|md\|lg}` | Size modifier |
+| `fff-choice-card` | Individual card element |
+| `fff-choice-card--selected` | Active card state |
+| `fff-choice-card--disabled` | Disabled card state |
+| `fff-choice-card__indicator` | Selection marker wrapper |
+| `fff-choice-card__ripple` | Ripple animation element |

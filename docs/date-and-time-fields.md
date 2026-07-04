@@ -1009,6 +1009,35 @@ Segment focus uses theme primary (`--primary-500`) for active background and rin
 - SSR segment values in Blade prevent layout shift on first paint; Alpine hydrates from `initialSegments`.
 - Playground section **Date & time fields** in `DateTimeFieldPlayground` demonstrates all variants, configuration presets, and bounds/format examples.
 - Playground section **Month display** in `DateTimeFieldPlayground` demonstrates `monthDisplay()` (numeric, short, long) across month picker, date, and datetime fields, plus `showYearSegment(false)` month-only mode.
-- Rebuild assets after CSS/JS changes — see [Assets & playground](#assets--playground).
+- Rebuild assets after CSS/JS changes:
+
+```bash
+cd packages/filament-flex-fields && npm run build
+php artisan filament:assets
+```
+
+---
+
+### Playground
+
+Slug: **`date-time-fields`**
+
+| Demo section | Shows |
+|--------------|-------|
+| Date & time fields | All modes (date, time, datetime, range, month, year), bounds, formats |
+| Month display | `monthDisplay()` numeric / short / long, `showYearSegment(false)` |
+
+`/admin/flex-fields-playground/date-time-fields` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [ScheduleField](/docs/schedule-field) | Weekly opening hours with slots and breaks |
+| [TimezoneField](/docs/timezonefield) | Standalone timezone picker |
+| [FlexTextInput](/docs/flextextinput) | Plain text without segment-based date parsing |
+| [NumberStepper](/docs/numberstepper) | Numeric counters, not calendar dates |
 
 ---

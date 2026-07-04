@@ -1,4 +1,6 @@
-# Compatibility
+---
+title: "Compatibility"
+---
 
 ## Requirements
 

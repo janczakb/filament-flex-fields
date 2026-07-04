@@ -16,6 +16,7 @@ International phone input with searchable country picker, libphonenumber validat
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField` |
 | **State type** | `array&lt;country: string, national: string, e164: string&gt;` |
 | **FieldType** | `phone` |
+| **Playground** | `phone-field` slug in Flex Fields playground |
 
 ### Basic usage
 
@@ -274,5 +275,30 @@ Shares FlexTextInput shell classes (`fff-flex-text-input-field`, variant modifie
 - Country dropdown uses `x-teleport="body"` to avoid overflow clipping.
 - Depends on `giggsey/libphonenumber-for-php` for parsing and validation.
 - Empty national number dehydrates to `e164: ''` regardless of partial dial prefix.
+
+---
+
+### Playground
+
+Slug: **`phone-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Default | Searchable country picker, E.164 validation |
+| Restricted countries | Whitelist + mobile-only |
+| Browser locale | `browserLocaleDefault()` + sort-first |
+
+`/admin/flex-fields-playground/phone-field` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [CountryField](/docs/countryfield) | ISO country only — no phone number |
+| [FlexTextInput](/docs/flextextinput) | Plain text without libphonenumber |
+| [FlexVerificationCode](/docs/flexverificationcode) | OTP / SMS codes, not full numbers |
+| [AddressAutocompleteField](/docs/addressautocompletefield) | Structured address with optional phone |
 
 ---

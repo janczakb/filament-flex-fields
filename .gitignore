@@ -3,11 +3,12 @@
 # Ignored: dependencies, tool caches/output, IDE/OS junk, secrets.
 #
 # Intentionally TRACKED (do not add here):
-#   - phpunit.xml, phpstan.neon, tests/     — dev config & tests for contributors
+#   - phpunit.xml, phpstan.neon, scripts/     — build & QA tooling
+#   - tests/                                  — PHPUnit & Pest suite
+#   - resources/js/, resources/css/           — frontend source (dist/ is pre-built)
+#   - package.json, package-lock.json         — Node build toolchain
 #   - src/Support/Playground/, FlexFieldsPlayground page — optional dev UI in the package
-#   - resources/dist/                       — pre-built CSS/JS for consumers without Node
-#
-# Ignored below are caches only — NOT phpunit.xml / phpstan.neon themselves.
+#   - resources/dist/                         — pre-built CSS/JS for consumers without Node
 
 # Dependencies
 /vendor/
@@ -54,8 +55,13 @@ pnpm-debug.log*
 /test-results/
 /reference/
 /bin/
+/playwright-report/
 
 # Local Dev
 /DEMO/
 /scratch/
 /.reference/
+
+# Maintainer-only docs — not for public GitHub (customer docs live in docs/)
+/DEVELOPMENT.md
+/COMPONENTS.md

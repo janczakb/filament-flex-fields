@@ -1,22 +1,30 @@
 ---
 title: "SelectField"
+description: Styled Filament Select with pill trigger, rich option rows, grid layout, and multi-select chips.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Styled Filament **Select** with pill trigger, rich option rows, grid layout, and multi-select chips. Extends Filament `Select`.
+Styled Filament **Select** with pill trigger, rich option rows, grid layout, and multi-select chips. Extends Filament `Select` — **all native Select APIs remain available**.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField` |
 | **Extends** | `Filament\Forms\Components\Select` |
 | **State type** | `string\|int\|null` (single) · `array` (multiple) |
+| **Model cast** | `'category_id' => 'integer'` · `'tags' => 'json'` (multiple) |
 | **FieldType** | `select`, `multi_select` |
+| **Playground** | `select-field` slug in Flex Fields playground |
+
+Works with all standard Filament field APIs: `required()`, `disabled()`, `hidden()`, `live()`, `afterStateUpdated()`, validation rules, etc.
+
+---
 
 ### Basic usage
+
+#### Standard select with rich options
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
@@ -26,104 +34,192 @@ SelectField::make('framework')
     ->options([
         'laravel' => [
             'label' => 'Laravel',
-            'description' => 'PHP web framework',
+            'description' => 'The PHP Framework for Web Artisans',
             'icon' => 'heroicon-o-bolt',
+            'badge' => 'v11',
         ],
-        'livewire' => 'Livewire',
+        'livewire' => [
+            'label' => 'Livewire',
+            'description' => 'Full-stack framework for Laravel',
+            'icon' => 'heroicon-o-sparkles',
+        ],
     ])
     ->searchable()
     ->variant('bordered')
     ->size('md');
+```
+
+#### Multi-select with chips
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 
 SelectField::make('tags')
     ->multiple()
-    ->options(['draft' => 'Draft', 'published' => 'Published'])
-    ->chipColor('primary');
+    ->options([
+        'draft' => 'Draft',
+        'published' => 'Published',
+        'archived' => 'Archived',
+    ])
+    ->chipColor('primary')
+    ->required();
 ```
 
-### Custom configuration API
+---
 
-#### `clearable(bool|Closure $condition = true)`
+### State & validation
 
+#### Stored value
 
-Renders a clear button (×) allowing the user to reset the select value to null.
+State is the **option key** from `options()`.
+
+```php
+// Single select
+$record->category_id; // int|string|null — e.g. 1
+
+// Multi-select
+$record->tags; // array — e.g. ['draft', 'published']
+```
+
+#### Default state
+
+The field defaults to **`null`** (single) or **`[]`** (multiple).
 
 ```php
 SelectField::make('category_id')
-    ->clearable();
+    ->default(1);
 ```
 
-#### `canSelectPlaceholder(bool|Closure $condition = true)`
+#### Validation rules
 
+| Rule | When |
+|------|------|
+| `nullable` | Always (unless `required()`) |
+| `Rule::in(...)` | Value must match a configured option key |
+| `required` | When `->required()` |
 
-Enables the placeholder option to be selected as an active choice inside the dropdown list.
+---
+
+### Configuration API
+
+All methods accept `Closure` unless noted.
+
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `variant(string\|Closure $variant)` | Setup | `'bordered'` | Visual style: `bordered`, `secondary`, `flat`, `faded`, `soft`, `underlined`, `item-card` |
+| `color(string\|Closure\|null $color)` | Setup | `null` | Accent color for the field |
+| `chipColor(string\|Closure $chipColor)` | Setup | `'neutral'` | Color for multi-select chips |
+| `richOptions(bool\|Closure $condition = true)` | Setup | auto | Force rich option rendering |
+| `optionLayout(string\|Closure $layout)` | Setup | `'list'` | Dropdown layout: `list`, `grid` |
+| `inlineFieldLabel(bool\|Closure $condition = true)` | Setup | `false` | Render label inside the field track |
+| `inlineSearch(bool\|Closure $condition = true)` | Setup | `false` | Render search input inside the dropdown |
+| `clearable(bool\|Closure $condition = true)` | Setup | auto | Show clear button (×) |
+| `dropdownAlign(string\|Closure $align)` | Setup | auto | Align dropdown: `start`, `end` |
+| `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |
+| `rounding(string\|Closure\|null $rounding)` | Setup | config | Border radius token |
+
+#### `variant()`
 
 ```php
-SelectField::make('category_id')
-    ->canSelectPlaceholder();
+SelectField::make('category_id')->variant('soft');
+SelectField::make('category_id')->variant('underlined');
 ```
 
-#### `dropdownAlign(string|Closure $align)`
+#### `optionLayout()`
 
-
-Aligns the dropdown overlay container relative to the field input trigger (`left`, `right`, or `center`).
+Use `grid` for a multi-column visual picker:
 
 ```php
-SelectField::make('category_id')
-    ->dropdownAlign('right');
+SelectField::make('theme')
+    ->options([
+        'light' => ['label' => 'Light', 'icon' => 'heroicon-o-sun'],
+        'dark' => ['label' => 'Dark', 'icon' => 'heroicon-o-moon'],
+    ])
+    ->optionLayout('grid');
 ```
 
-#### `inlineSearch(bool|Closure $condition = true)`
+#### `inlineSearch()`
 
-
-Renders the search input box inline directly inside the select dropdown panel instead of as a separate search overlay.
+Recommended for searchable selects to keep the UI compact:
 
 ```php
-SelectField::make('category_id')
+SelectField::make('user_id')
     ->searchable()
     ->inlineSearch();
 ```
 
-#### `transformRichOptionsForJs(array $options)`
+---
 
+### Real-world examples
 
-Pre-formats rich option arrays containing avatars, labels, and badges into JS-compatible structures for the frontend component.
+#### User select with avatars
 
 ```php
-SelectField::make('category_id')
-    ->transformRichOptionsForJs([
-        'laravel' => ['label' => 'Laravel', 'icon' => 'heroicon-o-bolt']
-    ]);
+SelectField::make('user_id')
+    ->label('Assignee')
+    ->options(User::all()->mapWithKeys(fn ($user) => [
+        $user->id => [
+            'label' => $user->name,
+            'description' => $user->email,
+            'image' => $user->avatar_url,
+        ],
+    ]))
+    ->searchable()
+    ->inlineSearch()
+    ->variant('soft');
 ```
-### Inherited Select API
 
-All Filament `Select` methods work, including:
+#### Multi-select tags in a Section
 
-| Method | Description |
-|--------|-------------|
-| `options()` | Static or dynamic option list |
-| `searchable()` | Client-side or server-side search |
-| `multiple()` | Multi-select with chips |
-| `preload()` / `optionsLimit()` | Async option loading |
-| `relationship()` | Eloquent relationship binding |
-| `native()` | Native HTML select (overrides custom UI when `true`) |
-| `allowHtml()` | Allow HTML in option labels |
-
-Rich option shape: see [Rich select option shape](/docs/shared-concepts).
-
-### FlexField schema config
-
-| Config key | Maps to |
-|------------|---------|
-| `options` | `options()` |
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `color` | `color()` |
-| `chip_color` | `chipColor()` |
-| `rich_options` | `richOptions()` |
-| `option_layout` | `optionLayout()` |
-| `searchable` | `searchable()` |
-| `native` | `native()` |
-| `inline_field_label` | `inlineFieldLabel()` |
+```php
+Section::make('Metadata')
+    ->schema([
+        SelectField::make('tags')
+            ->multiple()
+            ->relationship('tags', 'name')
+            ->chipColor('success')
+            ->preload(),
+    ])
+```
 
 ---
+
+### Playground
+
+`/admin/flex-fields-playground/select-field`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexRadiolist](/docs/flexradiolist) | When all options should be visible at once |
+| [ChoiceCards](/docs/choicecards) | Large card-style selection with more detail |
+| [DualListboxField](/docs/duallistboxfield) | When managing large sets of selected items |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-select-field` | Root wrapper |
+| `fff-select-field--{sm\|md\|lg}` | Size modifier |
+| `fff-select-field--{variant}` | Visual variant |
+| `fff-select-field--layout-{list\|grid}` | Option layout |
+| `fff-select-field--chips-{color}` | Multi-select chip color |
+| `fff-select-field--inline-field-label` | Inline label active |
+| `fff-select-field--inline-search` | Inline search active |
+
+---
+
+### Performance
+
+| Mechanism | What it does |
+|-----------|--------------|
+| **Lazy CSS** | Loads `select-field` styles only when the field renders |
+| **JS Transformation** | Efficiently prepares rich options for the frontend component |
+| **Search Cache** | Memoizes search results to reduce server round-trips |

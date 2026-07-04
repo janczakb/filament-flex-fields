@@ -78,7 +78,7 @@ composer update janczakb/filament-flex-fields
 php artisan filament:assets
 ```
 
-If you develop the package itself, rebuild assets inside the package first (`npm run build` in `packages/filament-flex-fields/`), then run the commands above in the host app.
+After updating the package, run `php artisan filament:assets` in your Laravel app to sync bundled media and Filament assets into `public/`.
 
 ### Automate asset sync (recommended)
 
@@ -176,7 +176,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 - [Playground](#playground)
 - [Documentation](#documentation)
 - [FAQ](#faq)
-- [Development](#development)
+- [Performance-first assets](#performance-first-assets)
 
 ---
 
@@ -767,10 +767,10 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 One design system, one asset pipeline, one Playground, and **68** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
 
 **Do I need Node.js to use this package?**
-No. Pre-built CSS/JS are committed to `resources/dist/`. Node is only needed when developing the package itself.
+No. Pre-built CSS/JS are committed to `resources/dist/`.
 
 **How does asset loading work?**
-Each component loads its own CSS/JS on demand. Shared libraries are split into cached chunks and loaded once per page. See [Development → Performance-first assets](#performance-first-assets).
+Each component loads its own CSS/JS on demand. Shared libraries are split into cached chunks and loaded once per page. See [Performance-first assets](#performance-first-assets).
 
 **Can I use components without the JSON flex-field system?**
 Yes. Import any component directly into Filament forms — the JSON column and `HasFlexFields` trait are optional.
@@ -789,29 +789,7 @@ No. Sluggable, Translatable, and Media Library integrations are optional `compos
 
 ---
 
-## Development
-
-**Główna instrukcja dla osób piszących kod pakietu** (CSS/JS, `FlexFieldStylesheetQueue`, współdzielenie bundle'i, antywzorce): **[DEVELOPMENT.md](DEVELOPMENT.md)**.
-
-```bash
-composer install
-composer test          # Pest — 99+ PHP tests
-composer analyse       # PHPStan
-
-npm install
-npm run build          # CSS + JS → resources/dist/
-npm run test:js        # Node unit tests
-npm run test:e2e       # Playwright playground tests (requires FLEX_FIELDS_PLAYGROUND_URL)
-composer format        # Laravel Pint
-```
-
-Rebuild assets after changing `resources/css/` or `resources/js/`.
-
-```bash
-npm run check:budgets   # CI bundle size guard (reads resources/dist/bundle-metrics.json)
-```
-
-### Performance-first assets
+## Performance-first assets
 
 This is the technical reference for [Lazy assets & shared chunks](#lazy-assets--shared-chunks) above.
 
@@ -840,14 +818,9 @@ Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` and r
 | 5 | `flex-field-asset-injector.js` | Loads missing chunks from morph batches; in-flight promise cache prevents duplicate fetches |
 | 6 | Dynamic `import()` where possible | e.g. libphonenumber, emoji picker — parse cost deferred until interaction |
 
-#### Bundle inventory & CI
+#### Bundle inventory
 
-`npm run build` writes `resources/dist/bundle-metrics.json` (raw + gzip KB per file). Core CSS stays lean; component CSS/JS load lazily through the pipeline above.
-
-```bash
-npm run build          # CSS + JS → resources/dist/
-npm run check:budgets  # fail if any bundle exceeds limits
-```
+Pre-built assets ship in `resources/dist/`. The table below lists sample bundle sizes (raw + gzip KB). Full metrics are in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
@@ -862,8 +835,6 @@ npm run check:budgets  # fail if any bundle exceeds limits
 | UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 32.6 (gzip 6.5) + deps 162.6 |
 | MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.4 (gzip 0.3) | 30.4 (gzip 6.6) + deps 54 |
 | SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.4 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.8 (gzip 12.8) + deps 28.8 |
-
-Sample bundles (10 of **57** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

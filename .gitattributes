@@ -11,6 +11,7 @@
 /package.json export-ignore
 /package-lock.json export-ignore
 /COMPONENTS.md export-ignore
+/DEVELOPMENT.md export-ignore
 
 # Mintlify (docs site only — not shipped via Composer dist)
 /docs.json export-ignore

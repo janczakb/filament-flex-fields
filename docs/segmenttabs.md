@@ -1,164 +1,142 @@
 ---
 title: "SegmentTabs"
+description: Schema layout component featuring iOS-style segmented tabs with per-tab form schemas and query-string persistence.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Schema layout component: **iOS-style segmented tabs** with per-tab form schemas (same visual language as [SegmentControl](/docs/segmentcontrol)). Used directly and as the base for [TranslatableFields](/docs/translatablefields).
+Schema layout component providing **iOS-style segmented tabs**. Each tab wraps a nested form schema, allowing for clean organization of complex forms. Shares the same visual language as [SegmentControl](/docs/segmentcontrol).
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs` |
 | **Tab class** | `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab` |
-| **State** | Tab panels contain nested fields; tab selection is local UI state (optional query-string persistence) |
+| **State** | Local UI state (optional query-string persistence) |
+| **Playground** | `segment-tabs` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
 
+#### Standard segmented tabs
+
 ```php
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
-use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 
-SegmentTabs::make('Account')
+SegmentTabs::make('Account Settings')
     ->tabs([
         SegmentTab::make('General')
-            ->icon(GravityIcon::Person)
-            ->tooltip('General settings')
+            ->icon('heroicon-o-user')
             ->schema([
                 FlexTextInput::make('name'),
+                FlexTextInput::make('email'),
             ]),
-        SegmentTab::make('Advanced')
+        SegmentTab::make('Security')
+            ->icon('heroicon-o-lock')
             ->schema([
-                FlexTextInput::make('api_key'),
+                FlexTextInput::make('password'),
             ]),
-    ])
-    ->variant('ghost')
-    ->fullWidth();
+    ]);
 ```
+
+#### Ghost variant with query persistence
+
+```php
+SegmentTabs::make('Profile')
+    ->variant('ghost')
+    ->persistTabInQueryString('profile-tab')
+    ->tabs([
+        SegmentTab::make('Details')->schema([...]),
+        SegmentTab::make('Billing')->schema([...]),
+    ]);
+```
+
+---
 
 ### Configuration API
 
-#### `tabs(array|Closure $tabs)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `tabs(array\|Closure $tabs)` | Setup | `[]` | Array of `SegmentTab` components. |
+| `activeTab(int\|Closure $index)` | Setup | `1` | 1-based index of the initially active tab. |
+| `persistTabInQueryString(string\|null $key)` | Setup | `null` | Persist active tab in URL. Default key: `'segment-tab'`. |
+| `variant(string\|Closure $variant)` | Setup | `'default'` | `default` (filled track) or `ghost` (transparent track). |
+| `color(string\|Closure\|null $color)` | Setup | `null` | Selection accent color. Defaults to `primary` for `ghost`. |
+| `separators(bool\|Closure $on)` | Setup | `true` | Vertical dividers between tab segments. |
+| `fullWidth(bool\|Closure $on)` | Setup | `false` | Stretch tabs to full container width. |
+| `iconOnly(bool\|Closure $on)` | Setup | `false` | Hide tab labels; show icons only. |
+| `expandSelectedLabel(bool\|Closure $on)` | Setup | `false` | Animate the selected tab to a wider width. |
+| `size(string\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg`. |
 
-Array of `SegmentTab` components. Each tab wraps a nested schema.
-
-```php
-SegmentTabs::make('field_name')
-    ->tabs([
-        'tab_1' => 'Tab 1',
-        'tab_2' => 'Tab 2',
-    ]);
-```
-#### `activeTab(int|Closure $activeTab)`
-
-
-1-based index of the initially active tab. **Default:** `1`.
-
-```php
-SegmentTabs::make('field_name')
-    ->activeTab(1);
-```
-#### `persistTabInQueryString(string|Closure|null $key = 'segment-tab')`
-
-
-Persist the active tab in the URL query string. Pass `null` to disable.
-
-```php
-SegmentTabs::make('field_name')
-    ->persistTabInQueryString('tab');
-```
-#### `variant(string|Closure $variant)`
-
-
-| Value | Description |
-|-------|-------------|
-| `default` | Filled track background. **Default.** |
-| `ghost` | Transparent track; uses `color()` for selection accent. |
-
-```php
-SegmentTabs::make('field_name')
-    ->variant('primary');
-```
-#### `color(string|Closure|null $color)`
-
-
-Selection accent color. For `ghost`, defaults to `primary` when omitted.
-
-```php
-SegmentTabs::make('field_name')
-    ->color('primary');
-```
-#### `separators(bool|Closure $condition = true)`
-
-
-Vertical dividers between tab segments. **Default:** `true`.
-
-```php
-SegmentTabs::make('field_name')
-    ->separators(true);
-```
-#### `fullWidth(bool|Closure $condition = true)`
-
-
-Stretch tabs to the full container width.
-
-```php
-SegmentTabs::make('field_name')
-    ->fullWidth(true);
-```
-#### `iconOnly(bool|Closure $condition = true)`
-
-
-Hide tab labels; show icons only (requires icons on tabs).
-
-```php
-SegmentTabs::make('field_name')
-    ->iconOnly(true);
-```
-#### `expandSelectedLabel(bool|Closure $condition = true)`
-
-
-Animate the selected tab to a wider width.
-
-```php
-SegmentTabs::make('field_name')
-    ->expandSelectedLabel(true);
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-See [Control size](/docs/shared-concepts).
-
-```php
-SegmentTabs::make('field_name')
-    ->size('md');
-```
-
-### SegmentTab API
+#### SegmentTab API
 
 | Method | Description |
 |--------|-------------|
-| `make(string\|Htmlable\|Closure\|null $label)` | Create a tab |
-| `icon(string\|BackedEnum\|Htmlable\|Closure\|null $icon)` | Tab icon |
-| `tooltip(string\|Closure\|null $tooltip)` | Hover tooltip |
-| `schema(array\|Closure $schema)` | Nested form/schema components |
-| `badge(...)` | Inherited Filament badge API |
-| `visible(...)` / `hidden(...)` | Inherited visibility API |
-
-### Getters
-
-| Method | Returns |
-|--------|---------|
-| `getVisibleTabs()` | `list&lt;SegmentTab&gt;` — visible tabs only |
-| `getActiveTab()` | `int` — 1-based active index |
-| `getActiveTabKey()` | `?string` — key of active tab |
-| `isTabActive(SegmentTab $tab)` | `bool` |
-| `isTabPersistedInQueryString()` | `bool` |
-| `getTabQueryStringKey()` | `?string` |
+| `make(string\|Htmlable\|Closure $label)` | Create a tab instance. |
+| `icon(mixed $icon)` | Tab icon. |
+| `tooltip(string\|Closure $text)` | Hover tooltip for the tab. |
+| `schema(array\|Closure $schema)` | Nested form/schema components. |
+| `badge(string\|Closure $text)` | Optional badge shown on the tab. |
 
 ---
+
+### Real-world examples
+
+#### Multi-step profile editor
+
+```php
+SegmentTabs::make('User Editor')
+    ->variant('ghost')
+    ->fullWidth()
+    ->tabs([
+        SegmentTab::make('Basic Info')
+            ->icon('heroicon-o-identification')
+            ->schema([
+                FlexTextInput::make('first_name'),
+                FlexTextInput::make('last_name'),
+            ]),
+        SegmentTab::make('Preferences')
+            ->icon('heroicon-o-adjustments-horizontal')
+            ->schema([
+                Toggle::make('newsletter'),
+                Select::make('theme')->options(['light' => 'Light', 'dark' => 'Dark']),
+            ]),
+    ]);
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/segment-tabs`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [SegmentControl](/docs/segmentcontrol) | For simple single-select form fields without nested schemas. |
+| [TranslatableFields](/docs/translatablefields) | For multi-language form fields (uses SegmentTabs internally). |
+| [ItemCardGroup](/docs/itemcardgroup) | For grouping rows that don't need tab switching. |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-segment-tabs` | Root layout wrapper |
+| `fff-segment-tabs__header` | Tab switcher container |
+| `fff-segment-tabs__content` | Active tab panel container |
+| `fff-segment-tab-panel` | Individual tab content wrapper |
+
+Uses `fff-segment-control` classes for the tab switcher header.

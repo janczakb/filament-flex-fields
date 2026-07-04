@@ -1,19 +1,26 @@
 ---
 title: "ItemCard"
+description: List row for settings, navigation, and mixed action layouts with leading visuals and trailing controls.
 ---
 
 [← Back to Table of Contents](/docs/index)
 
+### Summary
 
-modern SaaS-inspired list row / card for settings screens, navigation rows, and mixed action layouts. Renders a horizontal row with optional leading icon, title, description, trailing schema slot (switch, select, actions), and optional chevron.
+Modern list row or standalone card for settings screens, navigation menus, and mixed action layouts. Renders a horizontal row with optional leading visuals (icon or image), title, description, and a trailing schema slot for switches, selects, or buttons.
 
-**Class:** `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard`  
-**Extends:** `Filament\Schemas\Components\Component`  
-**Traits:** `CanOpenUrl`, `HasDescription`, `HasHeading`, `HasActions` (Filament)
+| | |
+|---|---|
+| **Class** | `Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard` |
+| **State** | None — display/action component (nested fields use parent form state) |
+| **Contexts** | `standalone` (card) · `group` (flat row) |
+| **Extends** | `Filament\Schemas\Components\Component` |
 
-Use inside any Filament schema (`Form`, `Section`, `ItemCardGroup`, `ItemCardStack`, etc.).
+---
 
 ### Basic usage
+
+#### Standard navigation row
 
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard;
@@ -22,263 +29,127 @@ use Filament\Support\Icons\Heroicon;
 ItemCard::make('Language')
     ->description('Choose your preferred language')
     ->icon(Heroicon::GlobeAlt)
-    ->chevron();
+    ->chevron()
+    ->pressable();
 ```
+
+#### Settings row with switch
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SwitchField;
+
+ItemCard::make('Dark mode')
+    ->description('Use dark theme across the app')
+    ->icon(Heroicon::Moon)
+    ->schema([
+        SwitchField::make('dark_mode')->inline()->size('sm'),
+    ]);
+```
+
+---
 
 ### Context: `standalone` vs `group`
 
 Rendering mode is controlled by **context**. This changes surface styling (border, shadow, padding, chevron shape).
 
-| Context | When | Visual behaviour |
+| Context | When | Visual behavior |
 |---------|------|------------------|
 | `auto` (default) | Parent is `ItemCardGroup` → `group`; otherwise → `standalone` | Detected automatically |
 | `group` | Row inside a shared group surface | Flat row; no per-row border/shadow |
-| `standalone` | Outside `ItemCardGroup` (or forced) | Self-contained card: border, radius, shadow (variant-dependent), chevron in circle |
+| `standalone` | Outside `ItemCardGroup` (or forced) | Self-contained card: border, radius, shadow |
 
 ```php
 ItemCard::make('Profile')->standalone(); // force standalone surface
-ItemCard::make('Profile')->inGroup();    // force flat group row (even outside a group)
+ItemCard::make('Profile')->inGroup();    // force flat group row
 ```
 
-### Variants
+---
 
-Set on the **card** (standalone) or inherited visually from the group row context.
+### Configuration API
 
-| Variant | Standalone appearance |
-|---------|---------------------|
-| `default` | White surface, border, shadow |
-| `secondary` | Light gray surface, no shadow, transparent border |
-| `tertiary` | Darker gray surface, no shadow |
-| `outline` | Transparent background, visible border, no shadow |
-| `transparent` | Transparent background, no border, no shadow |
+All methods accept `Closure` unless noted.
 
-```php
-ItemCard::make('Billing')
-    ->variant('outline')
-    ->description('Payment methods')
-    ->icon(Heroicon::OutlinedCreditCard)
-    ->chevron();
-```
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `variant(string\|Closure $variant)` | Setup | `'default'` | `default`, `secondary`, `tertiary`, `outline`, `transparent`. |
+| `icon(mixed $icon)` | Setup | `null` | Leading icon (Heroicon, Gravity, etc.). |
+| `image(string\|Closure $url)` | Setup | `null` | Leading media image (overrides icon). |
+| `imageShape(string\|Closure $shape)` | Setup | `'rounded'` | Crop shape: `circle` or `rounded`. |
+| `imageAlt(string\|Closure $alt)` | Setup | `heading` | Alternative text for the leading image. |
+| `chevron(bool\|Closure $on)` | Setup | `false` | Show a trailing chevron indicator. |
+| `pressable(bool\|Closure $on)` | Setup | `auto` | Enable hover/ripple effects (auto-enabled if chevron/url set). |
+| `pressableAction(Action\|Closure $action)` | Setup | `null` | Action to trigger when the entire row is clicked. |
+| `url(string\|Closure $url)` | Setup | `null` | URL to navigate to on row click. |
+| `schema(array\|Closure $components)` | Setup | `[]` | Trailing slot components (fields, actions). |
 
-Invalid variant throws `InvalidArgumentException`.
-
-### Chainable configuration API
-
-#### `image(string|Closure|null $url)`
-
-
-Sets the leading media image URL for the item card.
-
-```php
-ItemCard::make('profile')
-    ->image('/images/user.jpg');
-```
-
-#### `imageShape(string|Closure $shape)`
-
-
-Sets the crop shape of the leading image (`circle`, `square`, or `rounded`). Default is `circle`.
-
-```php
-ItemCard::make('profile')
-    ->image('/images/user.jpg')
-    ->imageShape('square');
-```
-
-#### `imageAlt(string|Closure|null $alt)`
-
-
-Sets the alternative text for the leading media image.
-
-```php
-ItemCard::make('profile')
-    ->image('/images/user.jpg')
-    ->imageAlt('User avatar');
-```
-### Pressable click priority
-
-When the row is pressable:
-
-1. `url()` → navigation link
-2. `action()` / `pressableAction()` → `wire:click` → `mountAction(...)` with `schemaComponent` context
-3. Chevron / group `pressable()` only → visual feedback (ripple + hover), no server action unless you add `pressableAction()`
-
-### Public helper methods
+#### Public helper methods
 
 | Method | Returns | Description |
 |--------|---------|-------------|
-| `getVariant()` | `string` | Resolved variant name |
-| `getIcon()` | `string\|BackedEnum\|Htmlable\|null` | Resolved icon |
-| `hasChevron()` | `bool` | Whether chevron is shown |
-| `getContext()` | `string` | `group` or `standalone` |
-| `isPressable()` | `bool` | Whether row renders as button/link |
-| `getPressableAction()` | `Action\|null` | Prepared action for row click |
-| `hasInteractiveAction()` | `bool` | `true` when `schema()` has children |
-| `getUrl()` | `string\|null` | Resolved URL |
-| `shouldOpenUrlInNewTab()` | `bool` | New tab flag |
+| `getVariant()` | `string` | Resolved surface variant. |
+| `getContext()` | `string` | `group` or `standalone`. |
+| `isPressable()` | `bool` | Whether the row is interactive. |
+| `hasInteractiveAction()` | `bool` | `true` if `schema()` contains components. |
 
-### Form integration
+---
 
-Fields inside `-&gt;schema()` are normal Filament form fields. They use the parent form `statePath` (e.g. `data.dark_mode`).
+### Real-world examples
 
-**Validation** runs on parent form submit (`$this-&gt;form-&gt;validate()`). Rules go on the **field**, not on `ItemCard`. Errors appear **below each field** in the trailing slot (standard Filament wrapper), not under `ItemCardGroup`.
-
-**Autosave / on change:**
+#### Profile card with avatar
 
 ```php
-SwitchField::make('dark_mode')
-    ->live()
-    ->afterStateUpdated(fn (bool $state) => $this->saveDarkMode($state)),
+ItemCard::make('Alex Rivera')
+    ->description('Product Designer')
+    ->image('https://i.pravatar.cc/128?img=12')
+    ->imageShape('circle')
+    ->chevron()
+    ->url(route('profile.edit'));
 ```
 
-**Reading values on submit:**
+#### Destructive action row
 
 ```php
-$data = $this->form->getState();
-// ['dark_mode' => true, 'event_invites' => 'email', ...]
-```
-
-`ItemCard` / `ItemCardGroup` do not add their own state keys — only nested fields do.
-
-### Trailing actions (Filament `Action`)
-
-Use `Action` / `ActionGroup` in `schema()` for visible buttons (not whole-row click):
-
-```php
-use Bjanczak\FilamentFlexFields\Filament\Actions\Action;
-
 ItemCard::make('Delete account')
-    ->description('Permanently remove your account')
+    ->description('Permanently remove your account and all data')
     ->schema([
         Action::make('delete')
             ->label('Delete')
             ->color('danger')
-            ->itemCard()           // pill outlined small button style
-            ->requiresConfirmation()
-            ->action(fn () => $this->deleteAccount()),
-    ]),
-```
-
-`-&gt;itemCard()` is provided by the package `Action` class (`CanStyleItemCardAction`).
-
-For **press-and-hold** destructive actions (no accidental click), use `->holdConfirm()` instead of `->requiresConfirmation()` — see [Hold confirm action](/docs/hold-confirm-action).
-
-```php
-Action::make('delete')
-    ->label('Hold to Delete')
-    ->color('danger')
-    ->itemCard()
-    ->holdConfirm(2000)
-    ->action(fn () => $this->deleteAccount()),
-```
-
-### Select & switch in item cards
-
-**Select** — use `SelectField` with `variant('item-card')`:
-
-```php
-SelectField::make('language')
-    ->options(['en' => 'English', 'pl' => 'Polish'])
-    ->variant('item-card')
-    ->hiddenLabel(),
-```
-
-**Switch** — use `SwitchField` with `inline()` and optional `size('sm')`:
-
-```php
-SwitchField::make('dark_mode')
-    ->inline()
-    ->size('sm'),
-```
-
-### Form panel layout (`item-card--form-panel`)
-
-Default `ItemCard` is a **horizontal row** (icon | title | trailing control). For **multi-field form sections**, add the `item-card--form-panel` class via `extraAttributes()`:
-
-- Row 1: icon + title + description
-- Row 2: child fields at **full width**
-
-```php
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
-use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard;
-use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardStack;
-use Bjanczak\FilamentFlexFields\Support\GravityIcon;
-
-ItemCardStack::make()
-    ->columns(['default' => 1, 'sm' => 2])
-    ->extraAttributes(['class' => 'fff-form-layout fff-form-layout--grid'])
-    ->schema([
-        ItemCard::make('Profile')
-            ->description('How you appear to guests')
-            ->icon(GravityIcon::Person)
-            ->variant('outline')
-            ->standalone()
-            ->extraAttributes(['class' => 'item-card--form-panel'])
-            ->columns(1)
-            ->schema([
-                FlexTextInput::make('name')->label('Display name'),
-                FlexTextInput::make('email')->label('Email')->email(),
-            ]),
-        ItemCard::make('Contact')
-            ->description('Phone and country')
-            ->icon(GravityIcon::Handset)
-            ->variant('outline')
-            ->standalone()
-            ->extraAttributes(['class' => 'item-card--form-panel'])
-            ->columns(1)
-            ->schema([
-                PhoneField::make('phone')->label('Phone'),
-            ]),
+            ->itemCard()
+            ->requiresConfirmation(),
     ]);
 ```
 
-| Class | When to use |
-|-------|-------------|
-| `item-card--form-panel` | Vertical form section inside a card |
-| `fff-form-layout--grid` | Two-column card grid on `ItemCardStack` (from `sm` / `640px`) |
+---
 
-> **Do not** nest full-width fields in a plain `ItemCard` without `item-card--form-panel` — controls render in the narrow trailing slot.
+### CSS classes (reference)
 
-### Inherited Filament schema component API
+| Class | Role |
+|-------|------|
+| `item-card` | Base row wrapper |
+| `item-card--{variant}` | Surface variant modifier |
+| `item-card--context-{standalone\|group}` | Layout context modifier |
+| `item-card--pressable` | Interactive state modifier |
+| `item-card--form-panel` | Vertical form layout modifier |
+| `item-card-icon` | Leading visual container |
+| `item-card-content` | Title and description container |
+| `item-card-action` | Trailing schema container |
+| `item-card-chevron` | Chevron indicator wrapper |
 
-`ItemCard` extends `Filament\Schemas\Components\Component`. These methods work as in core Filament:
+---
 
-| Method | Description |
-|--------|-------------|
-| `schema()` / `components()` | Child components in the trailing slot |
-| `key()` | Explicit schema component key (optional; auto-set for `action()`) |
-| `id()` | HTML `id` attribute |
-| `hidden()` / `visible()` | Conditional rendering |
-| `hiddenOn()` / `visibleOn()` | Hide/show per operation |
-| `extraAttributes()` | Extra HTML attributes on root element |
-| `columnSpan()` / `columnStart()` | Grid layout when parent uses columns |
-| `columns()` / `gap()` | Child grid (default `gap(0)`, `columns(1)` in `setUp()`) |
-| `registerActions()` | Register multiple named actions |
-| `getAction()` / `getActions()` | Resolve registered actions |
-| `actionSchemaModel()` | Model for action forms |
-| `hasAction()` | Whether a named action exists |
+### Related components
 
-All configuration methods accept `Closure` with Filament utility injection.
+| Component | When to use instead |
+|-----------|---------------------|
+| [ItemCardGroup](/docs/itemcardgroup) | To group multiple `ItemCard` rows in a shared container. |
+| [ChoiceCards](/docs/choicecards) | For selectable cards that store a form state. |
+| [CoverCard](/docs/covercard) | For media-heavy hero banners or product tiles. |
 
-### HTML structure (data slots)
+---
 
-| Slot | Element |
-|------|---------|
-| `data-slot="item-card"` | Root (`div`, `button`, or `a`) |
-| `item-card-icon` | Leading icon container |
-| `item-card-content` | Title + description |
-| `item-card-action` | Trailing schema (fields, actions) |
-| `item-card-chevron` | Chevron indicator |
+### Playground
 
-### CSS classes
-
-| Class | Meaning |
-|-------|---------|
-| `item-card` | Base row |
-| `item-card--{variant}` | Surface variant |
-| `item-card--context-standalone` / `--context-group` | Layout context |
-| `item-card--pressable` | Interactive row |
-| `item-card--form-panel` | Vertical form layout (header row + full-width fields) |
+Grouped layouts and hold-confirm actions: `/admin/flex-fields-playground/item-card-group`.
 
 ---

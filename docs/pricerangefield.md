@@ -1,27 +1,31 @@
 ---
 title: "PriceRangeField"
+description: Dual-handle price range slider with histogram backdrop, min/max numeric inputs, and currency prefix.
 ---
 
 ![PriceRangeField](/art/sc-9.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Dual-handle **price range** slider with histogram backdrop, min/max numeric inputs, and currency prefix.
+Dual-handle **price range** slider with histogram backdrop, min/max numeric inputs, and currency prefix. Ideal for e-commerce filtering where users need to see data distribution while selecting a range.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\PriceRangeField` |
-| **State type** | `array&lt;min: int|float, max: int|float&gt;` |
-| **Model cast** | `'price_range' =&gt; 'array'` or `'json'` |
+| **State type** | `array<min: int|float, max: int|float>` |
+| **Model cast** | `'price_range' => 'array'` or `'json'` |
 | **FieldType** | `price_range` |
+| **Playground** | `price-range` slug in Flex Fields playground |
 
-Example state: `['min' =&gt; 100, 'max' =&gt; 1124]`.
+Example state: `['min' => 100, 'max' => 1124]`.
+
+---
 
 ### Basic usage
 
+#### Standard Price Range
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PriceRangeField;
 
@@ -32,148 +36,107 @@ PriceRangeField::make('price_range')
     ->step(1)
     ->prefix('$')
     ->histogram([30, 74, 85, 36, 98])
-    ->showInputs()
-    ->variant('bordered')
-    ->default(['min' => 100, 'max' => 1124]);
+    ->showInputs();
 ```
 
-### Validation
+#### Slider Only (No Inputs)
+```php
+PriceRangeField::make('budget')
+    ->min(0)
+    ->max(1000)
+    ->showInputs(false)
+    ->variant('flat');
+```
 
-Built-in rules via custom validator:
+---
 
+### State & validation
+
+#### Stored value
+State is an associative array with `min` and `max` keys.
+
+```php
+$record->price_range; // ['min' => 100, 'max' => 1124]
+```
+
+#### Validation rules (built-in)
 | Failure | Translation key |
 |---------|-----------------|
 | Non-numeric min/max | `price_range.invalid` |
 | Values outside bounds | `price_range.out_of_bounds` |
 | min > max | `price_range.min_greater_than_max` |
 
+---
+
 ### Configuration API
 
-#### `min(int|float|Closure $min = 0)` / `max(int|float|Closure $max = 1000)`
+All methods accept `Closure` unless noted.
 
-
-Range boundaries for slider and inputs.
-
-```php
-PriceRangeField::make('field_name')
-    ->min(1)
-    ->max(10);
-```
-#### `step(int|float|Closure $step = 1)`
-
-
-Snap increment.
-
-```php
-PriceRangeField::make('field_name')
-    ->step(1);
-```
-#### `integer(bool|Closure $condition = true)`
-
-
-Restrict to whole numbers. **Default: true.**
-
-```php
-PriceRangeField::make('field_name')
-    ->integer(true);
-```
-#### `decimalPlaces(int|Closure|null $places)`
-
-
-Fixed decimal precision when not integer.
-
-```php
-PriceRangeField::make('field_name')
-    ->decimalPlaces(2);
-```
-#### `prefix(string|Closure|null $prefix)` / `withoutPrefix()`
-
-
-Currency or unit prefix shown in inputs. Default config: `$`.
-
-```php
-PriceRangeField::make('field_name')
-    ->prefix('value')
-    ->withoutPrefix();
-```
-#### `variant(string|Closure $variant)`
-
-
-| Value | Description |
-|-------|-------------|
-| `bordered` | Bordered track. **Default.** |
-| `flat` | Flat styling. |
-| `faded` | Subtle faded track. |
-
-```php
-PriceRangeField::make('field_name')
-    ->variant('primary');
-```
-#### `showInputs(bool|Closure $condition = true)`
-
-
-Min/max numeric inputs below the slider. **Default: true.**
-
-```php
-PriceRangeField::make('field_name')
-    ->showInputs(true);
-```
-#### `minInputLabel(string|Closure|null $label)` / `maxInputLabel(string|Closure|null $label)`
-
-
-Accessible labels for the numeric inputs.
-
-```php
-PriceRangeField::make('field_name')
-    ->minInputLabel('value')
-    ->maxInputLabel('value');
-```
-#### `histogram(array|Closure $heights)`
-
-
-Bar heights (8–100) for the background chart. Uses a built-in default pattern when omitted.
-
-```php
-PriceRangeField::make('field_name')
-    ->histogram(['value1', 'value2']);
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-See [Control size](/docs/shared-concepts).
-
-```php
-PriceRangeField::make('field_name')
-    ->size('md');
-```
-
-### State normalization
-
-On hydrate and dehydrate, values are clamped to `[min, max]`, stepped, and `min` is never greater than `max`.
-
-### FlexField schema config
-
-| Config key | Maps to |
-|------------|---------|
-| `min` | `min()` |
-| `max` | `max()` |
-| `step` | `step()` |
-| `size` | `size()` |
-| `variant` | `variant()` |
-| `prefix` | `prefix()` |
-| `histogram` | `histogram()` |
-| `integer` | `integer()` |
-| `decimal_places` | `decimalPlaces()` |
-| `show_inputs` | `showInputs()` |
-| `min_input_label` | `minInputLabel()` |
-| `max_input_label` | `maxInputLabel()` |
-
-### Public helper methods
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `normalizeState(array $state)` | `array&lt;min, max&gt;` | Clamps min/max to bounds, applies step rounding, ensures `min ≤ max`. |
-| `defaultHistogram()` | `list&lt;float&gt;` | Built-in 32-bar histogram heights (8–100) used when `histogram()` is empty. |
-| `hasPrefix()` | `bool` | Whether a currency/unit prefix is configured (not `withoutPrefix()`). |
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `min(int\|float $min)` | Setup | `0` | Lower bound |
+| `max(int\|float $max)` | Setup | `1000` | Upper bound |
+| `step(int\|float $step)` | Setup | `1` | Snap increment |
+| `integer(bool $condition)` | Setup | `true` | Restrict to whole numbers |
+| `decimalPlaces(int $places)` | Setup | `null` | Fixed decimal precision |
+| `prefix(string $prefix)` | Setup | `'$'` | Currency prefix in inputs |
+| `withoutPrefix()` | Setup | — | Remove currency prefix |
+| `variant(string $variant)` | Setup | `'primary'` | `primary` (bordered), `secondary` (faded), `flat` |
+| `showInputs(bool $condition)` | Setup | `true` | Show min/max numeric inputs |
+| `minInputLabel(string $label)` | Setup | config | Label for min input |
+| `maxInputLabel(string $label)` | Setup | config | Label for max input |
+| `histogram(array $heights)` | Setup | default | Bar heights (8–100) for chart |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
+| `rounding(string $rounding)` | Setup | config | Border radius token |
 
 ---
+
+### Real-world examples
+
+#### Custom Histogram Data
+```php
+PriceRangeField::make('price_range')
+    ->histogram(fn () => Product::query()->pluck('price')->histogram(32));
+```
+
+#### Reactive Filtering
+```php
+PriceRangeField::make('price_range')
+    ->live()
+    ->afterStateUpdated(function ($state) {
+        // Filter results based on $state['min'] and $state['max']
+    });
+```
+
+---
+
+### Playground
+
+`/admin/flex-fields-playground/price-range`
+
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexSlider](/docs/flexslider) | Generic dual-handle slider without histogram |
+| [TrackSlider](/docs/trackslider) | Minimalist single-handle slider |
+| [CurrencyField](/docs/currencyfield) | Single currency input |
+
+---
+
+### CSS classes (reference)
+
+| Class | Role |
+|-------|------|
+| `fff-price-range-field` | Root wrapper |
+| `fff-price-range-field--{sm\|md\|lg}` | Size variant |
+| `fff-price-range-field--{variant}` | Visual variant |
+| `fff-rounding-{rounding}` | Border radius utility |
+| `fff-price-range-field__histogram` | Histogram container |
+| `fff-price-range-field__bar` | Individual histogram bar |
+| `fff-price-range-field__slider` | Dual-handle slider wrapper |
+| `fff-price-range-field__inputs` | Min/max inputs container |

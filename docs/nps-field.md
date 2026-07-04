@@ -1,6 +1,6 @@
 ---
 title: "NpsField"
-description: Enterprise-grade NPS, CSAT, and Likert scale inputs with three visual variants.
+description: NPS, CSAT, and Likert scale inputs with three visual variants.
 ---
 
 ![NpsField](/art/sc-33.png)
@@ -665,9 +665,9 @@ Stylesheet dependency graph: `nps-field` → `segment-control` (pills variant on
 
 ### Playground
 
-Enable the Flex Fields playground on your panel, then open **`/admin/flex-fields-playground/nps-field`**.
+`/admin/flex-fields-playground/nps-field`
 
-Demonstrates: standard NPS, color-coded NPS, custom scales, Likert, empty initial state, optional deselect, segments sizes/rounding, emoji sizes, bundled webp, and Gravity icons.
+See [Playground](/docs/index#playground) for setup.
 
 ---
 

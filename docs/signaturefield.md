@@ -17,6 +17,7 @@ Canvas signature pad storing normalized SVG markup. Supports undo, fullscreen, o
 | **State type** | `string\|null` — normalized SVG document |
 | **FieldType** | `signature` |
 | **Storage constants** | `STORE_SVG = 'svg'` |
+| **Playground** | `signature-field` slug in Flex Fields playground |
 
 ### Basic usage
 
@@ -272,5 +273,29 @@ SignatureField::make('field_name')
 
 - Store SVG in `text` or `longText` columns; consider `maxSizeKb()` for DB limits.
 - WebP download is generated client-side from the canvas — not stored in form state.
+
+---
+
+### Playground
+
+Slug: **`signature-field`**
+
+| Demo field | Shows |
+|------------|-------|
+| Default | Undo, pen color, stroke validation |
+| Fullscreen | Fullscreen modal + guidelines |
+| Download | SVG / WebP export options |
+
+`/admin/flex-fields-playground/signature-field` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexFileUpload](/docs/flexfileupload-and-fleximageupload) | Upload a scanned signature image |
+| [FlexRichEditor](/docs/flex-rich-editor) | Rich text consent clauses above the pad |
+| [BarcodeScannerField](/docs/barcode-scanner-field) | Capture IDs or document barcodes |
 
 ---

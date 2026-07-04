@@ -604,7 +604,18 @@ For translatable titles with permalink generation, see [Translatable titles (sin
 
 ### Playground
 
-The dev playground includes single-field and multi-field variants with RTL, empty badges, and active-tab selection. Enable playground mode in config and open the Flex Fields playground page.
+Slug: **`translatable-fields`** — `/admin/flex-fields-playground/translatable-fields`
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [SegmentTabs](/docs/segmenttabs) | Generic segmented tabs without locale cloning |
+| [TitleSlugField](/docs/slugfield-and-titleslugfield) | Translatable titles with one shared slug |
+| [FlexTextInput](/docs/flextextinput) | Single-locale text without JSON storage |
+| [TranslatableFields macro](/docs/translatablefields#field-macro-translatablefields) | Same layout via `Field::translatableFields()` |
 
 ---
 

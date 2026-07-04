@@ -1,24 +1,28 @@
 ---
 title: "ColorSwatchField"
+description: Preset color picker: horizontal swatch pills with optional section header and tooltips.
 ---
 
 ![ColorSwatchField](/art/sc-24.png)
 
 [← Back to Table of Contents](/docs/index)
 
-
 ### Summary
 
-Preset color picker: horizontal swatch pills with optional section header and tooltips.
+Preset color picker featuring horizontal swatch pills with optional section headers and hover tooltips. Ideal for theme selection, category coloring, or any case where users choose from a predefined palette.
 
 | | |
 |---|---|
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ColorSwatchField` |
 | **State type** | `string\|null` — selected color **key** (not hex) |
 | **FieldType** | `color_presets` |
+| **Playground** | `color-swatch` slug in Flex Fields playground |
+
+---
 
 ### Basic usage
 
+#### Standard Theme Colors
 ```php
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ColorSwatchField;
 
@@ -30,110 +34,104 @@ ColorSwatchField::make('theme_color')
     ])
     ->sectionLabel('Brand colors')
     ->tooltips(true);
+```
 
+#### Large Swatches with Custom Tooltips
+```php
 ColorSwatchField::make('accent')
     ->colors(['primary' => '#3b82f6', 'white' => '#ffffff'])
     ->tooltips([
-        'primary' => 'Primary blue',
-        'white' => 'White',
+        'primary' => 'Primary Brand Blue',
+        'white' => 'Pure White',
     ])
     ->size('lg');
 ```
 
-### State format
+---
 
-Stores the **array key** from `colors()`, e.g. `'indigo'`, not `#6366f1`.
+### State & validation
 
-### Validation
+#### Stored value
+State is the **array key** from `colors()`, not the hex value. This allows you to change the hex values in your code without breaking existing database records.
 
+```php
+$record->theme_color; // 'indigo'
+```
+
+#### Validation rules (built-in)
 | Rule | Detail |
 |------|--------|
-| `nullable` | No selection allowed |
-| `Rule::in(...)` | Key must exist in `colors()` |
+| `nullable` | No selection allowed (unless `required()`) |
+| `Rule::in(...)` | Key must exist in the configured `colors()` array |
+
+---
 
 ### Configuration API
 
-#### `colors(array|Closure $colors)`
+All methods accept `Closure` unless noted.
 
+| Method | Type | Default | Description |
+|--------|------|---------|-------------|
+| `colors(array $colors)` | Setup | `[]` | Map of `key => hex` (or CSS color) |
+| `sectionLabel(string $label)` | Setup | `null` | Heading above swatches |
+| `sectionIcon(string $icon)` | Setup | config | Icon next to section label |
+| `tooltips(bool\|array $tooltips)` | Setup | `false` | `true` for auto-labels, or custom array |
+| `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
 
-Map of `key =&gt; hex` (or CSS color). Required for meaningful UI.
+---
 
+### Real-world examples
+
+#### Status Color Picker
 ```php
-ColorSwatchField::make('field_name')
-    ->colors(['value1', 'value2']);
-```
-#### `sectionLabel(string|Closure|null $label)`
-
-
-Optional heading above swatches.
-
-```php
-ColorSwatchField::make('field_name')
-    ->sectionLabel('value');
-```
-#### `sectionIcon(string|BackedEnum|Htmlable|Closure|null $icon)`
-
-
-Icon next to section label. When label is set and icon omitted, uses config `color_swatch_section_icon` or `GravityIcon::Palette`.
-
-```php
-ColorSwatchField::make('field_name')
-    ->sectionIcon('value');
-```
-#### `tooltips(bool|array|Closure $tooltips = true)`
-
-
-`true` = auto labels from keys; `false` = no tooltips; array = per-key labels.
-
-```php
-ColorSwatchField::make('field_name')
-    ->tooltips(true);
-```
-#### `size(string|ControlSize|Closure $size)`
-
-
-`sm`, `md`, `lg`. Default: `md`.
-
-```php
-ColorSwatchField::make('field_name')
-    ->size('md');
+ColorSwatchField::make('status_color')
+    ->colors([
+        'danger' => '#ef4444',
+        'warning' => '#f59e0b',
+        'success' => '#10b981',
+        'info' => '#3b82f6',
+    ])
+    ->tooltips(true)
+    ->required();
 ```
 
-### Public helper methods
+#### Compact Palette
+```php
+ColorSwatchField::make('tag_color')
+    ->colors($this->getAvailableColors())
+    ->size('sm')
+    ->hiddenLabel();
+```
 
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `getColors()` | `array&lt;string, string&gt;` | Key → color map |
-| `getSectionLabel()` | `string\|null` | Header text |
-| `getSectionIcon()` | `string\|BackedEnum\|Htmlable\|null` | Header icon |
-| `getDefaultSectionIcon()` | `string\|BackedEnum\|Htmlable` | Fallback icon |
-| `hasTooltips()` | `bool` | Tooltips enabled |
-| `getColorLabel(string $key)` | `string` | Tooltip for key |
-| `isLightSwatch(string $hex)` | `bool` | Light swatch (border adjustment) |
+---
 
-### FlexField schema config
+### Playground
 
-| Config key | Maps to |
-|------------|---------|
-| `colors` | `colors()` |
-| `section_label` | `sectionLabel()` |
-| `section_icon` | `sectionIcon()` |
-| `size` | `size()` |
-| `tooltips` | `tooltips()` |
+`/admin/flex-fields-playground/color-swatch`
 
-### CSS classes
+See [Playground](/docs/index#playground) for setup.
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [FlexColorPickerField](/docs/flexcolorpickerfield) | Full HSV/Grid color picker for any color |
+| [ChoiceCards](/docs/choicecards) | Large card-style selection |
+| [NpsField](/docs/nps-field) | Survey-style color-coded scales |
+
+---
+
+### CSS classes (reference)
 
 | Class | Role |
 |-------|------|
 | `fff-color-swatch` | Root wrapper |
-| `fff-color-swatch--{sm\|md\|lg}` | Size modifier |
-| `fff-color-swatch__pill` | Swatch button |
-| `fff-color-swatch__pill--light` | Light color border |
-| `fff-color-swatch__pill.is-selected` | Selected state |
-
-### Implementation notes
-
-- Keys are persisted; map to hex in your application layer or accessor.
-- `isLightSwatch()` detects white swatches for contrast borders.
-
----
+| `fff-color-swatch--{sm\|md\|lg}` | Size variant |
+| `fff-color-swatch__header` | Section label container |
+| `fff-color-swatch__swatches` | Swatch pills container |
+| `fff-color-swatch__pill` | Individual color button |
+| `fff-color-swatch__pill--light` | Border for light colors (contrast) |
+| `is-selected` | Selected state |
+| `is-disabled` | Disabled state |

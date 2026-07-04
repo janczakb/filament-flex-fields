@@ -443,3 +443,28 @@ FlexImageUpload::make('photo')
 - For Spatie Media Library integration, see package `FlexSpatieMediaLibraryFileUpload` (if installed in app).
 
 ---
+
+### Playground
+
+Slug: **`file-upload`**
+
+| Demo tab | Shows |
+|----------|-------|
+| File | Documents, summaries, metadata sidecar |
+| Camera | Webcam capture (HTTPS) |
+| URL | Remote import with SSRF protection |
+
+`/admin/flex-fields-playground/file-upload` — see [Playground](/docs/index#playground).
+
+---
+
+### Related components
+
+| Component | When to use instead |
+|-----------|---------------------|
+| [VideoField](/docs/videofield) | Video-specific upload and preview |
+| [AudioField](/docs/audiofield) | Audio recording and playback |
+| [SignatureField](/docs/signaturefield) | Drawn signature SVG, not file upload |
+| [FlexImageUpload](/docs/flexfileupload-and-fleximageupload) | Same component with `imagesOnly()` preset |
+
+---
