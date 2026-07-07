@@ -710,9 +710,17 @@ export default function flexRichEditorFormComponent(options) {
             isUploadingFile: false,
             fileValidationMessage: null,
             shouldUpdateState: true,
-            editorUpdatedAt: Date.now(),
+            editorUpdatedAt: null,
             _filamentRichEditorBootstrapped: false,
             _baseDestroy: null,
+
+            getEditor() {
+                return null
+            },
+
+            $getEditor() {
+                return this.getEditor()
+            },
 
             async init() {
                 if (this._filamentRichEditorBootstrapped) {
@@ -730,12 +738,50 @@ export default function flexRichEditorFormComponent(options) {
                         continue
                     }
 
-                    const descriptor = Object.getOwnPropertyDescriptor(base, key)
-
-                    if (descriptor) {
-                        Object.defineProperty(this, key, descriptor)
+                    if (typeof base[key] === 'function') {
+                        this[key] = base[key]
+                    } else {
+                        const descriptor = Object.getOwnPropertyDescriptor(base, key)
+                        if (descriptor) {
+                            Object.defineProperty(this, key, descriptor)
+                        }
                     }
                 }
+
+                // Override runEditorCommands to avoid Y[F.name] minification bug in native Filament
+                this.runEditorCommands = function(detail) {
+                    const commands = detail.commands || [];
+                    const editorSelection = detail.editorSelection;
+                    try {
+                        this.setEditorSelection(editorSelection);
+                    } catch (e) {
+                        console.warn('Failed to restore editor selection before running commands:', e);
+                        // Do not halt execution if selection restoration fails (e.g., due to state desync)
+                    }
+
+                    const editor = typeof this.getEditor === 'function' ? this.getEditor() : this.$getEditor();
+                    if (!editor) return;
+
+                    commands.forEach((command) => {
+                        let commandChain = editor.chain().focus();
+                        if (command.arguments && command.arguments.length) {
+                            command.arguments.forEach((argument) => {
+                                for (let [key, value] of Object.entries(argument)) {
+                                    if (typeof value === 'string' && value.startsWith('view::')) {
+                                        argument[key] = window.Livewire.find(detail.livewireId).components.componentsByName[value.substring(6)][0];
+                                    }
+                                }
+                            });
+                        }
+                        
+                        if (typeof commandChain[command.name] === 'function') {
+                            commandChain[command.name](...(command.arguments || []));
+                        } else {
+                            console.error(`Command ${command.name} not found on editor chain!`);
+                        }
+                        commandChain.run();
+                    });
+                };
 
                 if (typeof baseInit === 'function') {
                     await baseInit.call(this)

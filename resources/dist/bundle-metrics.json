@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-04T10:04:36.559Z",
+  "generatedAt": "2026-07-07T15:34:24.396Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 22799,
@@ -759,9 +759,9 @@
       "gzipKb": 7.32
     },
     "flex-rich-editor.js": {
-      "bytes": 13632,
-      "kb": 13.31,
-      "gzipKb": 4.35
+      "bytes": 14398,
+      "kb": 14.06,
+      "gzipKb": 4.66
     },
     "flex-slider.js": {
       "bytes": 37285,

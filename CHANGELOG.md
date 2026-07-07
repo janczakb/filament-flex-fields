@@ -5,8 +5,15 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.8.3] - 2026-07-04
+## [2.8.4] - 2026-07-07
 
+### Fixed
+
+- **FlexRichEditor** — fixed a critical bug in Native Filament's `rich-editor.js` where custom JS extensions (like the YouTube embed) triggered a `TypeError: Y[F.name] is not a function` during Livewire event dispatch due to missing references in the minified loop. `runEditorCommands` is now safely overridden directly in `flex-rich-editor.js`.
+- **FlexRichEditor** — added `try/catch` block around `setEditorSelection` to prevent `RangeError` from halting command execution when the Livewire server state syncs and trims the document, shifting the cursor out of bounds before inserting elements.
+- **FlexRichEditor** — fixed a race condition during initialization where Native Filament's formatting buttons (Bold, Italic, etc.) failed to execute because the `$getEditor` method proxy was not correctly mapped to the Alpine component instance.
+
+## [2.8.3] - 2026-07-04
 ### Added
 
 - **`CalculatorField`** — numeric input with a shared iOS-style calculator panel (one panel per page, per-field session memory).
