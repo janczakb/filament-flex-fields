@@ -38,7 +38,7 @@
     "dependencies": {
         "@gravity-ui/icons": "^2.18.0",
         "@internationalized/date": "^3.8.2",
-        "@zxing/browser": "^0.1.5",
+        "@zxing/browser": "^0.2.1",
         "@zxing/library": "^0.21.3",
         "emoji-picker-element": "^1.29.1",
         "libphonenumber-js": "^1.13.6",
