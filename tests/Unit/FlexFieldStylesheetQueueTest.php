@@ -214,6 +214,8 @@ it('simulates the multi-field asset audit without duplicate emissions', function
 
     expect($firstPass)
         ->toContain('data-fff-asset-batch')
+        ->toContain('rel="stylesheet"')
+        ->toContain('data-fff-stylesheet=')
         ->toContain('flex-fields-flex-text-input')
         ->toContain('flex-fields-teleported-menu')
         ->toContain('flex-fields-schedule-field');
@@ -269,13 +271,14 @@ it('registers playground skeleton demo script separately from the core injector'
         ->not->toContain('morph.updating');
 });
 
-it('pushes blocking head assets on full page and inlines them for livewire requests', function () {
+it('emits blocking head assets as inline links and keeps asset batches for injector flows', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/emit-assets.blade.php');
 
     expect($blade)
-        ->toContain('Livewire::isLivewireRequest()')
-        ->toContain("@push('styles')")
+        ->not->toContain("@push('styles')")
+        ->not->toContain('Livewire::isLivewireRequest()')
         ->toContain('data-fff-asset-batch')
+        ->toContain('rel="stylesheet"')
         ->toContain('data-fff-stylesheet')
         ->toContain('data-fff-alpine-chunk');
 });

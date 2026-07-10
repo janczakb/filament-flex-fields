@@ -5,6 +5,13 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.5] - 2026-07-10
+
+### Fixed
+
+- **Lazy asset emission (`emit-assets`)** — fixed a regression where queued component stylesheets (e.g. `UserColumn`, `RatingColumn`, `IconColumn`) were not applied on full Filament page loads. The partial previously used `@push('styles')` for non-Livewire requests, but Filament renders `@stack('styles')` before the `STYLES_AFTER` hook, so pushed links never reached the document head and CSS relied solely on the JS asset injector.
+- **Lazy asset emission (`emit-assets`)** — queued lazy stylesheets and Alpine chunk preloads are now always emitted as inline `<link>` tags (with `data-fff-stylesheet` / `data-fff-alpine-chunk`) while preserving the existing `data-fff-asset-batch` payload for `flex-field-asset-injector.js` (Livewire morph, SPA navigation, modals). Per-component lazy loading, dependency resolution, deduplication, and `markStylesheetsEmitted()` behaviour are unchanged.
+
 ## [2.8.4] - 2026-07-07
 
 ### Fixed

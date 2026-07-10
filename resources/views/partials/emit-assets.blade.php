@@ -1,6 +1,5 @@
 @php
     use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
-    use Livewire\Livewire;
 
     $stylesheets = $stylesheets ?? [];
     $chunks = $chunks ?? [];
@@ -22,43 +21,21 @@
         data-fff-chunks='@json($chunkHrefs)'
     ></span>
 
-    @if (Livewire::isLivewireRequest())
-        @foreach ($stylesheets as $stylesheet)
-            <link
-                rel="stylesheet"
-                href="{{ FlexFieldAssets::stylesheetHref($stylesheet) }}"
-                data-navigate-track
-                data-fff-stylesheet="{{ $stylesheet }}"
-            />
-        @endforeach
+    @foreach ($stylesheets as $stylesheet)
+        <link
+            rel="stylesheet"
+            href="{{ FlexFieldAssets::stylesheetHref($stylesheet) }}"
+            data-navigate-track
+            data-fff-stylesheet="{{ $stylesheet }}"
+        />
+    @endforeach
 
-        @foreach ($chunks as $chunk)
-            <link
-                rel="modulepreload"
-                href="{{ FlexFieldAssets::alpineChunkSrc($chunk) }}"
-                data-navigate-track
-                data-fff-alpine-chunk="{{ $chunk }}"
-            />
-        @endforeach
-    @else
-        @push('styles')
-            @foreach ($stylesheets as $stylesheet)
-                <link
-                    rel="stylesheet"
-                    href="{{ FlexFieldAssets::stylesheetHref($stylesheet) }}"
-                    data-navigate-track
-                    data-fff-stylesheet="{{ $stylesheet }}"
-                />
-            @endforeach
-
-            @foreach ($chunks as $chunk)
-                <link
-                    rel="modulepreload"
-                    href="{{ FlexFieldAssets::alpineChunkSrc($chunk) }}"
-                    data-navigate-track
-                    data-fff-alpine-chunk="{{ $chunk }}"
-                />
-            @endforeach
-        @endpush
-    @endif
+    @foreach ($chunks as $chunk)
+        <link
+            rel="modulepreload"
+            href="{{ FlexFieldAssets::alpineChunkSrc($chunk) }}"
+            data-navigate-track
+            data-fff-alpine-chunk="{{ $chunk }}"
+        />
+    @endforeach
 @endif
