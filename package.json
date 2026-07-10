@@ -32,7 +32,7 @@
         "@tailwindcss/cli": "^4.1.0",
         "@tiptap/core": "^3.27.1",
         "@tiptap/extension-youtube": "^3.27.1",
-        "esbuild": "^0.25.0",
+        "esbuild": "^0.28.1",
         "tailwindcss": "^4.1.0"
     },
     "dependencies": {
