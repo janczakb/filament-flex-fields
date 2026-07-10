@@ -65,3 +65,4 @@ pnpm-debug.log*
 # Maintainer-only docs — not for public GitHub (customer docs live in docs/)
 /DEVELOPMENT.md
 /COMPONENTS.md
+/composer.lock

@@ -16,3 +16,4 @@
 # Mintlify (docs site only — not shipped via Composer dist)
 /docs.json export-ignore
 /.mintignore export-ignore
+/composer.lock export-ignore
