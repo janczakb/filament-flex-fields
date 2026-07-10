@@ -184,91 +184,91 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/nps-field.md"><img src="art/sc-33.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NpsField - Enterprise NPS, CSAT, and Likert scale inputs with pills, segments, and emoji variants, color-coded detractor/passive/promoter ranges, and optional deselect"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/nps-field"><img src="art/sc-33.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NpsField - Enterprise NPS, CSAT, and Likert scale inputs with pills, segments, and emoji variants, color-coded detractor/passive/promoter ranges, and optional deselect"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">NpsField — NPS, CSAT & Likert Survey Scales</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/calculator-field.md"><img src="art/sc-34.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CalculatorField - Numeric input with shared iOS-style calculator panel, per-field session memory, floating desktop panel, and mobile bottom sheet"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/calculator-field"><img src="art/sc-34.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CalculatorField - Numeric input with shared iOS-style calculator panel, per-field session memory, floating desktop panel, and mobile bottom sheet"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CalculatorField — Shared Floating Calculator Panel</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/signaturefield.md"><img src="art/sc-1.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/signaturefield"><img src="art/sc-1.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SignatureField — Canvas Handwriting Signature Pad</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/matrixchoicefield.md"><img src="art/sc-2.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MatrixChoiceField - Dynamic survey matrix choice grid with radio and checkbox modes, reactive disabled cells, and custom validations"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/matrixchoicefield"><img src="art/sc-2.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MatrixChoiceField - Dynamic survey matrix choice grid with radio and checkbox modes, reactive disabled cells, and custom validations"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">MatrixChoiceField — Survey & Configurator Grid</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/flextextareafield.md"><img src="art/sc-3.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexTextareaField - Advanced multi-line input with speech dictation, character counter, autosize, and integrated emoji picker"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/flextextareafield"><img src="art/sc-3.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexTextareaField - Advanced multi-line input with speech dictation, character counter, autosize, and integrated emoji picker"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexTextareaField — Autosize Textarea with Voice & Emoji Input</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/progressbar.md"><img src="art/sc-4.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressBar and ProgressCircle - Multi-style visual progress indicators, linear trackers, and circular dashboard widgets for Laravel Filament"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/progressbar"><img src="art/sc-4.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressBar and ProgressCircle - Multi-style visual progress indicators, linear trackers, and circular dashboard widgets for Laravel Filament"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressBar & ProgressCircle — Visual Progress Indicators</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/currencyfield.md"><img src="art/sc-5.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CurrencyField - Multi-currency localized money input with real-time formatting, automatic decimal separation, and prefix selector"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/currencyfield"><img src="art/sc-5.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CurrencyField - Multi-currency localized money input with real-time formatting, automatic decimal separation, and prefix selector"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CurrencyField — Multi-Currency Localized Input</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/mappickerfield.md"><img src="art/sc-6.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MapPickerField - Interactive map coordinate pin picker with marker support, location autofill, and custom layouts for Filament"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/mappickerfield"><img src="art/sc-6.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="MapPickerField - Interactive map coordinate pin picker with marker support, location autofill, and custom layouts for Filament"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">MapPickerField — Interactive Map Pin Selector</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/itemcardgroup.md"><img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Card-based layout component for structured settings blocks, user profiles, and clean Filament form layouts"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/itemcardgroup"><img src="art/sc-7.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ItemCardGroup - Card-based layout component for structured settings blocks, user profiles, and clean Filament form layouts"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ItemCardGroup — Card-Based Layout Group</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/duallistboxfield.md"><img src="art/sc-8.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="DualListboxField - Highly interactive searchable dual panel transfer list for selecting and reordering multiple options in Filament v5"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/duallistboxfield"><img src="art/sc-8.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="DualListboxField - Highly interactive searchable dual panel transfer list for selecting and reordering multiple options in Filament v5"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">DualListboxField — Reorderable Two-Panel Transfer List</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/pricerangefield.md"><img src="art/sc-9.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PriceRangeField - Dual-handle interactive price filter with histogram slider and minimum/maximum range controls"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/pricerangefield"><img src="art/sc-9.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PriceRangeField - Dual-handle interactive price filter with histogram slider and minimum/maximum range controls"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">PriceRangeField — Dual-Handle Price Filter</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/creditcardfield.md"><img src="art/sc-10.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CreditCardField - Real-time credit card preview wrapper with Luhn validation and dynamic CVV flip animations"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/creditcardfield"><img src="art/sc-10.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CreditCardField - Real-time credit card preview wrapper with Luhn validation and dynamic CVV flip animations"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CreditCardField — Interactive Card Preview</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/flexcolorpickerfield.md"><img src="art/sc-11.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexColorPickerField - Color picker with preset swatches, opacity slider, visual grid, and eyedropper support"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/flexcolorpickerfield"><img src="art/sc-11.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexColorPickerField - Color picker with preset swatches, opacity slider, visual grid, and eyedropper support"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexColorPickerField — Advanced Color Picker</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/audiofield.md"><img src="art/sc-12.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="AudioField and VoiceNoteRecorderField - Web-based audio player with waveform visualizer and in-browser voice note recorder"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/audiofield"><img src="art/sc-12.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="AudioField and VoiceNoteRecorderField - Web-based audio player with waveform visualizer and in-browser voice note recorder"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">AudioField & VoiceNoteRecorderField — Waveform Audio & Voice Messages</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/numberstepper.md"><img src="art/sc-13.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NumberStepper - Pill-shaped numeric stepper control with plus/minus buttons and dynamic NumberFlow animation"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/numberstepper"><img src="art/sc-13.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NumberStepper - Pill-shaped numeric stepper control with plus/minus buttons and dynamic NumberFlow animation"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">NumberStepper — Animated Numeric Control</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/choicecards.md"><img src="art/sc-14.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ChoiceCards - Rich card-based selection list with custom icons, headers, badges, and selected highlight states"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/choicecards"><img src="art/sc-14.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ChoiceCards - Rich card-based selection list with custom icons, headers, badges, and selected highlight states"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ChoiceCards — Rich Selection Grid</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/videofield.md"><img src="art/sc-15.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="VideoField - Interactive video URL player supporting YouTube, Vimeo, and local HTML5 videos with custom media controls"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/videofield"><img src="art/sc-15.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="VideoField - Interactive video URL player supporting YouTube, Vimeo, and local HTML5 videos with custom media controls"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">VideoField — Video Player & Embed Component</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/trackslider.md"><img src="art/sc-16.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="TrackSlider - Track-style range slider supporting single values, percentage progress, and min/max range handles"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/trackslider"><img src="art/sc-16.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="TrackSlider - Track-style range slider supporting single values, percentage progress, and min/max range handles"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">TrackSlider — Inline Range & Segment Slider</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/segmentcontrol.md"><img src="art/sc-17.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SegmentControl - Elegant segmented sliding tab controls with support for icons, disabled states, and dynamic sizing"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/segmentcontrol"><img src="art/sc-17.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SegmentControl - Elegant segmented sliding tab controls with support for icons, disabled states, and dynamic sizing"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SegmentControl — Segmented Button Tab Switcher</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/covercard.md"><img src="art/sc-18.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CoverCard - Beautiful media card component for hero sections, product banners, or settings header blocks"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/covercard"><img src="art/sc-18.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CoverCard - Beautiful media card component for hero sections, product banners, or settings header blocks"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CoverCard — Media Rich Hero Banner</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/progresscircle.md"><img src="art/sc-19.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressCircle - Circular progress meters and semicircle tracking gauges for dashboard analytics"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/progresscircle"><img src="art/sc-19.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ProgressCircle - Circular progress meters and semicircle tracking gauges for dashboard analytics"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ProgressCircle — Semicircle & Circular Dashboard Metrics</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/ratingfield.md"><img src="art/sc-20.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="RatingField - Highly customizable star rating input supporting custom icons, semantic color states, and fractional display"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/ratingfield"><img src="art/sc-20.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="RatingField - Highly customizable star rating input supporting custom icons, semantic color states, and fractional display"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">RatingField — Visual Star Rating Input</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
@@ -276,47 +276,47 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">HoldConfirmAction — Press & Hold Button</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/slugfield-and-titleslugfield.md"><img src="art/sc-22.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SlugField combined with TranslatableFields showing multi-lingual title fields and live localized URL slug generation"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield"><img src="art/sc-22.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SlugField combined with TranslatableFields showing multi-lingual title fields and live localized URL slug generation"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SlugField & TranslatableFields — Translatable SEO Slugs</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/phonefield.md"><img src="art/sc-23.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/phonefield"><img src="art/sc-23.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">PhoneField — International Phone Input</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/colorswatchfield.md"><img src="art/sc-24.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ColorSwatchField - Interactive color swatch picker supporting circle/square shapes, size configurations, and focus indicators"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/colorswatchfield"><img src="art/sc-24.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ColorSwatchField - Interactive color swatch picker supporting circle/square shapes, size configurations, and focus indicators"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ColorSwatchField — Preset Color Swatches</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/flextextinput.md"><img src="art/sc-25.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexEmojiPicker - Integrated searching emoji picker popover with skin tone categories and custom category tabs"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/flextextinput"><img src="art/sc-25.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexEmojiPicker - Integrated searching emoji picker popover with skin tone categories and custom category tabs"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexEmojiPicker — Integrated Searchable Emoji Picker</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/date-and-time-fields.md"><img src="art/sc-26.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexDateRangeField - Dark-themed calendar date picker with date range selection and custom calendar rendering"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/date-and-time-fields"><img src="art/sc-26.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexDateRangeField - Dark-themed calendar date picker with date range selection and custom calendar rendering"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexDateRangeField — Dark Mode Calendar & Date Range Picker</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/schedule-field.md"><img src="art/sc-27.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ScheduleField - Weekly schedule editor with day toggles, multiple time slots, breaks, and copy-to-weekdays functionality"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/schedule-field"><img src="art/sc-27.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ScheduleField - Weekly schedule editor with day toggles, multiple time slots, breaks, and copy-to-weekdays functionality"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ScheduleField — Weekly Schedule Editor</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/link-preview-field.md"><img src="art/sc-28.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="LinkPreviewField - URL input field with live Open Graph / meta tag preview cards and server-side scraping"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/link-preview-field"><img src="art/sc-28.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="LinkPreviewField - URL input field with live Open Graph / meta tag preview cards and server-side scraping"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">LinkPreviewField — Open Graph Link Preview Card</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/social-links-field.md"><img src="art/sc-29.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SocialLinksField - Social profile link editor with brand icons, validation, reordering, and custom platforms support"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/social-links-field"><img src="art/sc-29.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SocialLinksField - Social profile link editor with brand icons, validation, reordering, and custom platforms support"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SocialLinksField — Social Profile Link Editor</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/barcode-scanner-field.md"><img src="art/sc-30.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BarcodeScannerField - Barcode and QR input with Filament modal camera scanner, format filtering, EAN/UPC checksum validation, and hybrid native + ZXing engines"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/barcode-scanner-field"><img src="art/sc-30.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BarcodeScannerField - Barcode and QR input with Filament modal camera scanner, format filtering, EAN/UPC checksum validation, and hybrid native + ZXing engines"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">BarcodeScannerField — Camera Barcode & QR Scanner</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/flexfileupload-and-fleximageupload.md"><img src="art/sc-31.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload"><img src="art/sc-31.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexFileUpload — Webcam & URL File Import</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="docs/icon-picker-field.md"><img src="art/sc-32.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="IconPickerField - Highly optimized searchable SVG icon picker with virtual scrolling, asynchronous preview loading, and WAI-ARIA combobox accessibility"></a>
+    <a href="https://flex-fields.bjanczak.com/docs/icon-picker-field"><img src="art/sc-32.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="IconPickerField - Highly optimized searchable SVG icon picker with virtual scrolling, asynchronous preview loading, and WAI-ARIA combobox accessibility"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">IconPickerField — Virtual Scrolling & W3C ARIA</p>
   </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
@@ -331,121 +331,121 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
 
-Full API for each component: **[docs/index.md](docs/index.md)**.
+Full API for each component: **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)**.
 
 ### Text & input (13)
 
 | Component | Description |
 |-----------|-------------|
-| [`FlexTextInput`](docs/flextextinput.md) | Enhanced text input — speech dictation, emoji picker, password strength, clearable |
-| [`FlexTextareaField`](docs/flextextareafield.md) | Animated autosizing textarea with character counter |
-| [`FlexRichEditor`](docs/flex-rich-editor.md) | JSON-first rich editor — responsive images, limits, fullscreen, autosave, optional Spatie |
-| [`PhoneField`](docs/phonefield.md) | International phone input with libphonenumber validation |
-| [`CountryField`](docs/countryfield.md) | Searchable country picker with flags |
-| [`TimezoneField`](docs/timezonefield.md) | IANA timezone picker with UTC offset display |
-| [`LinkPreviewField`](docs/link-preview-field.md) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
-| [`BarcodeScannerField`](docs/barcode-scanner-field.md) | Barcode/QR input — Filament modal camera scanner, format whitelist, EAN/UPC checksum, hybrid BarcodeDetector + ZXing, torch & front/back switch, iOS-safe preview *(v2.6.0)* |
-| [`SocialLinksField`](docs/social-links-field.md) | Social profile links — platform picker, URL validation, custom platforms, reorder |
-| [`SlugField`](docs/slugfield-and-titleslugfield.md) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
-| [`TitleSlugField`](docs/slugfield-and-titleslugfield.md) | Title + slug pair with live URL preview and optional Spatie Sluggable |
-| [`AddressAutocompleteField`](docs/addressautocompletefield.md) | Mapbox-powered address search with structured storage |
-| [`FlexVerificationCode`](docs/flexverificationcode.md) | OTP / 2FA verification code input with grouping |
+| [`FlexTextInput`](https://flex-fields.bjanczak.com/docs/flextextinput) | Enhanced text input — speech dictation, emoji picker, password strength, clearable |
+| [`FlexTextareaField`](https://flex-fields.bjanczak.com/docs/flextextareafield) | Animated autosizing textarea with character counter |
+| [`FlexRichEditor`](https://flex-fields.bjanczak.com/docs/flex-rich-editor) | JSON-first rich editor — responsive images, limits, fullscreen, autosave, optional Spatie |
+| [`PhoneField`](https://flex-fields.bjanczak.com/docs/phonefield) | International phone input with libphonenumber validation |
+| [`CountryField`](https://flex-fields.bjanczak.com/docs/countryfield) | Searchable country picker with flags |
+| [`TimezoneField`](https://flex-fields.bjanczak.com/docs/timezonefield) | IANA timezone picker with UTC offset display |
+| [`LinkPreviewField`](https://flex-fields.bjanczak.com/docs/link-preview-field) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
+| [`BarcodeScannerField`](https://flex-fields.bjanczak.com/docs/barcode-scanner-field) | Barcode/QR input — Filament modal camera scanner, format whitelist, EAN/UPC checksum, hybrid BarcodeDetector + ZXing, torch & front/back switch, iOS-safe preview *(v2.6.0)* |
+| [`SocialLinksField`](https://flex-fields.bjanczak.com/docs/social-links-field) | Social profile links — platform picker, URL validation, custom platforms, reorder |
+| [`SlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
+| [`TitleSlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Title + slug pair with live URL preview and optional Spatie Sluggable |
+| [`AddressAutocompleteField`](https://flex-fields.bjanczak.com/docs/addressautocompletefield) | Mapbox-powered address search with structured storage |
+| [`FlexVerificationCode`](https://flex-fields.bjanczak.com/docs/flexverificationcode) | OTP / 2FA verification code input with grouping |
 
 ### Number & range (7)
 
 | Component | Description |
 |-----------|-------------|
-| [`NumberStepper`](docs/numberstepper.md) | +/- numeric stepper control |
-| [`CalculatorField`](docs/calculator-field.md) | Numeric input with shared iOS-style calculator panel and per-field session memory *(v2.8.1)* |
-| [`CurrencyField`](docs/currencyfield.md) | Multi-currency money input with locale-aware formatting |
-| [`FlexSlider`](docs/flexslider.md) | Styled range slider with value display |
-| [`TrackSlider`](docs/trackslider.md) | Track-style slider — single value, percentage, or min/max range |
-| [`PriceRangeField`](docs/pricerangefield.md) | Dual-handle price filter with histogram |
-| [`TrafficSplit`](docs/trafficsplit.md) | Weighted segment split control (A/B-style traffic allocation) |
+| [`NumberStepper`](https://flex-fields.bjanczak.com/docs/numberstepper) | +/- numeric stepper control |
+| [`CalculatorField`](https://flex-fields.bjanczak.com/docs/calculator-field) | Numeric input with shared iOS-style calculator panel and per-field session memory *(v2.8.1)* |
+| [`CurrencyField`](https://flex-fields.bjanczak.com/docs/currencyfield) | Multi-currency money input with locale-aware formatting |
+| [`FlexSlider`](https://flex-fields.bjanczak.com/docs/flexslider) | Styled range slider with value display |
+| [`TrackSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Track-style slider — single value, percentage, or min/max range |
+| [`PriceRangeField`](https://flex-fields.bjanczak.com/docs/pricerangefield) | Dual-handle price filter with histogram |
+| [`TrafficSplit`](https://flex-fields.bjanczak.com/docs/trafficsplit) | Weighted segment split control (A/B-style traffic allocation) |
 
 ### Choice & selection (14)
 
 | Component | Description |
 |-----------|-------------|
-| [`SwitchField`](docs/switchfield.md) | Animated toggle switch with row/inline layouts |
-| [`CellSwitch`](docs/switchfield.md) | Compact `SwitchField` variant for table cells |
-| [`SegmentControl`](docs/segmentcontrol.md) | Segmented button control |
-| [`ChoiceCards`](docs/choicecards.md) | Rich card-based radio selection |
-| [`ChoiceCheckboxCards`](docs/choicecheckboxcards.md) | Rich card-based multi-select |
-| [`FlexChecklist`](docs/flexchecklist.md) | Animated checklist with icons and descriptions |
-| [`FlexRadiolist`](docs/flexradiolist.md) | Animated radio list with icons and descriptions |
-| [`MatrixChoiceField`](docs/matrixchoicefield.md) | Survey / configurator matrix grid — radio or checkbox per row |
-| [`FlexMatrixTable`](docs/flex-matrix-table.md) | Advanced matrix grid with full Filament components inside cells |
-| [`SelectField`](docs/selectfield.md) | Rich select with avatars, badges, and descriptions |
-| [`UserSelect`](docs/userselect.md) | User picker with avatar stacks and verification badges |
-| [`DualListboxField`](docs/duallistboxfield.md) | Two-panel reorderable transfer list |
-| [`TagsField`](docs/tags-field.md) | Tag input — pills below the field with inline remove buttons |
-| [`IconPickerField`](docs/icon-picker-field.md) | Searchable blade-icons picker with lazy SVG rendering, virtual scroll, and paginated search *(v2.7.0)* |
-| [`FlexSpatieTagsField`](docs/tags-field.md) | Spatie Tags integration for `TagsField` |
+| [`SwitchField`](https://flex-fields.bjanczak.com/docs/switchfield) | Animated toggle switch with row/inline layouts |
+| [`CellSwitch`](https://flex-fields.bjanczak.com/docs/switchfield) | Compact `SwitchField` variant for table cells |
+| [`SegmentControl`](https://flex-fields.bjanczak.com/docs/segmentcontrol) | Segmented button control |
+| [`ChoiceCards`](https://flex-fields.bjanczak.com/docs/choicecards) | Rich card-based radio selection |
+| [`ChoiceCheckboxCards`](https://flex-fields.bjanczak.com/docs/choicecheckboxcards) | Rich card-based multi-select |
+| [`FlexChecklist`](https://flex-fields.bjanczak.com/docs/flexchecklist) | Animated checklist with icons and descriptions |
+| [`FlexRadiolist`](https://flex-fields.bjanczak.com/docs/flexradiolist) | Animated radio list with icons and descriptions |
+| [`MatrixChoiceField`](https://flex-fields.bjanczak.com/docs/matrixchoicefield) | Survey / configurator matrix grid — radio or checkbox per row |
+| [`FlexMatrixTable`](https://flex-fields.bjanczak.com/docs/flex-matrix-table) | Advanced matrix grid with full Filament components inside cells |
+| [`SelectField`](https://flex-fields.bjanczak.com/docs/selectfield) | Rich select with avatars, badges, and descriptions |
+| [`UserSelect`](https://flex-fields.bjanczak.com/docs/userselect) | User picker with avatar stacks and verification badges |
+| [`DualListboxField`](https://flex-fields.bjanczak.com/docs/duallistboxfield) | Two-panel reorderable transfer list |
+| [`TagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Tag input — pills below the field with inline remove buttons |
+| [`IconPickerField`](https://flex-fields.bjanczak.com/docs/icon-picker-field) | Searchable blade-icons picker with lazy SVG rendering, virtual scroll, and paginated search *(v2.7.0)* |
+| [`FlexSpatieTagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Spatie Tags integration for `TagsField` |
 
 ### Date & time (11)
 
 | Component | Description |
 |-----------|-------------|
-| [`FlexDateField`](docs/date-and-time-fields.md) | Segmented date input without calendar popover |
-| [`FlexDatePicker`](docs/date-and-time-fields.md) | Date picker with calendar popover |
-| [`FlexTimeField`](docs/date-and-time-fields.md) | Segmented time input (12h / 24h, seconds optional) |
-| [`FlexTimeSegmentsField`](docs/date-and-time-fields.md) | Dropdown time picker (hour / minute columns, `HH:MM`) |
-| [`ScheduleField`](docs/schedule-field.md) | Weekly opening-hours editor — day toggles, slots, breaks, copy-to-weekdays, timezone |
-| [`FlexDateTimePicker`](docs/date-and-time-fields.md) | Combined date + time picker |
-| [`FlexDateRangeField`](docs/date-and-time-fields.md) | Start/end date range |
-| [`FlexDurationField`](docs/date-and-time-fields.md) | Duration input (hours / minutes) |
-| [`FlexTimeRangeField`](docs/date-and-time-fields.md) | Start/end time range |
-| [`FlexMonthPicker`](docs/date-and-time-fields.md) | Month picker |
-| [`FlexYearPicker`](docs/date-and-time-fields.md) | Year picker |
+| [`FlexDateField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented date input without calendar popover |
+| [`FlexDatePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Date picker with calendar popover |
+| [`FlexTimeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented time input (12h / 24h, seconds optional) |
+| [`FlexTimeSegmentsField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Dropdown time picker (hour / minute columns, `HH:MM`) |
+| [`ScheduleField`](https://flex-fields.bjanczak.com/docs/schedule-field) | Weekly opening-hours editor — day toggles, slots, breaks, copy-to-weekdays, timezone |
+| [`FlexDateTimePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Combined date + time picker |
+| [`FlexDateRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start/end date range |
+| [`FlexDurationField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Duration input (hours / minutes) |
+| [`FlexTimeRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start/end time range |
+| [`FlexMonthPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Month picker |
+| [`FlexYearPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Year picker |
 
 ### Media, color & location (12)
 
 | Component | Description |
 |-----------|-------------|
-| [`ColorSwatchField`](docs/colorswatchfield.md) | Preset color swatch picker |
-| [`FlexColorPickerField`](docs/flexcolorpickerfield.md) | Advanced color picker with grid and eyedropper |
-| [`FlexFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Styled file upload with webcam capture, URL import, and security presets *(v2.6.1)* |
-| [`FlexImageUpload`](docs/flexfileupload-and-fleximageupload.md) | Image upload with processing options |
-| [`FlexSpatieMediaLibraryFileUpload`](docs/flexfileupload-and-fleximageupload.md) | Spatie Media Library upload integration |
-| [`VideoField`](docs/videofield.md) | Video URL / player with YouTube support |
-| [`AudioField`](docs/audiofield.md) | Audio URL / player with waveform |
-| [`VoiceNoteRecorderField`](docs/voicenoterecorderfield.md) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
-| [`MapPickerField`](docs/mappickerfield.md) | Interactive map pin picker with draggable marker and address autofill |
-| [`SignatureField`](docs/signaturefield.md) | Canvas signature pad |
-| [`CreditCardField`](docs/creditcardfield.md) | Card preview with Luhn validation and CVV flip |
-| [`CellSlider`](docs/trackslider.md) | Compact `TrackSlider` variant for table cells |
+| [`ColorSwatchField`](https://flex-fields.bjanczak.com/docs/colorswatchfield) | Preset color swatch picker |
+| [`FlexColorPickerField`](https://flex-fields.bjanczak.com/docs/flexcolorpickerfield) | Advanced color picker with grid and eyedropper |
+| [`FlexFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Styled file upload with webcam capture, URL import, and security presets *(v2.6.1)* |
+| [`FlexImageUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Image upload with processing options |
+| [`FlexSpatieMediaLibraryFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Spatie Media Library upload integration |
+| [`VideoField`](https://flex-fields.bjanczak.com/docs/videofield) | Video URL / player with YouTube support |
+| [`AudioField`](https://flex-fields.bjanczak.com/docs/audiofield) | Audio URL / player with waveform |
+| [`VoiceNoteRecorderField`](https://flex-fields.bjanczak.com/docs/voicenoterecorderfield) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
+| [`MapPickerField`](https://flex-fields.bjanczak.com/docs/mappickerfield) | Interactive map pin picker with draggable marker and address autofill |
+| [`SignatureField`](https://flex-fields.bjanczak.com/docs/signaturefield) | Canvas signature pad |
+| [`CreditCardField`](https://flex-fields.bjanczak.com/docs/creditcardfield) | Card preview with Luhn validation and CVV flip |
+| [`CellSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Compact `TrackSlider` variant for table cells |
 
 ### Rating (2)
 
 | Component | Description |
 |-----------|-------------|
-| [`RatingField`](docs/ratingfield.md) | Star rating input |
-| [`NpsField`](docs/nps-field.md) | NPS, CSAT & Likert survey scales — pills, segments, and emoji variants *(v2.8.0)* |
+| [`RatingField`](https://flex-fields.bjanczak.com/docs/ratingfield) | Star rating input |
+| [`NpsField`](https://flex-fields.bjanczak.com/docs/nps-field) | NPS, CSAT & Likert survey scales — pills, segments, and emoji variants *(v2.8.0)* |
 
 ### Layout & display — schemas (9)
 
 | Component | Description |
 |-----------|-------------|
-| [`SegmentTabs`](docs/segmenttabs.md) | Tabbed segment navigation for forms |
-| [`TranslatableFields`](docs/translatablefields.md) | Locale tabs wrapping any fields (JSON or Spatie Translatable) |
-| [`TranslatableTabs`](docs/translatablefields.md) | Legacy alias for `TranslatableFields` |
-| [`ItemCard`](docs/itemcard.md) | Single settings-style card row |
-| [`ItemCardGroup`](docs/itemcardgroup.md) | Polished card-based settings group |
-| [`ItemCardStack`](docs/itemcardstack.md) | Stacked card layout for profile / settings pages |
-| [`CoverCard`](docs/covercard.md) | Hero cover card for tabbed editors |
-| [`ProgressBar`](docs/progressbar.md) | Linear, pill, or segment progress bar |
-| [`ProgressCircle`](docs/progresscircle.md) | Circular or semicircle progress indicator |
+| [`SegmentTabs`](https://flex-fields.bjanczak.com/docs/segmenttabs) | Tabbed segment navigation for forms |
+| [`TranslatableFields`](https://flex-fields.bjanczak.com/docs/translatablefields) | Locale tabs wrapping any fields (JSON or Spatie Translatable) |
+| [`TranslatableTabs`](https://flex-fields.bjanczak.com/docs/translatablefields) | Legacy alias for `TranslatableFields` |
+| [`ItemCard`](https://flex-fields.bjanczak.com/docs/itemcard) | Single settings-style card row |
+| [`ItemCardGroup`](https://flex-fields.bjanczak.com/docs/itemcardgroup) | Polished card-based settings group |
+| [`ItemCardStack`](https://flex-fields.bjanczak.com/docs/itemcardstack) | Stacked card layout for profile / settings pages |
+| [`CoverCard`](https://flex-fields.bjanczak.com/docs/covercard) | Hero cover card for tabbed editors |
+| [`ProgressBar`](https://flex-fields.bjanczak.com/docs/progressbar) | Linear, pill, or segment progress bar |
+| [`ProgressCircle`](https://flex-fields.bjanczak.com/docs/progresscircle) | Circular or semicircle progress indicator |
 
-Ready-made layout recipes: [Form layout patterns](docs/index.md#form-layout-patterns).
+Ready-made layout recipes: [Form layout patterns](https://flex-fields.bjanczak.com/docs/index#form-layout-patterns).
 
 ### Table columns (3)
 
 | Component | Description |
 |-----------|-------------|
-| [`UserColumn`](docs/usercolumn.md) | Avatar + name/email display with hover card |
-| [`RatingColumn`](docs/ratingcolumn.md) | Star rating display in Filament tables |
-| [`IconColumn`](docs/iconcolumn.md) | Blade-icons display for `IconPickerField` values *(v2.7.0)* |
+| [`UserColumn`](https://flex-fields.bjanczak.com/docs/usercolumn) | Avatar + name/email display with hover card |
+| [`RatingColumn`](https://flex-fields.bjanczak.com/docs/ratingcolumn) | Star rating display in Filament tables |
+| [`IconColumn`](https://flex-fields.bjanczak.com/docs/iconcolumn) | Blade-icons display for `IconPickerField` values *(v2.7.0)* |
 
 **Total: 70 custom components** (58 form fields + 9 layout/schema + 3 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 70.
 
@@ -658,7 +658,7 @@ FLEX_FIELDS_MAPBOX_RATE_LIMIT=60
 
 Proxy routes use `web` + `auth` middleware by default (`config/filament-flex-fields.php` → `mapbox.proxy_middleware`). Disable the proxy only when you intentionally expose a public Mapbox token client-side.
 
-**Field API highlights:** `searchTypes()`, `language()`, `minSearchLength()`, `searchDebounce()`, `streetAddressesOnly()`. See [MapPickerField](docs/mappickerfield.md) and [AddressAutocompleteField](docs/addressautocompletefield.md).
+**Field API highlights:** `searchTypes()`, `language()`, `minSearchLength()`, `searchDebounce()`, `streetAddressesOnly()`. See [MapPickerField](https://flex-fields.bjanczak.com/docs/mappickerfield) and [AddressAutocompleteField](https://flex-fields.bjanczak.com/docs/addressautocompletefield).
 
 ### 5. Flex field audit trail (enabled by default)
 
@@ -716,7 +716,7 @@ TitleSlugField::make('title', 'slug')
     ->slugUnique();
 ```
 
-Full API for every option: **[docs/index.md](docs/index.md)**.
+Full API for every option: **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)**.
 
 ### Schema / display components
 
@@ -759,8 +759,8 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 
 | Document | Contents |
 |----------|----------|
-| **[docs/index.md](docs/index.md)** | Complete per-component API — every method, option, validation rule, config key, and example |
-| **[docs/shared-concepts.md](docs/shared-concepts.md)** | Asset pipeline, overlay coordinator, `wire:ignore` + Livewire sync patterns |
+| **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)** | Complete per-component API — every method, option, validation rule, config key, and example |
+| **[https://flex-fields.bjanczak.com/docs/shared-concepts](https://flex-fields.bjanczak.com/docs/shared-concepts)** | Asset pipeline, overlay coordinator, `wire:ignore` + Livewire sync patterns |
 | **[CHANGELOG.md](CHANGELOG.md)** | Version history and release notes |
 | **config/filament-flex-fields.php** | Schemas, UI defaults, playground, Mapbox, audit |
 
@@ -790,7 +790,7 @@ No — this package targets **Filament v5** only.
 No. Sluggable, Translatable, and Media Library integrations are optional `composer suggest` packages.
 
 **Where is the Matrix Choice / survey grid?**
-`MatrixChoiceField` — radio or checkbox mode, per-row validation, reactive `disableCellWhen()` / `disableRowWhen()`. See [docs/matrixchoicefield.md](docs/matrixchoicefield.md).
+`MatrixChoiceField` — radio or checkbox mode, per-row validation, reactive `disableCellWhen()` / `disableRowWhen()`. See [https://flex-fields.bjanczak.com/docs/matrixchoicefield](https://flex-fields.bjanczak.com/docs/matrixchoicefield).
 
 ---
 
