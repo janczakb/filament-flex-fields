@@ -101,7 +101,7 @@ it('defaults beep on scan to enabled', function () {
 });
 
 it('exposes beep url in alpine configuration and asset helper', function () {
-    expect(FlexFieldAssets::barcodeScanBeepUrl())->toContain('barcode-scan-success.mp3')
+    expect(BarcodeScannerField::make('code')->getBeepUrl())->toContain('barcode-scan-success.mp3')
         ->and(BarcodeScannerField::make('sku')->getAlpineConfiguration())
         ->toHaveKey('beepUrl');
 });

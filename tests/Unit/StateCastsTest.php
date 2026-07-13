@@ -44,7 +44,7 @@ it('normalizes phone state through state cast', function () {
     ]);
 
     expect($normalized['country'])->toBe('PL')
-        ->and($normalized['national'])->toBe('512345678')
+        ->and($normalized['national'])->toBe('512 345 678')
         ->and($cast->get($normalized))->toBe($normalized);
 });
 

@@ -170,7 +170,9 @@ it('includes wrapper classes for size', function () {
         'fff-currency-field',
         'fff-flex-text-input-field',
         'fff-currency-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
+        'fff-rounding-md',
         'fff-currency-field--primary',
         'fff-flex-text-input-field--primary',
     ]);

@@ -57,6 +57,7 @@ it('includes wrapper classes for size and variant', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-flex-textarea-field',
         'fff-flex-textarea-field--sm',
+        'fff-rounding-md',
         'fff-flex-textarea-field--flat',
     ]);
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-07T15:34:24.396Z",
+  "generatedAt": "2026-07-11T07:48:44.738Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 22799,
@@ -643,15 +643,15 @@
       "kb": 2.9,
       "gzipKb": 1.36
     },
-    "flex-fields-barcode-scanner-RBWMZ7Z6.js": {
-      "bytes": 26798,
-      "kb": 26.17,
-      "gzipKb": 6.77
+    "flex-fields-barcode-scanner-QEMQZOJY.js": {
+      "bytes": 459679,
+      "kb": 448.91,
+      "gzipKb": 117.86
     },
-    "flex-fields-barcode-scanner-W4FSKKOS.js": {
-      "bytes": 416751,
-      "kb": 406.98,
-      "gzipKb": 108.32
+    "flex-fields-barcode-scanner-YZKBPJD3.js": {
+      "bytes": 26853,
+      "kb": 26.22,
+      "gzipKb": 6.8
     },
     "flex-fields-calculator-coordinator-TSE3PH2I.js": {
       "bytes": 19273,
@@ -688,7 +688,7 @@
       "kb": 0.82,
       "gzipKb": 0.46
     },
-    "flex-fields-emoji-CBL4VBK2.js": {
+    "flex-fields-emoji-GVNTVGPS.js": {
       "bytes": 20145,
       "kb": 19.67,
       "gzipKb": 6.24
@@ -708,10 +708,10 @@
       "kb": 0.28,
       "gzipKb": 0.17
     },
-    "flex-fields-phone-lib-XLJG7A36.js": {
-      "bytes": 189477,
-      "kb": 185.04,
-      "gzipKb": 43.33
+    "flex-fields-phone-lib-RPEB4A4Q.js": {
+      "bytes": 189447,
+      "kb": 185.01,
+      "gzipKb": 43.32
     },
     "flex-fields-rich-editor-toolbar-a11y-SLY3K5DZ.js": {
       "bytes": 978,
@@ -723,15 +723,15 @@
       "kb": 5.39,
       "gzipKb": 1.88
     },
-    "flex-fields-shared-6QIOXHYQ.js": {
-      "bytes": 38369,
-      "kb": 37.47,
+    "flex-fields-shared-CEWOLNQU.js": {
+      "bytes": 38338,
+      "kb": 37.44,
       "gzipKb": 13.44
     },
-    "flex-fields-shared-R7IEHECV.js": {
-      "bytes": 2873,
-      "kb": 2.81,
-      "gzipKb": 1.13
+    "flex-fields-shared-QXDUA67G.js": {
+      "bytes": 3095,
+      "kb": 3.02,
+      "gzipKb": 1.2
     },
     "flex-fields-theme-utils-4LQ7HT7A.js": {
       "bytes": 534,
@@ -814,8 +814,8 @@
       "gzipKb": 0.68
     },
     "number-stepper.js": {
-      "bytes": 19007,
-      "kb": 18.56,
+      "bytes": 19023,
+      "kb": 18.58,
       "gzipKb": 6.06
     },
     "phone-field.js": {

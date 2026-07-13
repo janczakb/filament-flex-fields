@@ -272,6 +272,10 @@ trait InteractsWithFlexRichEditorFileAttachments
 
     public function pruneFlexRichEditorOrphanedAttachments(): void
     {
+        if (! isset($this->container)) {
+            return;
+        }
+
         if (! $this->shouldPruneOrphanedRichEditorAttachments()) {
             return;
         }

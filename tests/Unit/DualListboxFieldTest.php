@@ -153,6 +153,7 @@ it('includes wrapper classes for size and variant', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-dual-listbox-field',
         'fff-dual-listbox-field--sm',
+        'fff-rounding-md',
         'fff-dual-listbox-field--faded',
     ]);
 });

@@ -325,7 +325,9 @@ it('exposes slug field wrapper classes', function () {
         'fff-slug-field-field',
         'fff-flex-text-input-field',
         'fff-slug-field-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
+        'fff-rounding-md',
         'fff-slug-field-field--secondary',
     ]);
 });

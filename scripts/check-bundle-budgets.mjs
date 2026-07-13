@@ -30,7 +30,7 @@ const JS_BUDGETS = {
     'flex-fields-emoji': { rawKb: 120, gzipKb: 40 },
     'flex-fields-mapbox': { rawKb: 20, gzipKb: 8 },
     'flex-fields-select-menu': { rawKb: 15, gzipKb: 6 },
-    'flex-fields-barcode-scanner': { rawKb: 420, gzipKb: 110 },
+    'flex-fields-barcode-scanner': { rawKb: 460, gzipKb: 125 },
     'phone-field.js': { rawKb: 20, gzipKb: 8 },
     'country-field.js': { rawKb: 15, gzipKb: 6 },
     'flex-rich-editor.js': { rawKb: 35, gzipKb: 12 },

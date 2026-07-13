@@ -101,6 +101,7 @@ it('includes wrapper classes for size', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-audio-field-field',
         'fff-audio-field-field--sm',
+        'fff-rounding-md',
     ]);
 });
 

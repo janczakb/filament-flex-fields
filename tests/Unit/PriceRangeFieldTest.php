@@ -66,6 +66,7 @@ it('includes wrapper classes for size and variant', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-price-range-field',
         'fff-price-range-field--sm',
+        'fff-rounding-md',
         'fff-price-range-field--secondary',
     ]);
 });

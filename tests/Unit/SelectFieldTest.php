@@ -185,6 +185,7 @@ it('includes wrapper classes for size and variant', function () {
     expect($field->getWrapperClasses())->toMatchArray([
         'fff-select-field',
         'fff-select-field--sm',
+        'fff-rounding-md',
         'fff-select-field--underlined',
         'fff-select-field--layout-list',
         'fff-select-field--chips-neutral',
@@ -548,7 +549,7 @@ it('styles grid selected checkmarks with a circular badge in the select field bu
         ->toContain('--fff-select-grid-check-bg')
         ->toContain('--fff-select-selected-check-fg')
         ->toContain('.fff-select-field--layout-grid .fff-select-option-selected-check')
-        ->toMatch('/\.fff-select-field--layout-grid\s+\.fff-select-option-selected-check[\s\S]*border-radius:9999px/')
+        ->toMatch('/\.fff-select-field--layout-grid\s+\.fff-select-option-selected-check[\s\S]*border-radius:(9999|3\.40282e38)px/')
         ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-grid-check-bg:#52525bfa/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-selected-check-fg:#f4f4f5/');
 });

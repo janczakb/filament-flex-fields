@@ -167,6 +167,7 @@ it('defaults to primary color wrapper classes', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-matrix-choice',
         'fff-matrix-choice--md',
+        'fff-rounding-md',
         'fff-matrix-choice--radio',
         'fi-color-primary',
     ]);

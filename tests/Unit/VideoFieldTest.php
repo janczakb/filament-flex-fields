@@ -113,6 +113,7 @@ it('includes wrapper classes for size', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-video-field-field',
         'fff-video-field-field--sm',
+        'fff-rounding-md',
     ]);
 });
 

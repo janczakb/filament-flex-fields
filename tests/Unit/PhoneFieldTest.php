@@ -85,7 +85,7 @@ it('normalizes phone state from array input', function () {
         'e164' => '',
     ]))->toMatchArray([
         'country' => 'PL',
-        'national' => '123456789',
+        'national' => '12 345 67 89',
         'e164' => '+48123456789',
     ]);
 });
@@ -95,7 +95,7 @@ it('normalizes phone state from e164 string', function () {
 
     expect($field->normalizeState('+48123456789'))->toMatchArray([
         'country' => 'PL',
-        'national' => '123456789',
+        'national' => '12 345 67 89',
         'e164' => '+48123456789',
     ]);
 });
@@ -207,7 +207,9 @@ it('includes wrapper classes for size and variant', function () {
         'fff-phone-field',
         'fff-flex-text-input-field',
         'fff-phone-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
+        'fff-rounding-md',
         'fff-phone-field--secondary',
         'fff-flex-text-input-field--secondary',
     ]);

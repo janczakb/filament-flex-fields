@@ -119,7 +119,9 @@ it('includes wrapper classes for size and variant', function () {
         'fff-flex-text-input-field',
         'fff-date-time-field--date',
         'fff-date-time-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
+        'fff-rounding-md',
         'fff-date-time-field--secondary',
         'fff-flex-text-input-field--secondary',
     ]);

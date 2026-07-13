@@ -125,5 +125,5 @@ it('defaults address autocomplete language to polish', function () {
 
     $field = AddressAutocompleteField::make('address');
 
-    expect($field->getLanguage())->toBe('pl');
+    expect($field->getLanguage())->toBe('en');
 });

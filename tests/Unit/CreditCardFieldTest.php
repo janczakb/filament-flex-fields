@@ -119,6 +119,7 @@ it('includes wrapper classes for size card variant and input variant', function 
     expect($field->getWrapperClasses())->toBe([
         'fff-credit-card-field',
         'fff-credit-card-field--sm',
+        'fff-rounding-md',
         'fff-credit-card-field--slate',
         'fff-credit-card-field--input-secondary',
     ]);

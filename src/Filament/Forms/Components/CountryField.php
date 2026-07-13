@@ -374,7 +374,6 @@ class CountryField extends Field
             'fff-country-field--'.$this->getSize(),
             'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-country-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
         ];

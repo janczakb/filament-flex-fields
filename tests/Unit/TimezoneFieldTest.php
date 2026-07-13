@@ -107,7 +107,9 @@ it('includes wrapper classes for size and variant', function () {
         'fff-timezone-field',
         'fff-flex-text-input-field',
         'fff-timezone-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
+        'fff-rounding-md',
         'fff-timezone-field--secondary',
         'fff-flex-text-input-field--secondary',
     ]);

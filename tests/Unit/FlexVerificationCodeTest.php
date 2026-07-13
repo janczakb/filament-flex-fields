@@ -78,6 +78,7 @@ it('includes wrapper classes for size and color', function () {
     expect($field->getWrapperClasses())->toBe([
         'fff-verification-code',
         'fff-verification-code--lg',
+        'fff-rounding-md',
         'fi-color-primary',
     ]);
 });

@@ -135,6 +135,7 @@ it('includes wrapper classes for size and variant', function () {
         'fff-country-field',
         'fff-flex-text-input-field',
         'fff-country-field--sm',
+        'fff-rounding-md',
         'fff-flex-text-input-field--sm',
         'fff-country-field--secondary',
         'fff-flex-text-input-field--secondary',
