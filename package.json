@@ -36,7 +36,7 @@
         "tailwindcss": "^4.1.0"
     },
     "dependencies": {
-        "@gravity-ui/icons": "^2.18.0",
+        "@gravity-ui/icons": "^2.20.0",
         "@internationalized/date": "^3.8.2",
         "@zxing/browser": "^0.2.1",
         "@zxing/library": "^0.23.0",
