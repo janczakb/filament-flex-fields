@@ -5,7 +5,7 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.9.0] - 2026-07-15
+## [2.9.1] - 2026-07-15
 
 ### Fixed
 
@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Asset injector (page / modal ownership)** — CSS and Alpine chunks are retained per page vs per open modal. Modals load only missing assets (no duplicate `<link>` tags). Closing a modal uninstalls assets that nothing still retains, while assets still required by the page stay loaded.
 - **Asset injector (nested modals)** — stacked Filament action modals use a LIFO ownership stack so a parent modal’s assets survive while a child modal is open and are cleaned up only when that parent actually closes.
+- **Package Health** — Dependabot now sets an explicit `cooldown` (≥3 days) for Composer and npm version updates (Plumb package health requirement).
 
 ### Tests
 
