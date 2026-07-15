@@ -236,3 +236,18 @@ it('rejects unsupported item card select variants', function () {
         ->variant('ghost')
         ->getVariant();
 })->throws(InvalidArgumentException::class);
+
+it('ships base item card styles in the item-card stylesheet not switch', function () {
+    $itemCardCss = file_get_contents(__DIR__.'/../../resources/css/core/item-card.css');
+    $switchCss = file_get_contents(__DIR__.'/../../resources/css/core/switch.css');
+
+    expect($itemCardCss)
+        ->toContain('.item-card__icon')
+        ->toContain('.fff-item-card-stack')
+        ->toContain('.fff-form-layout--wide')
+        ->toContain('.item-card--form-panel');
+
+    expect($switchCss)
+        ->not->toContain('.item-card__icon')
+        ->not->toContain('.fff-item-card-stack');
+});

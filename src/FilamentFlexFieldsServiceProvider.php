@@ -211,10 +211,12 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
     protected function registeredScripts(): array
     {
         $scripts = [
+            // loadedOnRequest: URL is available via FilamentAsset::getScriptSrc(),
+            // but the tag is rendered once from SCRIPTS_AFTER (avoids double boot).
             Js::make(
                 FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID,
                 __DIR__.'/../resources/dist/core/flex-field-asset-injector.js',
-            ),
+            )->loadedOnRequest(),
             Js::make(
                 FlexFieldAssets::FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID,
                 __DIR__.'/../resources/dist/support/flex-rich-editor-paste-extension.js',

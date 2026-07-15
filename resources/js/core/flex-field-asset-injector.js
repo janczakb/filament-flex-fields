@@ -683,7 +683,16 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const retained = collectRetainedAssetUrls()
 
         for (const link of [...document.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)]) {
-            if (!isLinkConnected(link) || link.hasAttribute('data-fff-playground-bundle')) {
+            // Never tear down server-emitted / playground links. Ownership cleanup
+            // only targets injector-created orphans (`data-fff-injected-*`).
+            if (!isLinkConnected(link) || isProtectedLink(link)) {
+                continue
+            }
+
+            const isInjectorCreated = link.dataset?.fffInjectedStylesheet === 'true'
+                || link.dataset?.fffInjectedChunk === 'true'
+
+            if (!isInjectorCreated) {
                 continue
             }
 
@@ -817,6 +826,32 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         await Promise.allSettled(promises)
     }
 
+    const collectInlineEmitUrlsFromBody = () => {
+        if (!document.body?.querySelectorAll) {
+            return []
+        }
+
+        const urls = []
+
+        for (const link of document.body.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)) {
+            if (!isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
+                continue
+            }
+
+            if (typeof link.closest === 'function' && link.closest('.fi-modal')) {
+                continue
+            }
+
+            const url = normalizeAssetUrl(link.href, document.baseURI)
+
+            if (url) {
+                urls.push(url)
+            }
+        }
+
+        return uniqueNormalizedUrls(urls)
+    }
+
     const ensureAssets = async (root = document, { pageOnly = false } = {}) => {
         const scope = resolveAssetScope(root)
         const ownerKey = pageOnly ? 'page' : resolveAssetOwnerKey(scope)
@@ -824,8 +859,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
         const peeked = peekBatchAssets(scope, { excludeModals })
         // Claim emit URLs only while links are still under a concrete scope
-        // (modal / field root). Scanning `document` would incorrectly retain
-        // stale head links from a previous SPA page or closed modal.
+        // (modal / field root). Scanning whole `document` would sticky-retain
+        // modal CSS that was already moved into <head>.
         const inlineUrls = scope === document
             ? []
             : collectInlineEmitUrls(scope, { excludeModals })
@@ -850,12 +885,30 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const handleLivewireNavigated = async () => {
-        // SPA resource tabs: rebuild retain sets from the new page only.
-        pageRetainedUrls.clear()
+        // Snapshot before clear: boot() may already have consumed batches before
+        // Livewire's synthetic first `livewire:navigated` fires after paint.
+        const previousPageRetain = [...pageRetainedUrls]
+        const bodyBatches = peekBatchAssets(document, { excludeModals: true })
+        const bodyEmitUrls = collectInlineEmitUrlsFromBody()
+
         modalOwnedUrls.clear()
         modalOpenStack.length = 0
+        pageRetainedUrls.clear()
         resyncLoadedAssetsFromDocument()
         await ensureAssets(document, { pageOnly: true })
+
+        claimAssetUrls('page', [
+            ...bodyBatches.stylesheets,
+            ...bodyBatches.chunks,
+            ...bodyEmitUrls,
+        ])
+
+        // Synthetic first navigated after boot: restore page retain when the new
+        // document no longer exposes batch markers (already consumed).
+        if (pageRetainedUrls.size === 0 && previousPageRetain.length > 0) {
+            claimAssetUrls('page', previousPageRetain)
+        }
+
         void preloadVisibleBatchesIn(document)
     }
 
@@ -1299,7 +1352,15 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 export function bootFlexFieldAssetInjector(options = {}) {
     const document = options.document ?? globalThis.document
     const window = options.window ?? globalThis.window
+
+    // Filament may render the injector via package assets and SCRIPTS_AFTER.
+    // Guard so SPA boot + event listeners are registered exactly once.
+    if (window.__fffFlexFieldAssetInjector) {
+        return window.__fffFlexFieldAssetInjector
+    }
+
     const injector = createFlexFieldAssetInjector({ document, window })
+    window.__fffFlexFieldAssetInjector = injector
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => injector.boot(), { once: true })

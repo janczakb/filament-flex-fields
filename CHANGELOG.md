@@ -9,20 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **Asset injector (Filament resource tabs / `wire:navigate`)** — CSS could disappear after SPA navigation between Filament resource pages (e.g. Edit → Video) while full Edit pages and modals looked fine. Two compounding defects:
-  1. `dedupeDocumentAssets()` reused the `loadedStylesheets` / `loadedChunks` caches as its “seen” set, so the first successfully injected `<link>` was treated as a duplicate and removed from `<head>` immediately after load.
-  2. On `livewire:navigated` the injector purged injected assets then skipped re-injection because the in-memory “loaded” Set still claimed those URLs were present after Livewire dropped navigate-tracked links.
-  The injector now dedupes only against true duplicate nodes in the current document, verifies connectivity before trusting the loaded cache, and on SPA navigation resyncs from the live DOM before loading only the missing `data-fff-asset-batch` assets (still lazy, no global CSS dump).
+- **ItemCard CSS bundle** — base `ItemCard` / `ItemCardGroup` / `ItemCardStack` styles (and production `fff-form-layout` helpers) lived in the lazy `switch` stylesheet, so pages that render ItemCards without a Switch looked unstyled. Those rules now ship in `flex-fields-item-card.css`.
+- **Asset injector (SPA navigation)** — lazy CSS/JS could fail to re-apply after Livewire/Filament SPA navigation (`wire:navigate`, resource sub-navigation). `dedupeDocumentAssets()` no longer treats the first injected `<link>` as a duplicate, loaded-asset caches are verified against the live DOM, and `livewire:navigated` resyncs from the document before loading only missing component assets.
+- **Asset injector (boot / navigate race)** — Livewire fires `livewire:navigated` shortly after first paint; if `boot()` had already consumed `data-fff-asset-batch` markers, page retain could stay empty and a later modal close would uninstall still-needed page CSS. The injector now restores page retain when navigation finds no remaining batch markers.
+- **Asset injector (server emit protection)** — ownership uninstall only removes injector-created `<link>` tags. Server-emitted `data-fff-stylesheet` / `data-fff-alpine-chunk` links are never torn down by modal close or retain races.
+- **Asset injector (double boot)** — the injector script is registered `loadedOnRequest` and rendered once via `SCRIPTS_AFTER`, with a runtime singleton guard so event listeners are not duplicated.
 
 ### Changed
 
-- **Asset injector (page / modal ownership)** — lazy CSS/JS now tracks retain ownership separately for the non-modal page (forms, resource tabs) and each open modal (`pageRetainedUrls` / `modalOwnedUrls`). `ensureAssets(..., { pageOnly: true })` ignores modal-shell batches so idle modal markup cannot sticky-claim page retain. Opening a modal loads only missing assets (never duplicate `<link>` tags). Closing a modal uninstalls assets that nothing still retains, while shared assets used by the main page/tab stay loaded. SPA `livewire:navigated` clears ownership + modal stack, resyncs from the live DOM, then rebuilds page retain from the new document only.
-- **Asset injector (stacked / nested Filament modals)** — open modals are tracked on an explicit LIFO `modalOpenStack`. When action modal B opens on top of A (A temporarily loses `fi-modal-open`), A’s ownership/assets stay retained until A itself closes. Closing B never blanket-releases every closed modal shell (that caused parent CSS to vanish). `resolveModalRoot` prefers the topmost open modal; return-to-parent and anonymous `modal-closed` (no `detail.id`) pop only the top stack entry.
-- **Asset injector tests** — expanded `tests/js/flex-field-asset-injector.test.mjs` and added `tests/js/flex-field-asset-injector-logic-audit.test.mjs` + `tests/js/helpers/flex-field-asset-injector-dom.mjs` (ownership matrix, nested stacks, SPA tabs, chunks, races, Video-tab realistic lifecycle). Run with `node --test tests/js/flex-field-asset-injector*.test.mjs`.
+- **Asset injector (page / modal ownership)** — CSS and Alpine chunks are retained per page vs per open modal. Modals load only missing assets (no duplicate `<link>` tags). Closing a modal uninstalls assets that nothing still retains, while assets still required by the page stay loaded.
+- **Asset injector (nested modals)** — stacked Filament action modals use a LIFO ownership stack so a parent modal’s assets survive while a child modal is open and are cleaned up only when that parent actually closes.
 
-### Documentation
+### Tests
 
-- **DEVELOPMENT.md §8** — documents page/modal ownership, stacked modal stack behaviour, and the new JS test entrypoints for the asset injector.
+- Expanded asset-injector JavaScript coverage for ownership, nested modals, SPA navigation, chunk lifecycle, and race conditions.
 
 ## [2.8.7] - 2026-07-10
 
