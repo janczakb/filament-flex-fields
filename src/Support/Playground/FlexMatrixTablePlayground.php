@@ -89,9 +89,10 @@ class FlexMatrixTablePlayground
                             ->suffix(function (Component $component) {
                                 $statePathParts = explode('.', $component->getStatePath());
                                 $rowKey = $statePathParts[count($statePathParts) - 2] ?? null;
-                                
+
                                 $matrix = $component->getContainer()->getParentComponent();
                                 $rows = $matrix->getNormalizedRows();
+
                                 return $rows[$rowKey]['suffix'] ?? null;
                             }),
 
@@ -101,7 +102,7 @@ class FlexMatrixTablePlayground
                             ->inline()
                             ->hiddenLabel(),
                     ]),
-                
+
                 FlexMatrixTable::make('flex_matrix_table__specs')
                     ->label('Yacht Specifications')
                     ->rows([
@@ -121,9 +122,10 @@ class FlexMatrixTablePlayground
                             ->suffix(function (Component $component) {
                                 $statePathParts = explode('.', $component->getStatePath());
                                 $rowKey = $statePathParts[count($statePathParts) - 2] ?? null;
-                                
+
                                 $matrix = $component->getContainer()->getParentComponent();
                                 $rows = $matrix->getNormalizedRows();
+
                                 return $rows[$rowKey]['suffix'] ?? null;
                             }),
                     ]),

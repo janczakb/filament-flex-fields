@@ -7,9 +7,10 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexFileUploadDisplay;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexFileUploadSecurity;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexFileUploadStorage;
+use Filament\Forms\Components\BaseFileUpload;
 
 /**
- * @mixin \Filament\Forms\Components\BaseFileUpload
+ * @mixin BaseFileUpload
  */
 trait InteractsWithFlexFileUpload
 {

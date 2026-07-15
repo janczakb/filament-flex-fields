@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CalculatorField;
+use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
 use Bjanczak\FilamentFlexFields\Tests\Support\TestableCalculatorForm;
 use Livewire\Livewire;
 
 beforeEach(function (): void {
     TestableCalculatorForm::$formSchema = [];
-    Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount::reset();
+    CalculatorPanelMount::reset();
 });
 
 it('renders calculator field shell and shared panel mount once', function (): void {

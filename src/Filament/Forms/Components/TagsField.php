@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithTagSearch;
 use Closure;
 use Filament\Forms\Components\TagsInput;
@@ -15,8 +15,8 @@ use InvalidArgumentException;
 class TagsField extends TagsInput
 {
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
     use InteractsWithTagSearch;
 
     protected string $view = 'filament-flex-fields::forms.components.tags-field';

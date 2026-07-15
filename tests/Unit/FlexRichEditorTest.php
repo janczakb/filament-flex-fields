@@ -3,14 +3,19 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRichEditor;
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexToolbarButtonGroup;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexRichEditorTool;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexToolbarButtonGroup;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorYoutubePlugin;
+use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexRichEditorPlayground;
+use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentIdResolver;
+use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentPruner;
+use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentVariantGenerator;
+use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
-use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
+use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
 use Filament\Support\Facades\FilamentIcon;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Storage;
@@ -337,7 +342,7 @@ it('builds and applies a rich editor image processor from field options', functi
     $method = $reflection->getMethod('makeRichEditorImageProcessor');
     $method->setAccessible(true);
 
-    /** @var Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor $processor */
+    /** @var FileUploadImageProcessor $processor */
     $processor = $method->invoke($field, true);
     $processedPath = $processor->process(Storage::disk('public'), $path);
 
@@ -349,7 +354,7 @@ it('builds and applies a rich editor image processor from field options', functi
 });
 
 it('resolves max long edge dimensions only when the image exceeds the limit', function () {
-    $processor = new Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor(
+    $processor = new FileUploadImageProcessor(
         maxImageLongEdge: 200,
     );
 
@@ -363,7 +368,7 @@ it('resolves max long edge dimensions only when the image exceeds the limit', fu
 });
 
 it('normalizes rich editor image variants and auto-selects a master variant', function () {
-    $variants = Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant::normalizeCollection([
+    $variants = RichEditorImageVariant::normalizeCollection([
         'thumb' => ['max_long_edge' => 320, 'webp' => true],
         'large' => ['max_long_edge' => 2000, 'webp' => true],
     ]);
@@ -379,10 +384,10 @@ it('generates named attachment variants and writes a manifest on disk', function
     $path = 'rich-editor/photo.jpg';
     Storage::disk('public')->put($path, createFlexRichEditorTestJpeg(800, 600));
 
-    $manifest = (new Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentVariantGenerator)->generate(
+    $manifest = (new RichEditorAttachmentVariantGenerator)->generate(
         Storage::disk('public'),
         $path,
-        Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant::normalizeCollection([
+        RichEditorImageVariant::normalizeCollection([
             'thumb' => ['max_long_edge' => 100, 'webp' => true],
             'large' => ['max_long_edge' => 400, 'master' => true],
         ]),
@@ -414,7 +419,7 @@ it('resolves image ids from rich editor json content', function () {
         ],
     ];
 
-    expect(Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentIdResolver::fromContent($content))
+    expect(RichEditorAttachmentIdResolver::fromContent($content))
         ->toBe(['rich-editor/photo.webp']);
 });
 
@@ -424,16 +429,16 @@ it('deletes removed rich editor attachments with all generated variants', functi
     $path = 'rich-editor/photo.jpg';
     Storage::disk('public')->put($path, createFlexRichEditorTestJpeg(800, 600));
 
-    $manifest = (new Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentVariantGenerator)->generate(
+    $manifest = (new RichEditorAttachmentVariantGenerator)->generate(
         Storage::disk('public'),
         $path,
-        Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant::normalizeCollection([
+        RichEditorImageVariant::normalizeCollection([
             'thumb' => ['max_long_edge' => 100, 'webp' => true],
             'large' => ['max_long_edge' => 400, 'master' => true],
         ]),
     );
 
-    (new Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentPruner)->deleteMastersWithVariants(
+    (new RichEditorAttachmentPruner)->deleteMastersWithVariants(
         Storage::disk('public'),
         [$manifest->master],
     );

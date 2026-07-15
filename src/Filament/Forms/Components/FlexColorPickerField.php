@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Field;
@@ -16,8 +16,8 @@ class FlexColorPickerField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
 
     public const string LAYOUT_ADVANCED = 'advanced';
 

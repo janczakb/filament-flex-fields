@@ -201,7 +201,7 @@ return [
         | - 'lg': Slightly larger rounding (1rem)
         | - 'xl': Large rounding (1.25rem)
         | - 'full': Fully rounded / pill shape (9999px)
-        | 
+        |
         | (Using 'default' acts as an alias for 'md').
         */
         'field_rounding' => 'default',

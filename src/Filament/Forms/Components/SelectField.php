@@ -6,8 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithRestrictedModelQueries;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasSelectFieldIcons;
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
@@ -23,8 +23,8 @@ use InvalidArgumentException;
 class SelectField extends Select
 {
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
     use HasSelectFieldIcons;
     use InteractsWithRestrictedModelQueries;
 
@@ -796,7 +796,7 @@ class SelectField extends Select
     }
 
     /**
-     * @param array<mixed>|null $options
+     * @param  array<mixed>|null  $options
      * @return array<string, string>
      */
     public function getOptionLabels(bool $withDefaults = true, ?array $options = null): array

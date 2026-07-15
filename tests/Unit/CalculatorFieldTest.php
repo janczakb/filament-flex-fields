@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CalculatorField;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Playground\CalculatorFieldPlayground;
 
 it('exposes calculator field configuration api', function () {
     $field = CalculatorField::make('weight')
@@ -59,8 +61,8 @@ it('resolves a stable calculator field id from state path', function () {
 });
 
 it('registers calculator field playground slug', function () {
-    $definition = Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry::definitions()['calculator-field'] ?? null;
+    $definition = FlexFieldsPlaygroundRegistry::definitions()['calculator-field'] ?? null;
 
     expect($definition)->not->toBeNull()
-        ->and($definition['playground'])->toBe(Bjanczak\FilamentFlexFields\Support\Playground\CalculatorFieldPlayground::class);
+        ->and($definition['playground'])->toBe(CalculatorFieldPlayground::class);
 });

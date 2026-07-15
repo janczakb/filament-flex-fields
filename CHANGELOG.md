@@ -5,6 +5,25 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-07-15
+
+### Fixed
+
+- **Asset injector (Filament resource tabs / `wire:navigate`)** — CSS could disappear after SPA navigation between Filament resource pages (e.g. Edit → Video) while full Edit pages and modals looked fine. Two compounding defects:
+  1. `dedupeDocumentAssets()` reused the `loadedStylesheets` / `loadedChunks` caches as its “seen” set, so the first successfully injected `<link>` was treated as a duplicate and removed from `<head>` immediately after load.
+  2. On `livewire:navigated` the injector purged injected assets then skipped re-injection because the in-memory “loaded” Set still claimed those URLs were present after Livewire dropped navigate-tracked links.
+  The injector now dedupes only against true duplicate nodes in the current document, verifies connectivity before trusting the loaded cache, and on SPA navigation resyncs from the live DOM before loading only the missing `data-fff-asset-batch` assets (still lazy, no global CSS dump).
+
+### Changed
+
+- **Asset injector (page / modal ownership)** — lazy CSS/JS now tracks retain ownership separately for the non-modal page (forms, resource tabs) and each open modal (`pageRetainedUrls` / `modalOwnedUrls`). `ensureAssets(..., { pageOnly: true })` ignores modal-shell batches so idle modal markup cannot sticky-claim page retain. Opening a modal loads only missing assets (never duplicate `<link>` tags). Closing a modal uninstalls assets that nothing still retains, while shared assets used by the main page/tab stay loaded. SPA `livewire:navigated` clears ownership + modal stack, resyncs from the live DOM, then rebuilds page retain from the new document only.
+- **Asset injector (stacked / nested Filament modals)** — open modals are tracked on an explicit LIFO `modalOpenStack`. When action modal B opens on top of A (A temporarily loses `fi-modal-open`), A’s ownership/assets stay retained until A itself closes. Closing B never blanket-releases every closed modal shell (that caused parent CSS to vanish). `resolveModalRoot` prefers the topmost open modal; return-to-parent and anonymous `modal-closed` (no `detail.id`) pop only the top stack entry.
+- **Asset injector tests** — expanded `tests/js/flex-field-asset-injector.test.mjs` and added `tests/js/flex-field-asset-injector-logic-audit.test.mjs` + `tests/js/helpers/flex-field-asset-injector-dom.mjs` (ownership matrix, nested stacks, SPA tabs, chunks, races, Video-tab realistic lifecycle). Run with `node --test tests/js/flex-field-asset-injector*.test.mjs`.
+
+### Documentation
+
+- **DEVELOPMENT.md §8** — documents page/modal ownership, stacked modal stack behaviour, and the new JS test entrypoints for the asset injector.
+
 ## [2.8.7] - 2026-07-10
 
 ### Fixed

@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 
@@ -44,7 +45,7 @@ it('lazy-loads emoji picker chunks only when fields request shared chunks', func
 });
 
 it('registers only alpine manifest entry names as primary alpine components', function () {
-    $provider = new \Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider(app());
+    $provider = new FilamentFlexFieldsServiceProvider(app());
     $method = new ReflectionMethod($provider, 'registeredAlpineComponents');
 
     $registeredIds = array_map(

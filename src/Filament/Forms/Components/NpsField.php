@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Closure;
 use Filament\Forms\Components\Field;
 use Illuminate\Support\Arr;
@@ -63,8 +64,8 @@ class NpsField extends Field
 
     /**
      * Set the available options.
-     * 
-     * @param array<string|int, string>|Closure $options
+     *
+     * @param  array<string|int, string>|Closure  $options
      */
     public function options(array|Closure $options): static
     {
@@ -355,8 +356,8 @@ class NpsField extends Field
     /**
      * Set explicit image URLs or paths for emoji variant options.
      * E.g. [0 => 'path/to/awful.webp', 1 => 'path/to/bad.webp', ...]
-     * 
-     * @param array<string|int, string>|Closure|null $images
+     *
+     * @param  array<string|int, string>|Closure|null  $images
      */
     public function emojiImages(array|Closure|null $images): static
     {
@@ -379,7 +380,7 @@ class NpsField extends Field
         }
 
         if (in_array($value, [0, 1, 2, 3, 4], true)) {
-            return \Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::assetUrl('nps-field/emojis/'.$value.'.webp');
+            return FlexFieldAssets::assetUrl('nps-field/emojis/'.$value.'.webp');
         }
 
         return null;

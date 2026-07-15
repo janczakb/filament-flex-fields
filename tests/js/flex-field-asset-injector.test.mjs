@@ -11,8 +11,20 @@ function createClassList() {
     const classes = new Set()
 
     return {
-        add: (name) => classes.add(name),
-        remove: (name) => classes.delete(name),
+        add: (...names) => {
+            for (const name of names) {
+                if (name) {
+                    classes.add(name)
+                }
+            }
+        },
+        remove: (...names) => {
+            for (const name of names) {
+                if (name) {
+                    classes.delete(name)
+                }
+            }
+        },
         contains: (name) => classes.has(name),
     }
 }
@@ -40,9 +52,12 @@ function createLink({ href, rel = 'stylesheet', attributes = {} }) {
             listeners.set(type, { listener, options })
         },
         remove() {
-            if (link.parentElement?.contains?.(link)) {
+            if (link.parentElement?.children) {
                 const index = link.parentElement.children.indexOf(link)
-                link.parentElement.children.splice(index, 1)
+
+                if (index >= 0) {
+                    link.parentElement.children.splice(index, 1)
+                }
             }
 
             link.parentElement = null
@@ -70,13 +85,20 @@ function createElement(tagName) {
         return createLink({ href: '' })
     }
 
-    return {
+    const element = {
         tagName,
         children: [],
+        attributes: {},
         classList: createClassList(),
         parentElement: null,
         dataset: {},
         id: '',
+        appendChild(child) {
+            child.parentElement = element
+            element.children.push(child)
+
+            return child
+        },
         closest(selector) {
             if (selector === '.fi-modal' && this.classList.contains('fi-modal')) {
                 return this
@@ -128,14 +150,26 @@ function createElement(tagName) {
 
             return false
         },
-        setAttribute() {},
+        setAttribute(name, value) {
+            this.attributes[name] = value
+        },
         getAttribute(name) {
             return this.attributes?.[name] ?? null
         },
         hasAttribute(name) {
             return Object.hasOwn(this.attributes ?? {}, name)
         },
-        remove() {},
+        remove() {
+            if (this.parentElement?.children) {
+                const index = this.parentElement.children.indexOf(this)
+
+                if (index >= 0) {
+                    this.parentElement.children.splice(index, 1)
+                }
+            }
+
+            this.parentElement = null
+        },
         contains(node) {
             const walk = (parent) => {
                 for (const child of parent.children ?? []) {
@@ -153,6 +187,33 @@ function createElement(tagName) {
 
             return walk(this)
         },
+    }
+
+    return element
+}
+
+function createAssetBatch(stylesheets, chunks = []) {
+    const batch = createElement('span')
+    batch.attributes = {
+        'data-fff-asset-batch': '',
+        'data-fff-stylesheets': JSON.stringify(stylesheets),
+        'data-fff-chunks': JSON.stringify(chunks),
+    }
+
+    return batch
+}
+
+function stylesheetHrefs(head) {
+    return head.children
+        .filter((child) => child.rel === 'stylesheet' && child.href?.includes('filament-flex-fields'))
+        .map((child) => child.href)
+}
+
+async function flushStylesheetLoads(head) {
+    for (const child of [...head.children]) {
+        if (child.rel === 'stylesheet' && typeof child.dispatchEvent === 'function') {
+            child.dispatchEvent('load')
+        }
     }
 }
 
@@ -180,30 +241,56 @@ function createDom() {
         },
         querySelectorAll(selector) {
             const matches = []
+            const seen = new Set()
+
+            const pushMatch = (node) => {
+                if (seen.has(node)) {
+                    return
+                }
+
+                seen.add(node)
+                matches.push(node)
+            }
 
             const consider = (node) => {
                 if (selector.includes('stylesheet') && node.rel === 'stylesheet' && node.href?.includes('filament-flex-fields')) {
-                    matches.push(node)
+                    pushMatch(node)
                 }
 
                 if (selector.includes('modulepreload') && node.rel === 'modulepreload' && node.href?.includes('filament-flex-fields')) {
-                    matches.push(node)
+                    pushMatch(node)
                 }
 
                 if (selector.includes('fff-flex-fields-assets-pending') && node.classList?.contains('fff-flex-fields-assets-pending')) {
                     if (selector.includes(':not(.fi-modal)')) {
                         if (! node.classList.contains('fi-modal')) {
-                            matches.push(node)
+                            pushMatch(node)
                         }
                     } else {
-                        matches.push(node)
+                        pushMatch(node)
                     }
                 }
 
                 if (selector === '.fi-modal.fff-flex-fields-assets-pending'
                     && node.classList?.contains('fi-modal')
                     && node.classList.contains('fff-flex-fields-assets-pending')) {
-                    matches.push(node)
+                    pushMatch(node)
+                }
+
+                if (selector === '.fi-modal.fi-modal-open'
+                    && node.classList?.contains('fi-modal')
+                    && node.classList.contains('fi-modal-open')) {
+                    pushMatch(node)
+                }
+
+                if (selector === '.fi-modal:not(.fi-modal-open)'
+                    && node.classList?.contains('fi-modal')
+                    && ! node.classList.contains('fi-modal-open')) {
+                    pushMatch(node)
+                }
+
+                if (selector === '[data-fff-asset-batch]' && node.hasAttribute?.('data-fff-asset-batch')) {
+                    pushMatch(node)
                 }
             }
 
@@ -757,6 +844,7 @@ test('ensureAssets waits for in-flight loads after batch markers were already co
 
     assert.equal(ensureResolved, true)
     assert.equal(injector.isStylesheetLoaded(href), true)
+    assert.equal(head.children.some((child) => child.rel === 'stylesheet'), true)
 })
 
 test('ensureAssets unblocks pending targets even when a stylesheet fails to load', async () => {
@@ -787,4 +875,443 @@ test('ensureAssets unblocks pending targets even when a stylesheet fails to load
 
     assert.equal(modal.classList.contains('fff-flex-fields-assets-pending'), false)
     assert.equal(modal.classList.contains('fff-flex-fields-assets-ready'), true)
+})
+
+test('isStylesheetLoaded forgets stale cache after Livewire removes the head link (resource tabs)', async () => {
+    const { document, window, head } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const href = '/css/janczakb/filament-flex-fields/flex-fields-item-card.css'
+
+    const firstLoad = injector.loadStylesheet(href)
+    const first = head.children.find((child) => child.rel === 'stylesheet')
+    assert.ok(first)
+    first.dispatchEvent('load')
+    await firstLoad
+
+    assert.equal(injector.isStylesheetLoaded(href), true)
+
+    // Simulate wire:navigate / Filament resource tab: Livewire drops navigate-tracked CSS.
+    first.remove()
+
+    assert.equal(injector.isStylesheetLoaded(href), false)
+
+    const secondLoad = injector.loadStylesheet(href)
+    const second = head.children.find((child) => child.rel === 'stylesheet')
+    assert.ok(second)
+    second.dispatchEvent('load')
+    await secondLoad
+
+    assert.equal(injector.isStylesheetLoaded(href), true)
+})
+
+test('handleLivewireNavigated reloads missing CSS from asset batches after SPA tab swap', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const href = '/css/janczakb/filament-flex-fields/flex-fields-item-card.css'
+
+    const previousLoad = injector.loadStylesheet(href)
+    const previous = head.children.find((child) => child.rel === 'stylesheet')
+    previous.dispatchEvent('load')
+    await previousLoad
+    previous.remove()
+
+    assert.equal(injector.isStylesheetLoaded(href), false)
+
+    const batch = createAssetBatch([href])
+    body.appendChild(batch)
+
+    const navigated = injector.handleLivewireNavigated()
+    const created = head.children.find((child) => child.rel === 'stylesheet')
+    assert.ok(created)
+    created.dispatchEvent('load')
+
+    await navigated
+
+    assert.equal(injector.isStylesheetLoaded(href), true)
+    assert.equal(head.children.some((child) => child.href?.includes('item-card')), true)
+})
+
+test('enterprise: page-only boot loads page batches and never duplicates stylesheets', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const flexHref = '/css/janczakb/filament-flex-fields/flex-fields-flex-text-input.css'
+
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([flexHref]))
+    page.appendChild(createAssetBatch([flexHref]))
+    body.appendChild(page)
+
+    const ensure = injector.ensureAssets(document, { pageOnly: true })
+    await flushStylesheetLoads(head)
+    await ensure
+
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('flex-text-input')).length, 1)
+    assert.equal(injector.isStylesheetLoaded(flexHref), true)
+    assert.equal(injector.collectRetainedAssetUrls().has(normalizeAssetUrl(flexHref, document.baseURI)), true)
+})
+
+test('enterprise: modal close uninstalls modal-only assets but retains shared page assets', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const flexHref = '/css/janczakb/filament-flex-fields/flex-fields-flex-text-input.css'
+    const switchHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([flexHref]))
+    body.appendChild(page)
+
+    const pageEnsure = injector.ensureAssets(document, { pageOnly: true })
+    await flushStylesheetLoads(head)
+    await pageEnsure
+
+    const modal = createElement('div')
+    modal.id = 'action-modal'
+    modal.classList.add('fi-modal', 'fi-modal-open')
+    modal.appendChild(createAssetBatch([flexHref, switchHref]))
+    body.appendChild(modal)
+    document.getElementById = (id) => (id === 'action-modal' ? modal : null)
+
+    const modalEnsure = injector.prepareModal({ detail: { id: 'action-modal' } })
+    await flushStylesheetLoads(head)
+    await modalEnsure
+
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('flex-text-input')).length, 1)
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('switch')).length, 1)
+
+    modal.classList.remove('fi-modal-open')
+    await injector.cleanupClosedModalPendingState({ detail: { id: 'action-modal' } })
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(injector.isStylesheetLoaded(flexHref), true)
+    assert.equal(injector.isStylesheetLoaded(switchHref), false)
+})
+
+test('enterprise: pageOnly ensure ignores modal batches so closed modal CSS is not sticky-retained by page', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const pageHref = '/css/janczakb/filament-flex-fields/flex-fields-item-card.css'
+    const modalOnlyHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([pageHref]))
+    body.appendChild(page)
+
+    const modal = createElement('div')
+    modal.id = 'orphaned-modal'
+    modal.classList.add('fi-modal')
+    modal.appendChild(createAssetBatch([modalOnlyHref]))
+    body.appendChild(modal)
+
+    const ensure = injector.ensureAssets(document, { pageOnly: true })
+    await flushStylesheetLoads(head)
+    await ensure
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('item-card')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(
+        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        false,
+    )
+})
+
+test('enterprise: two open modals share an asset; closing one does not uninstall while the other retains it', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const switchHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+
+    const first = createElement('div')
+    first.id = 'modal-a'
+    first.classList.add('fi-modal', 'fi-modal-open')
+    first.appendChild(createAssetBatch([switchHref]))
+    body.appendChild(first)
+
+    const second = createElement('div')
+    second.id = 'modal-b'
+    second.classList.add('fi-modal', 'fi-modal-open')
+    second.appendChild(createAssetBatch([switchHref]))
+    body.appendChild(second)
+
+    document.getElementById = (id) => {
+        if (id === 'modal-a') {
+            return first
+        }
+
+        if (id === 'modal-b') {
+            return second
+        }
+
+        return null
+    }
+
+    const openA = injector.prepareModal({ detail: { id: 'modal-a' } })
+    await flushStylesheetLoads(head)
+    await openA
+
+    const openB = injector.prepareModal({ detail: { id: 'modal-b' } })
+    await flushStylesheetLoads(head)
+    await openB
+
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('switch')).length, 1)
+
+    first.classList.remove('fi-modal-open')
+    await injector.cleanupClosedModalPendingState({ detail: { id: 'modal-a' } })
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+    assert.equal(injector.isStylesheetLoaded(switchHref), true)
+
+    second.classList.remove('fi-modal-open')
+    await injector.cleanupClosedModalPendingState({ detail: { id: 'modal-b' } })
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(injector.isStylesheetLoaded(switchHref), false)
+})
+
+test('enterprise: SPA tab navigation rebuilds page retain set and does not keep previous tab modal leftovers', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const editHref = '/css/janczakb/filament-flex-fields/flex-fields-flex-text-input.css'
+    const modalOnlyHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+    const videoHref = '/css/janczakb/filament-flex-fields/flex-fields-item-card.css'
+
+    const editPage = createElement('form')
+    editPage.appendChild(createAssetBatch([editHref]))
+    body.appendChild(editPage)
+
+    const editEnsure = injector.ensureAssets(document, { pageOnly: true })
+    await flushStylesheetLoads(head)
+    await editEnsure
+
+    const modal = createElement('div')
+    modal.id = 'edit-action'
+    modal.classList.add('fi-modal', 'fi-modal-open')
+    modal.appendChild(createAssetBatch([modalOnlyHref]))
+    body.appendChild(modal)
+    document.getElementById = (id) => (id === 'edit-action' ? modal : null)
+
+    const modalEnsure = injector.prepareModal({ detail: { id: 'edit-action' } })
+    await flushStylesheetLoads(head)
+    await modalEnsure
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+
+    // Simulate Livewire wire:navigate to resource Video tab: drop head CSS + page DOM.
+    for (const child of [...head.children]) {
+        child.remove()
+    }
+
+    editPage.remove()
+    modal.remove()
+    body.children.length = 0
+
+    const videoPage = createElement('form')
+    videoPage.appendChild(createAssetBatch([videoHref]))
+    body.appendChild(videoPage)
+
+    assert.equal(injector.isStylesheetLoaded(editHref), false)
+    assert.equal(injector.isStylesheetLoaded(videoHref), false)
+
+    const navigated = injector.handleLivewireNavigated()
+    await flushStylesheetLoads(head)
+    await navigated
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('item-card')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), false)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(injector.isStylesheetLoaded(videoHref), true)
+    assert.equal(
+        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(videoHref, document.baseURI)),
+        true,
+    )
+    assert.equal(
+        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        false,
+    )
+})
+
+test('enterprise: page morph does not claim modal-only batches sitting in a closed modal shell', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const pageHref = '/css/janczakb/filament-flex-fields/flex-fields-flex-text-input.css'
+    const modalOnlyHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+
+    const pageField = createElement('div')
+    pageField.classList.add('fi-fo-field-wrp')
+    pageField.appendChild(createAssetBatch([pageHref]))
+    body.appendChild(pageField)
+
+    const modal = createElement('div')
+    modal.classList.add('fi-modal')
+    modal.appendChild(createAssetBatch([modalOnlyHref]))
+    body.appendChild(modal)
+
+    const morph = injector.handleMorphUpdated({ el: pageField })
+    await flushStylesheetLoads(head)
+    await morph
+
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(
+        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        false,
+    )
+})
+
+test('enterprise: stacked nested modals keep parent assets while child is open and after child closes', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const pageFlexHref = '/css/janczakb/filament-flex-fields/flex-fields-flex-text-input.css'
+    const parentSwitchHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+    const childRatingHref = '/css/janczakb/filament-flex-fields/flex-fields-rating-field.css'
+
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([pageFlexHref]))
+    body.appendChild(page)
+
+    const pageEnsure = injector.ensureAssets(document, { pageOnly: true })
+    await flushStylesheetLoads(head)
+    await pageEnsure
+
+    const parent = createElement('div')
+    parent.id = 'parent-action-modal'
+    parent.classList.add('fi-modal', 'fi-modal-open')
+    parent.appendChild(createAssetBatch([pageFlexHref, parentSwitchHref]))
+    body.appendChild(parent)
+
+    const child = createElement('div')
+    child.id = 'child-action-modal'
+    child.classList.add('fi-modal')
+    child.appendChild(createAssetBatch([childRatingHref]))
+    body.appendChild(child)
+
+    document.getElementById = (id) => {
+        if (id === 'parent-action-modal') {
+            return parent
+        }
+
+        if (id === 'child-action-modal') {
+            return child
+        }
+
+        return null
+    }
+
+    const openParent = injector.prepareModal({ detail: { id: 'parent-action-modal' } })
+    await flushStylesheetLoads(head)
+    await openParent
+
+    assert.deepEqual(injector.getModalOpenStack(), ['modal:parent-action-modal'])
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+
+    // Filament nested action: parent loses fi-modal-open while child is shown.
+    parent.classList.remove('fi-modal-open')
+    child.classList.add('fi-modal-open')
+
+    const openChild = injector.prepareModal({ detail: { id: 'child-action-modal' } })
+    await flushStylesheetLoads(head)
+    await openChild
+
+    assert.deepEqual(injector.getModalOpenStack(), [
+        'modal:parent-action-modal',
+        'modal:child-action-modal',
+    ])
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('flex-text-input')).length, 1)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('rating-field')), true)
+
+    // Closing the child must NOT uninstall parent-only switch — parent returns next.
+    child.classList.remove('fi-modal-open')
+    await injector.cleanupClosedModalPendingState({ detail: { id: 'child-action-modal' } })
+    parent.classList.add('fi-modal-open')
+
+    assert.deepEqual(injector.getModalOpenStack(), ['modal:parent-action-modal'])
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('rating-field')), false)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), true)
+
+    // Closing the parent finally drops switch; page flex stays.
+    parent.classList.remove('fi-modal-open')
+    await injector.cleanupClosedModalPendingState({ detail: { id: 'parent-action-modal' } })
+
+    assert.deepEqual(injector.getModalOpenStack(), [])
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), true)
+})
+
+test('enterprise: modal-closed without id pops only the top stacked modal (LIFO)', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const parentHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+    const childHref = '/css/janczakb/filament-flex-fields/flex-fields-rating-field.css'
+
+    const parent = createElement('div')
+    parent.id = 'stack-a'
+    parent.classList.add('fi-modal', 'fi-modal-open')
+    parent.appendChild(createAssetBatch([parentHref]))
+    body.appendChild(parent)
+
+    const child = createElement('div')
+    child.id = 'stack-b'
+    child.classList.add('fi-modal')
+    child.appendChild(createAssetBatch([childHref]))
+    body.appendChild(child)
+
+    document.getElementById = (id) => {
+        if (id === 'stack-a') {
+            return parent
+        }
+
+        if (id === 'stack-b') {
+            return child
+        }
+
+        return null
+    }
+
+    const openParent = injector.prepareModal({ detail: { id: 'stack-a' } })
+    await flushStylesheetLoads(head)
+    await openParent
+
+    parent.classList.remove('fi-modal-open')
+    child.classList.add('fi-modal-open')
+
+    const openChild = injector.prepareModal({ detail: { id: 'stack-b' } })
+    await flushStylesheetLoads(head)
+    await openChild
+
+    await injector.cleanupClosedModalPendingState({})
+
+    assert.deepEqual(injector.getModalOpenStack(), ['modal:stack-a'])
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('rating-field')), false)
+})
+
+test('enterprise: returning to parent via x-modal-opened does not duplicate head links', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const parentHref = '/css/janczakb/filament-flex-fields/flex-fields-switch.css'
+
+    const parent = createElement('div')
+    parent.id = 'return-parent'
+    parent.classList.add('fi-modal', 'fi-modal-open')
+    parent.appendChild(createAssetBatch([parentHref]))
+    body.appendChild(parent)
+
+    document.getElementById = (id) => (id === 'return-parent' ? parent : null)
+
+    const firstOpen = injector.prepareModal({ detail: { id: 'return-parent' } })
+    await flushStylesheetLoads(head)
+    await firstOpen
+
+    parent.classList.remove('fi-modal-open')
+    // Nested child would open here… then Filament resurfaces the parent:
+    parent.classList.add('fi-modal-open')
+    parent.appendChild(createAssetBatch([parentHref]))
+
+    const reopen = injector.prepareModal({ detail: { id: 'return-parent' } })
+    await flushStylesheetLoads(head)
+    await reopen
+
+    assert.deepEqual(injector.getModalOpenStack(), ['modal:return-parent'])
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('switch')).length, 1)
 })

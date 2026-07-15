@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 
 it('queues calculator panel mount only once per request', function () {
     CalculatorPanelMount::reset();
@@ -24,6 +25,6 @@ it('does not render calculator panel mount when no field queued it', function ()
 });
 
 it('includes calculator panel styles in calculator field playground bundle list', function () {
-    expect(Bjanczak\FilamentFlexFields\Support\FlexFieldAssets::playgroundStylesheetsFor('calculator-field'))
+    expect(FlexFieldAssets::playgroundStylesheetsFor('calculator-field'))
         ->toContain('calculator-panel');
 });

@@ -6,8 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\StateCasts\PhoneFieldStateCast;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistry;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
@@ -29,8 +29,8 @@ class PhoneField extends Field
 {
     use CanBeReadOnly;
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
     use HasPlaceholder;
 
     protected string $view = 'filament-flex-fields::forms.components.phone-field';

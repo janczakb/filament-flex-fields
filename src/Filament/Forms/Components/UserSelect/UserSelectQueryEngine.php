@@ -231,7 +231,7 @@ class UserSelectQueryEngine
         return $this->restrictModelQueryColumns($query);
     }
 
-  protected function applySearchToQuery(Builder $query, string $search): void
+    protected function applySearchToQuery(Builder $query, string $search): void
     {
         $applySearchUsing = $this->select->getApplySearchUsing();
 

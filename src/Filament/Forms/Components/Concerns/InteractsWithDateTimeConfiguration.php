@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeFieldMode;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
 use Bjanczak\FilamentFlexFields\Enums\MonthDisplay;
@@ -18,8 +18,8 @@ use InvalidArgumentException;
 trait InteractsWithDateTimeConfiguration
 {
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
 
     protected string|Closure $variant = 'primary';
 

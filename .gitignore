@@ -62,6 +62,13 @@ pnpm-debug.log*
 /scratch/
 /.reference/
 
+# Ad-hoc local debug scripts dumped in package root (never publish)
+/test-*.mjs
+/test-*.js
+/test-*.png
+/fix-tests*.php
+/remove_soft_radius.php
+
 # Maintainer-only docs — not for public GitHub (customer docs live in docs/)
 /DEVELOPMENT.md
 /COMPONENTS.md

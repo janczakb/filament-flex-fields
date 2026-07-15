@@ -11,7 +11,7 @@ use Livewire\Livewire;
 
 it('moves file from temp to final destination on submit via dehydrate', function () {
     Storage::fake('public');
-    
+
     TestableTranslatableForm::$formSchema = [
         FlexFileUpload::make('attachment')
             ->disk('public')
@@ -39,7 +39,7 @@ it('moves file from temp to final destination on submit via dehydrate', function
 
     expect($storedPath)->toBeString()->not->toBeEmpty();
     expect($storedPath)->toStartWith('test-uploads/');
-    
+
     // Upewnijmy się że plik znajduje się we właściwym katalogu
     Storage::disk('public')->assertExists($storedPath);
 });

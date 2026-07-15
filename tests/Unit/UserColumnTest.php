@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
+use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\UserColumn;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsServiceProvider;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
-use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserColumnPlayground;

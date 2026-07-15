@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRichEditor;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexRichContentRenderer;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorBlockImagePlugin;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorPasteCleanupPlugin;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorYoutubePlugin;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentManifest;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentVariantGenerator;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant;
@@ -355,7 +358,7 @@ it('creates a flex rich content renderer from the field helper', function () {
 
 it('registers youtube plugin assets when enabled', function () {
     expect(
-        Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorYoutubePlugin::make(
+        FlexRichEditorYoutubePlugin::make(
             FlexRichEditor::make('body')->youtube(),
         )->getTipTapJsExtensions(),
     )->not->toBeEmpty()
@@ -364,7 +367,7 @@ it('registers youtube plugin assets when enabled', function () {
 
 it('registers block image plugin by default', function () {
     expect(
-        Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorBlockImagePlugin::make()->getTipTapJsExtensions(),
+        FlexRichEditorBlockImagePlugin::make()->getTipTapJsExtensions(),
     )->not->toBeEmpty()
         ->and(file_exists(__DIR__.'/../../resources/dist/support/flex-rich-editor-block-image-extension.js'))->toBeTrue();
 });
@@ -374,7 +377,7 @@ it('registers paste cleanup plugin lazily when enabled', function () {
 
     expect($field->shouldEnablePasteCleanup())->toBeTrue()
         ->and($field->getPasteCleanupMode())->toBe('aggressive')
-        ->and(Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorPasteCleanupPlugin::make('aggressive')->getTipTapJsExtensions())
+        ->and(FlexRichEditorPasteCleanupPlugin::make('aggressive')->getTipTapJsExtensions())
         ->not->toBeEmpty();
 });
 

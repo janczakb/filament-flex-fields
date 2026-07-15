@@ -52,11 +52,11 @@ class FlexMatrixTable extends Repeater
         }
 
         $normalized = [];
-        
+
         foreach ($this->getRowKeys() as $key) {
             $normalized[$key] = $state[$key] ?? [];
         }
-        
+
         $this->state($normalized);
     }
 
@@ -125,6 +125,7 @@ class FlexMatrixTable extends Repeater
                     'description' => null,
                     'disabled' => false,
                 ];
+
                 continue;
             }
 

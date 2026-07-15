@@ -2,7 +2,7 @@ const STYLESHEET_SELECTOR = 'link[rel="stylesheet"][href*="filament-flex-fields"
 const CHUNK_SELECTOR = 'link[rel="modulepreload"][href*="filament-flex-fields"]'
 
 export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined' ? document.baseURI : 'http://localhost/') {
-    if (! url) {
+    if (!url) {
         return ''
     }
 
@@ -14,7 +14,7 @@ export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined'
 }
 
 export function createFlexFieldAssetInjector({ document, window } = {}) {
-    if (! document || ! window) {
+    if (!document || !window) {
         throw new Error('FlexField asset injector requires document and window.')
     }
 
@@ -25,11 +25,23 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const chunkIndex = new Map()
     const pendingMorphTargets = new WeakSet()
 
+    /** URLs required by the non-modal page (forms, resource tabs, etc.). */
+    const pageRetainedUrls = new Set()
+    /** modalOwnerKey → Set of asset URLs claimed while that modal was open. */
+    const modalOwnedUrls = new Map()
+    /**
+     * Open Filament modal stack (nested actions). Parent stays retained even when
+     * Filament temporarily drops `fi-modal-open` while a child modal is visible.
+     */
+    const modalOpenStack = []
+    const anonymousModalKeys = new WeakMap()
+    let anonymousModalSequence = 0
+
     const injectorHooks = {
         shouldBatchTriggerPending(batch, defaultCheck) {
             return defaultCheck(batch)
         },
-        markPendingStarted() {},
+        markPendingStarted() { },
         getPendingReleaseDelayMs() {
             return 0
         },
@@ -56,7 +68,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const forgetLoadedAsset = (link) => {
         const url = normalizeAssetUrl(link.href, document.baseURI)
 
-        if (! url) {
+        if (!url) {
             return
         }
 
@@ -74,11 +86,11 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const isDocumentRoot = scope === document
 
         for (const link of [...document.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)]) {
-            if (! isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
+            if (!isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
                 continue
             }
 
-            if (! isDocumentRoot && typeof scope.contains === 'function' && ! scope.contains(link)) {
+            if (!isDocumentRoot && typeof scope.contains === 'function' && !scope.contains(link)) {
                 continue
             }
 
@@ -93,7 +105,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const rootNeedsAssetLoading = (root = document) => {
-        if (! root?.querySelectorAll) {
+        if (!root?.querySelectorAll) {
             return false
         }
 
@@ -102,24 +114,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         })
     }
 
-    const indexLink = (link, index) => {
-        if (! link?.href) {
-            return
-        }
-
-        index.set(normalizeAssetUrl(link.href, document.baseURI), link)
-    }
-
-    const rebuildIndex = (selector, index) => {
-        index.clear()
-
-        for (const link of document.querySelectorAll(selector)) {
-            indexLink(link, index)
-        }
-    }
-
     const isLinkConnected = (link) => {
-        if (! link) {
+        if (!link) {
             return false
         }
 
@@ -130,10 +126,30 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         return link.parentElement !== null
     }
 
+    const indexLink = (link, index) => {
+        if (!link?.href) {
+            return
+        }
+
+        index.set(normalizeAssetUrl(link.href, document.baseURI), link)
+    }
+
+    const rebuildIndex = (selector, index) => {
+        index.clear()
+
+        for (const link of document.querySelectorAll(selector)) {
+            if (! isLinkConnected(link)) {
+                continue
+            }
+
+            indexLink(link, index)
+        }
+    }
+
     const findAssetLink = (selector, href, index) => {
         const normalizedHref = normalizeAssetUrl(href, document.baseURI)
 
-        if (! normalizedHref) {
+        if (!normalizedHref) {
             return null
         }
 
@@ -153,7 +169,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const rememberLoadedLink = (link, loadedSet, index) => {
-        if (! link?.href) {
+        if (!link?.href) {
             return
         }
 
@@ -162,15 +178,38 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         index.set(normalizedHref, link)
     }
 
+    const forgetStylesheetUrl = (url) => {
+        loadedStylesheets.delete(url)
+        stylesheetIndex.delete(url)
+    }
+
+    const forgetChunkUrl = (url) => {
+        loadedChunks.delete(url)
+        chunkIndex.delete(url)
+    }
+
+    /**
+     * Trust DOM connectivity over in-memory Sets.
+     * Livewire SPA navigation (`wire:navigate`, resource tabs) can remove
+     * `data-navigate-track` links while the injector still marks URLs as loaded.
+     */
     const isStylesheetLoaded = (href) => {
         const normalizedHref = normalizeAssetUrl(href, document.baseURI)
 
-        if (! normalizedHref) {
+        if (!normalizedHref) {
             return true
         }
 
         if (loadedStylesheets.has(normalizedHref)) {
-            return true
+            const existing = findAssetLink(STYLESHEET_SELECTOR, normalizedHref, stylesheetIndex)
+
+            // Livewire SPA navigation may drop navigate-tracked <link> tags while
+            // this Set still thinks they are loaded — verify connectivity first.
+            if (existing && isLinkConnected(existing)) {
+                return true
+            }
+
+            forgetStylesheetUrl(normalizedHref)
         }
 
         const existing = findAssetLink(STYLESHEET_SELECTOR, normalizedHref, stylesheetIndex)
@@ -187,12 +226,18 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const isChunkLoaded = (href) => {
         const normalizedHref = normalizeAssetUrl(href, document.baseURI)
 
-        if (! normalizedHref) {
+        if (!normalizedHref) {
             return true
         }
 
         if (loadedChunks.has(normalizedHref)) {
-            return true
+            const existing = findAssetLink(CHUNK_SELECTOR, normalizedHref, chunkIndex)
+
+            if (existing && isLinkConnected(existing)) {
+                return true
+            }
+
+            forgetChunkUrl(normalizedHref)
         }
 
         return false
@@ -217,7 +262,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const waitForExistingLink = (link, url, type, loadedSet, index) => {
-        if (! isLinkConnected(link)) {
+        if (!isLinkConnected(link)) {
             index.delete(url)
 
             return Promise.reject(new Error(`Stale ${type} link: ${url}`))
@@ -266,7 +311,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const moveLinkToHead = (link) => {
-        if (! link || link.parentElement === document.head) {
+        if (!link || link.parentElement === document.head) {
             return link
         }
 
@@ -279,6 +324,52 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         document.head.appendChild(link)
     }
 
+    /**
+     * Rebuild loaded caches from the current document only.
+     * Safe after Filament resource-tab / wire:navigate swaps which drop
+     * previously injected or tracked stylesheets from `<head>`.
+     */
+    const resyncLoadedAssetsFromDocument = () => {
+        loadedStylesheets.clear()
+        loadedChunks.clear()
+        stylesheetIndex.clear()
+        chunkIndex.clear()
+        inflightRequests.clear()
+
+        for (const link of document.querySelectorAll(STYLESHEET_SELECTOR)) {
+            if (!isLinkConnected(link) || !link.href) {
+                continue
+            }
+
+            const url = normalizeAssetUrl(link.href, document.baseURI)
+
+            if (!url) {
+                continue
+            }
+
+            stylesheetIndex.set(url, link)
+
+            if (link.sheet) {
+                loadedStylesheets.add(url)
+            }
+        }
+
+        for (const link of document.querySelectorAll(CHUNK_SELECTOR)) {
+            if (!isLinkConnected(link) || !link.href) {
+                continue
+            }
+
+            const url = normalizeAssetUrl(link.href, document.baseURI)
+
+            if (!url) {
+                continue
+            }
+
+            chunkIndex.set(url, link)
+            loadedChunks.add(url)
+        }
+    }
+
     const purgeLazyAssets = () => {
         for (const link of [...document.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)]) {
             if (isProtectedLink(link)) {
@@ -287,16 +378,14 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
             const url = normalizeAssetUrl(link.href, document.baseURI)
 
-            if (! url) {
+            if (!url) {
                 continue
             }
 
             if (link.rel === 'stylesheet') {
-                loadedStylesheets.delete(url)
-                stylesheetIndex.delete(url)
+                forgetStylesheetUrl(url)
             } else {
-                loadedChunks.delete(url)
-                chunkIndex.delete(url)
+                forgetChunkUrl(url)
             }
 
             link.remove()
@@ -308,7 +397,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const loadAsset = (href, type, loadedSet, index, selector, buildElement) => {
         const url = normalizeAssetUrl(href, document.baseURI)
 
-        if (! url) {
+        if (!url) {
             return Promise.resolve()
         }
 
@@ -383,43 +472,46 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         })
     }
 
-    const dedupeLinks = (selector, seen, index) => {
+    const dedupeLinks = (selector, index, loadedSet) => {
+        // Important: use a fresh scan Set. Reusing `loadedStylesheets` as the "seen"
+        // set incorrectly removes the first injected <link> right after it loads
+        // (URL already present in the loaded cache ≠ duplicate DOM node).
+        const seenInDocument = new Set()
+
         for (const link of document.querySelectorAll(selector)) {
-            if (! link.href) {
-                continue
-            }
-
-            if (isProtectedLink(link)) {
-                indexLink(link, index)
-
-                if (link.parentElement !== document.head) {
-                    moveLinkToHead(link)
-                }
-
+            if (!link.href || ! isLinkConnected(link)) {
                 continue
             }
 
             const url = normalizeAssetUrl(link.href, document.baseURI)
 
-            if (seen.has(url)) {
-                if (! link.dataset.fffInjectedStylesheet && ! link.dataset.fffInjectedChunk) {
-                    indexLink(link, index)
+            if (!url) {
+                continue
+            }
 
-                    if (link.parentElement !== document.head) {
-                        moveLinkToHead(link)
-                    }
+            if (isProtectedLink(link)) {
+                indexLink(link, index)
+                loadedSet.add(url)
 
-                    continue
+                if (link.parentElement !== document.head) {
+                    moveLinkToHead(link)
                 }
 
-                link.remove()
-                index.delete(url)
+                seenInDocument.add(url)
 
                 continue
             }
 
-            seen.add(url)
+            if (seenInDocument.has(url)) {
+                // True duplicate in the document — drop the extra injected copy only.
+                link.remove()
+
+                continue
+            }
+
+            seenInDocument.add(url)
             indexLink(link, index)
+            loadedSet.add(url)
 
             if (link.parentElement !== document.head) {
                 moveLinkToHead(link)
@@ -428,14 +520,14 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const dedupeDocumentAssets = () => {
-        dedupeLinks(STYLESHEET_SELECTOR, loadedStylesheets, stylesheetIndex)
-        dedupeLinks(CHUNK_SELECTOR, loadedChunks, chunkIndex)
+        dedupeLinks(STYLESHEET_SELECTOR, stylesheetIndex, loadedStylesheets)
+        dedupeLinks(CHUNK_SELECTOR, chunkIndex, loadedChunks)
     }
 
     const parseJsonAttribute = (element, attribute) => {
         const raw = element?.getAttribute?.(attribute)
 
-        if (! raw) {
+        if (!raw) {
             return []
         }
 
@@ -456,11 +548,222 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         return resolvePendingTarget(root) ?? root
     }
 
-    const collectBatchAssets = (root) => {
+    const resolveModalOwnerKey = (modal) => {
+        if (!modal) {
+            return null
+        }
+
+        if (typeof modal.id === 'string' && modal.id !== '') {
+            return `modal:${modal.id}`
+        }
+
+        if (anonymousModalKeys.has(modal)) {
+            return anonymousModalKeys.get(modal)
+        }
+
+        anonymousModalSequence += 1
+        const key = `modal:anon-${anonymousModalSequence}`
+        anonymousModalKeys.set(modal, key)
+
+        return key
+    }
+
+    const resolveAssetOwnerKey = (root = document) => {
+        if (!root || root === document) {
+            return 'page'
+        }
+
+        if (root.classList?.contains?.('fi-modal')) {
+            return resolveModalOwnerKey(root)
+        }
+
+        if (typeof root.closest === 'function') {
+            const modal = root.closest('.fi-modal')
+
+            if (modal) {
+                return resolveModalOwnerKey(modal)
+            }
+        }
+
+        return 'page'
+    }
+
+    const claimAssetUrls = (ownerKey, urls) => {
+        if (!ownerKey || !urls?.length) {
+            return
+        }
+
+        if (ownerKey === 'page') {
+            for (const url of urls) {
+                pageRetainedUrls.add(url)
+            }
+
+            return
+        }
+
+        let owned = modalOwnedUrls.get(ownerKey)
+
+        if (!owned) {
+            owned = new Set()
+            modalOwnedUrls.set(ownerKey, owned)
+        }
+
+        for (const url of urls) {
+            owned.add(url)
+        }
+    }
+
+    const releaseModalOwnership = (ownerKey) => {
+        if (!ownerKey || ownerKey === 'page') {
+            return
+        }
+
+        modalOwnedUrls.delete(ownerKey)
+    }
+
+    const pushModalOpenStack = (ownerKey) => {
+        if (!ownerKey || ownerKey === 'page') {
+            return
+        }
+
+        // Re-opening the same modal (e.g. return from nested child) must not
+        // duplicate the stack entry.
+        if (modalOpenStack[modalOpenStack.length - 1] === ownerKey) {
+            return
+        }
+
+        const existingIndex = modalOpenStack.indexOf(ownerKey)
+
+        if (existingIndex >= 0) {
+            modalOpenStack.splice(existingIndex, 1)
+        }
+
+        modalOpenStack.push(ownerKey)
+    }
+
+    const popModalOpenStack = (ownerKey = null) => {
+        if (ownerKey) {
+            const index = modalOpenStack.lastIndexOf(ownerKey)
+
+            if (index >= 0) {
+                modalOpenStack.splice(index, 1)
+            }
+
+            releaseModalOwnership(ownerKey)
+
+            return ownerKey
+        }
+
+        const top = modalOpenStack.pop()
+
+        if (top) {
+            releaseModalOwnership(top)
+        }
+
+        return top ?? null
+    }
+
+    const collectRetainedAssetUrls = () => {
+        const retained = new Set(pageRetainedUrls)
+
+        for (const urls of modalOwnedUrls.values()) {
+            for (const url of urls) {
+                retained.add(url)
+            }
+        }
+
+        return retained
+    }
+
+    /**
+     * Remove Flex Fields CSS/JS that no page or open modal still retains.
+     * Shared assets used by the main form/tab survive modal teardown.
+     */
+    const uninstallUnretainedAssets = () => {
+        const retained = collectRetainedAssetUrls()
+
+        for (const link of [...document.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)]) {
+            if (!isLinkConnected(link) || link.hasAttribute('data-fff-playground-bundle')) {
+                continue
+            }
+
+            const url = normalizeAssetUrl(link.href, document.baseURI)
+
+            if (!url || retained.has(url)) {
+                continue
+            }
+
+            forgetLoadedAsset(link)
+            link.remove()
+        }
+    }
+
+    const isBatchInsideModal = (batch) => {
+        return typeof batch?.closest === 'function' && Boolean(batch.closest('.fi-modal'))
+    }
+
+    const peekBatchAssets = (root, { excludeModals = false } = {}) => {
         const stylesheets = []
         const chunks = []
 
+        if (!root?.querySelectorAll) {
+            return { stylesheets: [], chunks: [] }
+        }
+
         root.querySelectorAll('[data-fff-asset-batch]').forEach((batch) => {
+            if (excludeModals && isBatchInsideModal(batch)) {
+                return
+            }
+
+            stylesheets.push(...parseJsonAttribute(batch, 'data-fff-stylesheets'))
+            chunks.push(...parseJsonAttribute(batch, 'data-fff-chunks'))
+        })
+
+        return {
+            stylesheets: uniqueNormalizedUrls(stylesheets),
+            chunks: uniqueNormalizedUrls(chunks),
+        }
+    }
+
+    const collectInlineEmitUrls = (root, { excludeModals = false } = {}) => {
+        const urls = []
+
+        if (!root?.querySelectorAll) {
+            return urls
+        }
+
+        for (const link of root.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)) {
+            if (!isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
+                continue
+            }
+
+            if (excludeModals && typeof link.closest === 'function' && link.closest('.fi-modal')) {
+                continue
+            }
+
+            const url = normalizeAssetUrl(link.href, document.baseURI)
+
+            if (url) {
+                urls.push(url)
+            }
+        }
+
+        return uniqueNormalizedUrls(urls)
+    }
+
+    const collectBatchAssets = (root, { excludeModals = false } = {}) => {
+        const stylesheets = []
+        const chunks = []
+
+        if (!root?.querySelectorAll) {
+            return { stylesheets: [], chunks: [] }
+        }
+
+        root.querySelectorAll('[data-fff-asset-batch]').forEach((batch) => {
+            if (excludeModals && isBatchInsideModal(batch)) {
+                return
+            }
+
             stylesheets.push(...parseJsonAttribute(batch, 'data-fff-stylesheets'))
             chunks.push(...parseJsonAttribute(batch, 'data-fff-chunks'))
             batch.remove()
@@ -483,26 +786,26 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const awaitInlineEmitAssetsIn = async (root = document) => {
         const scope = resolveAssetScope(root)
 
-        if (! scope?.querySelectorAll) {
+        if (!scope?.querySelectorAll) {
             return
         }
 
         const promises = []
 
         for (const link of scope.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)) {
-            if (! isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
+            if (!isInlineEmitAssetLink(link) || link.hasAttribute('data-fff-playground-bundle')) {
                 continue
             }
 
             const url = normalizeAssetUrl(link.href, document.baseURI)
 
-            if (! url) {
+            if (!url) {
                 continue
             }
 
-            if (link.rel === 'stylesheet' && ! isStylesheetLoaded(url)) {
+            if (link.rel === 'stylesheet' && !isStylesheetLoaded(url)) {
                 promises.push(waitForExistingLink(link, url, 'stylesheet', loadedStylesheets, stylesheetIndex))
-            } else if (link.rel === 'modulepreload' && ! isChunkLoaded(url)) {
+            } else if (link.rel === 'modulepreload' && !isChunkLoaded(url)) {
                 promises.push(waitForExistingLink(link, url, 'chunk', loadedChunks, chunkIndex))
             }
         }
@@ -514,15 +817,31 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         await Promise.allSettled(promises)
     }
 
-    const ensureAssets = async (root = document) => {
+    const ensureAssets = async (root = document, { pageOnly = false } = {}) => {
         const scope = resolveAssetScope(root)
-        const { stylesheets, chunks } = collectBatchAssets(scope)
+        const ownerKey = pageOnly ? 'page' : resolveAssetOwnerKey(scope)
+        const excludeModals = pageOnly || ownerKey === 'page'
+
+        const peeked = peekBatchAssets(scope, { excludeModals })
+        // Claim emit URLs only while links are still under a concrete scope
+        // (modal / field root). Scanning `document` would incorrectly retain
+        // stale head links from a previous SPA page or closed modal.
+        const inlineUrls = scope === document
+            ? []
+            : collectInlineEmitUrls(scope, { excludeModals })
+        const claimedUrls = [...peeked.stylesheets, ...peeked.chunks, ...inlineUrls]
+        claimAssetUrls(ownerKey, claimedUrls)
+
+        const { stylesheets, chunks } = collectBatchAssets(scope, { excludeModals })
 
         if (stylesheets.length > 0 || chunks.length > 0) {
             await Promise.allSettled([
                 ...stylesheets.map((href) => loadStylesheet(href)),
                 ...chunks.map((href) => loadChunk(href)),
             ])
+            // Re-claim the exact URLs that were loaded in this pass (covers any
+            // normalization drift between peek and collect).
+            claimAssetUrls(ownerKey, [...stylesheets, ...chunks])
         }
 
         await awaitInlineEmitAssetsIn(scope)
@@ -530,8 +849,18 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         dedupeDocumentAssets()
     }
 
+    const handleLivewireNavigated = async () => {
+        // SPA resource tabs: rebuild retain sets from the new page only.
+        pageRetainedUrls.clear()
+        modalOwnedUrls.clear()
+        modalOpenStack.length = 0
+        resyncLoadedAssetsFromDocument()
+        await ensureAssets(document, { pageOnly: true })
+        void preloadVisibleBatchesIn(document)
+    }
+
     const resolvePendingTarget = (element) => {
-        if (! element || typeof element.closest !== 'function') {
+        if (!element || typeof element.closest !== 'function') {
             return element ?? null
         }
 
@@ -548,12 +877,12 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const stylesheets = parseJsonAttribute(batch, 'data-fff-stylesheets')
         const chunks = parseJsonAttribute(batch, 'data-fff-chunks')
 
-        return stylesheets.some((href) => ! isStylesheetLoaded(href))
-            || chunks.some((href) => ! isChunkLoaded(href))
+        return stylesheets.some((href) => !isStylesheetLoaded(href))
+            || chunks.some((href) => !isChunkLoaded(href))
     }
 
     const preloadFromBatch = (batch) => {
-        if (! batchNeedsLoading(batch)) {
+        if (!batchNeedsLoading(batch)) {
             return
         }
 
@@ -567,7 +896,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const resolveHoverPreloadScope = (trigger) => {
-        if (! trigger?.closest) {
+        if (!trigger?.closest) {
             return null
         }
 
@@ -583,7 +912,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const isElementInViewport = (element) => {
-        if (! element?.getBoundingClientRect) {
+        if (!element?.getBoundingClientRect) {
             return false
         }
 
@@ -596,7 +925,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const collectVisibleAssetBatches = (root = document) => {
-        if (! root?.querySelectorAll) {
+        if (!root?.querySelectorAll) {
             return []
         }
 
@@ -615,7 +944,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const promises = []
 
         for (const batch of batches) {
-            if (! batchNeedsLoading(batch)) {
+            if (!batchNeedsLoading(batch)) {
                 continue
             }
 
@@ -638,14 +967,14 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const preloadBatchesIn = async (root = document) => {
         const scope = resolveAssetScope(root)
 
-        if (! scope?.querySelectorAll) {
+        if (!scope?.querySelectorAll) {
             return
         }
 
         const promises = []
 
         for (const batch of scope.querySelectorAll('[data-fff-asset-batch]')) {
-            if (! batchNeedsLoading(batch)) {
+            if (!batchNeedsLoading(batch)) {
                 continue
             }
 
@@ -668,7 +997,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const applyPendingState = (element) => {
         const target = resolvePendingTarget(element)
 
-        if (! target?.classList) {
+        if (!target?.classList) {
             return null
         }
 
@@ -690,7 +1019,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const target = resolvePendingTarget(element)
         const nodes = new Set([target, element].filter(Boolean))
 
-        if (! force && target) {
+        if (!force && target) {
             const delayMs = await Promise.resolve(injectorHooks.getPendingReleaseDelayMs(target, {
                 force,
                 element,
@@ -709,7 +1038,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         }
 
         for (const node of nodes) {
-            if (! node?.classList) {
+            if (!node?.classList) {
                 continue
             }
 
@@ -722,7 +1051,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const hasPendingState = (element) => {
         const target = resolvePendingTarget(element)
 
-        if (! target) {
+        if (!target) {
             return false
         }
 
@@ -739,15 +1068,24 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             return document.getElementById(modalId)
         }
 
-        return document.querySelector('.fi-modal.fi-modal-open')
+        // Stacked Filament actions: prefer the topmost open modal, not the first in DOM.
+        const openModals = document.querySelectorAll('.fi-modal.fi-modal-open')
+
+        if (openModals.length === 0) {
+            return null
+        }
+
+        return openModals[openModals.length - 1]
     }
 
     const prepareModal = async (event) => {
         const modal = resolveModalRoot(event)
 
-        if (! modal) {
+        if (!modal) {
             return
         }
+
+        pushModalOpenStack(resolveModalOwnerKey(modal))
 
         const needsLoading = rootNeedsAssetLoading(modal)
 
@@ -757,6 +1095,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
         try {
             await preloadBatchesIn(modal)
+            // Claims modal ownership for every batch/emit URL (shared page assets
+            // are loaded once; revoke-safe on close via retain sets).
             await ensureAssets(modal)
         } finally {
             if (needsLoading) {
@@ -768,11 +1108,11 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const beginPendingMorph = ({ el, toEl }) => {
-        if (! toEl || typeof toEl.querySelectorAll !== 'function') {
+        if (!toEl || typeof toEl.querySelectorAll !== 'function') {
             return null
         }
 
-        if (! el) {
+        if (!el) {
             return null
         }
 
@@ -786,13 +1126,13 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             return injectorHooks.shouldBatchTriggerPending(batch, batchNeedsLoading)
         })
 
-        if (! needsLoading) {
+        if (!needsLoading) {
             return null
         }
 
         const liveTarget = resolvePendingTarget(el)
 
-        if (! liveTarget?.classList) {
+        if (!liveTarget?.classList) {
             return null
         }
 
@@ -806,7 +1146,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const handleMorphUpdated = ({ el }) => {
-        if (! el) {
+        if (!el) {
             return Promise.resolve()
         }
 
@@ -820,7 +1160,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const registerLivewireHooks = () => {
-        if (! window.Livewire?.hook) {
+        if (!window.Livewire?.hook) {
             return
         }
 
@@ -836,13 +1176,13 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
                 return
             }
 
-            if (! event.target?.closest) {
+            if (!event.target?.closest) {
                 return
             }
 
             const trigger = event.target.closest('button, a[href], [role="button"], [wire\\:click]')
 
-            if (! trigger) {
+            if (!trigger) {
                 return
             }
 
@@ -855,7 +1195,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
                 const scope = resolveHoverPreloadScope(trigger)
 
-                if (! scope) {
+                if (!scope) {
                     return
                 }
 
@@ -867,31 +1207,44 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const cleanupClosedModalPendingState = async (event) => {
         const modalId = event?.detail?.id
 
+        // CRITICAL (stacked / nested Filament action modals):
+        // When modal B opens on top of A, Filament commonly drops `fi-modal-open`
+        // from A while A stays mounted and will return when B closes.
+        // Pop ONLY the closed modal from the open stack — never every closed shell.
         if (typeof modalId === 'string' && modalId !== '') {
             const modal = document.getElementById(modalId)
 
             if (modal) {
                 await releasePendingState(modal, { force: true })
+                popModalOpenStack(resolveModalOwnerKey(modal))
+            } else {
+                popModalOpenStack(`modal:${modalId}`)
             }
-        }
+        } else {
+            // No detail.id — pop the topmost stacked modal only (LIFO), mirroring
+            // Filament's nested close order. Do not wipe sibling/parent owners.
+            popModalOpenStack(null)
 
-        for (const modal of document.querySelectorAll('.fi-modal.fff-flex-fields-assets-pending')) {
-            if (! modal.classList.contains('fi-modal-open')) {
-                await releasePendingState(modal, { force: true })
+            for (const modal of document.querySelectorAll('.fi-modal.fff-flex-fields-assets-pending')) {
+                if (!modal.classList.contains('fi-modal-open')) {
+                    await releasePendingState(modal, { force: true })
+                }
             }
         }
 
         for (const stray of document.querySelectorAll('.fff-flex-fields-assets-pending:not(.fi-modal)')) {
             await releasePendingState(stray, { force: true })
         }
+
+        // Drop only assets that neither the page nor any still-retained modal owns.
+        uninstallUnretainedAssets()
     }
 
     const boot = () => {
-        ensureAssets(document)
+        void ensureAssets(document, { pageOnly: true })
 
         document.addEventListener('livewire:navigated', () => {
-            purgeLazyAssets()
-            ensureAssets(document)
+            void handleLivewireNavigated()
         })
 
         window.addEventListener('x-modal-opened', prepareModal)
@@ -914,6 +1267,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         ensureAssets,
         awaitInflightAssetLoads,
         resolvePendingTarget,
+        resolveAssetOwnerKey,
         batchNeedsLoading,
         preloadBatchesIn,
         preloadVisibleBatchesIn,
@@ -929,8 +1283,15 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         registerInjectorHooks,
         isModalPendingTarget,
         cleanupClosedModalPendingState,
+        claimAssetUrls,
+        releaseModalOwnership,
+        collectRetainedAssetUrls,
+        getModalOpenStack: () => [...modalOpenStack],
+        uninstallUnretainedAssets,
         stripInlineEmitAssets,
         purgeLazyAssets,
+        resyncLoadedAssetsFromDocument,
+        handleLivewireNavigated,
         boot,
     }
 }

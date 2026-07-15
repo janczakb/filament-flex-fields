@@ -6,8 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasNumericInputOptions;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Closure;
@@ -24,8 +24,8 @@ class CalculatorField extends Field implements CanHaveNumericState
 {
     use CanBeReadOnly;
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
     use HasNumericInputOptions;
     use HasPlaceholder;
 

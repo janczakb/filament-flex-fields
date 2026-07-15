@@ -6,8 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
-use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Closure;
 use Filament\Actions\Action;
@@ -21,8 +21,8 @@ use InvalidArgumentException;
 class FlexTextInput extends TextInput
 {
     use HasControlSize;
-    use HasFieldRounding;
     use HasFieldFocusOutline;
+    use HasFieldRounding;
 
     protected string $view = 'filament-flex-fields::forms.components.flex-text-input-field';
 
