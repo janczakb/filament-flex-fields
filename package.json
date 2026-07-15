@@ -33,7 +33,7 @@
         "@tiptap/core": "^3.27.3",
         "@tiptap/extension-youtube": "^3.27.3",
         "esbuild": "^0.28.1",
-        "tailwindcss": "^4.1.0"
+        "tailwindcss": "^4.3.2"
     },
     "dependencies": {
         "@gravity-ui/icons": "^2.18.0",
