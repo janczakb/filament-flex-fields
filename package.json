@@ -43,6 +43,6 @@
         "emoji-picker-element": "^1.29.1",
         "libphonenumber-js": "^1.13.8",
         "nouislider": "^15.8.1",
-        "number-flow": "^0.6.1"
+        "number-flow": "^0.6.2"
     }
 }
