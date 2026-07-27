@@ -131,9 +131,31 @@ it('uses flow layout with gaps for compact file lists', function () {
     expect($css)
         ->toContain('--fff-flex-file-upload-list-offset')
         ->toContain('--fff-flex-file-upload-list-gap')
-        ->toContain(".filepond--root[data-style-panel-layout='compact']:has(.filepond--item)")
+        ->toContain('.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout=\'compact\']:has(.filepond--item)')
         ->toContain('gap: var(--fff-flex-file-upload-list-gap)')
-        ->toContain('contain: none !important');
+        ->toContain('contain: none !important')
+        ->toContain('order: -1')
+        ->toContain('aspect-ratio: auto !important')
+        ->toContain('.filepond--action-remove-item');
+});
+
+it('keeps empty compact panels with aspect ratio at dropzone height', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/flex-file-upload.css');
+
+    expect($css)
+        ->toContain(":not([data-style-panel-aspect-ratio='9:14']):not([data-style-panel-aspect-ratio='9:16']):not(:has(.filepond--item))")
+        ->toContain('height: auto !important')
+        ->toContain('position: relative !important')
+        ->toContain('padding: 1.5rem 1rem !important')
+        ->toContain("[data-style-panel-aspect-ratio='9:14']:not(:has(.filepond--item)) .filepond--drop-label");
+});
+
+it('keeps compact image panel overlay copy light', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/flex-file-upload.css');
+
+    expect($css)
+        ->toContain('.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list)')
+        ->toContain('color: rgb(245 245 247) !important');
 });
 
 it('shows skeleton overlays for pending modal and inline morph targets', function () {

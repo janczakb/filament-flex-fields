@@ -103,7 +103,7 @@ final class TranslatableHydrator
     {
         if (SpatieTranslatableIntegration::modelUsesTranslatable($record, $storageAttribute)) {
             $translation = $record->getTranslation($storageAttribute, $locale, false);
-            $component->state(filled($translation) ? (string) $translation : null);
+            $component->state(SpatieTranslatableState::hydrate($translation));
 
             return;
         }

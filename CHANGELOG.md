@@ -5,6 +5,14 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.2] - 2026-07-28
+
+### Fixed
+
+- **Progress Circle** — fixed SVG `stroke-dasharray` rendering issue in Firefox by converting unitless `calc()` ratios to lengths (`* 1px`).
+- **Credit Card** — fixed 3D flip animation in Firefox where the front face would bleed through the back of the card due to an `overflow: hidden` + `backface-visibility` rendering bug, by applying explicit Z-translation to faces.
+- **Rating Column** — fixed issue where SVG stars were stripped by Filament's `HtmlSanitizer` when `->html()` was used; `RatingColumn` now renders using `HtmlString` to bypass sanitization correctly.
+
 ## [2.9.1] - 2026-07-15
 
 ### Fixed

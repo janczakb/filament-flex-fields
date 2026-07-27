@@ -211,6 +211,34 @@ trait FlexFileUploadStorage
         });
     }
 
+    /**
+     * Nested repeater/builder uploads share the parent Eloquent record, but their
+     * field name is not a model attribute. Filament's default implementation calls
+     * getAttribute() eagerly and throws MissingAttributeException when
+     * Model::preventAccessingMissingAttributes() is enabled.
+     *
+     * @return list<string>
+     */
+    public function getOriginalFilePaths(): array
+    {
+        $record = $this->getRecord();
+
+        if (! $record instanceof Model) {
+            return [];
+        }
+
+        $attribute = $this->getName();
+
+        if (! $record->hasAttribute($attribute)) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            Arr::wrap($record->getOriginal($attribute, $record->getAttribute($attribute))),
+            static fn (mixed $path): bool => is_string($path) && filled($path),
+        ));
+    }
+
     public function snapshotBaselineFilePaths(): void
     {
         $this->flexBaselineFilePaths = $this->normalizeFilePaths($this->getRawState());

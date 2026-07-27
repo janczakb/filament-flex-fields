@@ -322,22 +322,93 @@
     @apply flex cursor-pointer items-center justify-center p-4;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) {
+/*
+ * Empty compact panel + panelAspectRatio: FilePond sets an inline height from the
+ * full field width (e.g. 16:9 ≈ 380px), while the dashed drop-label stays ~7rem —
+ * that reads as a huge layout gap. Keep empty landscape panels compact; restore
+ * aspect ratio once a file is present.
+ *
+ * Do NOT collapse portrait ratios (9:14 / 9:16) — mobile uploaders rely on that
+ * reserved height for the empty dropzone frame.
+ *
+ * Drop-label must be position:relative so padding + content define height. Absolute
+ * + inset:0 inside height:auto collapses vertical padding (icon/button flush to edges).
+ */
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio]:not([data-style-panel-aspect-ratio='']):not([data-style-panel-aspect-ratio='9:14']):not([data-style-panel-aspect-ratio='9:16']):not(:has(.filepond--item)) {
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
+    overflow: visible !important;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio]:not([data-style-panel-aspect-ratio='']):not([data-style-panel-aspect-ratio='9:14']):not([data-style-panel-aspect-ratio='9:16']):not(:has(.filepond--item)) .filepond--drop-label {
+    position: relative !important;
+    inset: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: var(--fff-flex-file-upload-drop-min-h);
+    padding: 1.5rem 1rem !important;
+    box-sizing: border-box;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio]:not([data-style-panel-aspect-ratio='']):not([data-style-panel-aspect-ratio='9:14']):not([data-style-panel-aspect-ratio='9:16']):not(:has(.filepond--item)) .filepond--panel-root {
+    display: none !important;
+}
+
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio]:not([data-style-panel-aspect-ratio='']):has(.filepond--item) .filepond--drop-label {
+    inset: 0;
+    height: 100%;
+    min-height: 100%;
+}
+
+/* Portrait empty panels: keep a filled 9:14 frame (mobile upload modal). */
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio='9:14']:not(:has(.filepond--item)) .filepond--drop-label,
+.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'][data-style-panel-aspect-ratio='9:16']:not(:has(.filepond--item)) .filepond--drop-label {
+    inset: 0;
+    height: 100%;
+    min-height: 100%;
+    padding: 1.5rem 1rem;
+    box-sizing: border-box;
+}
+
+/* Compact list mode only — do not override Filament's default single-image compact panel. */
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) {
     display: flex !important;
     flex-direction: column !important;
     gap: var(--fff-flex-file-upload-list-offset) !important;
     height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: auto !important;
     overflow: visible !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--drop-label {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--drop-label {
     position: relative !important;
     inset: auto !important;
     transform: none !important;
     z-index: auto;
+    min-height: 0 !important;
+    height: auto !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--list-scroller {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--drop-label[aria-hidden='true'],
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--drop-label[data-hidden='true'],
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--drop-label:not(:has(label)) {
+    display: none !important;
+    min-height: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    overflow: hidden !important;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--list-scroller {
     position: relative !important;
     inset: auto !important;
     transform: none !important;
@@ -345,9 +416,15 @@
     margin: 0 !important;
     contain: none !important;
     overflow: visible !important;
+    order: -1;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--list {
+.fff-flex-file-upload--compact-list.fff-flex-file-upload__shell:has(.filepond--item) .fff-flex-file-upload__stage,
+.fff-flex-file-upload--compact-list.fff-flex-file-upload__shell:has(.filepond--item) .fff-flex-file-upload__live.fi-fo-file-upload {
+    min-height: 0;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--list {
     @apply flex w-full flex-col;
     position: relative !important;
     inset: auto !important;
@@ -359,7 +436,7 @@
     overflow: visible !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--item {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--item {
     position: relative !important;
     inset: auto !important;
     transform: none !important;
@@ -369,9 +446,9 @@
     margin: 0;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button,
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator,
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--processing-complete-indicator {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button,
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator,
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--processing-complete-indicator {
     position: absolute !important;
     display: inline-flex !important;
     align-items: center !important;
@@ -387,43 +464,48 @@
     transform: translate3d(0, -50%, 0) !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button:hover,
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator:hover {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button:hover,
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator:hover {
     transform: translate3d(0, -50%, 0) scale(1.05) !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button svg,
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--processing-complete-indicator svg {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-action-button svg,
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--processing-complete-indicator svg {
     display: block;
     width: var(--fff-flex-file-upload-item-action-icon-size);
     height: var(--fff-flex-file-upload-item-action-icon-size);
     margin: 0;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator svg {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--progress-indicator svg {
     display: block;
     width: var(--fff-flex-file-upload-item-action-btn-size);
     height: var(--fff-flex-file-upload-item-action-btn-size);
     margin: 0;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-action-button {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-action-button {
     position: absolute !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--item-panel {
-    padding: 0.875rem calc(var(--fff-flex-file-upload-item-action-inset) + var(--fff-flex-file-upload-item-action-btn-size) + var(--fff-flex-file-upload-item-action-gap)) 0.875rem 1rem;
+/* Keep remove + edit visible when both are present on a list row. */
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--action-remove-item {
+    right: calc(var(--fff-flex-file-upload-item-action-inset) + var(--fff-flex-file-upload-item-action-btn-size) + var(--fff-flex-file-upload-item-action-gap)) !important;
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-info,
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-status {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--item-panel {
+    padding: 0.875rem calc(var(--fff-flex-file-upload-item-action-inset) + (var(--fff-flex-file-upload-item-action-btn-size) * 2) + (var(--fff-flex-file-upload-item-action-gap) * 2)) 0.875rem 1rem;
+}
+
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-info,
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-status {
     position: relative !important;
     inset: auto !important;
     transform: none !important;
-    max-width: calc(100% - var(--fff-flex-file-upload-item-action-btn-size) - var(--fff-flex-file-upload-item-action-gap));
+    max-width: calc(100% - (var(--fff-flex-file-upload-item-action-btn-size) * 2) - (var(--fff-flex-file-upload-item-action-gap) * 2));
 }
 
-.fff-flex-file-upload .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-status {
+.fff-flex-file-upload--compact-list .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact']:has(.filepond--item) .filepond--file-status {
     padding-right: var(--fff-flex-file-upload-item-action-gap);
 }
 
@@ -579,6 +661,15 @@
     font-size: calc(var(--fff-flex-file-upload-text-size) * 0.92);
     font-weight: 600;
     line-height: 1.35;
+}
+
+/* Single-image compact panel: overlay copy stays light on the photo / status wash. */
+.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list) .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file,
+.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list) .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-info-main,
+.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list) .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-info-sub,
+.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list) .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-status-main,
+.fff-flex-file-upload:not(.fff-flex-file-upload--compact-list) .fi-fo-file-upload .filepond--root[data-style-panel-layout='compact'] .filepond--file-status-sub {
+    color: rgb(245 245 247) !important;
 }
 
 .fff-flex-file-upload .fi-fo-file-upload .filepond--item[data-filepond-item-state*='error'] .filepond--file-status-main,

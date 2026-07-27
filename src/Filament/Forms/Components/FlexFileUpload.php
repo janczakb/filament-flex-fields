@@ -21,7 +21,10 @@ class FlexFileUpload extends FileUpload
     {
         parent::setUp();
 
-        $this->removeUploadedFileButtonPosition('right');
+        // Keep remove visible when image editor also adds an edit action.
+        $this->removeUploadedFileButtonPosition(
+            fn (FileUpload $component): string => $component->hasImageEditor() ? 'left' : 'right',
+        );
         $this->registerFlexFileUploadHooks();
     }
 

@@ -173,7 +173,7 @@
 
 .fff-progress-circle__fill {
     stroke: var(--fff-progress-circle-accent);
-    stroke-dasharray: calc(var(--fff-progress-circle-fill-ratio) * var(--fff-progress-circle-arc-length)) var(--fff-progress-circle-circumference);
+    stroke-dasharray: calc(var(--fff-progress-circle-fill-ratio) * var(--fff-progress-circle-arc-length) * 1px) calc(var(--fff-progress-circle-circumference) * 1px);
     transition: --fff-progress-circle-fill-ratio var(--fff-progress-fill-duration) ease;
 }
 

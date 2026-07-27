@@ -18,6 +18,12 @@ it('defaults remove uploaded file button to the right', function () {
     expect($field->getRemoveUploadedFileButtonPosition())->toBe('right');
 });
 
+it('moves remove button left when image editor is enabled so delete stays visible', function () {
+    $field = FlexImageUpload::make('photo')->imageEditor();
+
+    expect($field->getRemoveUploadedFileButtonPosition())->toBe('left');
+});
+
 it('applies mime presets on flex file upload fields', function () {
     $documents = FlexFileUpload::make('attachment')->documentsOnly();
     $images = FlexImageUpload::make('photo')->imagesOnly();
@@ -67,6 +73,34 @@ it('exposes metadata storage path configuration', function () {
         ->storeMetadataIn('attachment_meta');
 
     expect($field->getStoreMetadataInPath())->toBe('attachment_meta');
+});
+
+it('skips getOriginalFilePaths when the field name is not a model attribute', function () {
+    Model::preventAccessingMissingAttributes();
+
+    try {
+        $record = new class extends Model
+        {
+            protected $table = 'posts';
+
+            public $exists = true;
+
+            protected $attributes = [
+                'id' => 1,
+                'title' => 'Nested uploads',
+            ];
+        };
+
+        $record->syncOriginal();
+
+        $nestedField = FlexFileUpload::make('image_desktop')->model($record);
+        $ownedField = FlexFileUpload::make('title')->model($record);
+
+        expect($nestedField->getOriginalFilePaths())->toBe([])
+            ->and($ownedField->getOriginalFilePaths())->toBe(['Nested uploads']);
+    } finally {
+        Model::preventAccessingMissingAttributes(false);
+    }
 });
 
 it('applies recommended defaults for file and image uploads', function () {
