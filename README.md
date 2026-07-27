@@ -830,16 +830,16 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 25.4 (gzip 5.5) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 185 (gzip 43.3) | 32.2 (gzip 6.4) + deps 68.2 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.5 (gzip 5.9) + deps 68.2 |
-| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.1 (gzip 7.3) + deps 22.4 |
-| TagsField | 3.1 (gzip 1.1) | 23.3 (gzip 5.2) + deps 65.3 |
+| core (always) | — | 25.5 (gzip 5.5) |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 185 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.3 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.5 (gzip 5.9) + deps 68.3 |
+| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.1 (gzip 7.3) + deps 22.5 |
+| TagsField | 3.1 (gzip 1.1) | 23.4 (gzip 5.2) + deps 65.4 |
 | RatingField | 0.7 (gzip 0.3) | 25.4 (gzip 5.6) |
-| SwitchField | Alpine inline | 43.9 (gzip 7.6) |
-| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.3) + deps 159.6 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 29.7 (gzip 6.5) + deps 52.5 |
-| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.1 (gzip 12.7) + deps 28.1 |
+| SwitchField | Alpine inline | 32.5 (gzip 6.2) |
+| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.4) + deps 159.8 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 29.8 (gzip 6.5) + deps 52.6 |
+| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.2 (gzip 12.7) + deps 28.2 |
 
 Sample bundles (10 of **59** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->

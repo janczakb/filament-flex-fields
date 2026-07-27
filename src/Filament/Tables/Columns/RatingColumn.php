@@ -36,9 +36,7 @@ class RatingColumn extends TextColumn
 
         FlexFieldStylesheetQueue::enqueueFor('rating-column');
 
-        $this->html();
-
-        $this->formatStateUsing(fn (mixed $state, RatingColumn $column): string => $column->formatRatingDisplay($state));
+        $this->formatStateUsing(fn (mixed $state, RatingColumn $column): Htmlable => new \Illuminate\Support\HtmlString($column->formatRatingDisplay($state)));
     }
 
     public function stars(int|Closure $count): static

@@ -50,15 +50,9 @@ final class TranslatableFieldFactory
         TranslatableHydrator::applyToField($field, $storageAttribute, $locale);
 
         if ($spatieTranslatable) {
-            $field->dehydrateStateUsing(function (mixed $state): ?string {
-                if (! is_string($state)) {
-                    return null;
-                }
-
-                $trimmed = trim($state);
-
-                return $trimmed === '' ? null : $trimmed;
-            });
+            $field->dehydrateStateUsing(
+                fn (mixed $state): mixed => SpatieTranslatableState::dehydrate($state),
+            );
         }
 
         return $field;

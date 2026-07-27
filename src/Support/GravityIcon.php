@@ -199,6 +199,18 @@ final class GravityIcon
 
     public const string ArrowUp = 'gravityui-arrow-up';
 
+    public const string ArrowDown = 'gravityui-arrow-down';
+
+    public const string ArrowUpLeft = 'gravityui-arrow-up-left';
+
+    public const string ArrowUpRight = 'gravityui-arrow-up-right';
+
+    public const string ArrowDownLeft = 'gravityui-arrow-down-left';
+
+    public const string ArrowDownRight = 'gravityui-arrow-down-right';
+
+    public const string SquareDashedCircle = 'gravityui-square-dashed-circle';
+
     public const string FilePlus = 'gravityui-file-plus';
 
     public const string TrashBin = 'gravityui-trash-bin';
