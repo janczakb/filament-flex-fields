@@ -25,6 +25,32 @@ final class IconCatalogIndex
         private readonly array $setSummaries,
     ) {}
 
+    /**
+     * @return array{entries: list<IconEntry>, entriesBySet: array<string, list<IconEntry>>, allowedLookup: array<string, true>, setSummaries: list<SetSummary>}
+     */
+    public function toArray(): array
+    {
+        return [
+            'entries' => $this->entries,
+            'entriesBySet' => $this->entriesBySet,
+            'allowedLookup' => $this->allowedLookup,
+            'setSummaries' => $this->setSummaries,
+        ];
+    }
+
+    /**
+     * @param  array{entries: list<IconEntry>, entriesBySet: array<string, list<IconEntry>>, allowedLookup: array<string, true>, setSummaries: list<SetSummary>}  $data
+     */
+    public static function fromArray(array $data): self
+    {
+        return new self(
+            $data['entries'],
+            $data['entriesBySet'],
+            $data['allowedLookup'],
+            $data['setSummaries']
+        );
+    }
+
     public function isAllowed(string $icon): bool
     {
         return isset($this->allowedLookup[trim($icon)]);

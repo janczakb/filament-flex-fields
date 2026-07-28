@@ -5,6 +5,12 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.3] - 2026-07-28
+
+### Fixed
+
+- **Icon Picker Field** — fixed a `__PHP_Incomplete_Class` error occurring upon cache unserialization by refactoring `IconCatalogResolver` to cache native arrays instead of class objects, bypassing Laravel's strict cache object security restrictions.
+
 ## [2.9.2] - 2026-07-28
 
 ### Fixed

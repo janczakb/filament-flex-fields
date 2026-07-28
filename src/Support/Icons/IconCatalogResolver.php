@@ -38,12 +38,14 @@ class IconCatalogResolver
             $limitPerSet,
         ], JSON_THROW_ON_ERROR));
 
-        $cacheKey = 'fff.icon-index.'.$fingerprint;
+        $cacheKey = 'fff.icon-index.v3.'.$fingerprint;
         $ttlDays = (int) config('filament-flex-fields.ui.icon_picker_index_cache_days', 7);
 
-        return Cache::remember($cacheKey, now()->addDays(max(1, $ttlDays)), function () use ($catalog, $whitelist, $exclude, $limitPerSet): IconCatalogIndex {
-            return $this->buildIndex($catalog, $whitelist, $exclude, $limitPerSet);
+        $data = Cache::remember($cacheKey, now()->addDays(max(1, $ttlDays)), function () use ($catalog, $whitelist, $exclude, $limitPerSet): array {
+            return $this->buildIndex($catalog, $whitelist, $exclude, $limitPerSet)->toArray();
         });
+
+        return IconCatalogIndex::fromArray($data);
     }
 
     /**
@@ -334,7 +336,7 @@ class IconCatalogResolver
             return [];
         }
 
-        $cacheKey = 'fff.icon-catalog.'.md5(implode('|', $setNames));
+        $cacheKey = 'fff.icon-catalog.v2.'.md5(implode('|', $setNames));
         $ttlDays = (int) config('filament-flex-fields.ui.icon_picker_catalog_cache_days', 7);
 
         return Cache::remember($cacheKey, now()->addDays(max(1, $ttlDays)), function () use ($setNames): array {
