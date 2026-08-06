@@ -86,7 +86,27 @@ All methods accept `Closure` unless noted.
 | `countries(array $countries)` | Setup | `null` | Restrict results to ISO country codes |
 | `streetAddressesOnly(bool $cond)` | Setup | `false` | Restrict to full street addresses only |
 | `searchTypes(array $types)` | Setup | `null` | Limit results to specific place types |
+| `language(string\|null $language)` | Setup | config / locale | Preferred results language (`null` = auto) |
+| `minSearchLength(int $length)` | Setup | `2` | Characters before search fires |
+| `searchDebounce(int $ms)` | Setup | `350` | Debounce after typing |
 | `readOnly(bool $condition)` | Setup | `false` | Disable map interaction |
+
+> **POI note:** `searchTypes([MapboxSearchType::Poi])` returns general Mapbox points of interest — not restaurant/cafe category filters (Geocoding v5 limitation).
+
+---
+
+### FlexField / Flex Forms schema config
+
+Shared with [AddressAutocompleteField](/docs/addressautocompletefield) via `AppliesGeocodingStudioConfig` / `GeocodingSearchScope`:
+
+| Config key | Behaviour |
+|------------|-----------|
+| `layout` | Studio: `map` (default) or `input` (switches block to address autocomplete) |
+| `search_scope` | Preset: `all`, `address`, `cities`, `regions`, `countries`, `admin`, `poi`, `custom` |
+| `search_area` + `countries` | Global vs ISO whitelist |
+| `language_mode` + `language` | Auto locale vs manual code |
+| `default_center` / `default_zoom` | Map-only defaults |
+| `search_types` / `street_addresses_only` | Applied when `search_scope=custom` |
 
 ---
 

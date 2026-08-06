@@ -33,6 +33,40 @@ it('exposes track slider configuration via fluent api', function () {
         ->and($field->isNumeric())->toBeTrue();
 });
 
+it('applies suffix and show_output from track slider configurator', function () {
+    $withSuffix = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+        ->configureTrackSliderField(TrackSlider::make('pct'), [
+            'min' => 0,
+            'max' => 100,
+            'step' => 1,
+            'size' => 'md',
+            'variant' => 'default',
+            'suffix' => '%',
+            'show_output' => true,
+        ]);
+
+    $withTrackLabel = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+        ->configureTrackSliderField(TrackSlider::make('spacing'), [
+            'size' => 'md',
+            'variant' => 'default',
+            'track_label' => 'Spacing',
+            'show_output' => true,
+        ]);
+
+    $hiddenOutput = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+        ->configureTrackSliderField(TrackSlider::make('volume'), [
+            'size' => 'md',
+            'variant' => 'default',
+            'show_output' => false,
+        ]);
+
+    expect($withSuffix->getDisplaySuffix())->toBe('%')
+        ->and($withSuffix->shouldShowOutput())->toBeTrue()
+        ->and($withTrackLabel->getTrackLabel())->toBe('Spacing')
+        ->and($hiddenOutput->shouldShowOutput())->toBeFalse()
+        ->and($hiddenOutput->getDisplaySuffix())->toBeNull();
+});
+
 it('supports an optional track label caption inside the bar', function () {
     $field = TrackSlider::make('spacing')
         ->label('Spacing field')

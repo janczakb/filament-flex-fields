@@ -1,13 +1,13 @@
 /* FlexRichEditor — 1:1 shell around Filament rich-editor Alpine runtime */
 
 .fff-rich-editor {
-    @apply flex w-full flex-col overflow-hidden;
-    border-radius: var(--fff-rich-editor-radius);
+    /* Outer stays visible so focus outline is not clipped by a parent overflow. */
+    @apply flex w-full flex-col overflow-visible;
+    border-radius: var(--fff-rich-editor-radius, var(--fff-global-radius, 0.75rem));
     --fff-rich-editor-tool-size: 2rem;
     --fff-rich-editor-icon-size: 1.25rem;
     --fff-rich-editor-content-p: 1rem;
     --fff-rich-editor-min-h: 12rem;
-    --fff-rich-editor-radius: 1rem;
     --fff-rich-editor-tooltip-z: 20;
 }
 
@@ -16,7 +16,6 @@
     --fff-rich-editor-icon-size: 1rem;
     --fff-rich-editor-content-p: 0.75rem;
     --fff-rich-editor-min-h: 10rem;
-    --fff-rich-editor-radius: 0.875rem;
 }
 
 .fff-rich-editor--md {
@@ -24,7 +23,6 @@
     --fff-rich-editor-icon-size: 1.25rem;
     --fff-rich-editor-content-p: 1rem;
     --fff-rich-editor-min-h: 12rem;
-    --fff-rich-editor-radius: 1rem;
 }
 
 .fff-rich-editor--lg {
@@ -32,7 +30,6 @@
     --fff-rich-editor-icon-size: 1.375rem;
     --fff-rich-editor-content-p: 1.125rem;
     --fff-rich-editor-min-h: 14rem;
-    --fff-rich-editor-radius: 1.125rem;
 }
 
 .fff-rich-editor-field--secondary .fff-rich-editor,
@@ -63,23 +60,26 @@
 
 .fff-rich-editor__root {
     @apply relative isolate flex w-full flex-col;
+    /* Always clip content to the configurable radius — never drop this on focus. */
     overflow: hidden;
     border: var(--fff-rich-editor-border-width, var(--fff-field-secondary-border-width, 1px)) solid var(--fff-rich-editor-border, var(--fff-field-secondary-border));
-    border-radius: inherit;
+    /* Explicit radius: Alpine mount wrappers sit between .fff-rich-editor and __root, so inherit is 0. */
+    border-radius: var(--fff-rich-editor-radius, var(--fff-global-radius, 0.75rem));
     background: var(--fff-rich-editor-bg);
     box-shadow: var(--fff-field-shadow, none);
-    transition:
-        border-color 150ms ease,
-        box-shadow 150ms ease;
+    transition: border-color 150ms ease;
 }
 
 .fff-rich-editor-field.has-focus-outline .fff-rich-editor__root:focus-within {
-    border: var(--fff-field-border-width, 1px) solid var(--fff-field-focus-border);
-    box-shadow: 0 0 0 var(--fff-field-focus-ring-width, 3px) var(--fff-rich-editor-focus-ring);
+    /* Same pattern as Flex Textarea / Flex Text Input: never change border-width on focus. */
+    border-color: var(--fff-field-focus-border);
+    box-shadow: var(--fff-field-shadow, none);
+    outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
+    outline-offset: 0;
 }
 
 .fff-rich-editor.is-invalid .fff-rich-editor__root {
-    border: var(--fff-field-border-width, 1px) solid var(--danger-500, rgb(239 68 68));
+    border-color: var(--danger-500, rgb(239 68 68));
 }
 
 .fff-rich-editor.is-disabled .fff-rich-editor__root {

@@ -100,3 +100,17 @@ it('server renders segment selected state before alpine hydrates', function () {
         ->toContain('.fff-segment-track:not(.is-hydrated) .fff-segment-item[data-segment-selected=\'true\']')
         ->toContain('.fff-segment-track.is-hydrated .fff-segment-item[data-segment-selected=\'true\']');
 });
+
+it('hydrates file-upload source tabs with the same segment indicator flags as segment-tabs', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/flex-file-upload-source-tabs.blade.php');
+    $behavior = file_get_contents(__DIR__.'/../../resources/js/support/flex-file-upload-sources.js');
+
+    expect($blade)
+        ->toContain("'is-hydrated': indicatorHydrated")
+        ->toContain("'is-animated': indicatorAnimated");
+
+    expect($behavior)
+        ->toContain('indicatorHydrated: false')
+        ->toContain('this.indicatorHydrated = true')
+        ->toContain('enableIndicatorAnimation()');
+});

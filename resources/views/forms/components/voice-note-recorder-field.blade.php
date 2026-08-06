@@ -44,6 +44,9 @@
                 readOnly: @js($isDisabled || $isReadOnly),
                 labels: {
                     uploadingOnSubmit: @js(__('filament-flex-fields::default.audio.uploading_on_submit')),
+                    deleteConfirm: @js(__('filament-flex-fields::default.audio.delete_confirm')),
+                    deleteFailed: @js(__('filament-flex-fields::default.audio.delete_failed')),
+                    uploadFailed: @js(__('filament-flex-fields::default.audio.upload_failed')),
                 },
             })"
             x-init="init()"

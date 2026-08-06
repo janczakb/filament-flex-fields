@@ -551,6 +551,13 @@
     transform-origin: 0 0;
 }
 
+/* Fill theme / Filament noUi CSS animates origins on tap; that desyncs our Alpine thumb chrome. */
+.fff-flex-slider__host .noUi-origin,
+.fff-flex-slider__host.noUi-state-tap .noUi-origin,
+.fff-flex-slider__host.noUi-state-tap .noUi-connect {
+    transition: none !important;
+}
+
 .fff-flex-slider__host .noUi-connects,
 .fff-flex-slider__host .noUi-connect {
     visibility: hidden;

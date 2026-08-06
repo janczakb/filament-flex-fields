@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
+use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ColorSwatchField;
+use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Playground\ColorSwatchPlayground;
@@ -105,4 +108,29 @@ it('uses gravity ui palette as the default section icon when a section label is 
         ->and(ColorSwatchField::make('accent_color')->sectionLabel('Predefined')->getSectionIcon())->toBe(GravityIcon::Palette)
         ->and(ColorSwatchField::make('accent_color')->sectionLabel('Predefined')->getDefaultSectionIcon())->toBe(GravityIcon::Palette)
         ->and(ColorSwatchField::make('accent_color')->sectionLabel('Predefined')->sectionIcon(Heroicon::Swatch)->getSectionIcon())->toBe(Heroicon::Swatch);
+});
+
+it('builds color field type as a color swatch from flex field definition', function () {
+    $builder = app(FlexFieldFormBuilder::class);
+
+    $field = $builder->makeComponent(new FlexFieldDefinition(
+        slug: 'accent',
+        label: 'Accent',
+        type: FieldType::Color,
+        config: [
+            'colors' => ['#3b82f6', '#22c55e'],
+            'size' => 'sm',
+            'section_label' => 'Predefined',
+            'tooltips' => true,
+        ],
+    ));
+
+    expect($field)->toBeInstanceOf(ColorSwatchField::class)
+        ->and($field->getColors())->toBe([
+            '#3b82f6' => '#3b82f6',
+            '#22c55e' => '#22c55e',
+        ])
+        ->and($field->getSize())->toBe('sm')
+        ->and($field->getSectionLabel())->toBe('Predefined')
+        ->and($field->hasTooltips())->toBeTrue();
 });

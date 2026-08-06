@@ -2,6 +2,14 @@
 @import "tailwindcss/utilities";
 @import "./base.css";
 
+/*
+ * Match Filament's class-based dark mode strategy. Without this, `dark:*`
+ * utilities fall back to Tailwind v4's default `@media (prefers-color-scheme:
+ * dark)` variant, which fires from the OS/browser setting instead of the
+ * `.dark` class Filament toggles — leaking dark-mode styles into light mode.
+ */
+@variant dark (&:where(.dark, .dark *));
+
 @source "../../src/**/*.php";
 @source "../views/**/*.blade.php";
 

@@ -379,8 +379,10 @@ class NpsField extends Field
             return $images[$value];
         }
 
-        if (in_array($value, [0, 1, 2, 3, 4], true)) {
-            return FlexFieldAssets::assetUrl('nps-field/emojis/'.$value.'.webp');
+        $normalized = is_numeric($value) ? (int) $value : null;
+
+        if ($normalized !== null && in_array($normalized, [0, 1, 2, 3, 4], true)) {
+            return FlexFieldAssets::assetUrl('nps-field/emojis/'.$normalized.'.webp');
         }
 
         return null;

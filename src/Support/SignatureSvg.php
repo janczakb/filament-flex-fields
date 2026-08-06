@@ -47,7 +47,8 @@ class SignatureSvg
             return false;
         }
 
-        if (preg_match('/<(?!svg\b|path\b|\/svg>|\/path>)[a-z]/i', $svg)) {
+        // Exported signatures may include a solid background <rect>; only svg/path/rect markup is allowed.
+        if (preg_match('/<(?!\/?(?:svg|path|rect)\b)[a-z]/i', $svg)) {
             return false;
         }
 

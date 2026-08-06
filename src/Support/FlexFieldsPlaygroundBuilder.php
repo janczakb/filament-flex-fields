@@ -48,6 +48,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\TranslatableFieldsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserSelectPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\VideoFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\VoiceNoteRecorderFieldPlayground;
 use Filament\Schemas\Components\Component;
 
 class FlexFieldsPlaygroundBuilder
@@ -84,6 +85,7 @@ class FlexFieldsPlaygroundBuilder
         protected FlexFileUploadPlayground $flexFileUploadPlayground = new FlexFileUploadPlayground,
         protected VideoFieldPlayground $videoFieldPlayground = new VideoFieldPlayground,
         protected AudioFieldPlayground $audioFieldPlayground = new AudioFieldPlayground,
+        protected VoiceNoteRecorderFieldPlayground $voiceNoteRecorderFieldPlayground = new VoiceNoteRecorderFieldPlayground,
         protected MapPickerPlayground $mapPickerPlayground = new MapPickerPlayground,
         protected AddressAutocompletePlayground $addressAutocompletePlayground = new AddressAutocompletePlayground,
         protected SlugFieldPlayground $slugFieldPlayground = new SlugFieldPlayground,
@@ -139,6 +141,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->flexFileUploadPlayground->components(),
             ...$this->videoFieldPlayground->components(),
             ...$this->audioFieldPlayground->components(),
+            ...$this->voiceNoteRecorderFieldPlayground->components(),
             ...$this->mapPickerPlayground->components(),
             ...$this->addressAutocompletePlayground->components(),
             ...$this->signatureFieldPlayground->components(),
@@ -189,6 +192,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->flexFileUploadPlayground->defaultState(),
             ...$this->videoFieldPlayground->defaultState(),
             ...$this->audioFieldPlayground->defaultState(),
+            ...$this->voiceNoteRecorderFieldPlayground->defaultState(),
             ...$this->mapPickerPlayground->defaultState(),
             ...$this->addressAutocompletePlayground->defaultState(),
             ...$this->signatureFieldPlayground->defaultState(),

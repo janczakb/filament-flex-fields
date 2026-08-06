@@ -78,6 +78,7 @@
                     aria-valuemin="0"
                     aria-valuemax="100"
                     aria-label="{{ __('filament-flex-fields::default.audio.progress') }}"
+                    style="--fff-audio-progress: 0"
                 >
                     <div class="fff-audio-field__waveform-skeleton" aria-hidden="true">
                         @for ($skeletonIndex = 0; $skeletonIndex < 40; $skeletonIndex++)
@@ -89,13 +90,29 @@
                         <span class="fff-audio-field__waveform-skeleton-shimmer"></span>
                     </div>
 
-                    <template x-for="(peak, index) in displayWaveform" :key="index">
-                        <span
-                            class="fff-audio-field__bar"
-                            x-bind:style="'height: ' + peak + '%; --fff-audio-bar-i: ' + index"
-                            x-bind:class="{ 'is-played': barIsPlayed(index) }"
-                        ></span>
-                    </template>
+                    <div class="fff-audio-field__bars" aria-hidden="true">
+                        <template x-for="(peak, index) in displayWaveform" :key="'base-' + index">
+                            <span
+                                class="fff-audio-field__bar"
+                                x-bind:style="'height: ' + peak + '%; --fff-audio-bar-i: ' + index"
+                            ></span>
+                        </template>
+                    </div>
+
+                    <div class="fff-audio-field__bars fff-audio-field__bars--played" aria-hidden="true">
+                        <template x-for="(peak, index) in displayWaveform" :key="'played-' + index">
+                            <span
+                                class="fff-audio-field__bar fff-audio-field__bar--accent"
+                                x-bind:style="'height: ' + peak + '%; --fff-audio-bar-i: ' + index"
+                            ></span>
+                        </template>
+                    </div>
+
+                    <span
+                        class="fff-audio-field__playhead"
+                        aria-hidden="true"
+                        x-bind:class="{ 'is-visible': playheadVisible }"
+                    ></span>
                 </div>
 
                 <span class="fff-audio-field__time" x-text="timeLabel">0:00</span>

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class SelectFieldConfigurator implements FieldConfigurator
 {
+    use NormalizesStudioChoiceOptions;
+
     public function configure(Component $field, array $config): Component
     {
         assert($field instanceof SelectField);
@@ -20,10 +23,15 @@ final class SelectFieldConfigurator implements FieldConfigurator
     public function configureSelectField(SelectField $field, array $config): SelectField
     {
         $field = $field
-            ->options($config['options'] ?? [])
+            // Studio keeps list rows `{ value, label }`; SelectField expects `value => label`.
+            ->options($this->normalizeStudioLabeledList($config['options'] ?? []))
             ->size($config['size'] ?? config('filament-flex-fields.ui.select_size', 'md'))
             ->variant($config['variant'] ?? config('filament-flex-fields.ui.select_variant', 'bordered'))
             ->chipColor($config['chip_color'] ?? 'neutral');
+
+        if (array_key_exists('multiple', $config)) {
+            $field->multiple((bool) $config['multiple']);
+        }
 
         if (isset($config['color'])) {
             $field->color($config['color']);
@@ -63,6 +71,10 @@ final class SelectFieldConfigurator implements FieldConfigurator
 
         if (isset($config['clear_icon'])) {
             $field->clearIcon($config['clear_icon']);
+        }
+
+        if (array_key_exists('disabled', $config)) {
+            $field->disabled((bool) $config['disabled']);
         }
 
         return $field;

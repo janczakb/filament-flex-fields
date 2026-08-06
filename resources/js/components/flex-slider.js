@@ -1,4 +1,5 @@
 import noUiSlider from 'nouislider'
+import { resolveFlexSliderHandleVisualOffset } from '../support/flex-slider-handle-offset.js'
 
 export default function flexSliderFormComponent({
     arePipsStepped,
@@ -233,11 +234,23 @@ export default function flexSliderFormComponent({
         },
 
         normalizeValues(raw) {
+            const expectedHandles = Math.max(this.initialNormalizedValues.length, 1)
+
             if (Array.isArray(raw)) {
-                return raw.map((value) => this.normalizeNumeric(value))
+                const values = raw.map((value) => this.normalizeNumeric(value))
+
+                if (expectedHandles > 1 && values.length < 2) {
+                    return [...this.initialNormalizedValues]
+                }
+
+                return values
             }
 
             if (raw === null || raw === undefined || raw === '') {
+                return [...this.initialNormalizedValues]
+            }
+
+            if (expectedHandles > 1) {
                 return [...this.initialNormalizedValues]
             }
 
@@ -363,10 +376,12 @@ export default function flexSliderFormComponent({
 
             handles.forEach((handle, index) => {
                 const position = (positions[index] ?? 0) / 100
-                const offset = direction * (
-                    (metrics.padding * (1 - (2 * position)))
-                    - ((metrics.thumbSize / 2) * position)
-                )
+                const offset = resolveFlexSliderHandleVisualOffset({
+                    position,
+                    padding: metrics.padding,
+                    thumbSize: metrics.thumbSize,
+                    direction,
+                })
 
                 handle.style.setProperty('--fff-flex-slider-handle-offset', `${offset}px`)
             })

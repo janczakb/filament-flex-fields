@@ -58,6 +58,35 @@ it('uses root css tokens for icon column label colors in dark mode', function ()
         ->not->toContain('dark:text-white');
 });
 
+it('declares filament\'s class-based dark variant on every tailwind css entry point', function () {
+    // Regression: without `@variant dark (&:where(.dark, .dark *));`, Tailwind
+    // v4 defaults `dark:*` utilities to `@media (prefers-color-scheme: dark)`,
+    // which fires from the OS setting instead of Filament's `.dark` class and
+    // leaks dark-mode styles (e.g. `dark:text-white`) into light mode.
+    $entryPoints = [
+        'core.css' => __DIR__.'/../../resources/css/core.css',
+        'playground.css' => __DIR__.'/../../resources/css/playground.css',
+        'utilities-baseline.css' => __DIR__.'/../../resources/css/utilities-baseline.css',
+    ];
+
+    foreach ($entryPoints as $label => $path) {
+        expect(file_get_contents($path))
+            ->toContain('@variant dark (&:where(.dark, .dark *));');
+    }
+});
+
+it('compiles dark utilities to a class selector instead of a media query', function () {
+    $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
+    $playgroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground.css');
+    $videoFieldCss = file_get_contents(__DIR__.'/../../resources/dist/css/video-field.css');
+
+    foreach ([$coreCss, $playgroundCss, $videoFieldCss] as $css) {
+        expect($css)->not->toContain('@media(prefers-color-scheme:dark)');
+    }
+
+    expect($coreCss)->toContain(':where(.dark,.dark *)');
+});
+
 it('keeps hold confirm action styles in the lazy bundle', function () {
     $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
     $holdConfirmCss = file_get_contents(__DIR__.'/../../resources/dist/css/hold-confirm-action.css');

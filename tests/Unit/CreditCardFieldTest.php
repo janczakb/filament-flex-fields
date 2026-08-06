@@ -110,6 +110,19 @@ it('rejects unsupported credit card variants', function () {
     CreditCardField::make('payment')->variant('ghost')->getVariant();
 })->throws(InvalidArgumentException::class);
 
+it('coerces unsupported studio variants to midnight when configuring the field', function (): void {
+    $field = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\CreditCardFieldConfigurator)
+        ->configureCreditCardField(CreditCardField::make('payment'), [
+            'variant' => 'default',
+            'input_variant' => 'ghost',
+            'size' => 'huge',
+        ]);
+
+    expect($field->getVariant())->toBe('midnight')
+        ->and($field->getInputVariant())->toBe('primary')
+        ->and($field->getSize())->toBe('md');
+});
+
 it('includes wrapper classes for size card variant and input variant', function () {
     $field = CreditCardField::make('payment')
         ->size('sm')

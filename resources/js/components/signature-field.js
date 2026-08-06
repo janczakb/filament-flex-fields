@@ -342,6 +342,7 @@ export default function signatureFieldFormComponent({
     downloadFormat,
     downloadFilename,
     webpQuality,
+    storedSvg = null,
     labels,
 }) {
     return {
@@ -361,6 +362,7 @@ export default function signatureFieldFormComponent({
         downloadFormat,
         downloadFilename,
         webpQuality,
+        storedSvg,
         labels,
         strokes: [],
         currentStroke: null,
@@ -407,7 +409,25 @@ export default function signatureFieldFormComponent({
         },
 
         hydrateFromState() {
-            this.strokes = svgToStrokes(this.state, this.penWidth)
+            if (this.isStoredFileReference(this.state)) {
+                if (this.storedSvg) {
+                    this.strokes = svgToStrokes(this.storedSvg, this.penWidth)
+                }
+
+                // Tokenized mid-session without remount: keep current strokes so the pad
+                // does not blank while Livewire state flips SVG → ffstage:.
+                return
+            }
+
+            this.strokes = svgToStrokes(this.state || '', this.penWidth)
+        },
+
+        isStoredFileReference(value) {
+            return typeof value === 'string' && (
+                value.startsWith('ffstage:')
+                || value.startsWith('ffmedia:')
+                || (value.includes('flex-forms/submissions/') && ! value.includes('<'))
+            )
         },
 
         setupCanvasObservers() {

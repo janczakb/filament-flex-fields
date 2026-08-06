@@ -207,6 +207,23 @@ export default function flexTextInputFormComponent({
 
             input.focus()
 
+            this.setCaretToEnd(input)
+        },
+
+        canSetSelection(input = this.$refs.input) {
+            if (! input || typeof input.setSelectionRange !== 'function') {
+                return false
+            }
+
+            // Native number inputs throw InvalidStateError for selection APIs in most browsers.
+            return input.type !== 'number'
+        },
+
+        setCaretToEnd(input = this.$refs.input) {
+            if (! this.canSetSelection(input)) {
+                return
+            }
+
             const length = input.value.length
 
             if (length > 0) {
@@ -236,6 +253,12 @@ export default function flexTextInputFormComponent({
             })
 
             input.addEventListener('focus', () => {
+                if (! this.canSetSelection(input)) {
+                    this.focusFromPointer = false
+
+                    return
+                }
+
                 const length = input.value.length
 
                 if (length === 0) {
@@ -247,7 +270,7 @@ export default function flexTextInputFormComponent({
                         return
                     }
 
-                    input.setSelectionRange(length, length)
+                    this.setCaretToEnd(input)
                 }
 
                 if (this.focusFromPointer) {
@@ -281,8 +304,7 @@ export default function flexTextInputFormComponent({
                 input.value = nextState
 
                 if (document.activeElement === input && nextState.length > 0) {
-                    const length = nextState.length
-                    input.setSelectionRange(length, length)
+                    this.setCaretToEnd(input)
                 }
             }
         },
@@ -363,11 +385,7 @@ export default function flexTextInputFormComponent({
                     return
                 }
 
-                const length = input.value.length
-
-                if (length > 0) {
-                    input.setSelectionRange(length, length)
-                }
+                this.setCaretToEnd(input)
             })
 
             this.$watch('state', () => {
@@ -397,13 +415,10 @@ export default function flexTextInputFormComponent({
                 return this.speechDictationLanguage
             }
 
-            const browserLanguage = navigator.language ?? ''
-
-            if (browserLanguage.toLowerCase().startsWith('pl')) {
-                return 'pl-PL'
-            }
-
-            return browserLanguage || 'pl-PL'
+            // Auto: browser locale (SpeechRecognition uses UA default when lang is unset).
+            return navigator.language
+                || (Array.isArray(navigator.languages) ? navigator.languages[0] : null)
+                || null
         },
 
         buildRecognition() {
@@ -418,7 +433,12 @@ export default function flexTextInputFormComponent({
             const recognition = new SpeechRecognition()
             recognition.continuous = true
             recognition.interimResults = true
-            recognition.lang = this.resolveDictationLanguage()
+
+            const language = this.resolveDictationLanguage()
+
+            if (language) {
+                recognition.lang = language
+            }
 
             recognition.onresult = (event) => {
                 this.handleDictationResult(event)
@@ -746,6 +766,12 @@ export default function flexTextInputFormComponent({
             }
 
             this.$nextTick(() => {
+                if (! this.canSetSelection(input)) {
+                    input.focus()
+
+                    return
+                }
+
                 const cursor = Math.min(start + text.length, nextState.length)
                 input.focus()
                 input.setSelectionRange(cursor, cursor)

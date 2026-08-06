@@ -73,13 +73,24 @@
                 ])
         "
     >
+        {{--
+            wire:ignore must wrap lazy-alpine-mount, not only the Alpine root.
+            Clearing the selection leaves a deferred $entangle(null) that rides
+            along with the first getIconPickerSearchResults call. That request
+            is not fully renderless (property update is uncovered), so Livewire
+            remorphs the shell. If eager was tied to hasInitialSelection, the
+            mount flips eager → lazy mid-open, Alpine is destroyed, and the
+            panel appears to open then instantly close (#36).
+        --}}
+        <div
+            wire:ignore
+            wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$field->getVariant(), $layout, $field->getGridColumns(), $field->getResolvedSetNames()])), 0, 64) }}"
+        >
         <x-filament-flex-fields::lazy-alpine-mount
             :eager="$hasInitialSelection"
             :mount-immediately="$isDisabled || $isReadOnly || $hasInitialSelection"
         >
         <div
-            wire:ignore
-            wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$field->getVariant(), $layout, $field->getGridColumns(), $field->getResolvedSetNames()])), 0, 64) }}"
             x-load
             x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('icon-picker-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
             x-data="iconPickerFieldFormComponent({
@@ -196,5 +207,6 @@
             </template>
         </div>
         </x-filament-flex-fields::lazy-alpine-mount>
+        </div>
     </x-filament::input.wrapper>
 </x-dynamic-component>

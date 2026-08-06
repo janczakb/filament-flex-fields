@@ -5,6 +5,19 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.4] - 2026-08-06
+
+### Fixed
+
+- **Dark mode CSS (`core.css` / component bundles)** — `dark:*` utilities were compiling to Tailwind’s default `@media (prefers-color-scheme: dark)` variant instead of Filament’s class-based strategy. That leaked styles such as `dark:text-white` into light-mode Filament panels whenever the OS preferred dark. All Tailwind entry points (`core.css`, `playground.css`, `utilities-baseline.css`) now declare `@variant dark (&:where(.dark, .dark *));`, matching Filament. ([#41](https://github.com/janczakb/filament-flex-fields/issues/41))
+- **NumberStepper + `->live(debounce: …)`** — Filament’s `$entangle()` binding silently drops debounce and becomes live-immediate, so every +/- click fired a Livewire request and lagged the page. When a debounce is configured, the stepper now entangles non-live and commits via a debounced `$wire.set(..., true)` in Alpine so rapid clicks collapse into one request. ([#40](https://github.com/janczakb/filament-flex-fields/issues/40))
+- **VideoField (Safari)** — the dock’s masked `backdrop-filter` blur no longer cold-starts on hover (opacity-only fade + GPU layer promotion; `visibility` toggle removed). MP4 sources without a poster also paint a first frame under `preload="metadata"` instead of staying black until play.
+- **IconPickerField** — clearing the selection then reopening the panel no longer opens-and-immediately-closes. Deferred `$entangle(null)` used to ride along with the first search request, remorph the shell, and flip `lazy-alpine-mount` from eager → lazy mid-open. `wire:ignore` now wraps the mount shell so Alpine survives that round-trip. ([#36](https://github.com/janczakb/filament-flex-fields/issues/36))
+
+### Tests
+
+- Regression coverage for class-based dark CSS compilation, NumberStepper live-debounce binding HTML/Alpine commit path, IconPicker mount-shell stability after clear, and related VideoField assets.
+
 ## [2.9.3] - 2026-07-28
 
 ### Fixed

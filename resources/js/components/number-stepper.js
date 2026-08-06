@@ -2,6 +2,8 @@ import '../core/number-flow.js'
 
 export default function numberStepperFormComponent({
     state,
+    statePath,
+    liveDebounce,
     min,
     max,
     step,
@@ -17,6 +19,9 @@ export default function numberStepperFormComponent({
 }) {
     return {
         state,
+        statePath,
+        liveDebounce,
+        commitTimer: null,
         min,
         max,
         step,
@@ -200,6 +205,35 @@ export default function numberStepperFormComponent({
             this.$nextTick(() => {
                 this.updateFlow()
             })
+
+            this.commitDebounced()
+        },
+
+        /**
+         * When `liveDebounce` is set, the blade view entangles `state` as
+         * non-live (so assigning it above only updates local/client state,
+         * no request). We debounce the actual server commit ourselves here
+         * so rapid +/- clicks collapse into a single request once the user
+         * stops interacting, instead of one request per click.
+         *
+         * When no debounce is configured, `state` is entangled live (or not
+         * live at all) exactly as Filament normally would, and this is a
+         * no-op — the assignment above already did the right thing.
+         */
+        commitDebounced() {
+            if (! this.liveDebounce) {
+                return
+            }
+
+            clearTimeout(this.commitTimer)
+
+            this.commitTimer = setTimeout(() => {
+                this.$wire.set(this.statePath, this.state, true)
+            }, this.liveDebounce)
+        },
+
+        destroy() {
+            clearTimeout(this.commitTimer)
         },
 
         get canDecrement() {

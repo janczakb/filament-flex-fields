@@ -60,6 +60,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\TranslatableFieldsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\UserSelectPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\VideoFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\VoiceNoteRecorderFieldPlayground;
 use Filament\Pages\PageConfiguration;
 
 class FlexFieldsPlaygroundRegistry
@@ -118,7 +119,8 @@ class FlexFieldsPlaygroundRegistry
                 'icon-column' => ['label' => 'IconColumn', 'playground' => IconColumnPlayground::class, 'sort' => 306, 'icon' => GravityIcon::Star],
                 'file-upload' => ['label' => 'File upload', 'playground' => FlexFileUploadPlayground::class, 'sort' => 310, 'icon' => GravityIcon::CloudArrowUpIn],
                 'video-field' => ['label' => 'Video field', 'playground' => VideoFieldPlayground::class, 'sort' => 320, 'icon' => GravityIcon::Video],
-                'audio-field' => ['label' => 'Audio field', 'playground' => AudioFieldPlayground::class, 'sort' => 330, 'icon' => GravityIcon::VolumeFill],
+                'audio-field' => ['label' => 'Audio player', 'playground' => AudioFieldPlayground::class, 'sort' => 330, 'icon' => GravityIcon::VolumeFill],
+                'voice-note-recorder-field' => ['label' => 'Voice note recorder', 'playground' => VoiceNoteRecorderFieldPlayground::class, 'sort' => 331, 'icon' => GravityIcon::Microphone],
                 'map-picker' => ['label' => 'Map picker', 'playground' => MapPickerPlayground::class, 'sort' => 340, 'icon' => GravityIcon::MapPin],
                 'link-preview-field' => ['label' => 'Link preview', 'playground' => LinkPreviewFieldPlayground::class, 'sort' => 345, 'icon' => GravityIcon::Link],
                 'barcode-scanner-field' => ['label' => 'Barcode scanner', 'playground' => BarcodeScannerFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::make('qr-code')],

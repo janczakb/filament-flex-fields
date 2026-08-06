@@ -48,6 +48,7 @@
                 downloadFormat: @js($field->getDownloadFormat()),
                 downloadFilename: @js($field->getDownloadFilename()),
                 webpQuality: @js($field->getWebpQuality()),
+                storedSvg: @js($field->getStoredSvgContent()),
                 labels: {
                     placeholder: @js($field->isTrackpadGlideEnabled()
                         ? __('filament-flex-fields::default.signature.trackpad_placeholder')

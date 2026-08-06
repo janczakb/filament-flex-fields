@@ -23,37 +23,37 @@ final class SwitchFieldConfigurator implements FieldConfigurator
             ->variant($config['variant'] ?? config('filament-flex-fields.ui.switch_variant', 'default'))
             ->layout($config['layout'] ?? 'row')
             ->size($config['size'] ?? config('filament-flex-fields.ui.switch_size', 'md'))
-            ->color($config['color'] ?? null);
+            ->color(filled($config['color'] ?? null) ? $config['color'] : null);
 
-        if (isset($config['badge'])) {
-            $field->badge($config['badge']);
+        if (filled($config['badge'] ?? null)) {
+            $field->badge((string) $config['badge']);
         }
 
-        if (isset($config['badge_color'])) {
-            $field->badgeColor($config['badge_color']);
+        if (filled($config['badge_color'] ?? null)) {
+            $field->badgeColor((string) $config['badge_color']);
         }
 
-        if (isset($config['description'])) {
-            $field->description($config['description']);
+        if (filled($config['description'] ?? null)) {
+            $field->description((string) $config['description']);
         }
 
-        if (isset($config['on_color'])) {
-            $field->onColor($config['on_color']);
+        if (filled($config['on_color'] ?? null)) {
+            $field->onColor((string) $config['on_color']);
         }
 
-        if (isset($config['off_color'])) {
-            $field->offColor($config['off_color']);
+        if (filled($config['off_color'] ?? null)) {
+            $field->offColor((string) $config['off_color']);
         }
 
-        if (isset($config['on_icon'])) {
-            $field->onIcon($config['on_icon']);
+        if (filled($config['on_icon'] ?? null)) {
+            $field->onIcon((string) $config['on_icon']);
         }
 
-        if (isset($config['off_icon'])) {
-            $field->offIcon($config['off_icon']);
+        if (filled($config['off_icon'] ?? null)) {
+            $field->offIcon((string) $config['off_icon']);
         }
 
-        if (isset($config['label_position'])) {
+        if (isset($config['label_position']) && is_string($config['label_position']) && $config['label_position'] !== '') {
             $field->labelPosition($config['label_position']);
         }
 
@@ -65,12 +65,14 @@ final class SwitchFieldConfigurator implements FieldConfigurator
             $field->compact((bool) $config['compact']);
         }
 
-        if (array_key_exists('inline', $config)) {
+        if (array_key_exists('inline_with_label', $config) && (bool) $config['inline_with_label']) {
+            $field->inlineWithLabel();
+        } elseif (array_key_exists('inline', $config)) {
             $field->inline((bool) $config['inline']);
         }
 
-        if (array_key_exists('inline_with_label', $config) && (bool) $config['inline_with_label']) {
-            $field->inlineWithLabel();
+        if (array_key_exists('disabled', $config)) {
+            $field->disabled((bool) $config['disabled']);
         }
 
         return $field;

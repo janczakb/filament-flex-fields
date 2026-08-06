@@ -34,6 +34,11 @@ trait FlexFileUploadStorage
     protected bool|Closure $flexPruneOrphanedOnSave = false;
 
     /**
+     * @var (Closure(BaseFileUpload, string, int): void)|null
+     */
+    protected $flexDeletedStoredFileUsing = null;
+
+    /**
      * @var list<string>
      */
     protected array $flexBaselineFilePaths = [];
@@ -155,6 +160,19 @@ trait FlexFileUploadStorage
         return $this;
     }
 
+    /**
+     * Invoked after a stored path (and its thumb variant, if any) is deleted from disk.
+     * The third argument is the number of bytes freed.
+     *
+     * @param  (Closure(BaseFileUpload, string, int): void)|null  $callback
+     */
+    public function deletedStoredFileUsing(?Closure $callback): static
+    {
+        $this->flexDeletedStoredFileUsing = $callback;
+
+        return $this;
+    }
+
     public function persistUploadedFileWithFlexProcessing(TemporaryUploadedFile $file): ?string
     {
         $storedPath = $this->saveUploadedFile($file);
@@ -207,7 +225,7 @@ trait FlexFileUploadStorage
                 return;
             }
 
-            rescue(fn () => $component->getDisk()->delete($file), report: false);
+            $component->deleteStoredPathWithVariants($file);
         });
     }
 
@@ -262,7 +280,7 @@ trait FlexFileUploadStorage
         $removedPaths = array_diff($this->flexBaselineFilePaths, $currentPaths);
 
         foreach ($removedPaths as $path) {
-            rescue(fn () => $this->getDisk()->delete($path), report: false);
+            $this->deleteStoredPathWithVariants($path);
         }
     }
 
@@ -279,14 +297,68 @@ trait FlexFileUploadStorage
         }
 
         $currentPaths = $this->normalizeFilePaths($this->getRawState());
+        $keep = array_fill_keys($currentPaths, true);
+
+        foreach ($currentPaths as $path) {
+            $thumb = $this->thumbVariantPathFor($path);
+
+            if ($thumb !== null) {
+                $keep[$thumb] = true;
+            }
+        }
 
         $files = rescue(fn (): array => $this->getDisk()->allFiles($directory), [], report: false);
 
         foreach ($files as $file) {
-            if (! in_array($file, $currentPaths, true)) {
-                rescue(fn () => $this->getDisk()->delete($file), report: false);
+            if (! isset($keep[$file])) {
+                $this->deleteStoredPathWithVariants($file);
             }
         }
+    }
+
+    /**
+     * Delete a stored upload and its `_thumb.webp` sibling (if present).
+     *
+     * @return int Bytes freed
+     */
+    public function deleteStoredPathWithVariants(string $path): int
+    {
+        $disk = $this->getDisk();
+        $freed = 0;
+        $targets = [$path];
+        $thumb = $this->thumbVariantPathFor($path);
+
+        if ($thumb !== null) {
+            $targets[] = $thumb;
+        }
+
+        foreach (array_values(array_unique($targets)) as $target) {
+            if (! $disk->exists($target)) {
+                continue;
+            }
+
+            $freed += (int) rescue(fn (): int => (int) $disk->size($target), 0, report: false);
+            rescue(fn () => $disk->delete($target), report: false);
+        }
+
+        if ($freed > 0 && $this->flexDeletedStoredFileUsing instanceof Closure) {
+            $this->evaluate($this->flexDeletedStoredFileUsing, [
+                'path' => $path,
+                'bytes' => $freed,
+                'bytesFreed' => $freed,
+            ]);
+        }
+
+        return $freed;
+    }
+
+    protected function thumbVariantPathFor(string $path): ?string
+    {
+        if ($path === '' || str_ends_with($path, '_thumb.webp') || ! str_contains($path, '.')) {
+            return null;
+        }
+
+        return \Illuminate\Support\Str::of($path)->beforeLast('.')->append('_thumb.webp')->toString();
     }
 
     public function writeMetadataForStoredPath(string $storedPath, ?string $originalName = null, ?TemporaryUploadedFile $temporaryFile = null): void

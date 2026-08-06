@@ -11,6 +11,45 @@ export function formatTime(seconds) {
     return formatAudioTime(seconds)
 }
 
+/**
+ * Map MediaRecorder MIME types to extensions accepted by fill validation.
+ * audio/webm → webm (not "webm;codecs=opus"), audio/mp4 → m4a (Safari).
+ */
+export function voiceNoteExtensionForMime(mimeType) {
+    const normalized = String(mimeType || '')
+        .split(';')[0]
+        .trim()
+        .toLowerCase()
+
+    const map = {
+        'audio/webm': 'webm',
+        'video/webm': 'webm',
+        'audio/mp4': 'm4a',
+        'video/mp4': 'm4a',
+        'audio/mpeg': 'mp3',
+        'audio/mp3': 'mp3',
+        'audio/wav': 'wav',
+        'audio/x-wav': 'wav',
+        'audio/ogg': 'ogg',
+        'audio/aac': 'aac',
+        'audio/x-m4a': 'm4a',
+    }
+
+    if (map[normalized]) {
+        return map[normalized]
+    }
+
+    const subtype = normalized.includes('/')
+        ? normalized.split('/')[1]
+        : normalized
+
+    if (subtype === 'mp4') {
+        return 'm4a'
+    }
+
+    return subtype && /^[a-z0-9]+$/i.test(subtype) ? subtype : 'webm'
+}
+
 export default function voiceNoteRecorderFieldFormComponent({
     state,
     statePath,
@@ -106,7 +145,14 @@ export default function voiceNoteRecorderFieldFormComponent({
             if (this.initialAudioUrl) {
                 this.mode = 'playback';
                 this.loadExistingAudio(this.initialAudioUrl);
-            } else if (this.state && typeof this.state === 'string' && ! this.state.startsWith('livewire-file:')) {
+            } else if (this.isStagedOrMediaToken(this.state)) {
+                // ffstage:/ffmedia: are durable fill tokens — never treat the token string as a URL.
+                this.mode = 'playback';
+
+                if (this.recordedBlob) {
+                    this.loadExistingAudio(URL.createObjectURL(this.recordedBlob));
+                }
+            } else if (this.state && typeof this.state === 'string' && ! this.isTemporaryUpload(this.state)) {
                 this.mode = 'playback';
                 this.loadExistingAudio(this.state);
             }
@@ -321,6 +367,7 @@ export default function voiceNoteRecorderFieldFormComponent({
 
             this._deferredUploadBound = true;
 
+            // Fallback when uploadImmediately is false (Livewire wire:submit still fires native submit).
             form.addEventListener('submit', async (event) => {
                 if (! this.pendingUpload || ! this.recordedBlob) {
                     return;
@@ -343,7 +390,7 @@ export default function voiceNoteRecorderFieldFormComponent({
                     this.isUploadingForSubmit = false;
                     this.mode = 'playback';
                     console.error('Upload failed:', error);
-                    alert('Wystąpił błąd podczas wysyłania nagrania.');
+                    alert(this.labels?.uploadFailed || 'Failed to upload the recording.');
                 }
             }, true);
         },
@@ -394,9 +441,10 @@ export default function voiceNoteRecorderFieldFormComponent({
             if (this.uploadImmediately) {
                 try {
                     await this.uploadRecording({ keepPlaybackVisible: true });
+                    this.isProtectingRecording = false;
                 } catch (error) {
                     console.error('Upload failed:', error);
-                    alert('Wystąpił błąd podczas wysyłania nagrania.');
+                    alert(this.labels?.uploadFailed || 'Failed to upload the recording.');
                     this.resetToIdle();
                 }
 
@@ -651,21 +699,19 @@ export default function voiceNoteRecorderFieldFormComponent({
                 return;
             }
 
-            if (! confirm('Czy na pewno chcesz usunąć to nagranie?')) {
+            const confirmMessage = this.labels?.deleteConfirm
+                || 'Are you sure you want to delete this recording?';
+
+            if (! confirm(confirmMessage)) {
                 return;
             }
 
+            const rawState = this.resolveRawState();
             const fileKey = this.resolveUploadedFileKey();
-            const fileValue = fileKey ? this.resolveUploadedFileValue(fileKey) : null;
-            const hasServerFile = Boolean(fileKey && fileValue);
+            const fileValue = fileKey ? this.resolveUploadedFileValue(fileKey) : rawState;
+            const hasUpload = ! this.isEmptyState(fileValue ?? rawState);
 
-            if (! hasServerFile && this.pendingUpload) {
-                this.state = null;
-
-                return;
-            }
-
-            if (hasServerFile && this.schemaComponentKey) {
+            if (hasUpload && fileKey && this.schemaComponentKey) {
                 try {
                     const method = this.isTemporaryUpload(fileValue)
                         ? 'removeUploadedFile'
@@ -678,7 +724,7 @@ export default function voiceNoteRecorderFieldFormComponent({
                     );
                 } catch (error) {
                     console.error('Delete failed:', error);
-                    alert('Wystąpił błąd podczas usuwania nagrania.');
+                    alert(this.labels?.deleteFailed || 'Failed to delete the recording.');
 
                     return;
                 }
@@ -687,6 +733,14 @@ export default function voiceNoteRecorderFieldFormComponent({
             }
 
             this.resetToIdle();
+        },
+
+        resolveRawState() {
+            try {
+                return this.$wire.get(this.statePath);
+            } catch {
+                return this.state;
+            }
         },
 
         resolveUploadedFileKey() {
@@ -720,7 +774,21 @@ export default function voiceNoteRecorderFieldFormComponent({
         },
 
         isTemporaryUpload(file) {
-            return typeof file === 'string' && file.startsWith('livewire-file:');
+            if (file && typeof file === 'object') {
+                return true;
+            }
+
+            return typeof file === 'string' && (
+                file.startsWith('livewire-file:')
+                || file.startsWith('livewire-files:')
+            );
+        },
+
+        isStagedOrMediaToken(file) {
+            return typeof file === 'string' && (
+                file.startsWith('ffstage:')
+                || file.startsWith('ffmedia:')
+            );
         },
 
         uploadRecording({ keepPlaybackVisible = false } = {}) {
@@ -737,9 +805,9 @@ export default function voiceNoteRecorderFieldFormComponent({
             this.uploadProgress = 0;
 
             const mimeType = this.recordedMimeType || this.recordedBlob.type || 'audio/wav';
-            const extension = mimeType.split(';')[0]?.split('/')[1] || 'wav';
+            const extension = voiceNoteExtensionForMime(mimeType);
             const file = new File([this.recordedBlob], `voice-note.${extension}`, {
-                type: this.recordedBlob.type,
+                type: this.recordedBlob.type || mimeType,
             });
 
             const fileKey = crypto.randomUUID();

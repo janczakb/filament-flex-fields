@@ -22,6 +22,7 @@ export function createSegmentControlBehavior({
         separators,
         indicatorStyle: '',
         indicatorAnimated: false,
+        indicatorHydrated: false,
         resizeObserver: null,
 
         normalize(value) {
@@ -73,6 +74,7 @@ export function createSegmentControlBehavior({
 
             if (! selected) {
                 this.indicatorStyle = 'opacity: 0;'
+                this.indicatorHydrated = false
 
                 return
             }
@@ -82,6 +84,7 @@ export function createSegmentControlBehavior({
                 `height: ${selected.offsetHeight}px;` +
                 `transform: translate3d(${selected.offsetLeft}px, ${selected.offsetTop}px, 0);` +
                 'opacity: 1;'
+            this.indicatorHydrated = true
         },
 
         enableIndicatorAnimation() {

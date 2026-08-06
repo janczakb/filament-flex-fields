@@ -152,13 +152,10 @@ export default function flexTextareaFormComponent({
                 return this.speechDictationLanguage
             }
 
-            const browserLanguage = navigator.language ?? ''
-
-            if (browserLanguage.toLowerCase().startsWith('pl')) {
-                return 'pl-PL'
-            }
-
-            return browserLanguage || 'pl-PL'
+            // Auto: browser locale (SpeechRecognition uses UA default when lang is unset).
+            return navigator.language
+                || (Array.isArray(navigator.languages) ? navigator.languages[0] : null)
+                || null
         },
 
         buildRecognition() {
@@ -173,7 +170,12 @@ export default function flexTextareaFormComponent({
             const recognition = new SpeechRecognition()
             recognition.continuous = true
             recognition.interimResults = true
-            recognition.lang = this.resolveDictationLanguage()
+
+            const language = this.resolveDictationLanguage()
+
+            if (language) {
+                recognition.lang = language
+            }
 
             recognition.onresult = (event) => {
                 this.handleDictationResult(event)

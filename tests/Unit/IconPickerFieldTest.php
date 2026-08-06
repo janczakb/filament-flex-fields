@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\IconPickerField;
+use Bjanczak\FilamentFlexFields\Support\Playground\IconPickerFieldPlayground;
 
 it('exposes icon picker configuration api', function () {
     $field = IconPickerField::make('icon')
@@ -96,4 +97,16 @@ it('renders svg previews for allowed icons', function () {
     expect($rendered)->toHaveCount(1)
         ->and($rendered[0]['name'])->toBe('heroicon-o-star')
         ->and($rendered[0]['html'])->toContain('<svg');
+});
+
+it('registers an empty icon picker playground variant with null default state', function () {
+    $playground = new IconPickerFieldPlayground;
+    $source = file_get_contents(__DIR__.'/../../src/Support/Playground/IconPickerFieldPlayground.php');
+
+    expect($playground->defaultState())
+        ->toHaveKey('icon_picker__empty')
+        ->and($playground->defaultState()['icon_picker__empty'])->toBeNull()
+        ->and($source)
+        ->toContain("IconPickerField::make('icon_picker__empty')")
+        ->toContain('Empty (no selection)');
 });

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRadiolist;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class FlexRadiolistFieldConfigurator implements FieldConfigurator
 {
+    use NormalizesStudioChoiceOptions;
+
     public function configure(Component $field, array $config): Component
     {
         assert($field instanceof FlexRadiolist);
@@ -20,7 +23,7 @@ final class FlexRadiolistFieldConfigurator implements FieldConfigurator
     public function configureFlexRadiolistField(FlexRadiolist $field, array $config): FlexRadiolist
     {
         $field = $field
-            ->options($config['options'] ?? [])
+            ->options($this->normalizeStudioChoiceOptions($config['options'] ?? []))
             ->size($config['size'] ?? config('filament-flex-fields.ui.flex_radiolist_size', 'md'));
 
         if (isset($config['variant'])) {
@@ -43,7 +46,7 @@ final class FlexRadiolistFieldConfigurator implements FieldConfigurator
             $field->disabledOptions($config['disabled_options']);
         }
 
-        if (isset($config['color'])) {
+        if (isset($config['color']) && filled($config['color'])) {
             $field->color($config['color']);
         }
 

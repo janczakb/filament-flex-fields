@@ -16,7 +16,7 @@ Minimalist track-based range slider where the entire bar acts as the interactive
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrackSlider` |
 | **State type** | `int\|float` |
 | **Model cast** | `'volume' => 'integer'` or `'float'` |
-| **FieldType** | `range_slider`, `percentage` |
+| **FieldType** | `range_slider` (optional `suffix` / `show_output` in config; Flex Forms studio label: Slider) |
 | **Playground** | `track-slider` slug in Flex Fields playground |
 
 ---

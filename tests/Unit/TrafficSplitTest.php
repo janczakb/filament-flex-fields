@@ -134,3 +134,26 @@ it('builds equal splits for a segment count', function () {
         ->and(TrafficSplit::equalSplitForCount(3))->toBe([34, 33, 33])
         ->and(TrafficSplit::equalSplitForCount(5))->toBe([20, 20, 20, 20, 20]);
 });
+
+it('applies playground settings from the traffic split configurator', function () {
+    $field = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrafficSplitFieldConfigurator)
+        ->configureTrafficSplitField(TrafficSplit::make('weights'), [
+            'segment_count' => '4',
+            'size' => 'lg',
+            'variant' => 'secondary',
+            'labels' => ['A', 'B', 'C', 'D'],
+            'locked_segments' => ['1'],
+            'min_weight' => 10,
+            'value_threshold' => 20,
+            'disabled' => true,
+        ]);
+
+    expect($field->getSegmentCount())->toBe(4)
+        ->and($field->getSize())->toBe('lg')
+        ->and($field->getVariant())->toBe('secondary')
+        ->and($field->getLabels())->toBe(['A', 'B', 'C', 'D'])
+        ->and($field->getLockedSegments())->toBe([1])
+        ->and($field->getMinWeight())->toBe(10)
+        ->and($field->getValueThreshold())->toBe(20)
+        ->and($field->isDisabled())->toBeTrue();
+});

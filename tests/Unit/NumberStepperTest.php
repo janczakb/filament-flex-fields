@@ -8,8 +8,10 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Playground\NumberStepperPlayground;
+use Bjanczak\FilamentFlexFields\Tests\Support\TestableNumberStepperForm;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Database\Eloquent\Model;
+use Livewire\Livewire;
 
 it('exposes number stepper configuration via fluent api', function () {
     $field = NumberStepper::make('max_visits')
@@ -162,4 +164,59 @@ it('registers hero number stepper playground variants', function () {
         'number_stepper__digit_overflow',
         'number_stepper__adults',
     ]);
+});
+
+it('entangles state non-live and passes the debounce ms to alpine when live(debounce:) is set', function () {
+    // Regression (GitHub #40): Filament silently drops `debounce` for
+    // `$entangle()`-bound fields, so every +/- click fired a Livewire
+    // request immediately and lagged the page. The blade view must instead
+    // entangle non-live and hand the debounce off to the Alpine component.
+    TestableNumberStepperForm::$formSchema = [
+        NumberStepper::make('count')->live(debounce: 500),
+    ];
+
+    $html = html_entity_decode(Livewire::test(TestableNumberStepperForm::class)->html());
+
+    expect($html)
+        ->toContain("entangle('data.count', false)")
+        ->toContain('liveDebounce: 500');
+});
+
+it('keeps entangling state live with no client debounce when live() has no debounce', function () {
+    TestableNumberStepperForm::$formSchema = [
+        NumberStepper::make('count')->live(),
+    ];
+
+    $html = html_entity_decode(Livewire::test(TestableNumberStepperForm::class)->html());
+
+    expect($html)
+        ->toContain("entangle('data.count', true)")
+        ->toContain('liveDebounce: null');
+});
+
+it('keeps entangling state non-live with no client debounce when the field is not live at all', function () {
+    TestableNumberStepperForm::$formSchema = [
+        NumberStepper::make('count'),
+    ];
+
+    $html = html_entity_decode(Livewire::test(TestableNumberStepperForm::class)->html());
+
+    expect($html)
+        ->toContain("entangle('data.count', false)")
+        ->toContain('liveDebounce: null');
+});
+
+it('normalizes the live debounce delay into milliseconds for the alpine component', function () {
+    expect(NumberStepper::make('count')->live(debounce: 500)->isLiveDebounced())->toBeTrue()
+        ->and(NumberStepper::make('count')->live(debounce: 500)->getNormalizedLiveDebounce())->toBe(500)
+        ->and(NumberStepper::make('count')->live(debounce: '1s')->getNormalizedLiveDebounce())->toBe(1000);
+});
+
+it('debounces the committed value in the alpine component instead of committing on every click', function () {
+    $js = file_get_contents(__DIR__.'/../../resources/js/components/number-stepper.js');
+
+    expect($js)
+        ->toContain('commitDebounced()')
+        ->toContain('clearTimeout(this.commitTimer)')
+        ->toContain('this.$wire.set(this.statePath, this.state, true)');
 });

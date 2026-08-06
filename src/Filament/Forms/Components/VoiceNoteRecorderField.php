@@ -164,7 +164,32 @@ class VoiceNoteRecorderField extends FlexFileUpload
             $state = reset($state);
         }
 
-        if (blank($state)) {
+        if (blank($state) || ! is_string($state)) {
+            return null;
+        }
+
+        // Prefer Filament's getUploadedFileUsing resolver (Flex Forms stages ffstage:
+        // tokens and mints signed fill URLs). Never call disk->url() on tokens.
+        try {
+            $uploaded = $this->getUploadedFiles();
+
+            if (is_array($uploaded)) {
+                foreach ($uploaded as $info) {
+                    if (is_array($info) && filled($info['url'] ?? null)) {
+                        return (string) $info['url'];
+                    }
+                }
+            }
+        } catch (\Throwable) {
+            // Fall through to legacy disk URL for plain relative paths.
+        }
+
+        if (
+            str_starts_with($state, 'livewire-file:')
+            || str_starts_with($state, 'livewire-files:')
+            || str_starts_with($state, 'ffstage:')
+            || str_starts_with($state, 'ffmedia:')
+        ) {
             return null;
         }
 

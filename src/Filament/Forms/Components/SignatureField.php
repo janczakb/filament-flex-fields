@@ -69,6 +69,8 @@ class SignatureField extends Field
 
     protected string|BackedEnum|Htmlable|Closure|null $closeIcon = null;
 
+    protected ?Closure $resolveStoredSvgUsing = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -88,6 +90,11 @@ class SignatureField extends Field
                 if (! is_string($value)) {
                     $fail(__('filament-flex-fields::default.validation.signature.invalid'));
 
+                    return;
+                }
+
+                // Staged / permanent file refs (e.g. Flex Forms ffstage: after dehydrate) are valid.
+                if ($component->isStoredFileReference($value)) {
                     return;
                 }
 
@@ -395,13 +402,51 @@ class SignatureField extends Field
         return max(0.1, min(1, (float) $this->evaluate($this->webpQuality)));
     }
 
+    public function resolveStoredSvgUsing(?Closure $callback): static
+    {
+        $this->resolveStoredSvgUsing = $callback;
+
+        return $this;
+    }
+
+    /**
+     * SVG markup for durable file refs (ffstage:/path.svg) so the pad can redraw after remount.
+     */
+    public function getStoredSvgContent(): ?string
+    {
+        if ($this->resolveStoredSvgUsing === null) {
+            return null;
+        }
+
+        $resolved = $this->evaluate($this->resolveStoredSvgUsing, [
+            'state' => $this->getState(),
+        ]);
+
+        return is_string($resolved) && str_contains($resolved, '<svg') ? $resolved : null;
+    }
+
     public function normalizeState(mixed $state): ?string
     {
         if (! is_string($state) || trim($state) === '') {
             return null;
         }
 
+        if ($this->isStoredFileReference($state)) {
+            return $state;
+        }
+
         return SignatureSvg::normalize($state);
+    }
+
+    /**
+     * Durable disk tokens / paths after host apps stage the SVG (e.g. Flex Forms ffstage:).
+     */
+    public function isStoredFileReference(string $value): bool
+    {
+        return str_starts_with($value, 'ffstage:')
+            || str_starts_with($value, 'ffmedia:')
+            || str_contains($value, 'flex-forms/submissions/')
+            || (str_ends_with(strtolower($value), '.svg') && ! str_contains($value, '<'));
     }
 
     /**

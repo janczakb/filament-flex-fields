@@ -48,6 +48,10 @@ final class FlexTextareaFieldConfigurator implements FieldConfigurator
             $field->maxLength($config['max_length']);
         }
 
+        if (isset($config['min_length']) && is_numeric($config['min_length'])) {
+            $field->minLength((int) $config['min_length']);
+        }
+
         if (array_key_exists('speech_dictation', $config)) {
             $field->speechDictation((bool) $config['speech_dictation']);
         }

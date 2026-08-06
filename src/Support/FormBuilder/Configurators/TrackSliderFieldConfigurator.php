@@ -19,12 +19,31 @@ final class TrackSliderFieldConfigurator implements FieldConfigurator
 
     public function configureTrackSliderField(TrackSlider $field, array $config): TrackSlider
     {
-        return $field
+        $field = $field
             ->min($config['min'] ?? 0)
             ->max($config['max'] ?? 100)
             ->step($config['step'] ?? 1)
             ->size($config['size'] ?? config('filament-flex-fields.ui.slider_size', 'md'))
-            ->variant($config['variant'] ?? config('filament-flex-fields.ui.slider_variant', 'default'))
-            ->showOutput();
+            ->variant($config['variant'] ?? config('filament-flex-fields.ui.slider_variant', 'default'));
+
+        $showOutput = array_key_exists('show_output', $config)
+            ? (bool) $config['show_output']
+            : true;
+
+        $field->showOutput($showOutput);
+
+        $suffix = $config['suffix'] ?? null;
+
+        if (is_string($suffix) && $suffix !== '') {
+            $field->suffix($suffix);
+        }
+
+        $trackLabel = $config['track_label'] ?? null;
+
+        if (is_string($trackLabel) && $trackLabel !== '') {
+            $field->trackLabel($trackLabel);
+        }
+
+        return $field;
     }
 }

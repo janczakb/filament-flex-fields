@@ -145,7 +145,6 @@
     width: var(--fff-credit-card-width);
     aspect-ratio: 1.586 / 1;
     perspective: 1400px;
-    filter: drop-shadow(0 20px 40px rgb(15 23 42 / 0.28));
 }
 
 .fff-credit-card__scene.is-flipped .fff-credit-card__inner {

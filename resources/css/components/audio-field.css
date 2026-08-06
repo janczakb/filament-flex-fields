@@ -1,12 +1,19 @@
 .fff-audio-field {
+    --fff-audio-field-accent: var(--ff-accent, var(--primary-500, rgb(59 130 246)));
     --fff-audio-field-max-width: 22rem;
-    --fff-audio-field-pill-bg: rgb(255 255 255);
-    --fff-audio-field-pill-border: rgb(228 228 231);
-    --fff-audio-field-play-bg: rgb(209 213 219 / 0.98);
+    --fff-audio-field-pill-bg: rgb(244 244 245);
+    --fff-audio-field-pill-border: transparent;
+    --fff-audio-field-play-bg: var(--fff-audio-field-accent);
+    --fff-audio-field-play-fg: rgb(255 255 255);
     --fff-audio-field-play-size: 2.125rem;
     --fff-audio-field-bar-w: 0.15625rem;
-    --fff-audio-field-bar-gap: 0.0625rem;
+    --fff-audio-field-bar-gap: 0.125rem;
+    --fff-audio-field-bar: rgb(24 24 27 / 0.22);
+    --fff-audio-field-bar-played: var(--fff-audio-field-accent);
+    --fff-audio-field-playhead: rgb(255 255 255);
+    --fff-audio-field-playhead-size: 0.75rem;
     --fff-audio-field-time-size: 0.84375rem;
+    --fff-audio-progress: 0;
     width: 100%;
     max-width: var(--fff-audio-field-max-width);
 }
@@ -22,12 +29,14 @@
 .fff-audio-field--sm {
     --fff-audio-field-max-width: 18rem;
     --fff-audio-field-play-size: 1.875rem;
+    --fff-audio-field-playhead-size: 0.6875rem;
     --fff-audio-field-time-size: 0.73125rem;
 }
 
 .fff-audio-field--lg {
     --fff-audio-field-max-width: 28rem;
     --fff-audio-field-play-size: 2.375rem;
+    --fff-audio-field-playhead-size: 0.8125rem;
     --fff-audio-field-time-size: 0.9rem;
     --fff-audio-field-bar-gap: 0.15625rem;
 }
@@ -39,7 +48,7 @@
 .fff-audio-field__pill {
     @apply flex w-full min-w-0 items-center gap-3;
     padding: 0.5rem 0.875rem 0.5rem 0.5rem;
-    border-radius: var(--fff-global-radius, 0.75rem);
+    border-radius: 999px;
     border: 1px solid var(--fff-audio-field-pill-border);
     background-color: var(--fff-audio-field-pill-bg);
     box-shadow: none;
@@ -49,16 +58,17 @@
     @apply inline-flex shrink-0 items-center justify-center outline-none;
     width: var(--fff-audio-field-play-size);
     height: var(--fff-audio-field-play-size);
-    border-radius: var(--fff-global-radius, 0.75rem);
+    border-radius: 999px;
     border: 0;
     background-color: var(--fff-audio-field-play-bg);
-    color: rgb(255 255 255 / 0.98);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.28);
-    transition: transform 160ms ease, opacity 160ms ease;
+    color: var(--fff-audio-field-play-fg);
+    box-shadow: none;
+    transition: transform 160ms ease, opacity 160ms ease, filter 160ms ease;
 }
 
 .fff-audio-field__play:hover:not(:disabled) {
     transform: scale(1.04);
+    filter: brightness(1.06);
 }
 
 .fff-audio-field__play:active:not(:disabled) {
@@ -80,16 +90,27 @@
 }
 
 .fff-audio-field__waveform {
-    @apply relative flex min-w-0 flex-1 items-center;
+    @apply relative min-w-0 flex-1;
     width: 100%;
-    gap: var(--fff-audio-field-bar-gap);
     height: 1.75rem;
     cursor: pointer;
     touch-action: none;
+    --fff-audio-progress: 0;
 }
 
 .fff-audio-field__waveform.is-disabled {
     @apply cursor-not-allowed opacity-50;
+}
+
+.fff-audio-field__bars {
+    @apply absolute inset-0 flex items-center;
+    gap: var(--fff-audio-field-bar-gap);
+    pointer-events: none;
+}
+
+.fff-audio-field__bars--played {
+    clip-path: inset(0 calc((1 - var(--fff-audio-progress, 0)) * 100%) 0 0);
+    will-change: clip-path;
 }
 
 .fff-audio-field__waveform-skeleton {
@@ -101,6 +122,7 @@
     transition:
         opacity 240ms ease,
         visibility 240ms ease;
+    z-index: 1;
 }
 
 .fff-audio-field__waveform.is-ready .fff-audio-field__waveform-skeleton {
@@ -199,7 +221,7 @@
     }
 }
 
-.fff-audio-field__waveform:not(.is-ready) .fff-audio-field__bar {
+.fff-audio-field__waveform:not(.is-ready) .fff-audio-field__bars {
     opacity: 0;
 }
 
@@ -209,12 +231,39 @@
     min-height: 0.1875rem;
     align-self: center;
     transform-origin: center;
-    background: rgb(24 24 24 / 0.18);
-    transition: background-color 120ms linear;
+    background: var(--fff-audio-field-bar);
 }
 
-.fff-audio-field__bar.is-played {
-    background: rgb(24 24 24 / 0.92);
+.fff-audio-field__bar--accent {
+    background: var(--fff-audio-field-bar-played);
+}
+
+.fff-audio-field__playhead {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--fff-audio-progress, 0) * 100%);
+    z-index: 3;
+    width: var(--fff-audio-field-playhead-size);
+    height: var(--fff-audio-field-playhead-size);
+    border-radius: 999px;
+    background: var(--fff-audio-field-playhead);
+    border: 1px solid rgb(24 24 27 / 0.08);
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.12),
+        0 2px 6px rgb(0 0 0 / 0.08);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    will-change: left;
+    transition:
+        opacity 120ms ease,
+        visibility 120ms ease;
+}
+
+.fff-audio-field__playhead.is-visible {
+    opacity: 1;
+    visibility: visible;
 }
 
 .fff-audio-field__time {
@@ -241,10 +290,17 @@
     @apply opacity-60;
 }
 
+.fff-audio-field.is-empty .fff-audio-field__playhead {
+    opacity: 0;
+    visibility: hidden;
+}
+
 .dark .fff-audio-field {
+    --fff-audio-field-accent: var(--ff-accent, var(--primary-400, var(--primary-500, rgb(96 165 250))));
     --fff-audio-field-pill-bg: rgb(39 39 42);
     --fff-audio-field-pill-border: rgb(63 63 70);
-    --fff-audio-field-play-bg: rgb(99 99 102 / 0.98);
+    --fff-audio-field-bar: rgb(255 255 255 / 0.28);
+    --fff-audio-field-playhead: rgb(255 255 255);
 }
 
 .dark .fff-audio-field__skeleton-bar {
@@ -264,16 +320,6 @@
     );
 }
 
-.dark .fff-audio-field__bar {
-    background: rgb(255 255 255 / 0.24);
-}
-
-.dark .fff-audio-field__bar.is-played {
-    background: rgb(255 255 255 / 0.92);
-}
-
 .dark .fff-audio-field__time {
     color: rgb(161 161 170);
 }
-
-/* Verification code — OTP-style segmented inputs */

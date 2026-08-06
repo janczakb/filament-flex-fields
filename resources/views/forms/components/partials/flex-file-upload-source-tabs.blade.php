@@ -25,7 +25,7 @@
             'fff-segment-track--'.$uploadSourceSize,
             'fff-segment-track--ghost' => $uploadSourceVariant === 'ghost',
         ])
-        x-bind:class="{ 'is-animated': indicatorAnimated }"
+        x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
     >
         <div
             x-ref="indicator"

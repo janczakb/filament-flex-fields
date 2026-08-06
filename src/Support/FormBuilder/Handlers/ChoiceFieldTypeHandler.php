@@ -12,6 +12,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\DualListboxField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRadiolist;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MatrixChoiceField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RatingField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
@@ -25,6 +26,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\DualListboxFie
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexChecklistFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexRadiolistFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\MatrixChoiceFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\NpsFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\RatingFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SegmentControlFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SelectFieldConfigurator;
@@ -52,6 +54,7 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
         private readonly DualListboxFieldConfigurator $dualListbox = new DualListboxFieldConfigurator,
         private readonly TagsFieldConfigurator $tags = new TagsFieldConfigurator,
         private readonly RatingFieldConfigurator $rating = new RatingFieldConfigurator,
+        private readonly NpsFieldConfigurator $nps = new NpsFieldConfigurator,
     ) {}
 
     protected function supportedTypesList(): array
@@ -68,11 +71,11 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::FlexRadiolist,
             FieldType::MatrixChoice,
             FieldType::Select,
-            FieldType::MultiSelect,
             FieldType::UserSelect,
             FieldType::DualListbox,
             FieldType::Tags,
             FieldType::Rating,
+            FieldType::Nps,
         ];
     }
 
@@ -92,7 +95,6 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::FlexRadiolist => $this->flexRadiolist->configure(FlexRadiolist::make($statePath), $config),
             FieldType::MatrixChoice => $this->matrixChoice->configure(MatrixChoiceField::make($statePath), $config),
             FieldType::Select => $this->select->configure(SelectField::make($statePath), $config),
-            FieldType::MultiSelect => $this->select->configure(SelectField::make($statePath)->multiple(), $config),
             FieldType::UserSelect => $this->userSelect->configure(UserSelect::make($statePath), $config),
             FieldType::DualListbox => $this->dualListbox->configure(DualListboxField::make($statePath), $config),
             FieldType::Tags => $this->tags->configure(
@@ -102,6 +104,7 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
                 $config,
             ),
             FieldType::Rating => $this->rating->configure(RatingField::make($statePath), $config),
+            FieldType::Nps => $this->nps->configure(NpsField::make($statePath), $config),
             default => throw new \InvalidArgumentException("Unsupported field type [{$definition->type->value}] for choice handler."),
         };
     }

@@ -11,6 +11,7 @@ export default function segmentTabsSchemaComponent({
     return {
         boundResetHandler: null,
         indicatorAnimated: false,
+        indicatorHydrated: false,
         indicatorStyle: '',
         resizeObserver: null,
         tab,
@@ -144,6 +145,7 @@ export default function segmentTabsSchemaComponent({
 
             if (! selected) {
                 this.indicatorStyle = 'opacity: 0;'
+                this.indicatorHydrated = false
 
                 return
             }
@@ -153,6 +155,7 @@ export default function segmentTabsSchemaComponent({
                 'height: ' + selected.offsetHeight + 'px;' +
                 'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
                 'opacity: 1;'
+            this.indicatorHydrated = true
         },
 
         enableIndicatorAnimation() {

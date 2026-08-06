@@ -136,17 +136,22 @@
 
 .fff-video-field__ui {
     @apply absolute inset-0 z-[2] flex items-end p-4 sm:p-5;
+    /*
+     * No `visibility` toggle here on purpose: Safari drops the composited
+     * layer for a `visibility: hidden` masked backdrop-filter subtree, so
+     * the blurred dock had to "cold start" (re-sample + re-composite) the
+     * first frame it faded back in, causing a visible jump on hover even
+     * after fixing the ongoing fade jank. Staying opacity-only keeps that
+     * layer warm at all times; `inert` (bound in the blade partials) covers
+     * focus/AT-tree removal, and `pointer-events: none` blocks clicks.
+     */
     opacity: 0;
-    visibility: hidden;
     pointer-events: none;
-    transition:
-        opacity 480ms cubic-bezier(0.4, 0, 0.2, 1),
-        visibility 480ms cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 480ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fff-video-field__ui.is-panel-visible {
     opacity: 1;
-    visibility: visible;
     pointer-events: auto;
 }
 
@@ -162,7 +167,6 @@
 .fff-video-field__player:not(.is-hydrated) .fff-video-field__scrim,
 .fff-video-field__player:not(.is-hydrated) .fff-video-field__ui {
     opacity: 1;
-    visibility: visible;
 }
 
 .fff-video-field__player:not(.is-hydrated) .fff-video-field__dock,
@@ -209,6 +213,23 @@
             rgb(0 0 0 / 0.35) 50%,
             rgb(0 0 0 / 0.72) 100%
         );
+    }
+}
+
+@supports (-webkit-touch-callout: none) {
+    /*
+     * Safari recomputes a masked backdrop-filter every frame while its own
+     * (or an ancestor's) opacity/transform is animating, so the dock's fade
+     * in/out lags badly here even though it's smooth in Chrome. Promoting
+     * the blurred layer onto its own GPU layer ahead of time removes that
+     * per-frame recompute cost.
+     */
+    .fff-video-field__ui,
+    .fff-video-field__dock,
+    .fff-video-field__dock::before {
+        -webkit-transform: translateZ(0);
+        transform: translateZ(0);
+        will-change: opacity, transform;
     }
 }
 

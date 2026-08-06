@@ -19,19 +19,31 @@ final class TrafficSplitFieldConfigurator implements FieldConfigurator
 
     public function configureTrafficSplitField(TrafficSplit $field, array $config): TrafficSplit
     {
+        $segmentCount = $config['segment_count'] ?? 3;
+
         $field = $field
-            ->segmentCount($config['segment_count'] ?? 3)
+            ->segmentCount(is_numeric($segmentCount) ? (int) $segmentCount : 3)
             ->minWeight($config['min_weight'] ?? 12)
             ->valueThreshold($config['value_threshold'] ?? 18)
             ->size($config['size'] ?? config('filament-flex-fields.ui.traffic_split_size', 'md'))
             ->variant($config['variant'] ?? config('filament-flex-fields.ui.traffic_split_variant', 'default'));
 
-        if (isset($config['labels']) && is_array($config['labels'])) {
-            $field->labels($config['labels']);
+        $labels = $config['labels'] ?? null;
+
+        if (is_array($labels) && $labels !== []) {
+            $field->labels(array_values(array_map(
+                static fn (mixed $label): string => (string) $label,
+                $labels,
+            )));
         }
 
-        if (isset($config['locked_segments']) && is_array($config['locked_segments'])) {
-            $field->lockedSegments($config['locked_segments']);
+        $lockedSegments = $config['locked_segments'] ?? null;
+
+        if (is_array($lockedSegments) && $lockedSegments !== []) {
+            $field->lockedSegments(array_values(array_map(
+                static fn (mixed $index): int => (int) $index,
+                $lockedSegments,
+            )));
         }
 
         if (isset($config['linked_repeater']) && filled($config['linked_repeater'])) {
@@ -40,6 +52,10 @@ final class TrafficSplitFieldConfigurator implements FieldConfigurator
                 (bool) ($config['linked_repeater_numeric_labels'] ?? true),
                 (int) ($config['linked_repeater_minimum_items'] ?? 2),
             );
+        }
+
+        if (array_key_exists('disabled', $config)) {
+            $field->disabled((bool) $config['disabled']);
         }
 
         return $field;

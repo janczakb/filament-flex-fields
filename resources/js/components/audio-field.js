@@ -54,6 +54,7 @@ export default function audioFieldFormComponent({
         },
 
         destroy() {
+            this.unbindAudioElement?.()
             this.disconnectWaveformObserver()
         },
 

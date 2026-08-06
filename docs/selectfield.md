@@ -15,7 +15,7 @@ Styled Filament **Select** with pill trigger, rich option rows, grid layout, and
 | **Extends** | `Filament\Forms\Components\Select` |
 | **State type** | `string\|int\|null` (single) · `array` (multiple) |
 | **Model cast** | `'category_id' => 'integer'` · `'tags' => 'json'` (multiple) |
-| **FieldType** | `select`, `multi_select` |
+| **FieldType** | `select` (use `multiple` in config for multi-select) |
 | **Playground** | `select-field` slug in Flex Fields playground |
 
 Works with all standard Filament field APIs: `required()`, `disabled()`, `hidden()`, `live()`, `afterStateUpdated()`, validation rules, etc.

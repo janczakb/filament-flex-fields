@@ -17,6 +17,7 @@ class IconPickerFieldPlayground
     public function defaultState(): array
     {
         return [
+            'icon_picker__empty' => null,
             'icon_picker__heroicon' => 'heroicon-o-star',
             'icon_picker__gravity' => 'gravityui-star',
             'icon_picker__multi_set' => 'heroicon-o-star',
@@ -44,6 +45,11 @@ class IconPickerFieldPlayground
                 ->description('Searchable blade-icons picker with lazy SVG rendering, set filters, and paginated server search.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
+                    IconPickerField::make('icon_picker__empty')
+                        ->label('Empty (no selection)')
+                        ->sets(['heroicons'])
+                        ->helperText('Starts blank — open the panel to load the default catalog. Also useful to verify clear → reopen.')
+                        ->columnSpanFull(),
                     IconPickerField::make('icon_picker__heroicon')
                         ->label('Heroicons only')
                         ->sets(['heroicons'])

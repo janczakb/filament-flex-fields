@@ -230,6 +230,38 @@ class FlexFieldAssets
     }
 
     /**
+     * Deduped lazy CSS + Alpine chunks for a set of component ids, preserving
+     * dependency order from stylesheetsFor() / alpineChunksFor().
+     *
+     * @param  list<string>  $components
+     * @return array{stylesheets: list<string>, chunks: list<string>}
+     */
+    public static function planAssetsForComponents(array $components): array
+    {
+        $stylesheets = [];
+        $chunks = [];
+
+        foreach (array_values(array_unique($components)) as $component) {
+            if (! is_string($component) || $component === '') {
+                continue;
+            }
+
+            foreach (self::stylesheetsFor($component) as $stylesheet) {
+                $stylesheets[$stylesheet] = true;
+            }
+
+            foreach (self::alpineChunksFor($component) as $chunk) {
+                $chunks[$chunk] = true;
+            }
+        }
+
+        return [
+            'stylesheets' => array_keys($stylesheets),
+            'chunks' => array_keys($chunks),
+        ];
+    }
+
+    /**
      * @return list<string>
      */
     public static function playgroundStylesheetsFor(string $slug): array

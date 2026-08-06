@@ -15,9 +15,18 @@ it('validates compact svg signatures', function () {
         ->and(SignatureSvg::isEmpty($svg))->toBeFalse();
 });
 
+it('accepts exported signatures with a background rect', function () {
+    $svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320"><rect width="100%" height="100%" fill="#ffffff"/><path d="M10 10 L20 20" fill="none" stroke="#18181b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+    expect(SignatureSvg::isValid($svg))->toBeTrue()
+        ->and(SignatureSvg::normalize($svg))->toBeString()
+        ->and(SignatureSvg::countPaths($svg))->toBe(1);
+});
+
 it('rejects unsafe svg payloads', function () {
     expect(SignatureSvg::isValid('<svg><script>alert(1)</script></svg>'))->toBeFalse()
-        ->and(SignatureSvg::isValid('<div></div>'))->toBeFalse();
+        ->and(SignatureSvg::isValid('<div></div>'))->toBeFalse()
+        ->and(SignatureSvg::isValid('<svg><rect onclick="alert(1)"/><path d="M1 1"/></svg>'))->toBeFalse();
 });
 
 it('normalizes svg by removing whitespace between tags', function () {

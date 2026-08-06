@@ -16,7 +16,7 @@ title: "SocialLinksField"
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField` |
 | **State type** | `list&lt;array&lt;platform: string, url: string&gt;&gt;` (also accepts legacy associative map) |
 | **Model cast** | `'social_links' =&gt; 'array'` or `'json'` |
-| **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
+| **FieldType** | `FieldType::SocialLinks` (`social_links`) |
 | **Playground** | `social-links-field` slug in Flex Fields playground |
 
 ---

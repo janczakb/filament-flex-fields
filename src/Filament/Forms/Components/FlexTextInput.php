@@ -85,28 +85,6 @@ class FlexTextInput extends TextInput
         $this->inlineSuffix();
     }
 
-    public function email(bool|Closure $condition = true): static
-    {
-        parent::email($condition);
-
-        $this->inputMode(static function (FlexTextInput $component): ?string {
-            return $component->isEmail() ? 'email' : null;
-        });
-
-        return $this;
-    }
-
-    public function getType(): string
-    {
-        $type = parent::getType();
-
-        if (in_array($type, ['email', 'number'], true)) {
-            return 'text';
-        }
-
-        return $type;
-    }
-
     public function prefix(string|Htmlable|Closure|null $label, bool|Closure $isInline = true): static
     {
         return parent::prefix($label, $isInline);

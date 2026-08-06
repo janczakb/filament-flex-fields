@@ -4,12 +4,13 @@
 
 <div
     class="fff-video-field__scrim is-panel-visible"
-    x-bind:class="{ 'is-panel-visible': showUi || ! playing }"
+    x-bind:class="{ 'is-panel-visible': panelVisible }"
 ></div>
 
 <div
     class="fff-video-field__ui is-panel-visible"
-    x-bind:class="{ 'is-panel-visible': showUi || ! playing }"
+    x-bind:class="{ 'is-panel-visible': panelVisible }"
+    x-bind:inert="! panelVisible"
 >
     <div class="fff-video-field__dock fff-video-field__dock--default">
         @if ($hasMetadata)

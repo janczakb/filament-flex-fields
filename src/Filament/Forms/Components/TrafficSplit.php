@@ -294,7 +294,7 @@ class TrafficSplit extends Field
     {
         $labels = $this->getLabels();
 
-        if ($labels !== null && array_key_exists($index, $labels)) {
+        if ($labels !== null && array_key_exists($index, $labels) && filled($labels[$index])) {
             return $labels[$index];
         }
 

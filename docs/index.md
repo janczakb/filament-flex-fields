@@ -8,6 +8,10 @@ icon: rocket
 
 Use any field as a standalone drop-in, or wire dynamic schemas through `HasFlexFields` and `FlexFieldFormBuilder`. Pre-built CSS and JavaScript ship in the package — **no Node.js in production**.
 
+> **Premium companion — [Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)**  
+> Drag-and-drop Studio, public fill & embed, submissions, Insights, and integrations — a **commercial** Filament plugin built on Flex Fields.  
+> [**Buy**](https://buy.flexforms.bjanczak.com/) · [Docs](https://flexforms.bjanczak.com) · [GitHub](https://github.com/janczakb/filament-flex-forms)
+
 ---
 
 ## Quick start

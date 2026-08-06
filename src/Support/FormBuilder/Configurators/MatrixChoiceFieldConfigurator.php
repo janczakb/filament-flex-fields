@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MatrixChoiceField;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class MatrixChoiceFieldConfigurator implements FieldConfigurator
 {
+    use NormalizesStudioChoiceOptions;
+
     public function configure(Component $field, array $config): Component
     {
         assert($field instanceof MatrixChoiceField);
@@ -20,8 +23,8 @@ final class MatrixChoiceFieldConfigurator implements FieldConfigurator
     public function configureMatrixChoiceField(MatrixChoiceField $field, array $config): MatrixChoiceField
     {
         $field = $field
-            ->rows($config['rows'] ?? [])
-            ->matrixColumns($config['columns'] ?? [])
+            ->rows($this->normalizeStudioLabeledList($config['rows'] ?? []))
+            ->matrixColumns($this->normalizeStudioLabeledList($config['columns'] ?? []))
             ->size($config['size'] ?? config('filament-flex-fields.ui.matrix_choice_size', 'md'));
 
         if (isset($config['mode'])) {

@@ -11,13 +11,17 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexFileUpload;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexImageUpload;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MapPickerField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SignatureField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VideoField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VoiceNoteRecorderField;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\AudioFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexFileUploadFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\MapPickerFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SignatureFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SocialLinksFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\VideoFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\VoiceNoteRecorderFieldConfigurator;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Component;
 
@@ -27,7 +31,9 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
         private readonly FlexFileUploadFieldConfigurator $fileUpload = new FlexFileUploadFieldConfigurator,
         private readonly VideoFieldConfigurator $video = new VideoFieldConfigurator,
         private readonly AudioFieldConfigurator $audio = new AudioFieldConfigurator,
+        private readonly VoiceNoteRecorderFieldConfigurator $voiceNote = new VoiceNoteRecorderFieldConfigurator,
         private readonly MapPickerFieldConfigurator $mapPicker = new MapPickerFieldConfigurator,
+        private readonly SocialLinksFieldConfigurator $socialLinks = new SocialLinksFieldConfigurator,
         private readonly SignatureFieldConfigurator $signature = new SignatureFieldConfigurator,
     ) {}
 
@@ -38,7 +44,9 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Image,
             FieldType::Video,
             FieldType::Audio,
+            FieldType::VoiceNote,
             FieldType::MapPicker,
+            FieldType::SocialLinks,
             FieldType::Signature,
         ];
     }
@@ -62,7 +70,9 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
             ),
             FieldType::Video => $this->video->configure(VideoField::make($statePath), $config),
             FieldType::Audio => $this->audio->configure(AudioField::make($statePath), $config),
+            FieldType::VoiceNote => $this->voiceNote->configure(VoiceNoteRecorderField::make($statePath), $config),
             FieldType::MapPicker => $this->mapPicker->configure(MapPickerField::make($statePath), $config),
+            FieldType::SocialLinks => $this->socialLinks->configure(SocialLinksField::make($statePath), $config),
             FieldType::Signature => $this->signature->configure(SignatureField::make($statePath), $config),
             default => throw new \InvalidArgumentException("Unsupported field type [{$definition->type->value}] for media handler."),
         };

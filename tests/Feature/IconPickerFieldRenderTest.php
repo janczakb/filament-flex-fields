@@ -45,6 +45,23 @@ it('server renders icon picker trigger before alpine hydrates', function (): voi
         ->toContain('modulepreload');
 });
 
+it('keeps wire:ignore around lazy alpine mount so clear then open cannot remorph the shell', function (): void {
+    // Regression (#36): deferred clear + first search remorph used to flip
+    // eager→lazy outside the old inner wire:ignore, destroying Alpine mid-open.
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/icon-picker-field.blade.php');
+
+    $ignorePos = strpos($blade, 'wire:ignore');
+    $mountPos = strpos($blade, 'lazy-alpine-mount');
+    $xDataPos = strpos($blade, 'iconPickerFieldFormComponent({');
+
+    expect($ignorePos)->not->toBeFalse()
+        ->and($mountPos)->not->toBeFalse()
+        ->and($xDataPos)->not->toBeFalse()
+        ->and($ignorePos)->toBeLessThan($mountPos)
+        ->and($mountPos)->toBeLessThan($xDataPos)
+        ->and($blade)->toContain('panel appears to open then instantly close (#36)');
+});
+
 it('renders selected icon svg in trigger html when form has a value', function (): void {
     TestableIconPickerForm::$formSchema = [
         IconPickerField::make('icon')

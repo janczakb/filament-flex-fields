@@ -135,7 +135,7 @@
     --fff-rich-editor-bubble-gap: 4px;
     --fff-rich-editor-focus-ring: var(--fff-field-focus-ring);
     --fff-rich-editor-min-h: 12rem;
-    --fff-rich-editor-radius: 1rem;
+    --fff-rich-editor-radius: var(--fff-global-radius, 0.75rem);
     --fff-rich-editor-tool-size: 2rem;
     --fff-rich-editor-icon-size: 1.0625rem;
     --fff-rich-editor-content-p: 1rem;

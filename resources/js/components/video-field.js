@@ -158,6 +158,7 @@ export default function videoFieldFormComponent({
             video.addEventListener('loadedmetadata', () => {
                 this.duration = video.duration || 0
                 this.scrubPosition = Math.round(this.progressRatio * 1000)
+                this.primeFirstFrame(video)
             })
 
             video.addEventListener('timeupdate', () => {
@@ -298,6 +299,10 @@ export default function videoFieldFormComponent({
             return this.canInteract && this.duration > 0
         },
 
+        get panelVisible() {
+            return this.showUi || ! this.playing
+        },
+
         get currentLabel() {
             return formatVideoTime(this.currentTime)
         },
@@ -332,6 +337,24 @@ export default function videoFieldFormComponent({
             }
 
             return Math.max(0, Math.min(1, video.buffered.end(video.buffered.length - 1) / video.duration))
+        },
+
+        /**
+         * With `preload="metadata"` and no `poster`, Chrome paints the first
+         * frame once metadata is ready — Safari keeps the frame black until
+         * playback starts. Nudging `currentTime` forces Safari to decode and
+         * paint a frame without actually starting playback.
+         */
+        primeFirstFrame(video) {
+            if (this.poster || ! video.paused || video.currentTime !== 0) {
+                return
+            }
+
+            try {
+                video.currentTime = 0.001
+            } catch {
+                // Ignore — some browsers throw if the seek happens too early.
+            }
         },
 
         async ensureYoutubePlayer() {

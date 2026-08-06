@@ -39,6 +39,8 @@ class FlexSlider extends Slider
 
     protected bool|Closure $showStepDots = false;
 
+    protected bool|Closure $rangeHandles = false;
+
     public function showValue(bool|Closure $condition = true): static
     {
         $this->showValue = $condition;
@@ -114,6 +116,21 @@ class FlexSlider extends Slider
         $this->showStepDots = $condition;
 
         return $this;
+    }
+
+    /**
+     * Force dual-handle mode even when Livewire state is still a scalar (e.g. fill defaults / drafts).
+     */
+    public function rangeHandles(bool|Closure $condition = true): static
+    {
+        $this->rangeHandles = $condition;
+
+        return $this;
+    }
+
+    public function shouldUseRangeHandles(): bool
+    {
+        return (bool) $this->evaluate($this->rangeHandles);
     }
 
     public function getColor(): ?string
@@ -207,6 +224,10 @@ class FlexSlider extends Slider
 
     public function isRangeState(): bool
     {
+        if ($this->shouldUseRangeHandles()) {
+            return true;
+        }
+
         return is_array($this->resolveStateForChrome());
     }
 
@@ -755,6 +776,23 @@ class FlexSlider extends Slider
             $state = $this->getState();
         } catch (\Throwable) {
             $state = null;
+        }
+
+        if ($this->shouldUseRangeHandles()) {
+            if (is_array($state) && count($state) >= 2) {
+                return array_values($state);
+            }
+
+            $default = $this->getDefaultState();
+
+            if (is_array($default) && count($default) >= 2) {
+                return array_values($default);
+            }
+
+            return [
+                $this->normalizeNumeric((float) $this->getMinValue()),
+                $this->normalizeNumeric((float) $this->getMaxValue()),
+            ];
         }
 
         if ($state === null || ($state === '' && ! is_array($state))) {

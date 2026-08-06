@@ -34,6 +34,18 @@ it('extends filament text input and exposes styling api', function () {
         ->and($field->isEmail())->toBeTrue();
 });
 
+it('uses native filament input types for email url tel password and numeric', function () {
+    expect(FlexTextInput::make('email')->email()->getType())->toBe('email')
+        ->and(FlexTextInput::make('website')->url()->getType())->toBe('url')
+        ->and(FlexTextInput::make('phone')->tel()->getType())->toBe('tel')
+        ->and(FlexTextInput::make('secret')->password()->getType())->toBe('password')
+        ->and(FlexTextInput::make('amount')->numeric()->getType())->toBe('number')
+        ->and(FlexTextInput::make('qty')->integer()->getType())->toBe('number')
+        ->and(FlexTextInput::make('amount')->numeric()->getInputMode())->toBe('decimal')
+        ->and(FlexTextInput::make('qty')->integer()->getInputMode())->toBe('numeric')
+        ->and(FlexTextInput::make('qty')->integer()->getStep())->toBe(1);
+});
+
 it('exposes focus outline api', function () {
     expect(FlexTextInput::make('title')->shouldShowFocusOutline())->toBeFalse()
         ->and(FlexTextInput::make('title')->focusOutline()->shouldShowFocusOutline())->toBeTrue()
@@ -209,22 +221,6 @@ it('renders inline affix focus handler for prefix icon fields', function () {
         ->toContain('focusInputFromAffix()')
         ->toContain('onInput($event)')
         ->toContain('fi-input-has-inline-prefix');
-});
-
-it('renders email fields as text inputs with email inputmode for caret support', function () {
-    $field = FlexTextInput::make('email')->email();
-
-    expect($field->getType())->toBe('text')
-        ->and($field->isEmail())->toBeTrue()
-        ->and($field->getInputMode())->toBe('email');
-});
-
-it('renders numeric fields as text inputs for caret support', function () {
-    $field = FlexTextInput::make('amount')->numeric();
-
-    expect($field->getType())->toBe('text')
-        ->and($field->isNumeric())->toBeTrue()
-        ->and($field->getInputMode())->toBe('decimal');
 });
 
 it('includes emoji picker panel styles via lazy dependency bundle', function () {

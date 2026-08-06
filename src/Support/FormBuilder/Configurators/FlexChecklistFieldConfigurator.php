@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class FlexChecklistFieldConfigurator implements FieldConfigurator
 {
+    use NormalizesStudioChoiceOptions;
+
     public function configure(Component $field, array $config): Component
     {
         assert($field instanceof FlexChecklist);
@@ -20,7 +23,7 @@ final class FlexChecklistFieldConfigurator implements FieldConfigurator
     public function configureFlexChecklistField(FlexChecklist $field, array $config): FlexChecklist
     {
         $field = $field
-            ->options($config['options'] ?? [])
+            ->options($this->normalizeStudioChoiceOptions($config['options'] ?? []))
             ->size($config['size'] ?? config('filament-flex-fields.ui.flex_checklist_size', 'md'));
 
         if (isset($config['icons']) && is_array($config['icons'])) {
@@ -49,6 +52,10 @@ final class FlexChecklistFieldConfigurator implements FieldConfigurator
 
         if (array_key_exists('exact_selections', $config)) {
             $field->exactSelections($config['exact_selections']);
+        }
+
+        if (isset($config['color']) && filled($config['color'])) {
+            $field->color($config['color']);
         }
 
         return $field;

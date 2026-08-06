@@ -100,6 +100,8 @@
     box-shadow: var(--fff-flex-text-input-shadow);
     outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
     outline-offset: 0;
+    /* Same as Flex Textarea: shell must not clip the outline ring. */
+    overflow: visible;
 }
 
 .fff-flex-text-input__row {
@@ -191,6 +193,18 @@
     font-size: var(--fff-flex-text-input-text-size);
     line-height: 1.2;
     color: var(--fff-flex-text-input-text);
+}
+
+/* Match Filament number inputs without browser stepper chrome. */
+.fff-flex-text-input__input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.fff-flex-text-input__input[type='number']::-webkit-outer-spin-button,
+.fff-flex-text-input__input[type='number']::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .fff-flex-text-input__input::placeholder {

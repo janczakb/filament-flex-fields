@@ -24,6 +24,7 @@ readonly class FlexFieldDefinition
         public bool $isRequired = false,
         public bool $isActive = true,
         public bool $isVisible = true,
+        public bool $hiddenLabel = false,
         public int $sort = 0,
     ) {}
 
@@ -36,6 +37,8 @@ readonly class FlexFieldDefinition
             ? $attributes['type']
             : FieldType::from((string) $attributes['type']);
 
+        $helpText = $attributes['help_text'] ?? $attributes['helpText'] ?? null;
+
         return new self(
             slug: (string) $attributes['slug'],
             label: (string) $attributes['label'],
@@ -43,11 +46,12 @@ readonly class FlexFieldDefinition
             config: array_merge($type->defaultConfig(), $attributes['config'] ?? []),
             validation: $attributes['validation'] ?? [],
             defaultValue: $attributes['default_value'] ?? $attributes['defaultValue'] ?? null,
-            helpText: $attributes['help_text'] ?? $attributes['helpText'] ?? null,
+            helpText: is_string($helpText) && trim($helpText) !== '' ? trim($helpText) : null,
             placeholder: $attributes['placeholder'] ?? null,
             isRequired: (bool) ($attributes['is_required'] ?? $attributes['isRequired'] ?? false),
             isActive: (bool) ($attributes['is_active'] ?? $attributes['isActive'] ?? true),
             isVisible: (bool) ($attributes['is_visible'] ?? $attributes['isVisible'] ?? true),
+            hiddenLabel: (bool) ($attributes['hidden_label'] ?? $attributes['hiddenLabel'] ?? false),
             sort: (int) ($attributes['sort'] ?? 0),
         );
     }

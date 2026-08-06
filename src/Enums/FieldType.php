@@ -52,7 +52,6 @@ enum FieldType: string
     case FlexRadiolist = 'flex_radiolist';
     case MatrixChoice = 'matrix_choice';
     case Select = 'select';
-    case MultiSelect = 'multi_select';
     case UserSelect = 'user_select';
     case DualListbox = 'dual_listbox';
     case Tags = 'tags';
@@ -75,12 +74,15 @@ enum FieldType: string
     case Image = 'image';
     case Video = 'video';
     case Audio = 'audio';
+    case VoiceNote = 'voice_note';
     case MapPicker = 'map_picker';
+    case SocialLinks = 'social_links';
     case Signature = 'signature';
     case CreditCard = 'credit_card';
 
     // Advanced
     case Rating = 'rating';
+    case Nps = 'nps';
     case KeyValue = 'key_value';
     case Repeater = 'repeater';
     case Code = 'code';
@@ -131,7 +133,6 @@ enum FieldType: string
             self::FlexRadiolist,
             self::MatrixChoice,
             self::Select,
-            self::MultiSelect,
             self::UserSelect,
             self::DualListbox,
             self::Tags => FieldCategory::Choice,
@@ -152,11 +153,14 @@ enum FieldType: string
             self::Image,
             self::Video,
             self::Audio,
+            self::VoiceNote,
             self::MapPicker,
+            self::SocialLinks,
             self::Signature,
             self::CreditCard => FieldCategory::Media,
 
             self::Rating,
+            self::Nps,
             self::KeyValue,
             self::Repeater,
             self::Code,
@@ -214,7 +218,6 @@ enum FieldType: string
             self::FlexRadiolist => 'heroicon-o-list-bullet',
             self::MatrixChoice => 'heroicon-o-table-cells',
             self::Select => 'heroicon-o-chevron-up-down',
-            self::MultiSelect => 'heroicon-o-squares-2x2',
             self::UserSelect => 'heroicon-o-user-circle',
             self::DualListbox => 'heroicon-o-arrows-right-left',
             self::Tags => 'heroicon-o-tag',
@@ -234,12 +237,15 @@ enum FieldType: string
             self::File => 'heroicon-o-paper-clip',
             self::Image => 'heroicon-o-photo',
             self::Video => 'heroicon-o-video-camera',
-            self::Audio => 'heroicon-o-microphone',
+            self::Audio => 'heroicon-o-speaker-wave',
+            self::VoiceNote => 'heroicon-o-microphone',
             self::MapPicker => 'heroicon-o-map-pin',
+            self::SocialLinks => 'heroicon-o-share',
             self::Signature => 'heroicon-o-pencil-square',
             self::CreditCard => 'heroicon-o-credit-card',
 
             self::Rating => 'heroicon-o-star',
+            self::Nps => 'heroicon-o-chart-bar',
             self::KeyValue => 'heroicon-o-table-cells',
             self::Repeater => 'heroicon-o-rectangle-stack',
             self::Code => 'heroicon-o-code-bracket',
@@ -263,6 +269,7 @@ enum FieldType: string
             self::FlexSlider,
             self::Toggle,
             self::TrafficSplit,
+            self::Color,
             self::ColorPresets,
             self::FlexColorPicker,
             self::DualListbox,
@@ -280,7 +287,9 @@ enum FieldType: string
             self::Currency,
             self::Video,
             self::Audio,
+            self::VoiceNote,
             self::MapPicker,
+            self::SocialLinks,
             self::UserSelect,
             self::Slug,
             self::Date,
@@ -291,7 +300,80 @@ enum FieldType: string
             self::TimeRange,
             self::Month,
             self::Year,
+            self::Nps,
+            self::Rating,
         ], true);
+    }
+
+    /**
+     * Lazy Flex Fields CSS/JS component ids used when this field type is rendered
+     * (including shared dependency roots such as phone-field → flex-text-input).
+     *
+     * Empty list = native Filament control with no flex-fields lazy bundle.
+     * Expand deps via FlexFieldAssets::stylesheetsFor() / alpineChunksFor().
+     *
+     * @return list<string>
+     */
+    public function assetComponents(): array
+    {
+        return match ($this) {
+            self::Phone => ['phone-field'],
+            self::Country => ['country-field'],
+            self::Timezone => ['timezone-field'],
+            self::Slug => ['slug-field'],
+            self::AddressAutocomplete => ['address-autocomplete'],
+            self::VerificationCode => ['flex-verification-code'],
+            self::IconPicker => ['icon-picker-field'],
+            self::FlexTextInput,
+            self::Email,
+            self::Url,
+            self::Integer,
+            self::Decimal => ['flex-text-input'],
+            self::FlexTextarea => ['flex-textarea'],
+            self::RichText => ['rich-editor-field'],
+            self::CreditCard => ['credit-card'],
+            self::Currency => ['currency-field'],
+            self::NumberStepper => ['number-stepper'],
+            self::Percentage,
+            self::RangeSlider,
+            self::RangeMinMax => ['track-slider'],
+            self::FlexSlider => ['flex-slider'],
+            self::PriceRange => ['price-range'],
+            self::TrafficSplit => ['traffic-split'],
+            self::Toggle => ['switch'],
+            self::SegmentControl => ['segment-control'],
+            self::ChoiceCards,
+            self::ChoiceCheckboxCards => ['choice-cards'],
+            self::FlexChecklist => ['flex-checklist'],
+            self::FlexRadiolist => ['flex-radiolist'],
+            self::MatrixChoice => ['matrix-choice-field'],
+            self::Select => ['select-field'],
+            self::UserSelect => ['user-select'],
+            self::DualListbox => ['dual-listbox'],
+            self::Tags => ['tags-field'],
+            self::Date,
+            self::DateTime,
+            self::DateRange,
+            self::Month,
+            self::Year,
+            self::Duration,
+            self::TimeRange => ['flex-date-time-field'],
+            self::Time => ['flex-date-time-field', 'flex-time-segments'],
+            self::Color,
+            self::ColorPresets => ['color-swatch'],
+            self::FlexColorPicker => ['flex-color-picker'],
+            self::File,
+            self::Image => ['flex-file-upload'],
+            self::Video => ['video-field'],
+            self::Audio => ['audio-field'],
+            self::VoiceNote => ['voice-note-recorder-field'],
+            self::MapPicker => ['map-picker'],
+            self::SocialLinks => ['social-links-field'],
+            self::Signature => ['signature-field'],
+            self::Rating => ['rating-field'],
+            self::Nps => ['nps-field'],
+            default => [],
+        };
     }
 
     /**

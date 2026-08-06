@@ -19,13 +19,33 @@ final class CreditCardFieldConfigurator implements FieldConfigurator
 
     public function configureCreditCardField(CreditCardField $field, array $config): CreditCardField
     {
+        $variant = (string) ($config['variant'] ?? config('filament-flex-fields.ui.credit_card_variant', 'midnight'));
+        $inputVariant = (string) ($config['input_variant'] ?? config('filament-flex-fields.ui.credit_card_input_variant', 'primary'));
+        $size = (string) ($config['size'] ?? config('filament-flex-fields.ui.credit_card_size', 'md'));
+
+        if (! in_array($variant, ['midnight', 'ocean', 'sunset', 'slate'], true)) {
+            $variant = 'midnight';
+        }
+
+        if (! in_array($inputVariant, ['primary', 'secondary', 'flat'], true)) {
+            $inputVariant = 'primary';
+        }
+
+        if (! in_array($size, ['sm', 'md', 'lg'], true)) {
+            $size = 'md';
+        }
+
         $field = $field
-            ->size($config['size'] ?? config('filament-flex-fields.ui.credit_card_size', 'md'))
-            ->variant($config['variant'] ?? config('filament-flex-fields.ui.credit_card_variant', 'midnight'))
-            ->inputVariant($config['input_variant'] ?? config('filament-flex-fields.ui.credit_card_input_variant', 'primary'));
+            ->size($size)
+            ->variant($variant)
+            ->inputVariant($inputVariant);
 
         if (array_key_exists('flip_on_cvv_focus', $config)) {
             $field->flipOnCvvFocus((bool) $config['flip_on_cvv_focus']);
+        }
+
+        if (array_key_exists('mark', $config) && filled($config['mark'])) {
+            $field->mark((string) $config['mark']);
         }
 
         if (array_key_exists('number_label', $config)) {

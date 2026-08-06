@@ -8,7 +8,7 @@
 <p align="center">Pre-built CSS/JS · no Node.js in production · standalone fields or dynamic schemas · full per-component docs</p>
 
 <p align="center">
-    <a href="https://flex-fields.mintlify.app/" target="_blank" rel="noopener noreferrer">
+    <a href="https://flex-fields.bjanczak.com/" target="_blank" rel="noopener noreferrer">
         <img src="art/docs-button-v2.png" width="210" alt="Documentation — flex-fields.mintlify.app">
     </a>
 </p>
@@ -27,6 +27,28 @@
     <img src="https://img.shields.io/badge/Laravel-11%2B-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 11+">
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
 </p>
+
+---
+
+### Premium companion — [Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)
+
+Need a **drag-and-drop form Studio**, public fill & embed, submissions, Insights, and integrations on top of these same components? That’s **Flex Forms** — a **premium commercial** Filament plugin built on Flex Fields.
+
+<p align="center">
+  <a href="https://github.com/janczakb/filament-flex-forms">
+    <img src="https://raw.githubusercontent.com/janczakb/filament-flex-forms/main/art/field-forms-thumb-radius.webp" width="200" alt="Filament Flex Forms — premium Studio for Filament">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://buy.flexforms.bjanczak.com/"><strong>Buy Flex Forms</strong></a>
+  ·
+  <a href="https://flexforms.bjanczak.com">Docs</a>
+  ·
+  <a href="https://github.com/janczakb/filament-flex-forms">GitHub</a>
+</p>
+
+---
 
 **Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **70 custom form components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** (no EAV, no per-attribute migrations). Use any field standalone, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
 
@@ -831,14 +853,14 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
 | core (always) | — | 25.5 (gzip 5.5) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 185 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.3 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.5 (gzip 5.9) + deps 68.3 |
-| FlexTextInput | 10.6 (gzip 3.2) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.1 (gzip 7.3) + deps 22.5 |
-| TagsField | 3.1 (gzip 1.1) | 23.4 (gzip 5.2) + deps 65.4 |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 185 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.6 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.6 (gzip 5.9) + deps 68.6 |
+| FlexTextInput | 10.9 (gzip 3.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.4 (gzip 7.4) + deps 22.5 |
+| TagsField | 3.1 (gzip 1.1) | 23.4 (gzip 5.2) + deps 65.7 |
 | RatingField | 0.7 (gzip 0.3) | 25.4 (gzip 5.6) |
 | SwitchField | Alpine inline | 32.5 (gzip 6.2) |
-| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.4) + deps 159.8 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 29.8 (gzip 6.5) + deps 52.6 |
+| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.4) + deps 159.9 |
+| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 29.8 (gzip 6.5) + deps 52.7 |
 | SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.2 (gzip 12.7) + deps 28.2 |
 
 Sample bundles (10 of **59** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.

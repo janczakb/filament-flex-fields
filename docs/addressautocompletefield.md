@@ -102,6 +102,35 @@ AddressAutocompleteField::make('venue')
     ->searchTypes([MapboxSearchType::Poi]);
 ```
 
+Supported type strings / enum cases: `country`, `region`, `postcode`, `district`, `place`, `locality`, `neighborhood`, `address`, `poi`.
+
+> **Note:** Mapbox Geocoding v5 treats `poi` as general points of interest. It does **not** filter by category (restaurant vs cafe). Category search requires Mapbox Search Box (not wired in this field).
+
+#### `language()`
+
+Preferred language for result labels. When `null` (or omitted), the field falls back to `config('filament-flex-fields.mapbox.default_language')`, then `app()->getLocale()`.
+
+---
+
+### FlexField / Flex Forms schema config
+
+When building via `FlexFieldFormBuilder` / Flex Forms Studio, these config keys map onto the fluent API (see also `GeocodingSearchScope` presets):
+
+| Config key | Maps to / behaviour |
+|------------|---------------------|
+| `search_scope` | Preset → `searchTypes()` + `streetAddressesOnly()`. Values: `all`, `address`, `cities`, `regions`, `countries`, `admin`, `poi`, `custom` |
+| `search_types` | Used when `search_scope=custom` — raw Mapbox types list |
+| `street_addresses_only` | Used when `search_scope=custom` |
+| `search_area` | `global` clears country filter; `countries` applies `countries` |
+| `countries` | ISO codes when `search_area=countries` (empty = worldwide) |
+| `language_mode` | `auto` → `language(null)`; `manual` → `language` |
+| `language` | BCP 47 / ISO code when `language_mode=manual` |
+| `layout` | Studio-only: `input` vs `map` (switches to `map_picker`) |
+| `min_search_length` / `search_debounce` | Search UX |
+| `fields` / `store_format` / `string_format` / `required_fields` / `searchable` / `size` / `variant` | Standard field API |
+
+`GeocodingSearchScope` enum (`Bjanczak\FilamentFlexFields\Enums\GeocodingSearchScope`) is the shared preset map used by Address Autocomplete and Map Picker configurators.
+
 ---
 
 ### Real-world examples

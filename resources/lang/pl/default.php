@@ -81,6 +81,9 @@ return [
         'uploading' => 'Przesyłanie...',
         'uploading_on_submit' => 'Przygotowywanie nagrania do zapisu...',
         'delete' => 'Usuń nagranie',
+        'delete_confirm' => 'Czy na pewno chcesz usunąć to nagranie?',
+        'delete_failed' => 'Nie udało się usunąć nagrania.',
+        'upload_failed' => 'Nie udało się przesłać nagrania.',
     ],
 
     'geocoding' => [
@@ -391,6 +394,10 @@ return [
 
     'field_types' => [
         'json' => 'JSON',
+        'nps' => 'NPS / Likert',
+        'audio' => 'Odtwarzacz audio',
+        'social_links' => 'Linki społecznościowe',
+        'voice_note' => 'Notatka głosowa',
     ],
 
     'file_upload' => [

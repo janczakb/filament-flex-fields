@@ -53,11 +53,11 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
             $field->acceptedFileTypes($acceptedTypes);
         }
 
-        if (array_key_exists('min_files', $config)) {
+        if (array_key_exists('min_files', $config) && is_numeric($config['min_files']) && (int) $config['min_files'] > 0) {
             $field->minFiles((int) $config['min_files']);
         }
 
-        if (array_key_exists('max_files', $config)) {
+        if (array_key_exists('max_files', $config) && is_numeric($config['max_files']) && (int) $config['max_files'] > 0) {
             $field->maxFiles((int) $config['max_files']);
         }
 

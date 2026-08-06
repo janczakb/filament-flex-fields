@@ -22,6 +22,16 @@
     $initialDisplayMain = $field->formatDisplayMain($initialState);
     $hasInitialDisplayValue = $field->hasDisplayValue($initialState);
     $initialSizerText = $field->getInitialSizerText($initialState);
+
+    // Filament silently drops `debounce` for `$entangle()`-bound fields (it only
+    // ever emits `, true)`/`, false)` for the `live` flag), so `->live(debounce:
+    // ...)` would otherwise fire a Livewire request on every +/- click. Instead,
+    // entangle non-live here and let the Alpine component debounce its own
+    // explicit `$wire.set(..., true)` commit when a debounce is configured.
+    $liveDebounceMs = $field->isLiveDebounced() ? $field->getNormalizedLiveDebounce() : null;
+    $stateBindingExpression = $liveDebounceMs !== null
+        ? "\$entangle('{$statePath}', false)"
+        : $applyStateBindingModifiers("\$entangle('{$statePath}')");
 @endphp
 
 <x-dynamic-component
@@ -33,7 +43,9 @@
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('number-stepper', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
         x-data="numberStepperFormComponent({
-            state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
+            state: $wire.{{ $stateBindingExpression }},
+            statePath: @js($statePath),
+            liveDebounce: @js($liveDebounceMs),
             min: @js($minValue),
             max: @js($maxValue),
             step: @js($step),

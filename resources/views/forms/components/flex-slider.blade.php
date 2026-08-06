@@ -91,7 +91,7 @@
             hasTooltips: @js($hasTooltipsEnabled),
         })"
         wire:ignore
-        wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $size, $variant, $hideThumbUntilInteraction])), 0, 64) }}"
+            wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $size, $variant, $hideThumbUntilInteraction, $isRange, $initialNormalizedValues])), 0, 64) }}"
         @class([
             'fff-flex-slider',
             'fff-flex-slider--' . $size,
