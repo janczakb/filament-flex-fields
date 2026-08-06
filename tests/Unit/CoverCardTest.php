@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Actions\Action;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\CoverCard;
 use Bjanczak\FilamentFlexFields\Support\Playground\CoverCardPlayground;
+use Bjanczak\FilamentFlexFields\Tests\Support\TestableIconPickerForm;
 use Filament\Notifications\Notification;
+use Livewire\Livewire;
 
 it('exposes cover card configuration via fluent api', function () {
     $card = CoverCard::make()
@@ -124,7 +126,29 @@ it('renders separate top and bottom overlay elements in the cover card blade', f
         ->toContain('$shouldShowTopOverlay()')
         ->toContain('$shouldShowFooterOverlay()')
         ->toContain('$hasCustomTopOverlayGradient()')
-        ->toContain('$hasCustomFooterOverlayGradient()');
+        ->toContain('$hasCustomFooterOverlayGradient()')
+        ->toContain('->style($cardStyles)');
+});
+
+it('merges extraAttributes style with aspect-ratio into a single style attribute', function () {
+    // Regression: a second style="" after extraAttributes was invalid HTML —
+    // browsers kept only one, so either min-width or aspect-ratio was dropped.
+    TestableIconPickerForm::$formSchema = [
+        CoverCard::make()
+            ->ratio('3:4')
+            ->contentMaxWidth('16rem')
+            ->footerTitle('Available soon')
+            ->footerAction(Action::make('notify')->label('Notify me'))
+            ->extraAttributes([
+                'style' => 'min-width: fit-content',
+            ]),
+    ];
+
+    $html = html_entity_decode(Livewire::test(TestableIconPickerForm::class)->html(false));
+
+    expect($html)
+        ->toContain('style="min-width: fit-content; aspect-ratio: 3 / 4; max-width: 16rem;"')
+        ->not->toMatch('/style="[^"]*"\s[^>]*style="/');
 });
 
 it('sanitizes unsafe background image urls', function () {

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **NumberStepper + `->live(debounce: …)`** — Filament’s `$entangle()` binding silently drops debounce and becomes live-immediate, so every +/- click fired a Livewire request and lagged the page. When a debounce is configured, the stepper now entangles non-live and commits via a debounced `$wire.set(..., true)` in Alpine so rapid clicks collapse into one request. ([#40](https://github.com/janczakb/filament-flex-fields/issues/40))
 - **VideoField (Safari)** — the dock’s masked `backdrop-filter` blur no longer cold-starts on hover (opacity-only fade + GPU layer promotion; `visibility` toggle removed). MP4 sources without a poster also paint a first frame under `preload="metadata"` instead of staying black until play.
 - **IconPickerField** — clearing the selection then reopening the panel no longer opens-and-immediately-closes. Deferred `$entangle(null)` used to ride along with the first search request, remorph the shell, and flip `lazy-alpine-mount` from eager → lazy mid-open. `wire:ignore` now wraps the mount shell so Alpine survives that round-trip. ([#36](https://github.com/janczakb/filament-flex-fields/issues/36))
+- **CoverCard** — `extraAttributes(['style' => …])` now merges with the card’s own `aspect-ratio` / `max-width` into a single `style` attribute. Previously a second `style=""` was emitted (invalid HTML), so browsers dropped either the custom style or the aspect ratio.
 
 ### Tests
 

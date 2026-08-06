@@ -13,17 +13,29 @@
     if (filled($maxWidth) && ! $isFullWidth()) {
         $cardStyles[] = 'max-width: '.$maxWidth;
     }
+
+    /*
+     * Append component styles via ->style() so they concatenate with any
+     * `style` from extraAttributes. Emitting a second style="" attribute
+     * (the old approach) is invalid HTML and browsers keep only one of the
+     * two — so either aspect-ratio or the custom min-width was dropped.
+     */
+    $mergedAttributes = $attributes
+        ->merge([
+            'id' => $getId(),
+        ], escape: false)
+        ->merge($getExtraAttributes(), escape: false);
+
+    if ($cardStyles !== []) {
+        $mergedAttributes = $mergedAttributes->style($cardStyles);
+    }
 @endphp
 
 @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'cover-card'])
 
 <div
     {{
-        $attributes
-            ->merge([
-                'id' => $getId(),
-            ], escape: false)
-            ->merge($getExtraAttributes(), escape: false)
+        $mergedAttributes
             ->class([
                 'fff-cover-card',
                 'fff-cover-card--tone-' . $getTone(),
@@ -31,9 +43,6 @@
                 'is-full-width' => $isFullWidth(),
             ])
     }}
-    @if ($cardStyles !== [])
-        style="{{ implode('; ', $cardStyles) }}"
-    @endif
     data-slot="cover-card"
 >
     <div
