@@ -64,7 +64,7 @@ All methods accept `Closure` unless noted.
 | `backgroundGradient(string\|Closure\|null $css)` | Background | `null` | CSS gradient string (used if no image is set). |
 | `backgroundColor(string\|Closure\|null $color)` | Background | `null` | Fallback / underlay color. |
 | `backgroundPosition(string\|Closure $pos)` | Background | `'center'` | CSS `background-position`. |
-| `ratio(string\|Closure\|null $ratio)` | Layout | `'3:4'` | Aspect ratio (e.g., `16:9`, `1:1`, `auto`). |
+| `ratio(string\|Closure\|null $ratio)` | Layout | `'3:4'` | Preferred aspect ratio (e.g., `16:9`, `1:1`, `auto`). Applied via a grid sizer so short ratios never clip footer actions when content needs more height. |
 | `fullWidth(bool\|Closure $condition = true)` | Layout | `false` | Removes the default `20rem` max-width constraint. |
 | `contentMaxWidth(string\|Closure $width)` | Layout | `null` | Custom `max-width` when not full width. |
 | `topTitle(string\|Closure $text)` | Content | `null` | Header title text. |

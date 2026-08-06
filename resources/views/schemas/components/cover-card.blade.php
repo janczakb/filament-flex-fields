@@ -7,7 +7,7 @@
     $cardStyles = [];
 
     if (filled($aspectRatioStyle)) {
-        $cardStyles[] = 'aspect-ratio: '.$aspectRatioStyle;
+        $cardStyles[] = '--fff-cover-card-aspect-ratio: '.$aspectRatioStyle;
     }
 
     if (filled($maxWidth) && ! $isFullWidth()) {

@@ -34,6 +34,10 @@ class DateTimeFieldPlayground
                 'start' => '2026-06-10T09:30:00',
                 'end' => '2026-06-14T17:00:00',
             ],
+            'date_time__date_range_day' => [
+                'start' => '2026-06-10',
+                'end' => '2026-06-14',
+            ],
             'date_time__time_field' => '14:30',
             'date_time__time_field_24h' => '14:30',
             'date_time__time_segments' => '09:30',
@@ -83,10 +87,14 @@ class DateTimeFieldPlayground
                         ->default(Carbon::parse('2026-07-04'))
                         ->helperText('Segmented input with calendar popover. Use default() for initial value.'),
                     FlexDateRangeField::make('date_time__date_range')
-                        ->label('Date range')
-                        ->granularity(DateTimeGranularity::Minute)
+                        ->label('Date range (with time)')
                         ->withRecommendedDefaults()
-                        ->helperText('Range selection with optional time rows under the calendar.'),
+                        ->granularity(DateTimeGranularity::Minute)
+                        ->helperText('Open the calendar — start/end time rows appear under the grid. Call withRecommendedDefaults() first, then granularity(Minute); defaults last would reset to Day.'),
+                    FlexDateRangeField::make('date_time__date_range_day')
+                        ->label('Date range (day only)')
+                        ->withRecommendedDefaults()
+                        ->helperText('Date-only range preset from withRecommendedDefaults() (granularity Day — no time rows).'),
                     FlexTimeField::make('date_time__time_field')
                         ->label('Time field (12h)')
                         ->hourCycle(12)

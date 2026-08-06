@@ -189,10 +189,26 @@ it('registers date time field playground variants', function () {
         'date_time__date_field',
         'date_time__date_picker',
         'date_time__date_range',
+        'date_time__date_range_day',
         'date_time__time_field',
         'date_time__time_field_24h',
         'date_time__date_time_field',
     ]);
+});
+
+it('keeps minute granularity on date range when recommended defaults are applied first', function () {
+    $overwritten = FlexDateRangeField::make('booking_range')
+        ->granularity(DateTimeGranularity::Minute)
+        ->withRecommendedDefaults();
+
+    $correct = FlexDateRangeField::make('booking_range')
+        ->withRecommendedDefaults()
+        ->granularity(DateTimeGranularity::Minute);
+
+    expect($overwritten->getGranularity())->toBe(DateTimeGranularity::Day)
+        ->and($correct->getGranularity())->toBe(DateTimeGranularity::Minute)
+        ->and($correct->getAlpineConfiguration()['granularity'])->toBe('minute')
+        ->and($correct->getAlpineConfiguration()['hideTimeSection'])->toBeFalse();
 });
 
 it('resolves display and storage formats', function () {

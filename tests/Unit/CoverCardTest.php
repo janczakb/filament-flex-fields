@@ -73,6 +73,16 @@ it('registers cover card playground with empty default state', function () {
     expect((new CoverCardPlayground)->defaultState())->toBe([]);
 });
 
+it('registers a short-ratio cover card playground demo for content-aware height', function () {
+    $source = file_get_contents(__DIR__.'/../../src/Support/Playground/CoverCardPlayground.php');
+
+    expect($source)
+        ->toContain("->ratio('5:1')")
+        ->toContain('Short ratio stress test')
+        ->toContain('copy wraps')
+        ->toContain('Grid sizer');
+});
+
 it('enables content overlays based on present copy blocks', function () {
     $both = CoverCard::make()
         ->contentOverlays()
@@ -147,8 +157,24 @@ it('merges extraAttributes style with aspect-ratio into a single style attribute
     $html = html_entity_decode(Livewire::test(TestableIconPickerForm::class)->html(false));
 
     expect($html)
-        ->toContain('style="min-width: fit-content; aspect-ratio: 3 / 4; max-width: 16rem;"')
+        ->toContain('style="min-width: fit-content; --fff-cover-card-aspect-ratio: 3 / 4; max-width: 16rem;"')
         ->not->toMatch('/style="[^"]*"\s[^>]*style="/');
+});
+
+it('keeps cover card height from shrinking below content when aspect-ratio is short', function () {
+    // Regression (#42): aspect-ratio + overflow:hidden on the root clipped
+    // footer actions. Ratio now lives on a ::before sizer so content can grow
+    // the shared grid row taller than the preferred ratio.
+    $sourceCss = file_get_contents(__DIR__.'/../../resources/css/components/cover-card.css');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/schemas/components/cover-card.blade.php');
+
+    expect($sourceCss)
+        ->toContain('display: grid')
+        ->toContain('.fff-cover-card::before')
+        ->toContain('aspect-ratio: var(--fff-cover-card-aspect-ratio, auto)')
+        ->toContain('min-width: 0')
+        ->toContain('overflow-wrap: break-word')
+        ->and($blade)->toContain('--fff-cover-card-aspect-ratio:');
 });
 
 it('sanitizes unsafe background image urls', function () {

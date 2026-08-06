@@ -76,6 +76,29 @@ class CoverCardPlayground
                                             ->send()),
                                 ),
                         ]),
+                    Grid::make(1)
+                        ->extraAttributes(['class' => 'fff-playground-variants'])
+                        ->schema([
+                            CoverCard::make()
+                                ->backgroundImage(self::YACHT_BANNER_IMAGE)
+                                ->backgroundColor('#0f172a')
+                                ->ratio('5:1')
+                                ->tone('light')
+                                ->contentMaxWidth('22rem')
+                                ->contentOverlays()
+                                ->topTitle('Short ratio stress test')
+                                ->topDescription('5:1 on a narrow card — copy wraps and the CTA stays visible when content needs more height than the ratio')
+                                ->footerTitle('Footer stays visible')
+                                ->footerDescription('Grid sizer keeps the preferred ratio; content can grow the card taller')
+                                ->footerAction(
+                                    Action::make('shortRatioCta')
+                                        ->label('Book charter')
+                                        ->action(fn () => Notification::make()
+                                            ->title('Short-ratio CTA clicked')
+                                            ->success()
+                                            ->send()),
+                                ),
+                        ]),
                     Grid::make(['default' => 1, 'lg' => 2])
                         ->extraAttributes(['class' => 'fff-playground-variants'])
                         ->schema([

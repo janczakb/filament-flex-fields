@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-06T00:06:55.887Z",
+  "generatedAt": "2026-08-06T00:56:19.684Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 22865,
@@ -217,9 +217,9 @@
       "gzipKb": 20.55
     },
     "playground-cover-card.css": {
-      "bytes": 62168,
-      "kb": 60.71,
-      "gzipKb": 11.44
+      "bytes": 62651,
+      "kb": 61.18,
+      "gzipKb": 11.54
     },
     "playground-credit-card.css": {
       "bytes": 71921,

@@ -21,13 +21,29 @@
     --fff-cover-card-top-overlay: linear-gradient(180deg, #00000036 0%, #00000021 42%, #00000000 100%);
     --fff-cover-card-footer-overlay: linear-gradient(0deg, #00000036 0%, #00000021 42%, #00000000 100%);
 
+    /*
+     * Single grid cell stacks a ratio sizer (::before) under the chrome + copy.
+     * Putting aspect-ratio on the root with overflow:hidden made the ratio a
+     * hard height and clipped footer CTAs on short ratios (#42). A sizer
+     * contributes the preferred ratio height; content can grow the row taller.
+     */
     position: relative;
-    display: flex;
+    display: grid;
     width: 100%;
     max-width: var(--fff-cover-card-max-width);
+    min-width: 0;
     overflow: hidden;
     border-radius: var(--fff-cover-card-radius);
     isolation: isolate;
+}
+
+.fff-cover-card::before {
+    content: '';
+    grid-area: 1 / 1;
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: var(--fff-cover-card-aspect-ratio, auto);
+    pointer-events: none;
 }
 
 .fff-cover-card.is-full-width {
@@ -62,30 +78,36 @@
 }
 
 .fff-cover-card__background {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
     z-index: 0;
+    align-self: stretch;
+    justify-self: stretch;
+    min-width: 0;
+    min-height: 100%;
     background-color: rgb(244 244 245);
 }
 
 .fff-cover-card__scrim {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
     z-index: 1;
+    align-self: stretch;
+    justify-self: stretch;
     pointer-events: none;
     background: var(--fff-cover-card-scrim);
 }
 
 .fff-cover-card__overlay {
-    position: absolute;
-    left: 0;
-    right: 0;
+    grid-area: 1 / 1;
     z-index: 1;
     pointer-events: none;
+    align-self: stretch;
+    justify-self: stretch;
+    position: relative;
 }
 
 .fff-cover-card__overlay--top {
-    top: 0;
+    align-self: start;
+    width: 100%;
     height: 40%;
     background: var(--fff-cover-card-top-overlay);
     -webkit-backdrop-filter: blur(10px) saturate(1.5);
@@ -95,7 +117,8 @@
 }
 
 .fff-cover-card__overlay--bottom {
-    bottom: 0;
+    align-self: end;
+    width: 100%;
     height: 40%;
     background: var(--fff-cover-card-footer-overlay);
     -webkit-backdrop-filter: blur(10px) saturate(1.5);
@@ -105,15 +128,26 @@
 }
 
 .fff-cover-card__content {
+    grid-area: 1 / 1;
     position: relative;
     z-index: 2;
     display: flex;
     width: 100%;
+    max-width: 100%;
+    /*
+     * Grid items default to min-width:auto (content’s max-content). Without
+     * this, long copy expands the track, refuses to wrap, and overflow:hidden
+     * clips the right edge instead of wrapping onto new lines.
+     */
+    min-width: 0;
     min-height: 100%;
     flex-direction: column;
     justify-content: space-between;
     gap: 1rem;
     padding: var(--fff-cover-card-pad);
+    align-self: stretch;
+    justify-self: stretch;
+    box-sizing: border-box;
 }
 
 .fff-cover-card__top,
@@ -126,6 +160,9 @@
 
 .fff-cover-card__top-title,
 .fff-cover-card__footer-title {
+    display: block;
+    min-width: 0;
+    overflow-wrap: break-word;
     font-size: var(--fff-cover-card-top-title-size);
     font-weight: var(--fff-cover-card-title-weight);
     line-height: 1.1;
@@ -139,6 +176,9 @@
 
 .fff-cover-card__top-description,
 .fff-cover-card__footer-description {
+    display: block;
+    min-width: 0;
+    overflow-wrap: break-word;
     font-size: var(--fff-cover-card-top-description-size);
     font-weight: var(--fff-cover-card-description-weight);
     line-height: 1.25;
@@ -154,6 +194,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 0.75rem;
+    min-width: 0;
 }
 
 .fff-cover-card__footer--action-only {

@@ -122,13 +122,16 @@ it('builds cover card overlay styles in the lazy bundle', function () {
         ->toContain('-webkit-backdrop-filter: blur(10px) saturate(1.5)')
         ->toContain('backdrop-filter: blur(10px) saturate(1.5)')
         ->toContain('mask-image: linear-gradient(180deg, #000 50%, #0000 100%)')
-        ->toContain('mask-image: linear-gradient(0deg, #000 50%, #0000 100%)');
+        ->toContain('mask-image: linear-gradient(0deg, #000 50%, #0000 100%)')
+        ->toContain('.fff-cover-card::before')
+        ->toContain('aspect-ratio: var(--fff-cover-card-aspect-ratio, auto)');
 
     expect($coverCardCss)
         ->toContain('.fff-cover-card__overlay--top')
         ->toContain('.fff-cover-card__overlay--bottom')
         ->toContain('.fff-cover-card__overlay')
-        ->toContain('backdrop-filter:blur(10px)saturate(1.5)');
+        ->toContain('backdrop-filter:blur(10px)saturate(1.5)')
+        ->toContain('--fff-cover-card-aspect-ratio');
 });
 
 it('keeps cover card styles out of the core bundle', function () {
