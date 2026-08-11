@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CreditCardField;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\CreditCardFieldConfigurator;
 
 it('exposes credit card styling and configuration api', function () {
     $field = CreditCardField::make('payment')
@@ -111,7 +112,7 @@ it('rejects unsupported credit card variants', function () {
 })->throws(InvalidArgumentException::class);
 
 it('coerces unsupported studio variants to midnight when configuring the field', function (): void {
-    $field = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\CreditCardFieldConfigurator)
+    $field = (new CreditCardFieldConfigurator)
         ->configureCreditCardField(CreditCardField::make('payment'), [
             'variant' => 'default',
             'input_variant' => 'ghost',

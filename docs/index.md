@@ -10,7 +10,7 @@ Use any field as a standalone drop-in, or wire dynamic schemas through `HasFlexF
 
 > **Premium companion — [Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)**  
 > Drag-and-drop Studio, public fill & embed, submissions, Insights, and integrations — a **commercial** Filament plugin built on Flex Fields.  
-> [**Buy**](https://buy.flexforms.bjanczak.com/) · [Docs](https://flexforms.bjanczak.com) · [GitHub](https://github.com/janczakb/filament-flex-forms)
+> [**Buy**](https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0) · [Docs](https://flexforms.bjanczak.com) · [GitHub](https://github.com/janczakb/filament-flex-forms)
 
 ---
 

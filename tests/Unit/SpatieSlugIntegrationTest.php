@@ -20,6 +20,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Livewire;
 use Spatie\Sluggable\Actions\GenerateSlugAction;
+use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 uses(RefreshDatabase::class);
@@ -465,4 +466,44 @@ it('respects spatie skipGenerateWhen using hydrated form state', function (): vo
     $slugField = $component->instance()->getSchema('form')->getComponent('slug');
 
     expect($slugField->generateSlugFromSource('Brand New Title'))->toBe('keep-me');
+});
+
+it('keeps regenerating spatie slug previews while the title is typed (issue 43)', function (): void {
+    $model = new class extends SlugFieldPost
+    {
+        use HasSlug;
+
+        public function getSlugOptions(): SlugOptions
+        {
+            return SlugOptions::create()
+                ->generateSlugsFrom('name')
+                ->saveSlugsTo('slug');
+        }
+    };
+
+    Schema::table('slug_field_posts', function (Blueprint $table): void {
+        if (! Schema::hasColumn('slug_field_posts', 'name')) {
+            $table->string('name')->nullable();
+        }
+    });
+
+    TestableSlugForm::$formSchema = [
+        TitleSlugField::make(
+            fieldTitle: 'name',
+            fieldSlug: 'slug',
+            urlPath: '/genre/',
+            spatieModel: $model::class,
+        ),
+    ];
+    TestableSlugForm::$modelClass = $model::class;
+
+    $component = Livewire::test(TestableSlugForm::class);
+
+    $typed = '';
+    foreach (str_split('Action') as $char) {
+        $typed .= $char;
+        $component->set('data.name', $typed);
+    }
+
+    $component->assertSet('data.slug', 'action');
 });

@@ -14,6 +14,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\HtmlString;
 use InvalidArgumentException;
 
 class RatingColumn extends TextColumn
@@ -36,7 +37,7 @@ class RatingColumn extends TextColumn
 
         FlexFieldStylesheetQueue::enqueueFor('rating-column');
 
-        $this->formatStateUsing(fn (mixed $state, RatingColumn $column): Htmlable => new \Illuminate\Support\HtmlString($column->formatRatingDisplay($state)));
+        $this->formatStateUsing(fn (mixed $state, RatingColumn $column): Htmlable => new HtmlString($column->formatRatingDisplay($state)));
     }
 
     public function stars(int|Closure $count): static

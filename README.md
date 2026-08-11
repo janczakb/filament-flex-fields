@@ -41,7 +41,7 @@ Need a **drag-and-drop form Studio**, public fill & embed, submissions, Insights
 </p>
 
 <p align="center">
-  <a href="https://buy.flexforms.bjanczak.com/"><strong>Buy Flex Forms</strong></a>
+  <a href="https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0"><strong>Buy Flex Forms</strong></a>
   ·
   <a href="https://flexforms.bjanczak.com">Docs</a>
   ·

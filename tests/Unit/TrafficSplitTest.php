@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrafficSplit;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrafficSplitFieldConfigurator;
 
 it('exposes traffic split configuration via fluent api', function () {
     $field = TrafficSplit::make('weights')
@@ -136,7 +137,7 @@ it('builds equal splits for a segment count', function () {
 });
 
 it('applies playground settings from the traffic split configurator', function () {
-    $field = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrafficSplitFieldConfigurator)
+    $field = (new TrafficSplitFieldConfigurator)
         ->configureTrafficSplitField(TrafficSplit::make('weights'), [
             'segment_count' => '4',
             'size' => 'lg',

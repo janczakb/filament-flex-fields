@@ -9,6 +9,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexSlider;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexVerificationCode;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
@@ -316,7 +317,7 @@ it('builds nps field components from definitions', function () {
         ]),
     );
 
-    expect($nps)->toBeInstanceOf(\Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField::class)
+    expect($nps)->toBeInstanceOf(NpsField::class)
         ->and($nps->getVariant())->toBe('segments')
         ->and($nps->isColorCoded())->toBeTrue()
         ->and($nps->getSize())->toBe('lg')

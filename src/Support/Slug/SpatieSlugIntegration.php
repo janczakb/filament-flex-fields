@@ -48,6 +48,11 @@ class SpatieSlugIntegration
 
         $options = self::alignSlugField($options, $slugField);
 
+        // Livewire already holds the previously generated slug in form state. If we
+        // hydrate that value onto the model, Spatie's GenerateSlugAction treats it as a
+        // manual customization (original !== current) and keeps the first keystroke forever.
+        unset($formAttributes[$options->slugField]);
+
         self::hydrateModelFromForm($model, $source, $options, $sourceField, $formAttributes);
 
         if (self::usesTranslatableSlug($model)) {

@@ -12,6 +12,7 @@ use Filament\Forms\Components\BaseFileUpload;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 /**
@@ -358,7 +359,7 @@ trait FlexFileUploadStorage
             return null;
         }
 
-        return \Illuminate\Support\Str::of($path)->beforeLast('.')->append('_thumb.webp')->toString();
+        return Str::of($path)->beforeLast('.')->append('_thumb.webp')->toString();
     }
 
     public function writeMetadataForStoredPath(string $storedPath, ?string $originalName = null, ?TemporaryUploadedFile $temporaryFile = null): void

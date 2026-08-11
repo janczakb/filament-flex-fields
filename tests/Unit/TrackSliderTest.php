@@ -6,6 +6,7 @@ use Bjanczak\FilamentFlexFields\Enums\ControlSize;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CellSlider;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TrackSlider;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\Playground\TrackSliderPlayground;
 
 it('exposes track slider configuration via fluent api', function () {
@@ -34,7 +35,7 @@ it('exposes track slider configuration via fluent api', function () {
 });
 
 it('applies suffix and show_output from track slider configurator', function () {
-    $withSuffix = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+    $withSuffix = (new TrackSliderFieldConfigurator)
         ->configureTrackSliderField(TrackSlider::make('pct'), [
             'min' => 0,
             'max' => 100,
@@ -45,7 +46,7 @@ it('applies suffix and show_output from track slider configurator', function () 
             'show_output' => true,
         ]);
 
-    $withTrackLabel = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+    $withTrackLabel = (new TrackSliderFieldConfigurator)
         ->configureTrackSliderField(TrackSlider::make('spacing'), [
             'size' => 'md',
             'variant' => 'default',
@@ -53,7 +54,7 @@ it('applies suffix and show_output from track slider configurator', function () 
             'show_output' => true,
         ]);
 
-    $hiddenOutput = (new \Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TrackSliderFieldConfigurator)
+    $hiddenOutput = (new TrackSliderFieldConfigurator)
         ->configureTrackSliderField(TrackSlider::make('volume'), [
             'size' => 'md',
             'variant' => 'default',

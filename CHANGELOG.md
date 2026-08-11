@@ -5,6 +5,20 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.7] - 2026-08-11
+
+### Fixed
+
+- **TitleSlugField + Spatie Sluggable** — live slug preview no longer freezes on the first character while typing the title. Previously, each keystroke re-hydrated the current form `slug` onto the Spatie model; `GenerateSlugAction` then treated it as a manual customization (`hasCustomSlugBeenUsed`) and kept that first letter. Preview generation now excludes the slug attribute from form hydration so Spatie regenerates from the title source on every update. ([#43](https://github.com/janczakb/filament-flex-fields/issues/43))
+
+### Changed
+
+- **Docs (SlugField & TitleSlugField)** — finished English pass on remaining Polish copy in `docs/slugfield-and-titleslugfield.md` (layout, install, config, Spatie cookbook sections).
+
+### Tests
+
+- Enterprise regression matrix for GitHub [#43](https://github.com/janczakb/filament-flex-fields/issues/43): GenreResource `name`→`slug` + `spatieModel` live typing, multi-word titles, Polish diacritics, Playground without Spatie, renamed `fieldSlug` workaround, incorrect `generateSlugsFrom('slug')` workaround, sibling Spatie sources, Regenerate path, `preventOverwrite` / `skipGenerateWhen` with stale form slug ignored.
+
 ## [2.9.6] - 2026-08-06
 
 ### Fixed

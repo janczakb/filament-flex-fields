@@ -92,7 +92,7 @@ public static function form(Schema $schema): Schema
 {
     return $schema->components([
         TitleSlugField::make(),   // that's it. No parameters required.
-        // ...pozostałe pola
+        // ... remaining fields
     ]);
 }
 ```
@@ -125,7 +125,7 @@ TitleSlugField::make(
 
 | Parameter | Required? | Default | Description |
 |----------|-----------|-----------|----------------|
-| *(żaden)* | — | — | `TitleSlugField::make()` wystarczy na start |
+| *(none)* | — | — | `TitleSlugField::make()` is enough to start |
 | `fieldTitle` | Nie | `'title'` | Alternative title column/field name |
 | `fieldSlug` | Nie | `'slug'` | Alternative slug column/field name |
 | `urlHost` | Nie | z config lub `null` | Full URL preview host |
@@ -187,8 +187,8 @@ SlugField::make('slug')
 Only add Spatie when you need **model-level hooks** that the form alone cannot handle:
 
 - automatic `-2`, `-3` suffixes on database collisions
-- `preventOverwrite` — nigdy nie nadpisuj sluga po publikacji
-- `skipGenerateWhen`, `extraScope`, wiele pól źródłowych
+- `preventOverwrite` — never overwrite the slug after publish
+- `skipGenerateWhen`, `extraScope`, multiple source fields
 - using the same `SlugOptions` in form preview and on `save()`
 
 Do tego: [Spatie `laravel-sluggable` integration](#spatie-laravel-sluggable-integration).
@@ -201,7 +201,7 @@ Do tego: [Spatie `laravel-sluggable` integration](#spatie-laravel-sluggable-inte
 | No URL preview under slug | `url_host` is `null` | Set `APP_URL` in `.env` or `-&gt;urlHost(...)` |
 | Slug does not update from title | Manual edit disabled auto-sync | Click **Regenerate** |
 | Validation: slug already exists | Duplicate in database | Change slug or delete the old record |
-| `name` / `handle` fields instead of title/slug | Default field names | `fieldTitle:` / `fieldSlug:` lub config |
+| `name` / `handle` fields instead of title/slug | Default field names | `fieldTitle:` / `fieldSlug:` or config |
 
 > **Next sections:** [Default form layout](#default-form-layout-fusedgroup) → [Installation](#installation-and-assets) → [Config](#package-configuration-configfilament-flex-fieldsphp) → [Full Example](#full-example-from-scratch-migration---model---resource) → [Spatie Integration](#spatie-laravel-sluggable-integration-v4x)
 
@@ -209,13 +209,13 @@ Do tego: [Spatie `laravel-sluggable` integration](#spatie-laravel-sluggable-inte
 
 ### Default form layout (`FusedGroup`)
 
-`TitleSlugField::make()` **zawsze** zwraca `Filament\Schemas\Components\FusedGroup` — ten sam układ z parametrami lub bez:
+`TitleSlugField::make()` **always** returns `Filament\Schemas\Components\FusedGroup` — the same layout with or without parameters:
 
 ```php
-// Bez Spatie (domyślna ścieżka)
+// Without Spatie (default path)
 TitleSlugField::make(),
 
-// Z permalinkiem (nadal bez Spatie)
+// With permalink (still without Spatie)
 TitleSlugField::make(
     urlHost: config('app.url'),
     urlPath: '/blog/',
@@ -227,17 +227,17 @@ TitleSlugField::make(spatieModel: Post::class),
 
 > **Important:** `spatieModel` changes **only** the slug preview generation logic (server + `SlugOptions`). It **does not change** the form layout.
 
-#### Co jest wewnątrz `FusedGroup`
+#### What is inside `FusedGroup`
 
-| # | Komponent | State path (domyślnie) | Widoczny? | Rola |
+| # | Component | State path (default) | Visible? | Role |
 |---|-----------|------------------------|-----------|------|
-| 1 | `FlexTextInput` | `title` | Tak | Pole tytułu, `live()`, auto-sync do sluga |
-| 2 | `Hidden` | `slug_auto_update_disabled` | Nie | Flaga: użytkownik ręcznie edytował slug |
-| 3 | `SlugField` | `slug` | Tak | Permalink, inline edit, akcje Copy/Visit/… |
+| 1 | `FlexTextInput` | `title` | Yes | Title field, `live()`, auto-syncs to slug |
+| 2 | `Hidden` | `slug_auto_update_disabled` | No | Flag: user manually edited the slug |
+| 3 | `SlugField` | `slug` | Yes | Permalink, inline edit, Copy/Visit/… actions |
 
 The group has CSS class `fff-title-slug-fused-group` (without the standard Filament border between fields).
 
-#### Domyślny wygląd (ASCII)
+#### Default appearance (ASCII)
 
 When `config('filament-flex-fields.slug.url_host')` is set (e.g. `APP_URL`):
 
@@ -247,7 +247,7 @@ When `config('filament-flex-fields.slug.url_host')` is set (e.g. `APP_URL`):
 │  [ Luxury Yacht Charter in the Mediterranean          ]      │
 └──────────────────────────────────────────────────────────────┘
 
-┌─ Slug (SlugField) — etykieta ukryta ────────────────────────┐
+┌─ Slug (SlugField) — label hidden ──────────────────────────┐
 │  Permalink                                    [ Auto ]       │
 │  🔒 wyachts.test/charters/luxury-yacht-charter              │
 │                                                              │
@@ -263,7 +263,7 @@ When `url_host` is `null` (no URL preview in config):
 │  [ My post title                                        ]    │
 └──────────────────────────────────────────────────────────────┘
 
-┌─ Slug — tryb inline edit ───────────────────────────────────┐
+┌─ Slug — inline edit mode ──────────────────────────────────┐
 │  wyachts.test/charters/my-post-title   (preview + Edit)      │
 │  [ Edit ]                              [ Copy ]              │
 └──────────────────────────────────────────────────────────────┘
@@ -271,19 +271,19 @@ When `url_host` is `null` (no URL preview in config):
 
 #### Table of default visual values
 
-| Element | Domyślna wartość | Skąd się bierze |
+| Element | Default value | Where it comes from |
 |---------|------------------|-----------------|
 | Title field name | `title` | `config('filament-flex-fields.slug.field_title')` |
 | Slug field name | `slug` | `config('filament-flex-fields.slug.field_slug')` |
 | Label title | `"Title"` | `Str::headline($fieldTitle)` |
-| Placeholder title | `"Title"` | j.w. |
-| Label slug | ukryty | `slugLabel: null` → `hiddenLabel()` |
+| Placeholder title | `"Title"` | same as above |
+| Label slug | hidden | `slugLabel: null` → `hiddenLabel()` |
 | Slug size | `md` (40px) | `config('filament-flex-fields.ui.slug_size')` |
 | Slug variant | `primary` | `config('filament-flex-fields.ui.slug_variant')` |
-| Permalink host | `APP_URL` lub `null` | `config('filament-flex-fields.slug.url_host')` |
-| Etykiety przycisków | tekst + ikona | `config('filament-flex-fields.slug.action_button_labels')` |
-| Ikony | Gravity UI | np. `gravityui-pencil`, `gravityui-copy` |
-| Badge | Auto / Custom | Alpine — po ręcznej edycji sluga |
+| Permalink host | `APP_URL` or `null` | `config('filament-flex-fields.slug.url_host')` |
+| Button labels | text + icon | `config('filament-flex-fields.slug.action_button_labels')` |
+| Icons | Gravity UI | e.g. `gravityui-pencil`, `gravityui-copy` |
+| Badge | Auto / Custom | Alpine — after manual slug edit |
 
 #### The same layout — three ways to call
 
@@ -314,9 +314,9 @@ TitleSlugField::autoUpdateDisabledFieldName('permalink'); // permalink_auto_upda
 
 ---
 
-### Instalacja i assety
+### Installation and assets
 
-Pakiet jest częścią `janczakb/filament-flex-fields`. **Ścieżka bez Spatie wymaga tylko assetów pakietu** — bez dodatkowych `composer require`.
+The package ships inside `janczakb/filament-flex-fields`. **The path without Spatie only needs the package assets** — no extra `composer require`.
 
 ```bash
 # In the package / application directory
@@ -325,40 +325,40 @@ npm run build:css
 php artisan filament:assets
 ```
 
-#### Opcjonalnie: Spatie (dopiero gdy potrzebujesz)
+#### Optional: Spatie (only when you need it)
 
-Instaluj **tylko** jeśli model ma `HasSlug` / `getSlugOptions()` i chcesz zgodny podgląd w formularzu:
+Install **only** if the model uses `HasSlug` / `getSlugOptions()` and you want matching form preview:
 
 ```bash
 composer require spatie/laravel-sluggable
 ```
 
-Bez tego pakietu `TitleSlugField::make()` działa w pełni — generowanie przez `Str::slug()` w przeglądarce.
+Without that package `TitleSlugField::make()` still works fully — generation uses browser `Str::slug()` / client slugify.
 
 ---
 
-### Konfiguracja pakietu (`config/filament-flex-fields.php`)
+### Package configuration (`config/filament-flex-fields.php`)
 
-Opublikuj config:
+Publish the config:
 
 ```bash
 php artisan vendor:publish --tag=filament-flex-fields-config
 ```
 
-Klucze dotyczące sluga:
+Slug-related keys:
 
 ```php
 // config/filament-flex-fields.php
 return [
     'slug' => [
-        // Default field names pól w TitleSlugField::make()
+        // Default field names for TitleSlugField::make()
         'field_title' => 'title',
         'field_slug' => 'slug',
 
-        // Host w pasku permalink (null = brak paska hosta)
+        // Host in the permalink bar (null = no host bar)
         'url_host' => env('APP_URL'),
 
-        // true = przyciski z tekstem; false = same ikony + tooltip
+        // true = buttons with text; false = icons only + tooltip
         'action_button_labels' => true,
     ],
 
@@ -369,7 +369,7 @@ return [
 ];
 ```
 
-**Przykład — blog z polskimi nazwami pól:**
+**Example — blog with custom Polish field names:**
 
 ```php
 // config/filament-flex-fields.php
@@ -381,9 +381,9 @@ return [
 ```
 
 ```php
-// W Resource — bez podawania nazw pól
+// In the Resource — without repeating field names
 TitleSlugField::make(
-    titleLabel: 'Tytuł wpisu',
+    titleLabel: 'Post title',
     urlPath: '/wpisy/',
 ),
 ```
@@ -394,7 +394,7 @@ TitleSlugField::make(
 
 > Continuation of the [Start here — integration without Spatie](#start-here--integration-without-spatie-default) section. Steps 1–3 are the minimum; step 4 (Spatie) is **optional**.
 
-#### 1. Migracja
+#### 1. Migration
 
 ```php
 Schema::create('posts', function (Blueprint $table): void {
@@ -406,7 +406,7 @@ Schema::create('posts', function (Blueprint $table): void {
 });
 ```
 
-#### 2. Model (bez Spatie — wystarczy na produkcję)
+#### 2. Model (without Spatie — enough for production)
 
 ```php
 namespace App\Models;
@@ -419,7 +419,7 @@ class Post extends Model
 }
 ```
 
-**Nie dodawaj** `HasSlug` ani `getSlugOptions()` — chyba że przechodzisz na krok 4 poniżej.
+**Do not add** `HasSlug` or `getSlugOptions()` — unless you move to step 4 below.
 
 #### 3. Filament Resource (without Spatie)
 
@@ -469,7 +469,7 @@ class Post extends Model
 ```
 
 ```php
-// Formularz — wygląd identyczny, slug preview zgodny z modelem
+// Form — identical layout, slug preview matches the model
 TitleSlugField::make(
     spatieModel: Post::class,
     urlHost: config('app.url'),
@@ -477,7 +477,7 @@ TitleSlugField::make(
 ),
 ```
 
-> **Dwie warstwy:** formularz pokazuje podgląd sluga na żywo; przy zapisie rekordu Spatie `HasSlug` może dodać suffix (`-2`) lub zastosować `preventOverwrite` — to normalne.
+> **Two layers:** the form shows a live slug preview; on save Spatie `HasSlug` may add a suffix (`-2`) or apply `preventOverwrite` — that is expected.
 
 ---
 
@@ -492,8 +492,8 @@ TitleSlugField::make(
 ),
 ```
 
-- **Create:** tytuł → slug na żywo.
-- **Edit:** zmiana tytułu **nie** zmienia sluga.
+- **Create:** title → slug live.
+- **Edit:** changing the title does **not** change the slug.
 
 #### Scenario 2: Always sync slug with title
 
@@ -588,7 +588,7 @@ Repeater::make('sections')
     ->columns(1),
 ```
 
-Ścieżki zagnieżdżone (`sections.0.title` → `sections.0.slug`) są rozwiązywane automatycznie.
+Nested paths (`sections.0.title` → `sections.0.slug`) are resolved automatically.
 
 #### Scenario 9: Manual slug only (no title, no auto-generate)
 
@@ -627,7 +627,7 @@ public function getSlugOptions(): SlugOptions
         ->saveSlugsTo('slug');
 }
 
-// Formularz
+// Form
 TitleSlugField::make(spatieModel: Post::class),
 FlexTextInput::make('subtitle')->live(),
 ```
@@ -647,7 +647,7 @@ public static function form(Schema $schema): Schema
     return $schema->components([
         TitleSlugField::make(
             urlHost: config('app.url'),  // opcjonalne — permalink w UI
-            urlPath: '/blog/',           // opcjonalne — prefix ścieżki
+            urlPath: '/blog/',           // optional — path prefix
         ),
         // ...other fields
     ]);
@@ -985,7 +985,7 @@ Spatie adds a second layer: saving the slug with model options (suffixes, scope,
 | Traits `GeneratesSlugFromSource`, `ConfiguresSlugPermalink` | **No** — only `SpatieSlugIntegration::isAvailable()` | Guard before each Spatie call |
 | `Support/Slug/SpatieSlugIntegration.php` | **Yes** — the only slug bridge | Loaded safely; `isAvailable()` returns `false`, falls back to `SlugGenerator` |
 
-`spatie/laravel-sluggable` jest w `composer.json` → `suggest`, nie w `require`. Pakiet **nie wymusza** instalacji Spatie.
+`spatie/laravel-sluggable` is in `composer.json` → `suggest`, not `require`. The package **does not force** installing Spatie.
 
 **Optional.** Install when you want model-driven slug rules:
 
@@ -1013,7 +1013,7 @@ class Post extends Model
 }
 ```
 
-#### Minimal model (v4 attribute — bez `getSlugOptions()`)
+#### Minimal model (v4 attribute — without `getSlugOptions()`)
 
 ```php
 use Illuminate\Database\Eloquent\Model;
@@ -1022,7 +1022,7 @@ use Spatie\Sluggable\Attributes\Sluggable;
 #[Sluggable(from: 'title', to: 'slug')]
 class Post extends Model
 {
-    // Brak HasSlug — SlugField odczytuje opcje przez SluggableAttributeResolver
+    // No HasSlug — SlugField reads options via SluggableAttributeResolver
 }
 ```
 
@@ -1045,13 +1045,13 @@ Simply having `Post` as the Resource model does not enable Spatie automatically 
 // Form layout: IDENTICAL FusedGroup in both cases
 TitleSlugField::make(),
 
-// Jawne wskazanie modelu Spatie (zalecane gdy Resource nie binduje modelu)
+// Explicit Spatie model (recommended when the Resource does not bind a model)
 TitleSlugField::make(spatieModel: Post::class),
 ```
 
 **What changes after adding `spatieModel`:**
 
-| Aspekt | Bez Spatie | Ze `spatieModel` |
+| Aspect | Without Spatie | With `spatieModel` |
 |--------|------------|------------------|
 | UI Layout (`FusedGroup`) | Same | Same |
 | Preview generation | `Str::slug` in JS or `SlugGenerator` | `GenerateSlugAction` + `SlugOptions` |
@@ -1265,7 +1265,7 @@ SlugField::make('slug')
     ->visitRoute(fn (string $slug, string $routeKey): ?string => filled($slug) ? route('blog.show', $routeKey) : null),
 ```
 
-Closure `visitUrl` / `visitRoute` otrzymuje wstrzyknięte: `slug` (string), `routeKey` (string — dla self-healing modeli: `hello-world-5`, inaczej jak `slug`) i `record` (?Model).
+Closure `visitUrl` / `visitRoute` receives injected: `slug` (string), `routeKey` (string — for self-healing models: `hello-world-5`, otherwise same as `slug`) and `record` (?Model).
 
 #### Hide permalink or actions
 
@@ -1461,7 +1461,7 @@ TitleSlugField::make(
 
     // --- slug UX ---
     slugReadOnly: false,
-    slugLabel: null, // null = ukryta etykieta
+    slugLabel: null, // null = hidden label
 
     // --- uniqueness ---
     slugUniqueParameters: ['column' => 'slug', 'ignoreRecord' => true],
@@ -1727,7 +1727,7 @@ TitleSlugField::make(
 
 #### `actionButtonLabels(bool|Closure)` / `actionButtonsIconOnly(bool|Closure)`
 
-Kontrola tekstu na przyciskach akcji (Hero UI button-group + ikony Gravity).
+Control text on action buttons (Hero UI button-group + Gravity icons).
 
 ```php
 // Text + icon (default)
@@ -1767,7 +1767,7 @@ On the `edit` operation, it stops auto-sync from the title (protects published U
 // Default — do not overwrite slug on title edit
 TitleSlugField::make(), // preserveSlugOnEdit: true
 
-// Zawsze synchronizuj (jak na create)
+// Always sync (same as create)
 TitleSlugField::make(preserveSlugOnEdit: false),
 
 SlugField::make('slug')->preserveSlugOnEdit(false),
@@ -1778,7 +1778,7 @@ SlugField::make('slug')->preserveSlugOnEdit(false),
 When `true` (default): permalink preview + Edit/OK/Cancel/Reset buttons. When `false`: standard `TextInput`.
 
 ```php
-// Prosty input bez trybu inline (np. w Repeaterze)
+// Simple input without inline mode (e.g. inside a Repeater)
 SlugField::make('slug')
     ->inlineEditing(false)
     ->autoGenerate(false),
@@ -1867,7 +1867,7 @@ SlugField::make('slug')
     ->slugUniqueModel(Post::class)
     ->slugUniqueScope(fn ($q) => $q->where('tenant_id', 1)),
 
-// Parametry jak Filament unique()
+// Parameters like Filament unique()
 SlugField::make('slug')->slugUniqueParameters([
     'table' => 'posts',
     'column' => 'slug',
@@ -2375,7 +2375,7 @@ Set your application locale (`app.locale` = `pl`) to load built-in translations 
 $field = SlugField::make('slug')->spatieModel(Post::class);
 
 $field->usesSpatieIntegration();      // true/false
-$field->shouldUseServerSideGeneration(); // true gdy Spatie, translatable titles lub serverSideGeneration()
+$field->shouldUseServerSideGeneration(); // true when Spatie, translatable titles, or serverSideGeneration()
 $field->getSourceStatePath();         // np. "data.title"
 $field->generateSlugFromSource('Hello World'); // PHP preview
 ```
