@@ -186,6 +186,15 @@ it('renders lazy stylesheet include in progress bar blade', function () {
         ->toContain('fff-progress-bar__pill');
 });
 
+it('uses break-word for segmented progress bar titles', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/progress-bar.css');
+
+    expect($css)
+        ->toContain('.fff-progress-bar__segment-title')
+        ->toContain('overflow-wrap: break-word')
+        ->not->toContain('overflow-wrap: anywhere');
+});
+
 it('rejects unsupported progress bar colors', function () {
     ProgressBar::make()
         ->color('neon')

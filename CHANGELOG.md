@@ -5,6 +5,21 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.8] - 2026-08-12
+
+### Fixed
+
+- **ProgressBar (segmented titles)** — `overflow-wrap` on `.fff-progress-bar__segment-title` / label columns changed from `anywhere` to `break-word`, so narrow multi-segment trackers no longer split words mid-token (e.g. `Anagrafic a`) or squeeze neighbouring columns via min-content. ([#44](https://github.com/janczakb/filament-flex-fields/issues/44))
+
+### Changed
+
+- **LICENSE v1.1** — clarified Permitted Free Use for private app repositories and `filament:assets` output (§1.5(iii), §2.2), application-level CSS/theme overrides (§2.3), local vendor patches kept only for your own install (§2.4), and audit confirmation by email (§10.8). Redistribution / publishing of modified copies remains restricted (§3.1 / §3.2). ([#44](https://github.com/janczakb/filament-flex-fields/issues/44))
+- **README** — added a short “What this license means for you” table for faster adoption review.
+
+### Tests
+
+- ProgressBar unit coverage asserting segmented title CSS uses `break-word` (not `anywhere`).
+
 ## [2.9.7] - 2026-08-11
 
 ### Fixed

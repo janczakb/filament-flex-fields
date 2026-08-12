@@ -1,5 +1,5 @@
 ================================================================================
-        SOURCE-AVAILABLE & DUAL-COMMERCIAL LICENSE — VERSION 1.0
+        SOURCE-AVAILABLE & DUAL-COMMERCIAL LICENSE — VERSION 1.1
           janczakb/filament-flex-fields (the "Software")
 ================================================================================
 
@@ -61,7 +61,17 @@ SECTION 1 — DEFINITIONS
            to extract, republish, or sublicense the Software;
      (ii)  delivering an integrated application to a client under Section
            1.7(b) when the client receives only runtime access and no rights
-           described in subsections (a) through (d) above.
+           described in subsections (a) through (d) above;
+     (iii) storing Composer vendor copies, published Filament assets produced by
+           `php artisan filament:assets` (or equivalent), backups, CI caches, or
+           other deployment artifacts of the Software inside Your private
+           application Repository or private artifact store when ALL of the
+           following are true: (1) access is limited to You, Your employees, and
+           contractors bound to confidentiality for Permitted Free Use; (2) the
+           copy is kept as part of Your integrated application runtime or build
+           pipeline rather than offered as a standalone package of the Software;
+           and (3) You do not grant any third party rights described in
+           subsections (a) through (d) above.
 
 1.6  "Distinct Client Engagement" means one separately contracted scope of work
      for one end client identified in writing before deployment begins. Multiple
@@ -135,14 +145,45 @@ non-sublicensable, non-transferable license to:
 
 2.1  Obtain copies of the Software only through Official Distribution Channels
      or other channels expressly authorized in writing by the Copyright Holder,
-     and install and use the unmodified Software solely for Permitted Free Use
-     as defined in Section 1.7. Merely downloading or installing a copy from
-     an Official Distribution Channel does not constitute redistribution by You.
+     and install and use the Software solely for Permitted Free Use as defined
+     in Section 1.7, including local modifications permitted under Section 2.4.
+     Merely downloading or installing a copy from an Official Distribution
+     Channel does not constitute redistribution by You.
 
 2.2  Make a reasonable number of backup copies and deployment artifacts
      strictly necessary to operate Permitted Free Use, provided such copies
-     remain under Your control, are not modified, and are not subject to
-     Software Transfer.
+     remain under Your control and are not subject to Software Transfer. This
+     expressly includes regenerating published Filament CSS/JS assets into Your
+     application's `public/` (or similar) directory via
+     `php artisan filament:assets` or an equivalent build step, whether those
+     files are regenerated on each deploy or stored under Section 1.5(iii).
+
+2.3  Style, theme, or otherwise present the rendered HTML/CSS/JS output of the
+     Software in Your own application by adding rules, themes, or assets that
+     live outside the Software's package files (for example, Your Filament panel
+     theme, application stylesheet, or Blade layout). Such application-level
+     presentation overrides are ordinary use of the Software's output and do
+     not require editing the installed Software package.
+
+2.4  LOCAL MODIFICATIONS FOR PERMITTED FREE USE. You may modify, patch, fork,
+     or adapt the Software (including files under
+     `vendor/janczakb/filament-flex-fields` or any equivalent install path)
+     solely for Permitted Free Use on systems You control, provided that:
+     (a) the modified Software remains under Your control and is used only for
+         Your Permitted Free Use (or, where Section 1.7(b) applies, only as
+         runtime within that Distinct Client Engagement without Software
+         Transfer of the modified copy);
+     (b) You do not publish, redistribute, sublicense, sell, or otherwise
+         perform Software Transfer of the modified Software, in whole or in
+         part, except as expressly allowed without transfer in Section
+         1.5(i)–(iii);
+     (c) You preserve copyright notices and this License text in any retained
+         copy to the extent practicable; and
+     (d) You accept that modified copies are unsupported unless You contribute
+         the change upstream under Section 4 or obtain a Commercial License
+         that expressly covers support for modifications.
+     Application-level overrides under Section 2.3 remain encouraged for
+     presentation changes that do not require editing package files.
 
 No rights are granted except those expressly set out in this Section 2.
 All other rights are reserved exclusively by the Copyright Holder.
@@ -155,23 +196,40 @@ The following acts are CATEGORICALLY AND UNCONDITIONALLY PROHIBITED unless
 You hold a valid, current Commercial License issued by the Copyright Holder
 under Section 5:
 
-3.1  MODIFICATION AND DERIVATIVE WORKS. You may not modify, adapt, translate,
-     reverse engineer (except to the minimum extent mandatory applicable law
-     expressly permits and cannot be waived), decompile, or create any
-     Derivative Work from the Software, in whole or in part, for any purpose.
+3.1  REDISTRIBUTION OF MODIFICATIONS AND UNAUTHORIZED DERIVATIVE WORKS. Local
+     modifications for Permitted Free Use under Section 2.4 are permitted.
+     You may not, without a Commercial License:
+     (a) publish, redistribute, sublicense, sell, or otherwise perform Software
+         Transfer of any modified Software or Derivative Work;
+     (b) offer a modified Software or Derivative Work to third parties as a
+         package, library, plugin, starter kit, or competing product; or
+     (c) reverse engineer or decompile the Software except to the minimum
+         extent mandatory applicable law expressly permits and cannot be waived.
+     Application-level presentation overrides under Section 2.3 are always
+     permitted for Permitted Free Use and are not restricted by this
+     Section 3.1.
 
 3.2  REDISTRIBUTION IN ANY FORM. You may not publish, upload, transmit,
      broadcast, mirror, host, or otherwise make available the Software — in
-     whole or in any part — through any means, including but not limited to:
-     (a) any public or private Repository;
+     whole or in any part — through any means intended to let third parties
+     obtain standalone copies of the Software, including but not limited to:
+     (a) any public Repository, or any private Repository or shared drive from
+         which a third party outside Permitted Free Use under Section 1.5(iii)
+         can obtain the Software as a standalone package, mirror, or fork;
      (b) any Package Registry, except Official Distribution Channels operated
          by the Copyright Holder;
-     (c) file-sharing platforms, cloud storage, or peer-to-peer networks;
-     (d) email, instant messaging, or any other communication channel.
+     (c) file-sharing platforms, cloud storage, or peer-to-peer networks used
+         to distribute the Software beyond Your controlled Permitted Free Use;
+     (d) email, instant messaging, or any other communication channel used to
+         transfer the Software to third parties outside Section 1.5(i)–(iii).
+     Section 3.2 does not prohibit the storage described in Section 1.5(iii)
+     or the deployment artifacts described in Section 2.2.
 
 3.3  SOFTWARE TRANSFER. You may not perform any Software Transfer except as
-     expressly allowed without transfer in Section 1.5(i)–(ii) and Section
-     1.7(b)(ii).
+     expressly allowed without transfer in Section 1.5(i)–(iii) and Section
+     1.7(b)(ii). Section 1.5(iii) storage may include locally modified copies
+     created under Section 2.4, but does not authorize Software Transfer of
+     those modified copies to third parties.
 
 3.4  BUNDLING AND COMMERCIAL EXPLOITATION. You may not:
      (a) include, embed, bundle, or integrate the Software, in whole or in any
@@ -244,11 +302,12 @@ SECTION 4 — CONTRIBUTOR LICENSE AGREEMENT (CLA)
 SECTION 5 — COMMERCIAL LICENSING
 ================================================================================
 
-5.1  Any use not expressly permitted by Section 2 — including modification,
-     Commercial Distribution, Software Transfer beyond Section 1.5(i)–(ii),
-     Bundled Product distribution, competing products under Section 3.9, or
-     any other commercial exploitation of the Software — requires a separate
-     Commercial License issued by the Copyright Holder prior to such use.
+5.1  Any use not expressly permitted by Section 2 — including Commercial
+     Distribution, Software Transfer beyond Section 1.5(i)–(iii), Bundled
+     Product distribution, redistribution of modified Software beyond
+     Section 2.4, competing products under Section 3.9, or any other commercial
+     exploitation of the Software — requires a separate Commercial License
+     issued by the Copyright Holder prior to such use.
 
 5.2  To inquire about or obtain a Commercial License, contact:
 
@@ -261,9 +320,10 @@ SECTION 5 — COMMERCIAL LICENSING
      the Copyright Holder. No Commercial License is effective until so signed
      or otherwise authenticated by the Copyright Holder.
 
-5.4  Any act of modification, Commercial Distribution, prohibited Software
-     Transfer, Bundled Product distribution, or competing use under Section 3.9
-     without a valid Commercial License:
+5.4  Any act of Commercial Distribution, prohibited Software Transfer,
+     Bundled Product distribution, redistribution of modified Software beyond
+     Section 2.4, or competing use under Section 3.9 without a valid Commercial
+     License:
      (a) is null and void ab initio;
      (b) constitutes a material breach of this License;
      (c) constitutes direct infringement of the Copyright Holder's exclusive
@@ -398,16 +458,23 @@ SECTION 10 — GENERAL PROVISIONS
 
 10.6 MODIFICATIONS TO THIS LICENSE. The Copyright Holder may publish revised
      versions. The version under which You obtained the Software governs Your
-     use unless expressly stated otherwise. This is version 1.0, effective
-     9 June 2026.
+     use unless expressly stated otherwise. This is version 1.1, effective
+     12 August 2026. Version 1.1 clarifies Sections 1.5, 2.2–2.4, 3.1–3.3,
+     5.1, 5.4, and 10.8 (private deployment artifacts, application CSS
+     overrides, local modifications for Permitted Free Use, and audit form);
+     it does not reduce rights previously granted under version 1.0 for
+     Permitted Free Use.
 
 10.7 LANGUAGE. This License is written in English. Any translation is provided
      for convenience only; the English text prevails.
 
-10.8 AUDIT. Upon reasonable prior written notice, the Copyright Holder may
-     request written confirmation that Your use remains within Permitted Free
-     Use. You must respond within thirty (30) calendar days with good-faith
-     information. Refusal or material misrepresentation constitutes a breach.
+10.8 AUDIT. Upon reasonable prior written notice (email is sufficient), the
+     Copyright Holder may request written confirmation that Your use remains
+     within Permitted Free Use. A good-faith reply from an authorized company
+     representative (for example legal, engineering, or procurement) by email
+     within thirty (30) calendar days is enough; no special form, portal, or
+     on-site audit is required unless separately agreed in a Commercial
+     License. Refusal or material misrepresentation constitutes a breach.
 
 ================================================================================
 END OF LICENSE

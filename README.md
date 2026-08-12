@@ -868,6 +868,25 @@ Sample bundles (10 of **59** production CSS files). Full per-file metrics — ev
 
 ---
 
+## What this license means for you
+
+Flex Fields is **source-available and dual-licensed**. Free use is allowed for many real projects; selling or redistributing the plugin (or apps that ship it as a product) needs a commercial licence. Full text: [LICENSE](LICENSE) (v1.1).
+
+| Scenario | Free use? |
+|----------|-----------|
+| Internal company / staff back-office (your ops only) | **Yes** — §1.7(a) |
+| One client work-for-hire where the client gets runtime access, not a standalone copy of the plugin | **Yes** — §1.7(b) |
+| Committing `vendor/` or `php artisan filament:assets` output into **your private** app repo (employees/contractors only) | **Yes** — §1.5(iii), §2.2 |
+| Regenerating assets on deploy and gitignoring published paths | **Yes** (recommended hygiene; not required if §1.5(iii) applies) |
+| CSS/theme overrides in **your** panel stylesheet that target `.fff-*` classes | **Yes** — §2.3 |
+| Local patches / edits under `vendor/…` used only in your own install | **Yes** — §2.4 |
+| Publishing or sharing a modified copy (public repo, Packagist, third parties) | **No** — §3.1 / §3.2 |
+| Selling, licensing, or offering a multi-tenant SaaS where Flex Fields is a material component | **No** — needs a [commercial licence](mailto:barek122@gmail.com) |
+
+Questions about a specific setup: open a GitHub issue or email `barek122@gmail.com`.
+
+---
+
 See [LICENSE](LICENSE) for license details. Third-party attributions: [CREDITS.md](CREDITS.md).
 
 <p align="center">Made with ❤️ by <a href="mailto:barek122@gmail.com">Bartłomiej Janczak</a></p>
