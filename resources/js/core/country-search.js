@@ -1,10 +1,4 @@
-function normalizeSearchQuery(query) {
-    return String(query ?? '')
-        .trim()
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-}
+import { normalizeSearchQuery } from './search-normalize.js'
 
 function rankCountryMatch(country, query) {
     const normalizedQuery = normalizeSearchQuery(query)

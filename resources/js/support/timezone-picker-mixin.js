@@ -1,4 +1,5 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { normalizeSearchQuery } from '../core/search-normalize.js'
 
 export const FFF_TIMEZONE_VIRTUAL_THRESHOLD = 50
 export const FFF_TIMEZONE_ROW_HEIGHT = 40
@@ -132,17 +133,17 @@ export function createTimezonePickerMixin(options = {}) {
 
         get filteredTimezones() {
             const timezones = this.timezones ?? []
-            const query = this.timezoneSearch.trim().toLowerCase()
+            const query = normalizeSearchQuery(this.timezoneSearch)
 
             if (! query) {
                 return timezones
             }
 
             return timezones.filter((timezone) => {
-                return timezone.label.toLowerCase().includes(query)
-                    || timezone.id.toLowerCase().includes(query)
-                    || String(timezone.region ?? '').toLowerCase().includes(query)
-                    || timezone.offset.toLowerCase().includes(query)
+                return normalizeSearchQuery(timezone.label).includes(query)
+                    || normalizeSearchQuery(timezone.id).includes(query)
+                    || normalizeSearchQuery(timezone.region).includes(query)
+                    || normalizeSearchQuery(timezone.offset).includes(query)
             })
         },
 

@@ -1,3 +1,5 @@
+import { normalizeSearchQuery } from '../core/search-normalize.js'
+
 export default function tagsFieldFormComponent({
     state,
     splitKeys,
@@ -174,7 +176,7 @@ export default function tagsFieldFormComponent({
         },
 
         filteredSuggestions() {
-            const query = this.newTag.trim().toLowerCase();
+            const query = normalizeSearchQuery(this.newTag);
             const source = this.availableSuggestions();
 
             return source.filter((suggestion) => {
@@ -186,7 +188,7 @@ export default function tagsFieldFormComponent({
                     return true;
                 }
 
-                return suggestion.toLowerCase().includes(query);
+                return normalizeSearchQuery(suggestion).includes(query);
             });
         },
 

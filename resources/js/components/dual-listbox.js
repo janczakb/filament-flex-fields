@@ -1,3 +1,5 @@
+import { normalizeSearchQuery } from '../core/search-normalize.js'
+
 export const FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD = 100
 export const FFF_DUAL_LISTBOX_ROW_HEIGHT = 44
 export const FFF_DUAL_LISTBOX_OVERSCAN = 6
@@ -81,15 +83,15 @@ export default function dualListboxFormComponent({
                 return true
             }
 
-            const needle = query.trim().toLowerCase()
+            const needle = normalizeSearchQuery(query)
 
             if (! needle) {
                 return true
             }
 
             return (
-                option.label.toLowerCase().includes(needle) ||
-                (option.description ?? '').toLowerCase().includes(needle)
+                normalizeSearchQuery(option.label).includes(needle) ||
+                normalizeSearchQuery(option.description).includes(needle)
             )
         },
 
