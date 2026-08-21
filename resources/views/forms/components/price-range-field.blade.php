@@ -30,6 +30,7 @@
             step: @js($getStep()),
             integer: @js($isInteger()),
             decimalPlaces: @js($getDecimalPlaces()),
+            locale: @js($field->getLocale()),
             prefix: @js($prefix),
             histogram: @js($getHistogram()),
             disabled: @js($isDisabled),

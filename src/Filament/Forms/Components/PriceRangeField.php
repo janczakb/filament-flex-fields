@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasNumberLocale;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\StateCasts\PriceRangeFieldStateCast;
 use Closure;
@@ -14,6 +15,8 @@ use InvalidArgumentException;
 
 class PriceRangeField extends Field
 {
+    use HasNumberLocale;
+
     use HasControlSize;
     use HasFieldRounding;
 

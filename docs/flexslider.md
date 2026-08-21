@@ -72,6 +72,7 @@ All methods accept `Closure` unless noted.
 |--------|------|---------|-------------|
 | `showValue(bool $condition)` | Setup | `false` | Display current value in footer |
 | `prefix(string $prefix)` | Setup | `null` | Value prefix |
+| `locale(string\|Closure\|null $locale)` | Setup | `null` | Locale for the displayed number (`pt_BR` → `1.234,50`). `null` keeps the plain unformatted output |
 | `suffix(string $suffix)` | Setup | `null` | Value suffix |
 | `variant(string $variant)` | Setup | `'default'` | `default`, `secondary` |
 | `trackLabel(string $label)` | Setup | `null` | Label shown inside or above track |

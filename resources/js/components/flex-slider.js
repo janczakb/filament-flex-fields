@@ -1,5 +1,6 @@
 import noUiSlider from 'nouislider'
 import { resolveFlexSliderHandleVisualOffset } from '../support/flex-slider-handle-offset.js'
+import { formatDecimal } from '../core/number-format.js'
 
 export default function flexSliderFormComponent({
     arePipsStepped,
@@ -17,6 +18,7 @@ export default function flexSliderFormComponent({
     isDisabled,
     isRtl,
     isVertical,
+    locale,
     maxDifference,
     maxValue,
     minDifference,
@@ -663,9 +665,9 @@ export default function flexSliderFormComponent({
             let formatted
 
             if (decimalPlaces !== null) {
-                formatted = numeric.toFixed(decimalPlaces)
+                formatted = formatDecimal(numeric, { locale, decimalPlaces })
             } else if (Number.isInteger(step)) {
-                formatted = String(Math.round(numeric))
+                formatted = formatDecimal(Math.round(numeric), { locale, decimalPlaces: 0 })
             } else if (step > 0) {
                 const stepDecimals = String(step).includes('.')
                     ? String(step).split('.')[1].length
@@ -673,10 +675,10 @@ export default function flexSliderFormComponent({
 
                 formatted =
                     stepDecimals > 0
-                        ? numeric.toFixed(stepDecimals).replace(/\.?0+$/, '')
-                        : String(numeric)
+                        ? formatDecimal(Number(numeric.toFixed(stepDecimals)), { locale })
+                        : formatDecimal(numeric, { locale })
             } else {
-                formatted = String(numeric)
+                formatted = formatDecimal(numeric, { locale })
             }
 
             if (this.prefix) {

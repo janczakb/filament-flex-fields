@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-12T10:16:43.602Z",
+  "generatedAt": "2026-08-21T18:11:02.573Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 22865,
@@ -586,22 +586,22 @@
     "address-autocomplete.js": {
       "bytes": 5385,
       "kb": 5.26,
-      "gzipKb": 1.62
+      "gzipKb": 1.61
     },
     "audio-field.js": {
       "bytes": 5908,
       "kb": 5.77,
-      "gzipKb": 1.74
+      "gzipKb": 1.75
     },
     "barcode-scanner-field.js": {
       "bytes": 20226,
       "kb": 19.75,
-      "gzipKb": 5.86
+      "gzipKb": 5.85
     },
     "calculator-field.js": {
       "bytes": 3661,
       "kb": 3.58,
-      "gzipKb": 1.4
+      "gzipKb": 1.41
     },
     "calculator-panel.js": {
       "bytes": 298,
@@ -619,14 +619,14 @@
       "gzipKb": 1.03
     },
     "currency-field.js": {
-      "bytes": 15758,
-      "kb": 15.39,
-      "gzipKb": 4.39
+      "bytes": 15728,
+      "kb": 15.36,
+      "gzipKb": 4.37
     },
     "dual-listbox.js": {
       "bytes": 4902,
       "kb": 4.79,
-      "gzipKb": 1.51
+      "gzipKb": 1.5
     },
     "flex-checklist.js": {
       "bytes": 865,
@@ -636,7 +636,7 @@
     "flex-color-picker.js": {
       "bytes": 9115,
       "kb": 8.9,
-      "gzipKb": 3.65
+      "gzipKb": 3.61
     },
     "flex-date-time-field.js": {
       "bytes": 22728,
@@ -646,22 +646,22 @@
     "flex-fields-audio-7IBP5TOY.js": {
       "bytes": 2973,
       "kb": 2.9,
-      "gzipKb": 1.36
+      "gzipKb": 1.37
     },
     "flex-fields-barcode-scanner-QEMQZOJY.js": {
       "bytes": 459679,
       "kb": 448.91,
-      "gzipKb": 117.86
+      "gzipKb": 117.05
     },
     "flex-fields-barcode-scanner-YZKBPJD3.js": {
       "bytes": 26853,
       "kb": 26.22,
-      "gzipKb": 6.8
+      "gzipKb": 6.82
     },
     "flex-fields-calculator-coordinator-TSE3PH2I.js": {
       "bytes": 19273,
       "kb": 18.82,
-      "gzipKb": 5.89
+      "gzipKb": 5.86
     },
     "flex-fields-calendar-panel-VCLAEADU.js": {
       "bytes": 2460,
@@ -671,17 +671,17 @@
     "flex-fields-camera-stream-RDR7IKFX.js": {
       "bytes": 2479,
       "kb": 2.42,
-      "gzipKb": 0.92
+      "gzipKb": 0.93
     },
     "flex-fields-components-flex-time-segments-MG57ESXV.js": {
       "bytes": 6579,
       "kb": 6.42,
-      "gzipKb": 2.01
+      "gzipKb": 2
     },
     "flex-fields-date-time-format-parse-VDBPKOGE.js": {
       "bytes": 19878,
       "kb": 19.41,
-      "gzipKb": 6.31
+      "gzipKb": 6.29
     },
     "flex-fields-date-time-segmented-input-QZ6YOYTA.js": {
       "bytes": 4130,
@@ -691,12 +691,12 @@
     "flex-fields-dynamic-bars-TC53IFLW.js": {
       "bytes": 840,
       "kb": 0.82,
-      "gzipKb": 0.46
+      "gzipKb": 0.45
     },
     "flex-fields-emoji-GVNTVGPS.js": {
       "bytes": 20145,
       "kb": 19.67,
-      "gzipKb": 6.24
+      "gzipKb": 6.19
     },
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js": {
       "bytes": 1738,
@@ -713,15 +713,20 @@
       "kb": 0.28,
       "gzipKb": 0.17
     },
-    "flex-fields-phone-lib-RPEB4A4Q.js": {
-      "bytes": 189447,
-      "kb": 185.01,
-      "gzipKb": 43.32
+    "flex-fields-number-format-ISTO3QTP.js": {
+      "bytes": 430,
+      "kb": 0.42,
+      "gzipKb": 0.27
+    },
+    "flex-fields-phone-lib-2YHFMY4Y.js": {
+      "bytes": 189348,
+      "kb": 184.91,
+      "gzipKb": 43.24
     },
     "flex-fields-rich-editor-toolbar-a11y-SLY3K5DZ.js": {
       "bytes": 978,
       "kb": 0.96,
-      "gzipKb": 0.51
+      "gzipKb": 0.52
     },
     "flex-fields-select-menu-VRU2IS3M.js": {
       "bytes": 5519,
@@ -731,12 +736,12 @@
     "flex-fields-shared-CEWOLNQU.js": {
       "bytes": 38338,
       "kb": 37.44,
-      "gzipKb": 13.44
+      "gzipKb": 13.4
     },
     "flex-fields-shared-QXDUA67G.js": {
       "bytes": 3095,
       "kb": 3.02,
-      "gzipKb": 1.2
+      "gzipKb": 1.22
     },
     "flex-fields-theme-utils-4LQ7HT7A.js": {
       "bytes": 534,
@@ -751,7 +756,7 @@
     "flex-fields-timezone-picker-mixin-NT3E3SRO.js": {
       "bytes": 2493,
       "kb": 2.43,
-      "gzipKb": 0.9
+      "gzipKb": 0.91
     },
     "flex-fields-virtualized-list-N4JD6N7Y.js": {
       "bytes": 7525,
@@ -766,12 +771,12 @@
     "flex-rich-editor.js": {
       "bytes": 14398,
       "kb": 14.06,
-      "gzipKb": 4.66
+      "gzipKb": 4.68
     },
     "flex-slider.js": {
-      "bytes": 37693,
-      "kb": 36.81,
-      "gzipKb": 12.52
+      "bytes": 37820,
+      "kb": 36.93,
+      "gzipKb": 12.49
     },
     "flex-text-input.js": {
       "bytes": 11138,
@@ -781,7 +786,7 @@
     "flex-textarea.js": {
       "bytes": 9053,
       "kb": 8.84,
-      "gzipKb": 2.65
+      "gzipKb": 2.67
     },
     "flex-time-segments.js": {
       "bytes": 312,
@@ -796,12 +801,12 @@
     "hold-confirm-action.js": {
       "bytes": 3698,
       "kb": 3.61,
-      "gzipKb": 1.21
+      "gzipKb": 1.22
     },
     "icon-picker-field.js": {
       "bytes": 15021,
       "kb": 14.67,
-      "gzipKb": 4.45
+      "gzipKb": 4.44
     },
     "link-preview-field.js": {
       "bytes": 7708,
@@ -819,9 +824,9 @@
       "gzipKb": 0.68
     },
     "number-stepper.js": {
-      "bytes": 19331,
-      "kb": 18.88,
-      "gzipKb": 6.16
+      "bytes": 19463,
+      "kb": 19.01,
+      "gzipKb": 6.2
     },
     "phone-field.js": {
       "bytes": 6021,
@@ -829,9 +834,9 @@
       "gzipKb": 1.88
     },
     "price-range.js": {
-      "bytes": 4339,
-      "kb": 4.24,
-      "gzipKb": 1.4
+      "bytes": 4451,
+      "kb": 4.35,
+      "gzipKb": 1.43
     },
     "rating-field.js": {
       "bytes": 713,
@@ -841,7 +846,7 @@
     "schedule-field.js": {
       "bytes": 9276,
       "kb": 9.06,
-      "gzipKb": 3.17
+      "gzipKb": 3.16
     },
     "segment-control.js": {
       "bytes": 1637,
@@ -856,12 +861,12 @@
     "select-field.js": {
       "bytes": 14964,
       "kb": 14.61,
-      "gzipKb": 4.75
+      "gzipKb": 4.76
     },
     "signature-field.js": {
       "bytes": 14885,
       "kb": 14.54,
-      "gzipKb": 4.69
+      "gzipKb": 4.65
     },
     "slug-field.js": {
       "bytes": 10241,
@@ -871,7 +876,7 @@
     "social-links-field.js": {
       "bytes": 9834,
       "kb": 9.6,
-      "gzipKb": 3.06
+      "gzipKb": 3.04
     },
     "tags-field.js": {
       "bytes": 3217,
@@ -886,7 +891,7 @@
     "traffic-split.js": {
       "bytes": 3682,
       "kb": 3.6,
-      "gzipKb": 1.22
+      "gzipKb": 1.23
     },
     "video-field.js": {
       "bytes": 10982,

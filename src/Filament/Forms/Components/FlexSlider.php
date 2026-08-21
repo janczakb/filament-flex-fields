@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasNumberLocale;
 use Closure;
 use Filament\Forms\Components\Slider;
 use Filament\Forms\Components\Slider\Enums\PipsMode;
 
 class FlexSlider extends Slider
 {
+    use HasNumberLocale;
+
     use HasControlSize;
 
     private const MAX_STEP_DOTS = 11;
@@ -712,13 +715,13 @@ class FlexSlider extends Slider
         $numeric = $this->normalizeNumeric((float) $value);
 
         if ($this->getDecimalPlaces() !== null) {
-            $formatted = number_format($numeric, $this->getDecimalPlaces(), '.', '');
+            $formatted = $this->formatNumberForLocale($numeric, $this->getDecimalPlaces());
         } elseif ($this->stepDecimalCount() === 0) {
-            $formatted = (string) (int) round($numeric);
+            $formatted = $this->formatNumberForLocale((float) (int) round($numeric), 0);
         } else {
-            $formatted = rtrim(
-                rtrim(number_format($numeric, $this->stepDecimalCount(), '.', ''), '0'),
-                '.',
+            $formatted = $this->formatNumberForLocale(
+                round($numeric, $this->stepDecimalCount()),
+                null,
             );
         }
 

@@ -58,6 +58,7 @@
             autoFill: @js($shouldAutoFill()),
             behavior: @js($getBehaviorForJs()),
             decimalPlaces: @js($decimalPlaces),
+            locale: @js($field->getLocale()),
             fillTrack: @js($getFillTrack()),
             hideThumbUntilInteraction: @js($hideThumbUntilInteraction),
             initialDisplayValue: @js($initialDisplayValue),

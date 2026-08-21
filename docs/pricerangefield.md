@@ -79,6 +79,7 @@ All methods accept `Closure` unless noted.
 | `step(int\|float $step)` | Setup | `1` | Snap increment |
 | `integer(bool $condition)` | Setup | `true` | Restrict to whole numbers |
 | `decimalPlaces(int $places)` | Setup | `null` | Fixed decimal precision |
+| `locale(string\|Closure\|null $locale)` | Setup | `null` | Locale for the displayed number (`pt_BR` → `1.234,50`). `null` keeps the plain unformatted output |
 | `prefix(string $prefix)` | Setup | `'$'` | Currency prefix in inputs |
 | `withoutPrefix()` | Setup | — | Remove currency prefix |
 | `variant(string $variant)` | Setup | `'primary'` | `primary` (bordered), `secondary` (faded), `flat` |

@@ -1,3 +1,5 @@
+import { formatDecimal } from '../core/number-format.js'
+
 import { cssVarPx, resolveBarCount, resamplePeaks } from '../core/dynamic-bars.js'
 
 export default function priceRangeFormComponent({
@@ -8,6 +10,7 @@ export default function priceRangeFormComponent({
     step,
     integer,
     decimalPlaces,
+    locale,
     prefix,
     histogram,
     disabled,
@@ -20,6 +23,7 @@ export default function priceRangeFormComponent({
         step,
         integer,
         decimalPlaces,
+        locale,
         prefix,
         histogram,
         disabled,
@@ -172,10 +176,11 @@ export default function priceRangeFormComponent({
         formatValue(value) {
             const current = this.normalize(value)
             const formatted = this.integer
-                ? String(current)
-                : (this.decimalPlaces === null
-                    ? String(current)
-                    : current.toFixed(this.decimalPlaces))
+                ? formatDecimal(current, { locale: this.locale, decimalPlaces: 0 })
+                : formatDecimal(current, {
+                    locale: this.locale,
+                    decimalPlaces: this.decimalPlaces,
+                })
 
             return this.prefix ? `${this.prefix}${formatted}` : formatted
         },

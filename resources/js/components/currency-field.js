@@ -1,12 +1,7 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { normalizeLocale } from '../core/number-format.js'
 
-export function normalizeLocale(locale) {
-    if (typeof locale !== 'string' || locale.trim() === '') {
-        return 'en-US'
-    }
-
-    return locale.trim().replace(/_/g, '-')
-}
+export { normalizeLocale }
 
 export function getLocaleSeparators(locale) {
     const normalizedLocale = normalizeLocale(locale)

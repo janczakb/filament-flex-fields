@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasNumberLocale;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Closure;
 use Filament\Forms\Components\Contracts\CanHaveNumericState;
@@ -17,6 +18,7 @@ use Illuminate\Contracts\Support\Htmlable;
 class NumberStepper extends Field implements CanHaveNumericState
 {
     use HasControlSize;
+    use HasNumberLocale;
 
     protected string $view = 'filament-flex-fields::forms.components.number-stepper';
 
@@ -327,10 +329,12 @@ class NumberStepper extends Field implements CanHaveNumericState
         $bucketSize = $digitCount <= 2 ? 2 : $digitCount;
         $paddedInt = str_repeat('8', $bucketSize);
 
+        $groupedInt = $this->formatNumberForLocale((float) $paddedInt, 0);
+
         if ($decimalPlaces !== null) {
-            $formatted = $paddedInt.'.'.str_repeat('8', $decimalPlaces);
+            $formatted = $groupedInt.$this->getLocaleDecimalSeparator().str_repeat('8', $decimalPlaces);
         } else {
-            $formatted = $paddedInt;
+            $formatted = $groupedInt;
         }
 
         return $prefix.$formatted;
@@ -372,9 +376,7 @@ class NumberStepper extends Field implements CanHaveNumericState
 
         $decimalPlaces = $this->getDecimalPlaces();
 
-        $formatted = $decimalPlaces === null
-            ? (string) $numeric
-            : number_format((float) $numeric, $decimalPlaces, '.', '');
+        $formatted = $this->formatNumberForLocale((float) $numeric, $decimalPlaces);
 
         $prefix = $this->getDisplayPrefix();
 
