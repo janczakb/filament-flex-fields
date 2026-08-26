@@ -88,6 +88,7 @@ All methods accept `Closure` unless noted.
 | `icons(array $icons)` | Setup | — | Shorthand for `decrement` and `increment` keys |
 | `reversed(bool $condition)` | Setup | `false` | Swaps button positions |
 | `decimalPlaces(int $places)` | Setup | `null` | Fixed decimal precision |
+| `locale(string\|Closure\|null $locale)` | Setup | `null` | Locale for the displayed number (`pt_BR` → `1.234,50`). `null` keeps the plain unformatted output |
 | `wheelAnimated(bool $condition)` | Setup | `true` | Enable NumberFlow animation |
 | `size(string $size)` | Setup | `'md'` | `sm`, `md`, `lg` |
 

@@ -1,4 +1,5 @@
 import '../core/number-flow.js'
+import { formatDecimal, normalizeLocale } from '../core/number-format.js'
 
 export default function numberStepperFormComponent({
     state,
@@ -14,6 +15,7 @@ export default function numberStepperFormComponent({
     prefix,
     suffix,
     decimalPlaces,
+    locale,
     wheelAnimated,
     widthAnchor,
 }) {
@@ -32,6 +34,7 @@ export default function numberStepperFormComponent({
         prefix,
         suffix,
         decimalPlaces,
+        locale,
         wheelAnimated,
         widthAnchor,
         flowReady: false,
@@ -53,10 +56,25 @@ export default function numberStepperFormComponent({
 
             const intPart = String(Math.floor(numeric))
             const bucketSize = intPart.length <= 2 ? 2 : intPart.length
-            let formatted = '8'.repeat(bucketSize)
+            const paddedInt = '8'.repeat(bucketSize)
 
-            if (this.decimalPlaces !== null) {
-                formatted += '.' + '8'.repeat(this.decimalPlaces)
+            let formatted
+
+            if (this.locale) {
+                const probe = this.decimalPlaces !== null
+                    ? Number(`${paddedInt}.${'8'.repeat(this.decimalPlaces)}`)
+                    : Number(paddedInt)
+
+                formatted = formatDecimal(probe, {
+                    locale: this.locale,
+                    decimalPlaces: this.decimalPlaces !== null ? this.decimalPlaces : 0,
+                })
+            } else {
+                formatted = paddedInt
+
+                if (this.decimalPlaces !== null) {
+                    formatted += '.' + '8'.repeat(this.decimalPlaces)
+                }
             }
 
             if (this.prefix) {
@@ -144,9 +162,10 @@ export default function numberStepperFormComponent({
                 numeric = Math.round(numeric)
             }
 
-            let formatted = this.decimalPlaces === null
-                ? String(numeric)
-                : numeric.toFixed(this.decimalPlaces)
+            let formatted = formatDecimal(numeric, {
+                locale: this.locale,
+                decimalPlaces: this.decimalPlaces,
+            })
 
             if (this.prefix) {
                 formatted = this.prefix + formatted
@@ -176,6 +195,11 @@ export default function numberStepperFormComponent({
             }
 
             this.flow.format = this.buildFlowFormat()
+
+            if (this.locale) {
+                this.flow.locales = normalizeLocale(this.locale)
+            }
+
             this.flow.numberPrefix = this.prefix || ''
             this.flow.numberSuffix = this.suffix ? `\u00a0${this.suffix}` : ''
             this.flow.animated = this.wheelAnimated

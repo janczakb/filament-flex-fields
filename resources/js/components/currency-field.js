@@ -1,12 +1,8 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { normalizeLocale } from '../core/number-format.js'
+import { normalizeSearchQuery } from '../core/search-normalize.js'
 
-export function normalizeLocale(locale) {
-    if (typeof locale !== 'string' || locale.trim() === '') {
-        return 'en-US'
-    }
-
-    return locale.trim().replace(/_/g, '-')
-}
+export { normalizeLocale }
 
 export function getLocaleSeparators(locale) {
     const normalizedLocale = normalizeLocale(locale)
@@ -681,16 +677,16 @@ export default function currencyFieldFormComponent({
         },
 
         get filteredCurrencies() {
-            const query = this.currencySearch.trim().toLowerCase()
+            const query = normalizeSearchQuery(this.currencySearch)
 
             if (! query) {
                 return this.currencies
             }
 
             return this.currencies.filter((currency) => {
-                return currency.name.toLowerCase().includes(query)
-                    || currency.code.toLowerCase().includes(query)
-                    || currency.symbol.toLowerCase().includes(query)
+                return normalizeSearchQuery(currency.name).includes(query)
+                    || normalizeSearchQuery(currency.code).includes(query)
+                    || normalizeSearchQuery(currency.symbol).includes(query)
             })
         },
 

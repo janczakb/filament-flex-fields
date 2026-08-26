@@ -189,6 +189,32 @@ it('snaps float noise to step for guest style sliders', function () {
         ->and($field->formatDisplayValue(7))->toBe('7');
 });
 
+it('keeps historical flex slider display when locale is unset and localizes when opted in', function () {
+    $plain = FlexSlider::make('price')
+        ->range(0, 2000)
+        ->step(0.5);
+
+    expect($plain->getLocale())->toBeNull()
+        ->and($plain->formatDisplayValue(1234.5))->toBe('1234.5');
+
+    $fixed = FlexSlider::make('price')
+        ->range(0, 2000)
+        ->decimalPlaces(2);
+
+    expect($fixed->formatDisplayValue(1234.5))->toBe('1234.50');
+
+    if (! class_exists(NumberFormatter::class)) {
+        return;
+    }
+
+    $localized = FlexSlider::make('price')
+        ->range(0, 2000)
+        ->decimalPlaces(2)
+        ->locale('pt_BR');
+
+    expect($localized->formatDisplayValue(1234.5))->toBe('1.234,50');
+});
+
 it('defaults fill color to primary and supports custom fill color', function () {
     $field = FlexSlider::make('volume');
 

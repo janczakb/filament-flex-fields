@@ -221,17 +221,17 @@
 
 .fff-icon-picker__option:hover {
     border-color: transparent;
-    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background: var(--fff-select-menu-hover, #ebebec);
 }
 
 .fff-icon-picker__option.is-selected {
     border-color: var(--fff-select-focus, var(--primary-500, rgb(59 130 246)));
-    background: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+    background: var(--fff-select-menu-selected, transparent);
 }
 
 .fff-icon-picker__option.is-active {
     border-color: var(--fff-select-focus, var(--primary-500, rgb(59 130 246)));
-    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background: var(--fff-select-menu-hover, #ebebec);
 }
 
 .fff-icon-picker__option:focus-visible {

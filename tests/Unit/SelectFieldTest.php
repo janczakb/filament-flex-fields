@@ -334,7 +334,7 @@ it('returns option label for initial trigger label when state is filled', functi
     expect($field->getInitialTriggerLabel())->toBe('Published');
 });
 
-it('keeps rich list layout for initial trigger label instead of compact trigger', function () {
+it('keeps compact trigger layout for rich list selected value', function () {
     $field = SelectField::make('plan')
         ->richOptions()
         ->options([
@@ -342,16 +342,70 @@ it('keeps rich list layout for initial trigger label instead of compact trigger'
                 'label' => 'Pro',
                 'description' => 'Advanced plan',
                 'badge' => 'Popular',
+                'icon' => 'heroicon-o-bolt',
             ],
         ])
         ->default('pro');
 
     $label = $field->getInitialTriggerLabel();
 
-    expect($label)
-        ->toContain('fff-select-option--list')
-        ->toContain('Advanced plan')
-        ->not->toContain('fff-select-option--trigger');
+    expect($field->shouldUseRichListTriggerDisplay())->toBeFalse()
+        ->and($label)
+        ->toContain('fff-select-option--trigger')
+        ->toContain('Pro')
+        ->not->toContain('Advanced plan')
+        ->not->toContain('fff-select-option--list');
+});
+
+it('accepts desc alias and omits optional icon or description in rich options', function () {
+    $field = SelectField::make('plan')->richOptions();
+    $normalize = (new \ReflectionClass($field))->getMethod('normalizeOption');
+    $normalize->setAccessible(true);
+    $render = (new \ReflectionClass($field))->getMethod('renderRichOptionLabel');
+    $render->setAccessible(true);
+
+    $fromDescAlias = $normalize->invoke($field, 'pro', [
+        'label' => 'Pro',
+        'desc' => 'From desc key',
+    ]);
+    $iconTitleHtml = $render->invoke($field, $normalize->invoke($field, 'pro', [
+        'label' => 'Pro',
+        'icon' => 'heroicon-o-bolt',
+    ]), 'list');
+    $titleDescHtml = $render->invoke($field, $normalize->invoke($field, 'pro', [
+        'label' => 'Pro',
+        'description' => 'No icon here',
+    ]), 'list');
+    $triggerHtml = $render->invoke($field, $normalize->invoke($field, 'pro', [
+        'label' => 'Pro',
+        'description' => 'Hidden in trigger',
+        'icon' => 'heroicon-o-bolt',
+    ]), 'trigger');
+
+    expect($fromDescAlias['description'])->toBe('From desc key')
+        ->and($iconTitleHtml)
+        ->toContain('fff-select-option__icon')
+        ->not->toContain('fff-select-option__description')
+        ->and($titleDescHtml)
+        ->toContain('No icon here')
+        ->not->toContain('fff-select-option__icon')
+        ->and($triggerHtml)
+        ->toContain('fff-select-option--trigger')
+        ->not->toContain('Hidden in trigger');
+});
+
+it('scales rich option tokens with field size', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('--fff-select-rich-icon-size')
+        ->toContain('--fff-select-rich-desc-size')
+        ->toMatch('/\.fff-select-field--sm[\s\S]*--fff-select-rich-icon-size:\s*1\.75rem/')
+        ->toMatch('/\.fff-select-field--lg[\s\S]*--fff-select-rich-icon-size:\s*2\.75rem/')
+        ->and($css)
+        ->toContain('--fff-select-rich-icon-size')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--sm\{[\s\S]*--fff-select-rich-icon-size:1\.75rem/');
 });
 
 it('returns empty initial trigger badges for single select', function () {
@@ -423,6 +477,31 @@ it('inherits searchable and multiple configuration from filament select', functi
 
     expect($field->isMultiple())->toBeTrue()
         ->and($field->isSearchable())->toBeTrue();
+});
+
+it('can keep selected options visible in the multi-select dropdown', function () {
+    $field = SelectField::make('states')
+        ->multiple()
+        ->searchable()
+        ->keepSelectedOptionsInDropdown()
+        ->options([
+            'california' => 'California',
+            'texas' => 'Texas',
+        ]);
+
+    $single = SelectField::make('status')
+        ->keepSelectedOptionsInDropdown()
+        ->options(['draft' => 'Draft']);
+
+    expect($field->shouldKeepSelectedOptionsInDropdown())->toBeTrue()
+        ->and($single->shouldKeepSelectedOptionsInDropdown())->toBeFalse();
+});
+
+it('passes keep-selected dropdown config into the select field blade patch payload', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain("'keepSelectedOptionsInDropdown' => \$field->shouldKeepSelectedOptionsInDropdown()");
 });
 
 it('treats static playground selects as client-side option lists', function () {
@@ -542,6 +621,150 @@ it('styles grid layout trigger chips for dark mode in the select field bundle', 
         ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-trigger-chip-bg:#27272aeb/');
 });
 
+it('lets multiple select chips wrap and grow the trigger height', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('--fff-select-multiple-max-h')
+        ->toContain('--fff-select-multiple-padding-block')
+        ->toContain('--fff-select-chip-padding-inline-start')
+        ->toContain('--fff-select-multiple-padding-inline-start')
+        ->toContain('.fff-select-field--multiple .fi-select-input-value-badges-ctn')
+        ->toContain('.fff-select-trigger-ssr--multiple .fi-select-input-value-badges-ctn')
+        ->toMatch('/\.fff-select-field--multiple\s+\.fi-select-input-value-badges-ctn[\s\S]*flex-wrap/')
+        ->not->toMatch('/\.fff-select-field--multiple\s+\.fi-select-input-ctn[\s\S]*max-height:\s*var\(--fff-select-min-h\)/')
+        ->and($css)
+        ->toContain('--fff-select-multiple-max-h')
+        ->toContain('--fff-select-multiple-padding-block')
+        ->toContain('--fff-select-chip-padding-inline-start')
+        ->toContain('--fff-select-multiple-padding-inline-start')
+        ->toMatch('/\.fff-select-field--multiple\s+\.fi-select-input-value-badges-ctn[\s\S]*flex-wrap/');
+});
+
+it('hides hydrated clear and chevron while the SSR trigger is visible', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('.fi-select-input-ctn:not(.fff-select-trigger-ssr)')
+        ->toMatch('/\.fi-select-input:has\(\.fff-select-trigger-ssr:not\(\.is-replaced\)\)\s+\.fi-select-input-ctn:not\(\.fff-select-trigger-ssr\)[\s\S]*opacity:\s*0/')
+        ->and($css)
+        ->toMatch('/\.fi-select-input:has\(\.fff-select-trigger-ssr:not\(\.is-replaced\)\)\s+\.fi-select-input-ctn:not\(\.fff-select-trigger-ssr\)\{[^}]*opacity:0/');
+});
+
+it('aligns grid layout trigger start padding with multi-select chips', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('--fff-select-chip-padding-inline-start')
+        ->toContain('.fff-select-field--layout-grid:not(.fff-select-field--item-card) .fi-select-input-btn')
+        ->toContain('.fff-select-trigger-ssr--layout-grid .fff-select-trigger-ssr__btn')
+        ->toContain(':has(.fff-select-option--trigger)')
+        ->and($blade)
+        ->toContain("'fff-select-trigger-ssr--layout-grid' => \$isGridLayout")
+        ->and($css)
+        ->toContain('--fff-select-chip-padding-inline-start')
+        ->toMatch('/\.fff-select-field--layout-grid:not\(\.fff-select-field--item-card\)\s+\.fi-select-input-btn[\s\S]*padding-inline-start:var\(--fff-select-chip-padding-inline-start\)/')
+        ->toMatch('/:has\(\.fff-select-option--trigger\)[\s\S]*padding-inline-start:var\(--fff-select-chip-padding-inline-start\)/');
+});
+
+it('packs rich list dropdown options with flex instead of a stretched grid', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('.fi-dropdown-panel.fff-select-dropdown-panel--layout-list .fff-select-option--list')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option--list\s*\{[^}]*display:\s*flex/')
+        ->not->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option--list\s*\{[^}]*grid-template-columns/')
+        ->and($css)
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option--list\{[^}]*display:flex/');
+});
+
+it('compacts rich list dropdown icons without a background tile', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\s*\{[\s\S]*background:\s*transparent/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\s*\{[\s\S]*padding:\s*0/')
+        ->toMatch('/--fff-select-rich-list-icon-size:\s*1\.125rem/')
+        ->toMatch('/stroke-width:\s*1\.25/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\s+\.fi-icon[\s\S]*height:\s*100%/')
+        ->and($css)
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\{[\s\S]*background:(?:transparent|0 0|#0000)/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\{[\s\S]*padding:0/')
+        ->toMatch('/--fff-select-rich-list-icon-size:1\.125rem/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-list\s+\.fff-select-option__icon\s+\.fi-icon[\s\S]*?\{[\s\S]*?height:100%/');
+});
+
+it('scales multi-select chips with field size tokens', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($source)
+        ->toContain('--fff-select-chip-font-size')
+        ->toContain('--fff-select-chip-remove-size')
+        ->toMatch('/\.fff-select-field--sm[\s\S]*--fff-select-chip-font-size:\s*0\.75rem/')
+        ->toMatch('/\.fff-select-field--lg[\s\S]*--fff-select-chip-font-size:\s*0\.875rem/')
+        ->and($blade)
+        ->toContain('fi-badge fi-size-md')
+        ->not->toContain("'fi-size-sm' => \$getSize() === 'sm'")
+        ->and($css)
+        ->toContain('--fff-select-chip-font-size')
+        ->toMatch('/\.fff-select-field--sm\{[\s\S]*--fff-select-chip-font-size:\.75rem/')
+        ->toMatch('/\.fff-select-field--lg\{[\s\S]*--fff-select-chip-font-size:\.875rem/')
+        ->toMatch('/\.fi-select-input-value-badges-ctn\s+\.fi-badge\{[\s\S]*font-size:var\(--fff-select-chip-font-size\)/');
+});
+
+it('demos multi-select chips in small medium and large on the select playground', function () {
+    $playground = app(\Bjanczak\FilamentFlexFields\Support\Playground\SelectPlayground::class);
+    $state = $playground->defaultState();
+    $section = collect($playground->components())
+        ->first(fn ($component) => $component instanceof \Filament\Schemas\Components\Section);
+
+    expect($section)->not->toBeNull();
+
+    $flatten = function (array $components) use (&$flatten): array {
+        $out = [];
+
+        foreach ($components as $component) {
+            $out[] = $component;
+
+            if (method_exists($component, 'getDefaultChildComponents')) {
+                $out = [...$out, ...$flatten($component->getDefaultChildComponents())];
+            }
+        }
+
+        return $out;
+    };
+
+    $fields = collect($flatten($section->getDefaultChildComponents()))
+        ->filter(fn ($component) => $component instanceof \Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField)
+        ->keyBy(fn ($field) => $field->getName());
+
+    expect($state)
+        ->toHaveKey('select__multiple_checklist')
+        ->toHaveKey('select__multiple_sm')
+        ->toHaveKey('select__multiple_md')
+        ->toHaveKey('select__multiple_lg')
+        ->and($fields->keys()->all())
+        ->toContain('select__multiple_checklist')
+        ->toContain('select__multiple_sm')
+        ->toContain('select__multiple_md')
+        ->toContain('select__multiple_lg')
+        ->and($fields['select__multiple_checklist']->isMultiple())->toBeTrue()
+        ->and($fields['select__multiple_checklist']->shouldKeepSelectedOptionsInDropdown())->toBeTrue()
+        ->and($fields['select__multiple']->shouldKeepSelectedOptionsInDropdown())->toBeFalse()
+        ->and($fields['select__multiple_sm']->getSize())->toBe('sm')
+        ->and($fields['select__multiple_sm']->isMultiple())->toBeTrue()
+        ->and($fields['select__multiple_md']->getSize())->toBe('md')
+        ->and($fields['select__multiple_lg']->getSize())->toBe('lg');
+});
+
 it('styles grid selected checkmarks with a circular badge in the select field bundle', function () {
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
 
@@ -550,8 +773,10 @@ it('styles grid selected checkmarks with a circular badge in the select field bu
         ->toContain('--fff-select-selected-check-fg')
         ->toContain('.fff-select-field--layout-grid .fff-select-option-selected-check')
         ->toMatch('/\.fff-select-field--layout-grid\s+\.fff-select-option-selected-check[\s\S]*border-radius:(9999|3\.40282e38)px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-grid-check-bg:#fff/')
         ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-grid-check-bg:#52525bfa/')
-        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-selected-check-fg:#f4f4f5/');
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-selected-check-fg:#f4f4f5/')
+        ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel[\s\S]*--fff-select-grid-check-bg:#fff/');
 });
 
 it('styles dark dropdown search input with glass backdrop in the select field bundle', function () {
@@ -562,6 +787,32 @@ it('styles dark dropdown search input with glass backdrop in the select field bu
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*background-color:#40404573!important/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*-webkit-backdrop-filter:blur\(15px\)saturate\(2\.5\)/')
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*backdrop-filter:blur\(15px\)saturate\(2\.5\)/');
+});
+
+it('styles the select dropdown shell like a Spectrum list box', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-bg:#ffffffe6/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-hover:#ebebec/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-selected:transparent/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-shadow:0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-radius:1\.5rem/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-padding:calc\(\.25rem \* 1\.5\)/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-menu-scrollbar-inset:2px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--scrollable\s+\.fi-dropdown-list\{[\s\S]*margin-inline-end:calc\(var\(--fff-select-menu-scrollbar-inset/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-option-radius:1rem/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-option-min-h:2\.25rem/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-option-padding-inline:10px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\{[\s\S]*--fff-select-option-padding-block:6px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel:not\(\.fff-select-dropdown-panel--layout-grid\)\s+\.fi-select-input-option>span\{[\s\S]*min-height:var\(--fff-select-option-min-h/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel:not\(\.fff-select-dropdown-panel--layout-grid\)\s+\.fi-select-input-option\.fi-selected>span\{[\s\S]*background:var\(--fff-select-menu-selected,transparent\)/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel:has\(\.fi-select-input-search-ctn\)\{[\s\S]*padding-top:8px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\{[\s\S]*padding-block:4px!important/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\{[\s\S]*padding-inline:4px!important/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-dropdown-list>\*\+\*[\s\S]*margin-top:4px/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel:not\(\.fff-select-dropdown-panel--layout-grid\)\s+\.fff-select-option-selected-check__svg\{[\s\S]*stroke-dasharray:22/')
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel:not\(\.fff-select-dropdown-panel--layout-grid\)\s+\.fff-select-option-selected-check\[data-visible=true\]\s+\.fff-select-option-selected-check__svg\{[\s\S]*stroke-dashoffset:0/');
 });
 
 it('styles grouped option headers distinctly from selectable options in the select field bundle', function () {

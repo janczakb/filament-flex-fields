@@ -29,11 +29,11 @@
     },
     "devDependencies": {
         "@playwright/test": "^1.61.1",
-        "@tailwindcss/cli": "^4.1.0",
-        "@tiptap/core": "^3.27.3",
-        "@tiptap/extension-youtube": "^3.27.3",
+        "@tailwindcss/cli": "^4.3.3",
+        "@tiptap/core": "^3.28.0",
+        "@tiptap/extension-youtube": "^3.28.0",
         "esbuild": "^0.28.1",
-        "tailwindcss": "^4.3.2"
+        "tailwindcss": "^4.3.3"
     },
     "dependencies": {
         "@gravity-ui/icons": "^2.20.0",
@@ -43,6 +43,6 @@
         "emoji-picker-element": "^1.29.1",
         "libphonenumber-js": "^1.13.8",
         "nouislider": "^15.8.1",
-        "number-flow": "^0.6.1"
+        "number-flow": "^0.6.2"
     }
 }

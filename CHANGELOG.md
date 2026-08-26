@@ -5,6 +5,36 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [2.9.9] - 2026-08-26
+
+### Added
+
+- **COMMERCIAL.md** — public commercial plans (Single Product $169, Unlimited $299, Custom kit/OEM from $1,500), decision diagram, OEM vs in-product comparison, starter/boilerplate clarification, and Lemon Squeezy checkout.- **NumberStepper / FlexSlider / PriceRangeField `locale()`** — opt-in locale-aware display (`pt_BR` → `1.234,50`). Default `null` keeps historical plain `.` decimals with no grouping (PHP + JS). ([#47](https://github.com/janczakb/filament-flex-fields/pull/47))
+
+### Changed
+
+- **LICENSE §5** — points to `COMMERCIAL.md` for published plans/pricing; clarifies custom OEM / redistribution instruments.
+- **README** — license footer links to `LICENSE` and `COMMERCIAL.md` without embedding prices.
+- **Docs index** — Links section includes License and Commercial plans.
+- **JS deps** — `number-flow` 0.6.2; `@tiptap/core` + `@tiptap/extension-youtube` 3.28.0; `tailwindcss` + `@tailwindcss/cli` 4.3.3 ([#28](https://github.com/janczakb/filament-flex-fields/pull/28)–[#31](https://github.com/janczakb/filament-flex-fields/pull/31), [#27](https://github.com/janczakb/filament-flex-fields/pull/27)).
+
+### Fixed
+
+- **Client-side option search** — timezone, currency, dual-listbox, and tags suggestion filters now use the same accent-insensitive normalizer as the country picker (`sao paulo` matches `São Paulo`). Tag duplicate detection is unchanged. ([#46](https://github.com/janczakb/filament-flex-fields/pull/46))
+- **SelectField multiple chips** — selected badges wrap and the trigger grows in height (instead of a single clipped row). Chip spacing/contrast polished; after ~6 rows the chip area scrolls via `--fff-select-multiple-max-h`. Chips scale with field `size()` (`sm` / `md` / `lg`). ([#45](https://github.com/janczakb/filament-flex-fields/issues/45))
+- **SelectField grid trigger / checkmark** — grid trigger uses the same tighter start padding as multi chips; portaled grid selected-check badge keeps a solid circular background.
+- **SelectField `keepSelectedOptionsInDropdown()`** — checklist-style multi-select: selected options stay in the dropdown with checkmarks (menu stays open). Default multi-select still removes chosen values from the list (chip/tag pick-from-remaining). Playground adds **Multiple states (checklist)** next to the genres wrap demo.
+- **SelectField selection UX JS** — check enter/exit + checklist keep-selected extracted to a dedicated hot-path module (`select-field-selection-ux.js`): template-cloned SVG, cached reduced-motion query, cancelable RAF/transition tokens, and no `getComputedStyle` spam on every dropdown sync (token cache + one-shot glass chrome).
+- **SelectField / teleported menu runtime** — close↔reopen race guard, real patch teardown (portal restore, overlay unbind, grid resize, inline-search click, document-click restore), theme-fingerprint token/glass caches, freeze Filament scroll/resize while closing, rAF-coalesced menu reposition on scroll, `applyTeleportedMenuTheme` skip-if-unchanged, scrollbar-edge inset only when list overflows, estimated height when panel measures `0` on first paint.
+- **Teleported searchable menus (phone / country / timezone / currency)** — scrolling inside the menu no longer re-runs the open reveal animation (`reveal` only on open); capture-phase scroll events from inside the menu are ignored so the panel does not flicker/jump.
+
+### Tests
+
+- SelectField CSS coverage asserting multi-select badge wrap (`flex-wrap`) and auto-height trigger (no fixed `max-height` lock to `--fff-select-min-h`).
+- SelectField dropdown shell tokens (fixed `1.5rem` menu radius, `calc(.25rem * 1.5)` padding, list-box option sizing, near-opaque light menu bg).
+
 ## [2.9.8] - 2026-08-12
 
 ### Fixed

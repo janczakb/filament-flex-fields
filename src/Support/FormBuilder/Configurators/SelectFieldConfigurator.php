@@ -33,6 +33,10 @@ final class SelectFieldConfigurator implements FieldConfigurator
             $field->multiple((bool) $config['multiple']);
         }
 
+        if (array_key_exists('keep_selected_options_in_dropdown', $config)) {
+            $field->keepSelectedOptionsInDropdown((bool) $config['keep_selected_options_in_dropdown']);
+        }
+
         if (isset($config['color'])) {
             $field->color($config['color']);
         }

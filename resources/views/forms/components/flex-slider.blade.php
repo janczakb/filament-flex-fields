@@ -68,6 +68,7 @@
             isDisabled: @js($isDisabled),
             isRtl: @js($isRtl()),
             isVertical: @js($isVertical),
+            locale: @js($field->getLocale()),
             maxDifference: @js($getMaxDifference()),
             minDifference: @js($getMinDifference()),
             maxValue: @js($getMaxValue()),

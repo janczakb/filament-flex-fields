@@ -65,6 +65,24 @@ SelectField::make('tags')
     ->required();
 ```
 
+By default, multi-select **removes** chosen values from the dropdown list (pick-from-remaining / chip mode).
+
+#### Multi-select checklist (keep options visible)
+
+Use `keepSelectedOptionsInDropdown()` when selected options should stay in the list with checkmarks (dropdown stays open while toggling):
+
+```php
+SelectField::make('states')
+    ->multiple()
+    ->searchable()
+    ->keepSelectedOptionsInDropdown()
+    ->options([
+        'california' => 'California',
+        'texas' => 'Texas',
+        'delaware' => 'Delaware',
+    ]);
+```
+
 ---
 
 ### State & validation
@@ -109,6 +127,7 @@ All methods accept `Closure` unless noted.
 | `variant(string\|Closure $variant)` | Setup | `'bordered'` | Visual style: `bordered`, `secondary`, `flat`, `faded`, `soft`, `underlined`, `item-card` |
 | `color(string\|Closure\|null $color)` | Setup | `null` | Accent color for the field |
 | `chipColor(string\|Closure $chipColor)` | Setup | `'neutral'` | Color for multi-select chips |
+| `keepSelectedOptionsInDropdown(bool\|Closure $condition = true)` | Setup | `false` | Multi-select: keep selected options in the dropdown with checkmarks (checklist) instead of removing them |
 | `richOptions(bool\|Closure $condition = true)` | Setup | auto | Force rich option rendering |
 | `optionLayout(string\|Closure $layout)` | Setup | `'list'` | Dropdown layout: `list`, `grid` |
 | `inlineFieldLabel(bool\|Closure $condition = true)` | Setup | `false` | Render label inside the field track |

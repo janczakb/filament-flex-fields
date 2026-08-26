@@ -146,4 +146,5 @@ Open **Settings & Tools → Flex Fields Playground** in the admin panel. Use it 
 
 - [GitHub repository](https://github.com/janczakb/filament-flex-fields)
 - [Packagist](https://packagist.org/packages/janczakb/filament-flex-fields)
+- [License](https://github.com/janczakb/filament-flex-fields/blob/main/LICENSE) · [Commercial plans](https://github.com/janczakb/filament-flex-fields/blob/main/COMMERCIAL.md)
 - [Report an issue](https://github.com/janczakb/filament-flex-fields/issues)

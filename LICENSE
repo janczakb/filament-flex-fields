@@ -309,16 +309,28 @@ SECTION 5 — COMMERCIAL LICENSING
      exploitation of the Software — requires a separate Commercial License
      issued by the Copyright Holder prior to such use.
 
-5.2  To inquire about or obtain a Commercial License, contact:
+5.2  Current commercial plans, pricing, plan scope, and the distinction between
+     standard in-product licenses and custom kit / redistribution / OEM terms
+     are published in the COMMERCIAL.md file in the official Software repository
+     (same directory as this LICENSE). That document describes the standard
+     public offerings (including Single Product and Unlimited) and the Custom
+     kit / redistribution path. To inquire about or obtain a Commercial License,
+     or to request custom terms not covered by the standard plans in
+     COMMERCIAL.md, contact:
 
          Bartłomiej Janczak
          E-mail: barek122@gmail.com
 
-5.3  Commercial Licenses are issued at the Copyright Holder's sole discretion
-     and may be subject to a one-time fee, recurring royalty, revenue-sharing
-     arrangement, or other terms as agreed in a written instrument signed by
-     the Copyright Holder. No Commercial License is effective until so signed
-     or otherwise authenticated by the Copyright Holder.
+5.3  Commercial Licenses are issued at the Copyright Holder's sole discretion.
+     Standard public pricing and plan descriptions in COMMERCIAL.md apply to new
+     purchases of those plans unless a different written instrument is signed or
+     otherwise authenticated by the Copyright Holder. The Copyright Holder may
+     also agree to a one-time fee, recurring royalty, revenue-sharing
+     arrangement, OEM / redistribution terms, or other custom terms in a written
+     instrument. No Commercial License is effective until so signed or otherwise
+     authenticated by the Copyright Holder. Published prices in COMMERCIAL.md may
+     be updated for future purchasers; an issued written license confirmation
+     controls the terms of that license.
 
 5.4  Any act of Commercial Distribution, prohibited Software Transfer,
      Bundled Product distribution, redistribution of modified Software beyond

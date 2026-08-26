@@ -148,11 +148,11 @@
 }
 
 .fff-currency-field__currency-option:hover {
-    background-color: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background-color: var(--fff-select-menu-hover, #ebebec);
 }
 
 .fff-currency-field__currency-option.is-selected {
-    background-color: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+    background-color: var(--fff-select-menu-selected, transparent);
 }
 
 .fff-currency-field__currency-option-code {

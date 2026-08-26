@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasNumberLocale;
 use Closure;
 use Filament\Forms\Components\Slider;
 use Filament\Forms\Components\Slider\Enums\PipsMode;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\Slider\Enums\PipsMode;
 class FlexSlider extends Slider
 {
     use HasControlSize;
+    use HasNumberLocale;
 
     private const MAX_STEP_DOTS = 11;
 
@@ -712,13 +714,22 @@ class FlexSlider extends Slider
         $numeric = $this->normalizeNumeric((float) $value);
 
         if ($this->getDecimalPlaces() !== null) {
-            $formatted = number_format($numeric, $this->getDecimalPlaces(), '.', '');
+            $formatted = $this->formatNumberForLocale($numeric, $this->getDecimalPlaces());
         } elseif ($this->stepDecimalCount() === 0) {
-            $formatted = (string) (int) round($numeric);
-        } else {
+            // Keep historical plain int string when locale is unset.
+            $formatted = $this->getLocale() === null
+                ? (string) (int) round($numeric)
+                : $this->formatNumberForLocale((float) (int) round($numeric), 0);
+        } elseif ($this->getLocale() === null) {
+            // Byte-for-byte historical path (trim trailing zeros / dangling dot).
             $formatted = rtrim(
                 rtrim(number_format($numeric, $this->stepDecimalCount(), '.', ''), '0'),
                 '.',
+            );
+        } else {
+            $formatted = $this->formatNumberForLocale(
+                round($numeric, $this->stepDecimalCount()),
+                null,
             );
         }
 

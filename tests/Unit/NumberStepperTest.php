@@ -125,6 +125,31 @@ it('formats display values for server-side rendering', function () {
         ->and($field->getInitialSizerText(12))->toBe('$88.88'."\u{00a0}".'%');
 });
 
+it('keeps historical number display when locale is unset and localizes when opted in', function () {
+    $plain = NumberStepper::make('price')
+        ->integer(false)
+        ->decimalPlaces(2);
+
+    expect($plain->getLocale())->toBeNull()
+        ->and($plain->formatDisplayMain(1234.5))->toBe('1234.50')
+        ->and($plain->formatBucketedDisplay(1234.5))->toBe('8888.88')
+        ->and($plain->getLocaleDecimalSeparator())->toBe('.');
+
+    if (! class_exists(NumberFormatter::class)) {
+        return;
+    }
+
+    $localized = NumberStepper::make('price')
+        ->integer(false)
+        ->decimalPlaces(2)
+        ->locale('pt_BR');
+
+    expect($localized->getLocale())->toBe('pt_BR')
+        ->and($localized->formatDisplayMain(1234.5))->toBe('1.234,50')
+        ->and($localized->formatBucketedDisplay(1234.5))->toBe('8.888,88')
+        ->and($localized->getLocaleDecimalSeparator())->toBe(',');
+});
+
 it('stores and reads flex field values on models', function () {
     $model = new class extends Model
     {

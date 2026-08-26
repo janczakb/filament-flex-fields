@@ -42,7 +42,7 @@
     $showInlineFieldLabel = $hasInlineFieldLabel() && filled($fieldLabel) && ! $isLabelHidden();
     $isInlineSearch = $hasInlineSearch();
     $isGridLayout = $optionLayout === 'grid';
-    $useRichListTriggerDisplay = $usesRichOptionHtml && $optionLayout === 'list' && ! $isMultiple;
+    $useRichListTriggerDisplay = $field->shouldUseRichListTriggerDisplay();
     $useRichListDropdownLayout = $field->shouldUseRichListDropdownLayout();
     $variant = $getVariant();
     $isItemCardVariant = $variant === 'item-card';
@@ -79,6 +79,7 @@
         'isGridLayout' => $isGridLayout,
         'useRichListTriggerDisplay' => $useRichListTriggerDisplay,
         'useRichListDropdownLayout' => $useRichListDropdownLayout,
+        'keepSelectedOptionsInDropdown' => $field->shouldKeepSelectedOptionsInDropdown(),
         'dropdownAlign' => $getDropdownAlign(),
         'fieldLabel' => $showInlineFieldLabel ? (string) $fieldLabel : null,
         'clearIconHtml' => $clearIconHtml,
@@ -344,7 +345,8 @@
                             'fi-select-input-ctn' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
                             'fi-select-input-ctn-clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
                             'fff-select-trigger-ssr--multiple' => $isMultiple,
-                            'fff-select-trigger-ssr--clearable' => $field->isClearable() && filled($state) && ! $isDisabled,
+                            'fff-select-trigger-ssr--layout-grid' => $isGridLayout,
+                            'fff-select-trigger-ssr--clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
                             'fff-select-trigger-ssr--inline-field-label' => $showInlineFieldLabel,
                             'fff-select-trigger-ssr--rich-list-trigger' => $useRichListTriggerDisplay,
                             'fff-user-select-trigger-ssr' => $isUserSelectField,
@@ -363,6 +365,7 @@
                                     @elseif ($initialTriggerBadges !== [])
                                         <span class="fi-select-input-value-badges-ctn">
                                             @foreach ($initialTriggerBadges as $badge)
+                                                {{-- Match Filament select.js (`fi-size-md`); visual size comes from field chip tokens. --}}
                                                 <span class="fi-badge fi-size-md">
                                                     <span class="fi-badge-label-ctn">
                                                         <span class="fi-badge-label">{{ $badge['label'] }}</span>

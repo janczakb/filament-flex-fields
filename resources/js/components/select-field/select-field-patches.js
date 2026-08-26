@@ -1,10 +1,90 @@
 import { applyTeleportedMenuTheme } from '../../core/searchable-select-menu.js';
-import { resolveTeleportedMenuZIndex } from '../../core/theme-utils.js';
+import {
+    prefersReducedMotion,
+    resolveTeleportedMenuZIndex,
+    resolveThemeFingerprint,
+} from '../../core/theme-utils.js';
+import {
+    bumpSelectCloseToken,
+    shouldCommitDeferredClose,
+} from './select-field-close-guard.js';
+import {
+    patchSelectFieldSelectionUx,
+    syncKnownSelectedFromState,
+} from './select-field-selection-ux.js';
 import {
     findTriggerLabelInOptions,
     populateRepositoryWithTriggerLabels,
-    resolveTriggerLabel,
 } from './select-field-trigger-labels.js';
+
+const DROPDOWN_TOKEN_NAMES = Object.freeze([
+    '--fff-select-focus',
+    '--fff-select-grid-selected-label',
+    '--fff-select-grid-ring-bg',
+    '--fff-select-menu-hover',
+    '--fff-select-menu-selected',
+])
+
+const USER_SELECT_TOKEN_NAMES = Object.freeze([
+    '--fff-user-select-avatar-size',
+])
+
+const FIELD_SIZE_TOKENS = Object.freeze(['sm', 'md', 'lg'])
+
+const PORTAL_STYLE_PROPERTIES = Object.freeze([
+    'position',
+    'top',
+    'left',
+    'right',
+    'bottom',
+    'margin',
+    'min-width',
+    'max-width',
+    'width',
+])
+
+const DEFAULT_MENU_SHADOW = '0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014'
+const DEFAULT_MENU_RADIUS = '1.5rem'
+const DEFAULT_DROPDOWN_GAP = '0.5rem'
+
+/** @type {number | null} */
+let defaultDropdownGapPx = null
+
+function readTokenCache(wrapper, tokenNames, cacheKey) {
+    const themeKey = resolveThemeFingerprint()
+    const cached = wrapper[cacheKey]
+
+    if (cached?.__themeKey === themeKey) {
+        return cached
+    }
+
+    const styles = getComputedStyle(wrapper)
+    const cache = Object.create(null)
+
+    for (let index = 0; index < tokenNames.length; index++) {
+        const name = tokenNames[index]
+        const value = styles.getPropertyValue(name).trim()
+
+        if (value !== '') {
+            cache[name] = value
+        }
+    }
+
+    cache.__themeKey = themeKey
+    wrapper[cacheKey] = cache
+
+    return cache
+}
+
+function applyTokenCache(dropdown, cache) {
+    for (const name in cache) {
+        if (name === '__themeKey') {
+            continue
+        }
+
+        dropdown.style.setProperty(name, cache[name])
+    }
+}
 
 export function bootSelectFieldPatches(select, alpine, config) {
     const { $nextTick } = alpine
@@ -12,6 +92,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
     const isGridLayout = config.isGridLayout;
     const useRichListTriggerDisplay = config.useRichListTriggerDisplay;
     const useRichListDropdownLayout = config.useRichListDropdownLayout;
+    const keepSelectedOptionsInDropdown = Boolean(config.keepSelectedOptionsInDropdown);
     const dropdownAlign = config.dropdownAlign;
     const fieldLabel = config.fieldLabel;
 
@@ -35,14 +116,19 @@ export function bootSelectFieldPatches(select, alpine, config) {
     };
 
     const setupInlineSearch = (select) => {
-        if (! isInlineSearch || ! select?.searchInput || ! select?.searchContainer) {
+        if (! isInlineSearch || ! select?.searchInput || ! select?.searchContainer || ! select?.selectButton) {
             return null;
         }
 
-        const { searchContainer, searchInput, selectButton } = select;
+        const { searchContainer, searchInput, selectButton, selectedDisplay } = select;
 
         searchContainer.classList.add('fff-select-inline-search-ctn');
-        selectButton.insertBefore(searchContainer, select.selectedDisplay.nextSibling);
+
+        if (selectedDisplay?.parentNode === selectButton) {
+            selectButton.insertBefore(searchContainer, selectedDisplay.nextSibling);
+        } else {
+            selectButton.appendChild(searchContainer);
+        }
 
         return {
             activate: () => {
@@ -71,7 +157,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
     };
 
     const applyRichListDropdownLayout = (select) => {
-        if (! useRichListTriggerDisplay || ! select?.dropdown || ! select?.selectButton) {
+        if (! useRichListDropdownLayout || ! select?.dropdown || ! select?.selectButton) {
             return;
         }
 
@@ -85,7 +171,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
     };
 
     const applyPlainListDropdownWidth = (select) => {
-        if (isGridLayout || useRichListTriggerDisplay || ! select?.dropdown || ! select?.selectButton) {
+        if (isGridLayout || useRichListDropdownLayout || ! select?.dropdown || ! select?.selectButton) {
             return;
         }
 
@@ -93,34 +179,42 @@ export function bootSelectFieldPatches(select, alpine, config) {
         const buttonWidth = select.selectButton.offsetWidth;
         const viewportCap = Math.max(buttonWidth, window.innerWidth - 32);
 
-        dropdown.style.width = 'auto';
+        // Measure with unconstrained width in one frame, then commit final geometry.
         dropdown.style.minWidth = `${buttonWidth}px`;
         dropdown.style.maxWidth = `${viewportCap}px`;
+        dropdown.style.width = 'max-content';
 
         const measuredWidth = Math.ceil(dropdown.scrollWidth);
         const targetWidth = Math.min(Math.max(buttonWidth, measuredWidth), viewportCap);
 
         dropdown.style.width = `${targetWidth}px`;
-        dropdown.style.minWidth = `${buttonWidth}px`;
     };
 
-    const patchGridResizeListener = (select) => {
-        if (! isGridLayout || select.__fffGridResizePatched) {
+    const ensureGridResizeListener = (select) => {
+        if (! isGridLayout || ! select) {
             return;
         }
 
-        select.__fffGridResizePatched = true;
+        if (select.__fffGridResizeListener) {
+            window.removeEventListener('resize', select.__fffGridResizeListener);
+        }
 
-        if (select.resizeListener) {
+        if (select.resizeListener && select.resizeListener !== select.__fffGridResizeListener) {
             window.removeEventListener('resize', select.resizeListener);
         }
 
-        select.resizeListener = () => {
+        const listener = () => {
+            if (! select.isOpen) {
+                return;
+            }
+
             applyGridDropdownWidth(select);
             select.positionDropdown();
         };
 
-        window.addEventListener('resize', select.resizeListener);
+        select.__fffGridResizeListener = listener;
+        select.resizeListener = listener;
+        window.addEventListener('resize', listener);
     };
 
     const readDropdownGapPx = (wrapper) => {
@@ -128,15 +222,19 @@ export function bootSelectFieldPatches(select, alpine, config) {
             return wrapper.__fffDropdownGapPx;
         }
 
+        if (! wrapper && defaultDropdownGapPx !== null) {
+            return defaultDropdownGapPx;
+        }
+
         const gap = wrapper
             ? getComputedStyle(wrapper).getPropertyValue('--fff-select-dropdown-gap').trim()
-            : '0.5rem';
+            : DEFAULT_DROPDOWN_GAP;
 
         const probe = document.createElement('div');
         probe.style.position = 'absolute';
         probe.style.visibility = 'hidden';
         probe.style.pointerEvents = 'none';
-        probe.style.height = gap || '0.5rem';
+        probe.style.height = gap || DEFAULT_DROPDOWN_GAP;
         probe.style.width = '0';
 
         (wrapper ?? document.body).appendChild(probe);
@@ -147,6 +245,8 @@ export function bootSelectFieldPatches(select, alpine, config) {
 
         if (wrapper) {
             wrapper.__fffDropdownGapPx = pixels;
+        } else {
+            defaultDropdownGapPx = pixels;
         }
 
         return pixels;
@@ -160,29 +260,15 @@ export function bootSelectFieldPatches(select, alpine, config) {
             return;
         }
 
-        const wrapper = resolveSelectWrapper(select);
-        const gap = readDropdownGapPx(wrapper);
-        const buttonRect = button.getBoundingClientRect();
-        const viewportPadding = 5;
-        const viewportWidth = window.innerWidth;
-        const opensAbove = resolveDropdownOpensAbove(
-            select,
-            buttonRect,
-            dropdown.offsetHeight || 0,
-            gap,
-        );
+        if (isGridLayout) {
+            applyGridDropdownWidth(select);
+        } else {
+            const buttonWidth = button.getBoundingClientRect().width;
 
-        dropdown.style.position = 'fixed';
-        dropdown.style.margin = '0';
-        dropdown.style.left = `${Math.max(viewportPadding, Math.min(buttonRect.left, viewportWidth - Math.max(buttonRect.width, dropdown.offsetWidth) - viewportPadding))}px`;
-        dropdown.style.right = 'auto';
-        dropdown.style.minWidth = `${buttonRect.width}px`;
-        dropdown.style.top = opensAbove
-            ? `${buttonRect.top - (dropdown.offsetHeight || 0) - gap}px`
-            : `${buttonRect.bottom + gap}px`;
+            dropdown.style.minWidth = `${buttonWidth}px`;
+        }
 
-        dropdown.classList.toggle('fff-select-dropdown-panel--above', opensAbove);
-        dropdown.classList.toggle('fff-select-dropdown-panel--below', ! opensAbove);
+        applyPortaledDropdownPosition(select, { requireOpen: false });
     };
 
     const resolveSelectWrapper = (select) => {
@@ -227,40 +313,28 @@ export function bootSelectFieldPatches(select, alpine, config) {
         );
         dropdown.classList.toggle('fi-width-none', isGridLayout);
 
-        ['sm', 'md', 'lg'].forEach((size) => {
+        for (let index = 0; index < FIELD_SIZE_TOKENS.length; index++) {
+            const size = FIELD_SIZE_TOKENS[index];
+
             dropdown.classList.toggle(
                 `fff-select-dropdown-panel--${size}`,
                 wrapper.classList.contains(`fff-select-field--${size}`),
             );
-        });
+        }
 
-        [
-            '--fff-select-focus',
-            '--fff-select-grid-selected-label',
-            '--fff-select-grid-ring-bg',
-            '--fff-select-menu-hover',
-            '--fff-select-menu-selected',
-        ].forEach((name) => {
-            const value = getComputedStyle(wrapper).getPropertyValue(name).trim();
-
-            if (value !== '') {
-                dropdown.style.setProperty(name, value);
-            }
-        });
+        applyTokenCache(
+            dropdown,
+            readTokenCache(wrapper, DROPDOWN_TOKEN_NAMES, '__fffSelectDropdownTokenCache'),
+        );
 
         const isUserSelect = wrapper.classList.contains('fff-user-select');
         dropdown.classList.toggle('fff-select-dropdown-panel--user-select', isUserSelect);
 
         if (isUserSelect) {
-            [
-                '--fff-user-select-avatar-size',
-            ].forEach((name) => {
-                const value = getComputedStyle(wrapper).getPropertyValue(name).trim();
-
-                if (value !== '') {
-                    dropdown.style.setProperty(name, value);
-                }
-            });
+            applyTokenCache(
+                dropdown,
+                readTokenCache(wrapper, USER_SELECT_TOKEN_NAMES, '__fffUserSelectTokenCache'),
+            );
         }
     };
 
@@ -286,6 +360,28 @@ export function bootSelectFieldPatches(select, alpine, config) {
         }
     };
 
+    const freezeFilamentPositionListeners = (select) => {
+        if (select.scrollListener) {
+            window.removeEventListener('scroll', select.scrollListener);
+
+            if (select.__fffFrozenScrollListener === undefined) {
+                select.__fffFrozenScrollListener = select.scrollListener;
+            }
+        }
+
+        if (select.resizeListener) {
+            window.removeEventListener('resize', select.resizeListener);
+
+            if (select.__fffFrozenResizeListener === undefined) {
+                select.__fffFrozenResizeListener = select.resizeListener;
+            }
+        }
+
+        if (select.__fffGridResizeListener) {
+            window.removeEventListener('resize', select.__fffGridResizeListener);
+        }
+    };
+
     const revealDropdownPanel = (select) => {
         const dropdown = select?.dropdown;
 
@@ -296,6 +392,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
         cancelDropdownCloseAnimation(select);
         dropdown.classList.remove('is-closing');
         dropdown.style.removeProperty('opacity');
+        dropdown.style.removeProperty('display');
         dropdown.classList.remove('is-open');
         void dropdown.offsetWidth;
 
@@ -319,7 +416,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
             applyDropdownGlassStyles(select);
 
             if (isGridLayout) {
-                patchGridResizeListener(select);
+                ensureGridResizeListener(select);
                 applyGridDropdownWidth(select);
             }
 
@@ -330,6 +427,8 @@ export function bootSelectFieldPatches(select, alpine, config) {
             }
 
             if (applyGridDropdownPosition(select)) {
+                syncDropdownScrollbarInset(select);
+
                 return;
             }
 
@@ -340,6 +439,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
             }
 
             select.__fffOriginalPositionDropdown?.call(select);
+            syncDropdownScrollbarInset(select);
         });
     };
 
@@ -355,9 +455,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
         cancelDropdownCloseAnimation(select);
         dropdown.classList.remove('is-open');
 
-        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-        if (reducedMotion) {
+        if (prefersReducedMotion()) {
             dropdown.classList.remove('is-closing');
             onHidden?.();
 
@@ -394,25 +492,23 @@ export function bootSelectFieldPatches(select, alpine, config) {
     };
 
     const bindExclusiveSelectDropdown = (select) => {
-        if (! select || select.__fffExclusiveDropdownBound) {
+        if (! select || select.__fffUnbindExclusiveDropdown) {
             return;
         }
 
         const overlays = window.Alpine?.store?.('fffOverlays');
 
-        if (! overlays) {
+        if (! overlays || typeof overlays.resolveOwnerId !== 'function' || typeof overlays.register !== 'function') {
             return;
         }
 
-        select.__fffExclusiveDropdownBound = true;
-
         const ownerId = overlays.resolveOwnerId(select, 'fff-select');
-
-        select.__fffDropdownOwnerId = ownerId;
 
         if (! ownerId) {
             return;
         }
+
+        select.__fffDropdownOwnerId = ownerId;
 
         const controller = {
             isOpen: () => Boolean(select.isOpen),
@@ -437,24 +533,28 @@ export function bootSelectFieldPatches(select, alpine, config) {
     };
 
     const patchDocumentClickListener = (select) => {
-        if (! select?.documentClickListener || select.__fffDocumentClickPatched) {
+        if (! select?.documentClickListener || select.documentClickListener.__fffPatched) {
             return;
         }
-
-        select.__fffDocumentClickPatched = true;
 
         document.removeEventListener('click', select.documentClickListener);
 
         const originalDocumentClickListener = select.documentClickListener;
 
-        select.documentClickListener = (event) => {
-            if (select.dropdown?.contains(event.target)) {
+        select.__fffOriginalDocumentClickListener = originalDocumentClickListener;
+
+        const patched = (event) => {
+            const target = event.target;
+
+            if (target instanceof Node && select.dropdown?.contains(target)) {
                 return;
             }
 
             originalDocumentClickListener(event);
         };
 
+        patched.__fffPatched = true;
+        select.documentClickListener = patched;
         document.addEventListener('click', select.documentClickListener);
     };
 
@@ -486,11 +586,11 @@ export function bootSelectFieldPatches(select, alpine, config) {
         return spaceAbove > spaceBelow;
     };
 
-    const applyPortaledDropdownPosition = (select, { alignEnd = false } = {}) => {
+    const applyPortaledDropdownPosition = (select, { alignEnd = false, requireOpen = true } = {}) => {
         const dropdown = select?.dropdown;
         const button = select?.selectButton;
 
-        if (! dropdown || ! button || ! select.isOpen) {
+        if (! dropdown || ! button || (requireOpen && ! select.isOpen)) {
             return false;
         }
 
@@ -501,7 +601,16 @@ export function bootSelectFieldPatches(select, alpine, config) {
         const viewportWidth = window.innerWidth;
 
         const dropdownWidth = dropdown.offsetWidth;
-        const dropdownHeight = dropdown.offsetHeight;
+        const measuredHeight = dropdown.offsetHeight;
+        const dropdownHeight = measuredHeight > 0
+            ? measuredHeight
+            : Math.min(
+                Math.max(
+                    dropdown.querySelectorAll('.fi-select-input-option').length * 40,
+                    120,
+                ),
+                224,
+            );
         const opensAbove = resolveDropdownOpensAbove(select, buttonRect, dropdownHeight, gap);
 
         dropdown.style.position = 'fixed';
@@ -562,6 +671,66 @@ export function bootSelectFieldPatches(select, alpine, config) {
         applyRichListDropdownLayout(select);
         applyPlainListDropdownWidth(select);
         applyPortaledDropdownPosition(select, { alignEnd });
+        syncDropdownScrollbarInset(select);
+    };
+
+    const resolveOptionsScrollContainer = (dropdown) => {
+        if (! dropdown) {
+            return null;
+        }
+
+        return dropdown.querySelector('.fi-select-input-options-ctn')
+            ?? dropdown.querySelector('.fi-dropdown-list');
+    };
+
+    /**
+     * Scrollbar-edge inset CSS must only apply when the options list overflows.
+     * Short menus (e.g. Status) keep equal L/R gutters without phantom right padding.
+     */
+    const syncDropdownScrollbarInset = (select) => {
+        const dropdown = select?.dropdown;
+
+        if (! dropdown) {
+            return;
+        }
+
+        const list = resolveOptionsScrollContainer(dropdown);
+
+        if (! list) {
+            dropdown.classList.remove('fff-select-dropdown-panel--scrollable');
+
+            return;
+        }
+
+        dropdown.classList.remove('fff-select-dropdown-panel--scrollable');
+
+        const hasOverflow = list.scrollHeight > list.clientHeight + 1;
+
+        dropdown.classList.toggle('fff-select-dropdown-panel--scrollable', hasOverflow);
+    };
+
+    const patchOptionsOverflowSync = (select) => {
+        if (! select || select.__fffOptionsOverflowPatched) {
+            return;
+        }
+
+        select.__fffOptionsOverflowPatched = true;
+
+        if (typeof select.renderOptions === 'function') {
+            const originalRenderOptions = select.renderOptions.bind(select);
+
+            select.renderOptions = function (...args) {
+                const result = originalRenderOptions(...args);
+
+                if (this.isOpen) {
+                    requestAnimationFrame(() => {
+                        syncDropdownScrollbarInset(this);
+                    });
+                }
+
+                return result;
+            };
+        }
     };
 
     const portalDropdownToBody = (select) => {
@@ -583,19 +752,21 @@ export function bootSelectFieldPatches(select, alpine, config) {
             return;
         }
 
-        [
-            'position',
-            'top',
-            'left',
-            'right',
-            'bottom',
-            'margin',
-            'min-width',
-            'max-width',
-            'width',
-        ].forEach((property) => {
-            dropdown.style.removeProperty(property);
-        });
+        for (let index = 0; index < PORTAL_STYLE_PROPERTIES.length; index++) {
+            dropdown.style.removeProperty(PORTAL_STYLE_PROPERTIES[index]);
+        }
+
+        dropdown.style.removeProperty('box-shadow');
+        dropdown.style.removeProperty('border');
+        dropdown.style.removeProperty('border-radius');
+        dropdown.style.removeProperty('z-index');
+        dropdown.style.removeProperty('background');
+        dropdown.style.removeProperty('background-color');
+        dropdown.style.removeProperty('backdrop-filter');
+        dropdown.style.removeProperty('-webkit-backdrop-filter');
+        dropdown.style.removeProperty('color');
+        dropdown.__fffGlassThemeKey = null;
+        dropdown.__fffMenuThemeKey = null;
     };
 
     const restoreDropdownParent = (select) => {
@@ -620,80 +791,41 @@ export function bootSelectFieldPatches(select, alpine, config) {
         dropdown.classList.add('fff-teleported-menu');
         applyTeleportedMenuTheme(dropdown);
 
+        const themeKey = resolveThemeFingerprint();
+
+        if (dropdown.__fffGlassThemeKey === themeKey) {
+            dropdown.style.setProperty('z-index', resolveTeleportedMenuZIndex(), 'important');
+
+            return;
+        }
+
         const wrapper = resolveSelectWrapper(select);
-        const styles = wrapper ? getComputedStyle(wrapper) : null;
+        let shadow = DEFAULT_MENU_SHADOW;
+        let radius = DEFAULT_MENU_RADIUS;
 
-        const readVar = (name, fallback) => {
-            const value = styles?.getPropertyValue(name).trim();
+        if (wrapper) {
+            const styles = getComputedStyle(wrapper);
+            const shadowValue = styles.getPropertyValue('--fff-select-menu-shadow').trim();
+            const radiusValue = styles.getPropertyValue('--fff-select-menu-radius').trim();
 
-            return value !== '' ? value : fallback;
-        };
+            if (shadowValue !== '') {
+                shadow = shadowValue;
+            }
 
-        dropdown.style.setProperty(
-            'box-shadow',
-            readVar(
-                '--fff-select-menu-shadow',
-                '0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014',
-            ),
-            'important',
-        );
+            if (radiusValue !== '') {
+                radius = radiusValue;
+            }
+        }
+
+        dropdown.style.setProperty('box-shadow', shadow, 'important');
         dropdown.style.setProperty('border', 'none', 'important');
-        dropdown.style.setProperty('border-radius', readVar('--fff-select-menu-radius', '1.5rem'), 'important');
+        dropdown.style.setProperty('border-radius', radius, 'important');
         dropdown.style.setProperty('z-index', resolveTeleportedMenuZIndex(), 'important');
+        dropdown.__fffGlassThemeKey = themeKey;
     };
 
     const clearIconHtml = config.clearIconHtml;
     const selectedOptionCheckIconHtml = config.selectedOptionCheckIconHtml;
-
-    const patchSelectedOptionCheckIcon = (select) => {
-        if (! selectedOptionCheckIconHtml || select.__fffSelectedOptionCheckPatched) {
-            return;
-        }
-
-        select.__fffSelectedOptionCheckPatched = true;
-
-        const originalCreateOptionElement = select.createOptionElement.bind(select);
-
-        select.createOptionElement = function (value, label) {
-            const option = originalCreateOptionElement(value, label);
-
-            if (! option.classList.contains('fi-selected')) {
-                return option;
-            }
-
-            const labelSpan = option.querySelector(':scope > span');
-
-            if (! labelSpan || labelSpan.classList.contains('fff-select-option-selected-row')) {
-                return option;
-            }
-
-            const labelContent = this.isHtmlAllowed
-                ? labelSpan.innerHTML
-                : labelSpan.textContent;
-
-            labelSpan.innerHTML = '';
-            labelSpan.classList.add('fff-select-option-selected-row');
-
-            const labelWrapper = document.createElement('span');
-            labelWrapper.className = 'fff-select-option-selected-row__label';
-
-            if (this.isHtmlAllowed) {
-                labelWrapper.innerHTML = labelContent;
-            } else {
-                labelWrapper.textContent = labelContent;
-            }
-
-            const check = document.createElement('span');
-            check.className = 'fff-select-option-selected-check';
-            check.setAttribute('aria-hidden', 'true');
-            check.innerHTML = selectedOptionCheckIconHtml;
-
-            labelSpan.appendChild(labelWrapper);
-            labelSpan.appendChild(check);
-
-            return option;
-        };
-    };
 
     const patchClearButtonIcon = (select) => {
         if (! clearIconHtml) {
@@ -705,13 +837,21 @@ export function bootSelectFieldPatches(select, alpine, config) {
 
             select.container?.querySelectorAll('.fi-select-input-value-remove-btn').forEach((button) => {
                 if (isDisabled) {
-                    button.style.display = 'none';
+                    button.hidden = true;
+                    button.setAttribute('aria-hidden', 'true');
 
                     return;
                 }
 
-                button.style.display = '';
+                button.hidden = false;
+                button.removeAttribute('aria-hidden');
+
+                if (button.dataset.fffClearIconApplied === '1') {
+                    return;
+                }
+
                 button.innerHTML = clearIconHtml;
+                button.dataset.fffClearIconApplied = '1';
             });
         };
 
@@ -738,13 +878,18 @@ export function bootSelectFieldPatches(select, alpine, config) {
         select.__fffPatchesApplied = true;
 
         patchClearButtonIcon(select);
-        patchSelectedOptionCheckIcon(select);
-        if (config.shouldPatchUserSelectClient) {
+        patchSelectFieldSelectionUx(select, {
+            isGridLayout,
+            keepSelectedOptionsInDropdown,
+            selectedOptionCheckIconHtml,
+        });
+        patchOptionsOverflowSync(select);
+        if (config.shouldPatchUserSelectClient && typeof patchUserSelectClient === 'function') {
             select.initialSelectedUserEntries = config.initialSelectedUserEntries;
             select.__fffMinSearchLength = config.userSelectMinSearchLength;
             patchUserSelectClient(select);
         }
-        if (config.shouldPatchUserSelectMultiple) {
+        if (config.shouldPatchUserSelectMultiple && typeof patchUserSelectMultiple === 'function') {
             destroyUserSelectMultiple = patchUserSelectMultiple(select);
         }
         patchDocumentClickListener(select);
@@ -797,7 +942,14 @@ export function bootSelectFieldPatches(select, alpine, config) {
         };
 
         select.openDropdown = async function (...args) {
+            bumpSelectCloseToken(this);
             cancelDropdownCloseAnimation(this);
+            this.dropdown?.classList.remove('is-closing');
+
+            // Treat current selections as already drawn so reopen does not replay the check stroke.
+            syncKnownSelectedFromState(this);
+            bindExclusiveSelectDropdown(this);
+            patchDocumentClickListener(this);
 
             const willOpen = ! this.isOpen;
 
@@ -807,9 +959,13 @@ export function bootSelectFieldPatches(select, alpine, config) {
 
             this.__fffUseQuickPosition = true;
 
-            const openPromise = originalOpenDropdown(...args);
+            let openPromise;
 
-            this.__fffUseQuickPosition = false;
+            try {
+                openPromise = Promise.resolve(originalOpenDropdown(...args));
+            } finally {
+                this.__fffUseQuickPosition = false;
+            }
 
             if (this.dropdown && this.isOpen) {
                 portalDropdownToBody(this);
@@ -817,16 +973,23 @@ export function bootSelectFieldPatches(select, alpine, config) {
                 syncFocusOutlineOpenState(this, true);
                 applyQuickPortaledPosition(this);
                 revealDropdownPanel(this);
+                syncDropdownScrollbarInset(this);
             }
 
-            openPromise.then(() => {
-                if (! this.dropdown || ! this.isOpen) {
-                    return;
-                }
+            try {
+                await openPromise;
+            } catch (error) {
+                syncFocusOutlineOpenState(this, false);
 
-                scheduleDropdownLayout(this);
-                focusDropdownSearch(this);
-            });
+                throw error;
+            }
+
+            if (! this.dropdown || ! this.isOpen) {
+                return;
+            }
+
+            scheduleDropdownLayout(this);
+            focusDropdownSearch(this);
         };
 
         select.closeDropdown = function (...args) {
@@ -838,12 +1001,21 @@ export function bootSelectFieldPatches(select, alpine, config) {
                 return originalCloseDropdown.apply(selectRef, args);
             }
 
+            const closeToken = bumpSelectCloseToken(this);
+
             this.isOpen = false;
             this.selectButton?.setAttribute('aria-expanded', 'false');
+            freezeFilamentPositionListeners(this);
 
             hideDropdownPanel(this, () => {
+                if (! shouldCommitDeferredClose(selectRef, closeToken)) {
+                    return;
+                }
+
                 restoreDropdownParent(selectRef);
                 originalCloseDropdown.apply(selectRef, args);
+                selectRef.__fffFrozenScrollListener = undefined;
+                selectRef.__fffFrozenResizeListener = undefined;
             });
         };
 
@@ -919,7 +1091,7 @@ export function bootSelectFieldPatches(select, alpine, config) {
             select.openDropdown = async function (...args) {
                 await openDropdownWithGlass(...args);
                 applyGridDropdownWidth(select);
-                patchGridResizeListener(select);
+                ensureGridResizeListener(select);
                 inlineSearch?.activate();
             };
 
@@ -932,11 +1104,14 @@ export function bootSelectFieldPatches(select, alpine, config) {
             };
 
             if (inlineSearch) {
-                select.selectButton.addEventListener('click', () => {
+                const onInlineSearchClick = () => {
                     if (select.isOpen) {
                         inlineSearch.activate();
                     }
-                });
+                };
+
+                select.__fffInlineSearchClickHandler = onInlineSearchClick;
+                select.selectButton.addEventListener('click', onInlineSearchClick);
             }
         }
 
@@ -984,6 +1159,49 @@ export function bootSelectFieldPatches(select, alpine, config) {
 
     return () => {
         destroyUserSelectMultiple?.();
+        destroyUserSelectMultiple = null;
+
+        if (! select) {
+            return;
+        }
+
+        bumpSelectCloseToken(select);
+        cancelDropdownCloseAnimation(select);
+
+        select.__fffUnbindExclusiveDropdown?.();
+        select.__fffUnbindExclusiveDropdown = null;
+
+        if (select.__fffGridResizeListener) {
+            window.removeEventListener('resize', select.__fffGridResizeListener);
+
+            if (select.resizeListener === select.__fffGridResizeListener) {
+                select.resizeListener = null;
+            }
+
+            select.__fffGridResizeListener = null;
+        }
+
+        if (select.__fffInlineSearchClickHandler && select.selectButton) {
+            select.selectButton.removeEventListener('click', select.__fffInlineSearchClickHandler);
+            select.__fffInlineSearchClickHandler = null;
+        }
+
+        if (select.documentClickListener?.__fffPatched) {
+            document.removeEventListener('click', select.documentClickListener);
+
+            if (select.__fffOriginalDocumentClickListener) {
+                select.documentClickListener = select.__fffOriginalDocumentClickListener;
+                select.__fffOriginalDocumentClickListener = null;
+            }
+        }
+
+        restoreDropdownParent(select);
+        syncFocusOutlineOpenState(select, false);
+        select.dropdown?.classList.remove(
+            'fff-select-dropdown-panel--scrollable',
+            'is-open',
+            'is-closing',
+        );
     };
 
 }

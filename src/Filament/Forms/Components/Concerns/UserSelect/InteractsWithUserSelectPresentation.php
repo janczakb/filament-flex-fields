@@ -36,6 +36,11 @@ trait InteractsWithUserSelectPresentation
         return $classes;
     }
 
+    public function shouldUseRichListTriggerDisplay(): bool
+    {
+        return ! $this->isMultiple();
+    }
+
     public function shouldRenderAvatarStackTrigger(): bool
     {
         return false;

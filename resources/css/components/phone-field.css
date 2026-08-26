@@ -152,7 +152,7 @@
 }
 
 .fff-phone-field__country-option.is-active {
-    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background: var(--fff-select-menu-hover, #ebebec);
 }
 
 .fff-phone-field__country-menu .fff-phone-field__flag-wrap {
@@ -179,11 +179,11 @@
 }
 
 .fff-phone-field__country-option:hover {
-    background: var(--fff-select-menu-hover, rgb(244 244 245 / 0.72));
+    background: var(--fff-select-menu-hover, #ebebec);
 }
 
 .fff-phone-field__country-option.is-selected {
-    background: var(--fff-select-menu-selected, rgb(228 228 231 / 0.78));
+    background: var(--fff-select-menu-selected, transparent);
 }
 
 .fff-phone-field__country-name {

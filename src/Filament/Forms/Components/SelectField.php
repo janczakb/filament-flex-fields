@@ -36,6 +36,8 @@ class SelectField extends Select
 
     protected string|Closure $chipColor = 'neutral';
 
+    protected bool|Closure $keepSelectedOptionsInDropdown = false;
+
     protected bool|Closure|null $usesRichOptions = null;
 
     protected string|Closure $optionLayout = 'list';
@@ -147,6 +149,16 @@ class SelectField extends Select
         return $this->usesRichOptionHtml() && $this->getOptionLayout() === 'list';
     }
 
+    /**
+     * When true, the closed trigger keeps the full list HTML (icon + title + description).
+     * SelectField defaults to compact trigger (icon + title) so field height matches size().
+     * UserSelect overrides this to keep email/subtitle visible in the closed control.
+     */
+    public function shouldUseRichListTriggerDisplay(): bool
+    {
+        return false;
+    }
+
     public function variant(string|Closure $variant): static
     {
         $this->variant = $variant;
@@ -166,6 +178,22 @@ class SelectField extends Select
         $this->chipColor = $chipColor;
 
         return $this;
+    }
+
+    /**
+     * Keep selected values visible in the multi-select dropdown (checklist style)
+     * instead of removing them from the option list after selection.
+     */
+    public function keepSelectedOptionsInDropdown(bool|Closure $condition = true): static
+    {
+        $this->keepSelectedOptionsInDropdown = $condition;
+
+        return $this;
+    }
+
+    public function shouldKeepSelectedOptionsInDropdown(): bool
+    {
+        return $this->isMultiple() && (bool) $this->evaluate($this->keepSelectedOptionsInDropdown);
     }
 
     public function richOptions(bool|Closure $condition = true): static
@@ -473,7 +501,9 @@ class SelectField extends Select
         return [
             'value' => $value,
             'label' => (string) ($label['label'] ?? $value),
-            'description' => filled($label['description'] ?? null) ? (string) $label['description'] : null,
+            'description' => filled($label['description'] ?? $label['desc'] ?? null)
+                ? (string) ($label['description'] ?? $label['desc'])
+                : null,
             'icon' => $label['icon'] ?? null,
             'image' => filled($label['image'] ?? null) ? (string) $label['image'] : null,
             'badge' => filled($label['badge'] ?? null) ? (string) $label['badge'] : null,
@@ -619,7 +649,7 @@ class SelectField extends Select
             $classes['fff-select-field--clearable-has-value'] = true;
         }
 
-        if ($this->usesRichOptionHtml() && $this->getOptionLayout() === 'list' && ! $this->isMultiple()) {
+        if ($this->shouldUseRichListTriggerDisplay()) {
             $classes['fff-select-field--rich-list-trigger'] = true;
         }
 
@@ -719,7 +749,10 @@ class SelectField extends Select
             }
 
             if ($this->usesRichOptionHtml()) {
-                return $this->formatOptionLabelForJs($normalized);
+                return $this->formatOptionLabelForJs(
+                    $normalized,
+                    compact: ! $this->shouldUseRichListTriggerDisplay(),
+                );
             }
 
             return $this->formatOptionLabelForJs($normalized, compact: true);

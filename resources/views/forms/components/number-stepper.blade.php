@@ -56,6 +56,7 @@
             prefix: @js($displayPrefix),
             suffix: @js($displaySuffix),
             decimalPlaces: @js($decimalPlaces),
+            locale: @js($field->getLocale()),
             wheelAnimated: @js($isWheelAnimated),
             widthAnchor: @js($widthAnchorText),
         })"

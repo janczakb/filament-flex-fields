@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasNumberLocale;
 use Bjanczak\FilamentFlexFields\StateCasts\PriceRangeFieldStateCast;
 use Closure;
 use Filament\Forms\Components\Field;
@@ -16,6 +17,7 @@ class PriceRangeField extends Field
 {
     use HasControlSize;
     use HasFieldRounding;
+    use HasNumberLocale;
 
     protected string $view = 'filament-flex-fields::forms.components.price-range-field';
 

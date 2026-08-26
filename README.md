@@ -853,10 +853,10 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
 | core (always) | — | 25.5 (gzip 5.5) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 185 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.6 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.6 (gzip 5.9) + deps 68.6 |
+| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + search-normalize 0.1 (gzip 0.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 184.9 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.6 |
+| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + search-normalize 0.1 (gzip 0.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.6 (gzip 5.9) + deps 68.6 |
 | FlexTextInput | 10.9 (gzip 3.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.4 (gzip 7.4) + deps 22.5 |
-| TagsField | 3.1 (gzip 1.1) | 23.4 (gzip 5.2) + deps 65.7 |
+| TagsField | 3.2 (gzip 1.2) + search-normalize 0.1 (gzip 0.1) | 23.4 (gzip 5.2) + deps 65.7 |
 | RatingField | 0.7 (gzip 0.3) | 25.4 (gzip 5.6) |
 | SwitchField | Alpine inline | 32.5 (gzip 6.2) |
 | UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.4) + deps 159.9 |
@@ -868,25 +868,16 @@ Sample bundles (10 of **59** production CSS files). Full per-file metrics — ev
 
 ---
 
-## What this license means for you
+## License
 
-Flex Fields is **source-available and dual-licensed**. Free use is allowed for many real projects; selling or redistributing the plugin (or apps that ship it as a product) needs a commercial licence. Full text: [LICENSE](LICENSE) (v1.1).
+Flex Fields is **source-available and dual-licensed**. Many real-world projects qualify for free use under the LICENSE; shipping a commercial SaaS or product that depends on Flex Fields—or redistributing Flex Fields as a kit—may require a separate commercial license.
 
-| Scenario | Free use? |
-|----------|-----------|
-| Internal company / staff back-office (your ops only) | **Yes** — §1.7(a) |
-| One client work-for-hire where the client gets runtime access, not a standalone copy of the plugin | **Yes** — §1.7(b) |
-| Committing `vendor/` or `php artisan filament:assets` output into **your private** app repo (employees/contractors only) | **Yes** — §1.5(iii), §2.2 |
-| Regenerating assets on deploy and gitignoring published paths | **Yes** (recommended hygiene; not required if §1.5(iii) applies) |
-| CSS/theme overrides in **your** panel stylesheet that target `.fff-*` classes | **Yes** — §2.3 |
-| Local patches / edits under `vendor/…` used only in your own install | **Yes** — §2.4 |
-| Publishing or sharing a modified copy (public repo, Packagist, third parties) | **No** — §3.1 / §3.2 |
-| Selling, licensing, or offering a multi-tenant SaaS where Flex Fields is a material component | **No** — needs a [commercial licence](mailto:barek122@gmail.com) |
+- Full license text (Permitted Free Use and restrictions): [LICENSE](LICENSE) (v1.1)
+- Commercial plans, Custom / OEM kit terms, and Lemon Squeezy purchase: [COMMERCIAL.md](COMMERCIAL.md)
+- Third-party attributions: [CREDITS.md](CREDITS.md)
 
-Questions about a specific setup: open a GitHub issue or email `barek122@gmail.com`.
+Questions: open a GitHub issue or email [barek122@gmail.com](mailto:barek122@gmail.com).
 
 ---
-
-See [LICENSE](LICENSE) for license details. Third-party attributions: [CREDITS.md](CREDITS.md).
 
 <p align="center">Made with ❤️ by <a href="mailto:barek122@gmail.com">Bartłomiej Janczak</a></p>

@@ -19,18 +19,20 @@
     </span>
 @elseif ($layout === 'trigger')
     <span class="fff-select-option fff-select-option--trigger">
-        @include('filament-flex-fields::forms.components.partials.select-option-media', [
-            'label' => $label,
-            'icon' => $icon,
-            'image' => $image ?? null,
-            'badgeColor' => $badgeColor ?? 'primary',
-            'iconSize' => match ($iconSize ?? null) {
-                IconSize::Small => IconSize::ExtraSmall,
-                IconSize::Large => IconSize::Small,
-                default => IconSize::Small,
-            },
-            'mediaClass' => 'fff-select-option__trigger-icon',
-        ])
+        @if (filled($icon) || filled($image ?? null))
+            @include('filament-flex-fields::forms.components.partials.select-option-media', [
+                'label' => $label,
+                'icon' => $icon,
+                'image' => $image ?? null,
+                'badgeColor' => $badgeColor ?? 'primary',
+                'iconSize' => match ($iconSize ?? null) {
+                    IconSize::Small => IconSize::ExtraSmall,
+                    IconSize::Large => IconSize::Small,
+                    default => IconSize::Small,
+                },
+                'mediaClass' => 'fff-select-option__trigger-icon',
+            ])
+        @endif
 
         <span class="fff-select-option__trigger-label">{{ $label }}</span>
     </span>
