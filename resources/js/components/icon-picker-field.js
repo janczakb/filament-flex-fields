@@ -1,13 +1,12 @@
 import { trimSearchResultsCache } from '../core/icon-picker-cache.js'
 import { createIconPickerSvgLoader } from '../core/icon-picker-svg-loader.js'
 import { createIconPickerKeyboardMixin, highlightIconLabel } from '../core/icon-picker-keyboard.js'
+import { createIconPickerComboboxBridge } from '../core/icon-picker-combobox-bridge.js'
+import { createOverlayMenuKeyboardMixin } from '../core/overlay-menu-keyboard.js'
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
-import {
-    buildSearchResultsCacheKey,
-    ICON_PICKER_VIRTUAL_SCROLL_THRESHOLD,
-    resolveScrollTopForIconIndex,
-    resolveVirtualWindow,
-} from '../core/icon-picker-virtual-window.js'
+import { createIconPickerVirtualScrollMixin, mergeAlpineComponentDescriptors } from '../core/icon-picker-virtual-scroll.js'
+import { callIconPickerSchemaMethod, canCallIconPickerSchemaMethod, isIconPickerSearchPayload } from '../core/icon-picker-livewire.js'
+import { buildSearchResultsCacheKey } from '../core/icon-picker-virtual-window.js'
 
 const teleportedMenu = createSearchableSelectMenuMixin({
     openKey: 'panelOpen',
@@ -18,6 +17,8 @@ const teleportedMenu = createSearchableSelectMenuMixin({
     menuRef: 'pickerPanel',
     closeMethod: 'closePanel',
     ownerIdPrefix: 'fff-icon-picker',
+    matchTriggerWidth: false,
+    minMenuWidth: 352,
     onMenuClose() {
         this.svgLoader?.disconnect()
         this.nextPageCache = null
@@ -28,6 +29,8 @@ const teleportedMenu = createSearchableSelectMenuMixin({
             cancelAnimationFrame(this.iconSvgSyncFrame)
             this.iconSvgSyncFrame = null
         }
+
+        this.cancelVirtualScrollFrame?.()
     },
 })
 
@@ -60,7 +63,7 @@ export default function iconPickerFieldFormComponent({
     initialSelectedHtml,
     initialSelectedName,
 }) {
-    return {
+    const component = {
         ...teleportedMenu,
         state,
         componentKey,
@@ -84,55 +87,72 @@ export default function iconPickerFieldFormComponent({
         selectedHtml: initialSelectedHtml ?? '',
         searchPending: false,
         initialLoadPending: false,
+        iconResultsLoading: false,
+        iconSkeletonVisible: false,
+        iconResultsLoadingStartedAt: null,
         page: 1,
         hasMore: false,
         searchRequestToken: 0,
-        infiniteScrollObserver: null,
         nextPageCache: null,
         nextPagePrefetchToken: 0,
         searchResultsCache: new Map(),
         skeletonSlots: Array.from({ length: SKELETON_COUNT }, (_, index) => index),
         svgLoader: null,
         loadingMore: false,
-        virtualScrollTop: 0,
-        virtualViewportHeight: 224,
-        measuredStride: null,
+        svgCacheVersion: 0,
         iconSvgSyncFrame: null,
 
-        get usesIconVirtualScroll() {
-            return this.loadedIconItems.length > ICON_PICKER_VIRTUAL_SCROLL_THRESHOLD
+        syncIconSkeletonVisibility() {},
+
+        bumpSvgCacheVersion() {
+            this.svgCacheVersion = (this.svgCacheVersion ?? 0) + 1
         },
 
-        get iconVirtualWindow() {
-            return resolveVirtualWindow({
-                items: this.loadedIconItems,
-                scrollTop: this.virtualScrollTop,
-                viewportHeight: this.virtualViewportHeight,
-                layout: this.layout,
-                gridColumns: this.gridColumns,
-                measuredStride: this.measuredStride,
-            })
+        beginIconResultsLoad() {
+            this.iconResultsLoadingStartedAt = Date.now()
+            this.iconResultsLoading = true
+            this.searchPending = true
+            this.initialLoadPending = true
+            this.beginIconSkeletonPhase('initial')
         },
 
-        get visibleIconEntries() {
-            if (! this.usesIconVirtualScroll) {
-                return this.loadedIconItems.map((item, index) => ({ item, index }))
+        finishIconResultsLoad() {
+            this.iconResultsLoading = false
+            this.iconResultsLoadingStartedAt = null
+            this.finishIconSkeletonPhase()
+        },
+
+        applySvgPreviewsFromPayload(payload) {
+            if (! Array.isArray(payload?.previews)) {
+                return false
             }
 
-            const window = this.iconVirtualWindow
+            let applied = false
 
-            return window.slice.map((item, offset) => ({
-                item,
-                index: window.startIndex + offset,
-            }))
+            for (const item of payload.previews) {
+                if (! item?.name || ! item?.html) {
+                    continue
+                }
+
+                this.svgCache[item.name] = item.html
+                applied = true
+            }
+
+            if (applied) {
+                this.bumpSvgCacheVersion()
+            }
+
+            return applied
         },
 
-        get iconWindowOffsetTop() {
-            return this.usesIconVirtualScroll ? this.iconVirtualWindow.offsetTop : 0
-        },
+        markIconPickerTriggerReady() {
+            this.triggerHydrated = true
 
-        get iconTrackHeight() {
-            return this.usesIconVirtualScroll ? this.iconVirtualWindow.trackHeight : 0
+            const shell = this.$el.closest('.fff-icon-picker-shell')
+
+            shell?.querySelectorAll('.fff-icon-picker-trigger-ssr').forEach((element) => {
+                element.classList.add('is-replaced')
+            })
         },
 
         init() {
@@ -140,6 +160,20 @@ export default function iconPickerFieldFormComponent({
                 openKey: 'panelOpen',
                 itemsKey: 'loadedIconItems',
             }))
+
+            if (this.layout === 'list') {
+                Object.assign(this, createOverlayMenuKeyboardMixin({
+                    openKey: 'panelOpen',
+                    resultsKey: 'loadedIconItems',
+                    menuRef: 'iconResults',
+                    searchRef: 'iconSearch',
+                    selectMethod: 'selectIconFromKeyboard',
+                    optionIdPrefix: `${componentKey}-option`,
+                    activeIndexKey: 'activeIconIndex',
+                    getItemValue: (item) => item?.name ?? item,
+                    onEscape: 'closePanel',
+                }))
+            }
 
             if (initialSelectedName && initialSelectedHtml) {
                 this.svgCache[initialSelectedName] = initialSelectedHtml
@@ -149,14 +183,23 @@ export default function iconPickerFieldFormComponent({
                 getSvgCache: () => this.svgCache,
                 patchSvgCache: (updates) => {
                     Object.assign(this.svgCache, updates)
+                    this.bumpSvgCacheVersion()
                 },
                 fetchSvgs: (icons) => this.requestSvgPreviews(icons),
+                batchDelayMs: 0,
+                batchSize: 64,
             })
 
             this.bindSelectMenuLifecycle()
             this.bindPanelLifecycle()
             this.initIconPickerKeyboard()
-            this.bindInfiniteScroll()
+
+            if (this.layout === 'list') {
+                this.initOverlayMenuKeyboard()
+            }
+
+            createIconPickerComboboxBridge(this)
+            this.bindLoadMoreLifecycle?.()
 
             this.$watch('state', (value) => {
                 void this.syncSelectedPreview(value)
@@ -166,101 +209,108 @@ export default function iconPickerFieldFormComponent({
             this.syncClearableClasses()
 
             if (this.preload) {
-                this.initialLoadPending = true
-                void this.fetchResults({ reset: true })
+                void this.fetchResultsWhenLivewireReady()
             }
 
             this.$nextTick(() => {
-                this.triggerHydrated = true
+                this.markIconPickerTriggerReady()
             })
         },
 
         bindPanelLifecycle() {
             let pendingResultsRefresh = false
 
-            const refreshPanelResults = () => {
+            const refreshPanelResults = ({ preserveScroll = false } = {}) => {
                 if (! this.panelOpen) {
                     return
                 }
 
-                this.resetIconResultsScroll()
                 this.measureIconResultsViewport()
-                this.measureIconStride()
-                this.syncVisibleIconSvgs()
-                this.observeInfiniteScroll()
+                this.syncVirtualGridGeometry?.()
+                this.afterVirtualResultsLayout({ preserveScroll })
+
+                if (this.layout === 'list') {
+                    this.syncVisibleIconSvgs()
+                }
             }
 
-            this.$watch('panelReady', (ready) => {
-                if (! ready || ! pendingResultsRefresh || ! this.panelOpen) {
+            const wrapPanelResizeHandler = () => {
+                if (this._iconPickerResizeWrapped || typeof this.panelResizeHandler !== 'function') {
                     return
                 }
 
-                pendingResultsRefresh = false
-                this.$nextTick(refreshPanelResults)
+                const originalResizeHandler = this.panelResizeHandler
+
+                this.panelResizeHandler = () => {
+                    originalResizeHandler.call(this)
+                    this.onVirtualPanelResize?.()
+                }
+
+                this._iconPickerResizeWrapped = true
+            }
+
+            this.$watch('panelReady', (ready) => {
+                if (! ready || ! this.panelOpen) {
+                    return
+                }
+
+                void this.whenPanelResultsReady?.(async () => {
+                    if (! this.panelOpen) {
+                        return
+                    }
+
+                    if (this.loadedIconItems.length === 0 && ! this.searchPending && ! this.iconResultsLoading) {
+                        await this.fetchResultsWhenLivewireReady()
+                    }
+
+                    if (pendingResultsRefresh) {
+                        pendingResultsRefresh = false
+                        this.$nextTick(() => {
+                            refreshPanelResults({ preserveScroll: true })
+                            wrapPanelResizeHandler()
+                        })
+                    }
+                })
             })
 
             this.$watch('panelOpen', (open) => {
                 this.syncDropdownOpenState(open)
 
                 if (open) {
-                    if (this.loadedIconItems.length === 0) {
-                        this.initialLoadPending = true
-                        void this.fetchResults({ reset: true })
-                    } else if (this.panelReady) {
-                        this.$nextTick(refreshPanelResults)
-                    } else {
+                    if (this.loadedIconItems.length > 0 && this.panelReady) {
+                        void this.whenPanelResultsReady?.(() => {
+                            this.$nextTick(() => {
+                                refreshPanelResults({ preserveScroll: true })
+                                wrapPanelResizeHandler()
+                            })
+                        })
+                    } else if (this.loadedIconItems.length > 0) {
                         pendingResultsRefresh = true
                     }
 
                     return
                 }
 
+                this._iconPickerResizeWrapped = false
                 pendingResultsRefresh = false
+                this.clearIconSkeletonTimers?.()
+                this.iconLoadingPhase = 'idle'
+                this.iconSkeletonFading = false
 
                 if (this.iconSvgSyncFrame) {
                     cancelAnimationFrame(this.iconSvgSyncFrame)
                     this.iconSvgSyncFrame = null
                 }
 
-                this.infiniteScrollObserver?.disconnect()
-                this.infiniteScrollObserver = null
+                this.cancelVirtualScrollFrame?.()
+                this.disconnectLoadMoreObserver?.()
                 this.svgLoader?.disconnect()
                 this.nextPageCache = null
+                this.clearLoadMoreSkeletonTimers?.()
                 this.loadingMore = false
-                this.resetIconResultsScroll()
+                this.iconScrollNearEnd = false
+                this.resetGridGeometryLock?.()
             })
-        },
-
-        resetIconResultsScroll() {
-            this.virtualScrollTop = 0
-
-            if (this.$refs.iconResults) {
-                this.$refs.iconResults.scrollTop = 0
-            }
-        },
-
-        captureIconResultsScroll() {
-            const element = this.$refs.iconResults
-
-            if (! element) {
-                return
-            }
-
-            this.virtualScrollTop = element.scrollTop
-            this.virtualViewportHeight = element.clientHeight || 224
-        },
-
-        restoreIconResultsScroll(scrollTop) {
-            const element = this.$refs.iconResults
-
-            if (! element) {
-                this.virtualScrollTop = scrollTop
-
-                return
-            }
-
-            element.scrollTop = scrollTop
-            this.virtualScrollTop = scrollTop
         },
 
         resolveSelectWrapper() {
@@ -278,145 +328,57 @@ export default function iconPickerFieldFormComponent({
             wrapper?.classList.toggle('fff-select-field--clearable-has-value', hasValue)
         },
 
-        bindInfiniteScroll() {
-            this.$watch('hasMore', () => {
-                this.$nextTick(() => this.observeInfiniteScroll())
-            })
+        resolveMenuTriggerElement() {
+            return this.$refs.pickerTrigger?.closest('.fi-select-input-ctn')
+                ?? this.$refs.pickerTrigger
+                ?? null
         },
 
-        observeInfiniteScroll() {
-            this.infiniteScrollObserver?.disconnect()
-            this.infiniteScrollObserver = null
+        applyIconPickerPanelWidth() {
+            const menu = this.$refs.pickerPanel
 
-            const sentinel = this.$refs.iconScrollSentinel
-            const root = this.$refs.iconResults
-
-            if (! sentinel || ! root || ! this.hasMore || this.loadingMore) {
+            if (! menu) {
                 return
             }
 
-            this.infiniteScrollObserver = new IntersectionObserver((entries) => {
-                if (! entries.some((entry) => entry.isIntersecting)) {
-                    return
-                }
+            if (this.layout === 'grid' || this.layout === 'icons') {
+                menu.style.setProperty('width', '22rem', 'important')
+                menu.style.setProperty('min-width', '22rem', 'important')
+                menu.style.setProperty('max-width', 'min(22rem, calc(100vw - 2rem))', 'important')
 
-                this.loadMore()
-            }, {
-                root,
-                rootMargin: '120px',
-                threshold: 0,
-            })
+                return
+            }
 
-            this.infiniteScrollObserver.observe(sentinel)
+            const trigger = this.resolveMenuTriggerElement()
+
+            if (! trigger) {
+                return
+            }
+
+            const triggerWidth = trigger.offsetWidth
+            const targetWidth = Math.max(triggerWidth, 288)
+
+            menu.style.width = `${targetWidth}px`
+            menu.style.minWidth = `${targetWidth}px`
+            menu.style.maxWidth = `min(${targetWidth}px, calc(100vw - 2rem))`
         },
 
-        afterResultsLayout({ preserveScroll = false } = {}) {
-            if (! this.panelOpen) {
-                return
-            }
+        updateMenuPosition({ reveal = false } = {}) {
+            this.applyIconPickerPanelWidth()
 
-            const scrollTop = preserveScroll
-                ? (this.$refs.iconResults?.scrollTop ?? this.virtualScrollTop)
-                : null
-
-            this.$nextTick(() => {
-                if (! this.panelOpen) {
-                    return
-                }
-
-                if (preserveScroll && scrollTop !== null) {
-                    this.restoreIconResultsScroll(scrollTop)
-                } else {
-                    this.captureIconResultsScroll()
-                }
-
-                this.measureIconResultsViewport()
-                this.measureIconStride()
-                this.syncVisibleIconSvgs()
-                this.observeInfiniteScroll()
-            })
+            teleportedMenu.updateMenuPosition.call(this, { reveal })
         },
 
-        measureIconResultsViewport() {
-            const element = this.$refs.iconResults
+        selectIconFromKeyboard(icon) {
+            if (typeof icon === 'string') {
+                this.selectIcon(icon)
 
-            if (! element) {
                 return
             }
 
-            this.virtualViewportHeight = element.clientHeight || 224
-        },
-
-        measureIconStride() {
-            if (this.measuredStride) {
-                return
+            if (icon?.name) {
+                this.selectIcon(icon.name)
             }
-
-            const element = this.$refs.iconResults
-
-            if (! element) {
-                return
-            }
-
-            // Find the first icon element to measure its height
-            const firstIcon = element.querySelector('.fff-icon-picker__preview, .fff-icon-picker__list-entry')
-
-            if (firstIcon && firstIcon.clientHeight > 0) {
-                // Determine layout gap, we know gap is 6px based on CSS and constants
-                this.measuredStride = firstIcon.clientHeight + 6
-            }
-        },
-
-        onIconResultsScroll(event) {
-            this.virtualScrollTop = event.target.scrollTop
-            this.virtualViewportHeight = event.target.clientHeight
-
-            if (this.iconSvgSyncFrame) {
-                return
-            }
-
-            this.iconSvgSyncFrame = requestAnimationFrame(() => {
-                this.iconSvgSyncFrame = null
-                this.syncVisibleIconSvgs()
-            })
-        },
-
-        syncVisibleIconSvgs() {
-            const icons = this.visibleIconEntries
-                .map((entry) => entry.item?.name)
-                .filter(Boolean)
-
-            if (icons.length > 0) {
-                this.svgLoader?.queueIcons(icons)
-            }
-        },
-
-        ensureIconIndexVisible(index) {
-            if (! this.usesIconVirtualScroll || index < 0) {
-                return
-            }
-
-            const targetScrollTop = resolveScrollTopForIconIndex({
-                index,
-                total: this.loadedIconItems.length,
-                layout: this.layout,
-                gridColumns: this.gridColumns,
-                viewportHeight: this.virtualViewportHeight,
-                measuredStride: this.measuredStride,
-            })
-
-            const element = this.$refs.iconResults
-
-            if (! element) {
-                return
-            }
-
-            if (Math.abs(element.scrollTop - targetScrollTop) > 1) {
-                element.scrollTop = targetScrollTop
-            }
-
-            this.virtualScrollTop = targetScrollTop
-            this.syncVisibleIconSvgs()
         },
 
         togglePanel() {
@@ -450,24 +412,27 @@ export default function iconPickerFieldFormComponent({
             void this.fetchResults({ reset: true })
         },
 
-        loadMore() {
-            if (! this.hasMore || this.searchPending || this.loadingMore) {
+        async loadMore() {
+            if (! this.hasMore || this.searchPending) {
+                this.releaseLoadMoreRequest?.({ immediate: true })
+
                 return
             }
 
-            this.loadingMore = true
-            this.infiniteScrollObserver?.disconnect()
-
             if (this.nextPageCache?.page === this.page + 1) {
-                this.applyPagePayload(this.nextPageCache, { reset: false })
+                const payload = this.nextPageCache
                 this.nextPageCache = null
+                await this.waitMinLoadMoreSkeleton?.()
+                this.page = payload.page
+                this.applyPagePayload(payload, { reset: false })
                 void this.prefetchNextPage()
+                this.releaseLoadMoreRequest?.()
 
                 return
             }
 
             this.page += 1
-            void this.fetchResults({ reset: false })
+            await this.fetchResults({ reset: false })
         },
 
         normalizeIcons(payloadIcons) {
@@ -494,39 +459,89 @@ export default function iconPickerFieldFormComponent({
             trimSearchResultsCache(this.searchResultsCache)
         },
 
+        async fetchResultsWhenLivewireReady({ reset = true, maxAttempts = 40 } = {}) {
+            if (! this.componentKey || ! this.panelOpen) {
+                return false
+            }
+
+            for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+                if (! this.panelOpen) {
+                    return false
+                }
+
+                if (canCallIconPickerSchemaMethod(this)) {
+                    await this.fetchResults({ reset })
+
+                    return this.loadedIconItems.length > 0
+                }
+
+                await new Promise((resolve) => setTimeout(resolve, 16))
+            }
+
+            return false
+        },
+
         async fetchResults({ reset = true }) {
-            if (! this.componentKey || ! this.$wire?.callSchemaComponentMethod) {
+            if (! this.componentKey) {
+                return
+            }
+
+            if (! canCallIconPickerSchemaMethod(this)) {
                 return
             }
 
             if (reset) {
                 this.page = 1
-                this.loadingMore = false
+                this.releaseLoadMoreRequest?.({ immediate: true })
+                this.resetVirtualScrollState()
                 this.resetIconResultsScroll()
+                this.syncVirtualGridGeometry?.({ force: ! this.gridGeometryLocked })
             }
 
             const cachedPayload = this.readSearchCache(this.page)
 
-            if (cachedPayload) {
+            if (cachedPayload && isIconPickerSearchPayload(cachedPayload)) {
+                if (! reset) {
+                    await this.waitMinLoadMoreSkeleton?.()
+                }
+
                 this.applyPagePayload(cachedPayload, { reset })
 
                 if (this.hasMore) {
                     void this.prefetchNextPage()
                 }
 
+                if (reset) {
+                    this.searchPending = false
+                    this.initialLoadPending = false
+                    this.finishIconResultsLoad()
+                } else {
+                    this.releaseLoadMoreRequest?.()
+                }
+
                 return
             }
 
-            const token = ++this.searchRequestToken
-            this.searchPending = true
+            if (cachedPayload) {
+                this.searchResultsCache.delete(
+                    buildSearchResultsCacheKey(this.searchQuery, this.activeSet, this.page),
+                )
+            }
 
-            if (reset && this.loadedIconItems.length === 0) {
-                this.initialLoadPending = true
+            if (reset) {
+                this.beginIconResultsLoad()
+                this.loadedIconItems = []
+            }
+
+            const token = ++this.searchRequestToken
+
+            if (! reset) {
+                this.searchPending = true
             }
 
             try {
-                const payload = await this.$wire.callSchemaComponentMethod(
-                    this.componentKey,
+                const payload = await callIconPickerSchemaMethod(
+                    this,
                     'getIconPickerSearchResults',
                     {
                         query: this.searchQuery,
@@ -534,6 +549,10 @@ export default function iconPickerFieldFormComponent({
                         page: this.page,
                     },
                 )
+
+                if (! isIconPickerSearchPayload(payload)) {
+                    throw new Error('Invalid icon picker search payload')
+                }
 
                 if (token !== this.searchRequestToken) {
                     return
@@ -554,31 +573,53 @@ export default function iconPickerFieldFormComponent({
                 if (token === this.searchRequestToken) {
                     this.searchPending = false
                     this.initialLoadPending = false
-                    this.loadingMore = false
+                    this.releaseLoadMoreRequest?.()
+                    this.finishIconResultsLoad()
                 }
             }
         },
 
         applyPagePayload(payload, { reset }) {
-            const icons = this.normalizeIcons(payload?.icons)
+            if (! isIconPickerSearchPayload(payload)) {
+                return
+            }
+
+            const icons = this.normalizeIcons(payload.icons)
+            const scrollElement = this.$refs.iconResults
             const preserveScroll = ! reset && this.panelOpen
+            const savedScrollTop = preserveScroll
+                ? (scrollElement?.scrollTop ?? this.virtualScrollTop)
+                : null
+            const hadPreviews = this.applySvgPreviewsFromPayload(payload)
 
             this.loadedIconItems = reset
                 ? icons
                 : [...this.loadedIconItems, ...icons]
 
             this.hasMore = Boolean(payload?.hasMore)
-            this.loadingMore = false
 
             if (Array.isArray(payload?.sets) && payload.sets.length > 0) {
                 this.availableSets = payload.sets
             }
 
-            this.afterResultsLayout({ preserveScroll })
+            this.syncIconComboboxOptions?.()
+            this.afterVirtualResultsLayout({ preserveScroll })
+
+            if (preserveScroll && savedScrollTop !== null && scrollElement) {
+                requestAnimationFrame(() => {
+                    scrollElement.scrollTop = savedScrollTop
+                    this.virtualScrollTop = savedScrollTop
+                    this.syncVisibleIconSvgs()
+                })
+            } else if (! reset) {
+                this.syncVisibleIconSvgs()
+            } else if (this.layout === 'list' || ! hadPreviews) {
+                this.syncVisibleIconSvgs()
+            }
         },
 
         async prefetchNextPage() {
-            if (! this.hasMore || ! this.componentKey || ! this.$wire?.callSchemaComponentMethod) {
+            if (! this.hasMore || ! this.componentKey || ! canCallIconPickerSchemaMethod(this)) {
                 return
             }
 
@@ -591,8 +632,8 @@ export default function iconPickerFieldFormComponent({
             const token = ++this.nextPagePrefetchToken
 
             try {
-                const payload = await this.$wire.callSchemaComponentMethod(
-                    this.componentKey,
+                const payload = await callIconPickerSchemaMethod(
+                    this,
                     'getIconPickerSearchResults',
                     {
                         query: this.searchQuery,
@@ -600,6 +641,10 @@ export default function iconPickerFieldFormComponent({
                         page: nextPage,
                     },
                 )
+
+                if (payload === null) {
+                    return
+                }
 
                 if (token !== this.nextPagePrefetchToken) {
                     return
@@ -616,18 +661,22 @@ export default function iconPickerFieldFormComponent({
         },
 
         async requestSvgPreviews(icons) {
-            if (! this.componentKey || ! this.$wire?.callSchemaComponentMethod) {
+            if (! this.componentKey || ! canCallIconPickerSchemaMethod(this)) {
                 return []
             }
 
-            return await this.$wire.callSchemaComponentMethod(
-                this.componentKey,
+            const rendered = await callIconPickerSchemaMethod(
+                this,
                 'getIconPickerSvgPreviews',
                 { icons },
             )
+
+            return Array.isArray(rendered) ? rendered : []
         },
 
         svgFor(icon) {
+            void this.svgCacheVersion
+
             return this.svgCache[icon] ?? ''
         },
 
@@ -660,11 +709,10 @@ export default function iconPickerFieldFormComponent({
                         continue
                     }
 
-                    this.svgCache = {
-                        ...this.svgCache,
-                        [item.name]: item.html,
-                    }
+                    this.svgCache[item.name] = item.html
                 }
+
+                this.bumpSvgCacheVersion()
             } catch {
                 return
             }
@@ -694,6 +742,8 @@ export default function iconPickerFieldFormComponent({
             this.selectedHtml = ''
         },
     }
+
+    return mergeAlpineComponentDescriptors(component, createIconPickerVirtualScrollMixin())
 }
 
 export { highlightIconLabel }

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload;
 
+use Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadMetadata;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureTenantDiskResolver;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\ScopedDirectoryResolver;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Closure;
 use Filament\Forms\Components\BaseFileUpload;
 use Illuminate\Database\Eloquent\Model;
@@ -40,6 +43,11 @@ trait FlexFileUploadStorage
     protected $flexDeletedStoredFileUsing = null;
 
     /**
+     * @var (Closure(BaseFileUpload, string, TemporaryUploadedFile): void)|null
+     */
+    protected $flexAfterPersistUploadedFileUsing = null;
+
+    /**
      * @var list<string>
      */
     protected array $flexBaselineFilePaths = [];
@@ -49,18 +57,35 @@ trait FlexFileUploadStorage
         $this->flexScopedDirectoryEnabled = true;
         $this->flexScopedDirectoryPrefix = $prefix;
 
-        $this->directory(function (BaseFileUpload $component) use ($prefix): string {
+        return $this->directory($prefix);
+    }
+
+    public function directory(string|Closure|null $directory): static
+    {
+        if ($directory === null) {
+            return parent::directory($directory);
+        }
+
+        return parent::directory(function (BaseFileUpload $component) use ($directory): string {
             /** @var static $component */
-            $resolvedPrefix = $component->evaluate($prefix);
+            $prefix = $component->evaluate($directory);
+            $prefix = is_string($prefix) ? trim($prefix, '/') : 'uploads';
 
-            return ScopedDirectoryResolver::resolve(
-                is_string($resolvedPrefix) ? $resolvedPrefix : 'uploads',
-                $component->getRecord() instanceof Model ? $component->getRecord() : null,
-                Auth::id(),
-            );
+            if ($prefix === '') {
+                $prefix = 'uploads';
+            }
+
+            if ($component->flexScopedDirectoryEnabled || MediaCaptureTenantDiskResolver::shouldApplyDirectoryPrefix()) {
+                return MediaCaptureTenantDiskResolver::resolveDirectory(
+                    $prefix,
+                    $component->getRecord() instanceof Model ? $component->getRecord() : null,
+                    Auth::id(),
+                    ['field' => $component->getName()],
+                );
+            }
+
+            return $prefix;
         });
-
-        return $this;
     }
 
     public function createFormStrategy(bool|Closure $condition = true): static
@@ -174,18 +199,47 @@ trait FlexFileUploadStorage
         return $this;
     }
 
+    /**
+     * Invoked after a file is persisted to disk and passes virus scan.
+     *
+     * @param  (Closure(BaseFileUpload, string, TemporaryUploadedFile): void)|null  $callback
+     */
+    public function afterPersistUploadedFileUsing(?Closure $callback): static
+    {
+        $this->flexAfterPersistUploadedFileUsing = $callback;
+
+        return $this;
+    }
+
     public function persistUploadedFileWithFlexProcessing(TemporaryUploadedFile $file): ?string
     {
-        $storedPath = $this->saveUploadedFile($file);
+        if (! MediaCaptureOs::passesVirusScanForTemporaryFile($file)) {
+            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
+                'field' => $this->getName(),
+                'reason' => 'virus_scan',
+                'stage' => 'pre_persist',
+                'adapter' => 'disk',
+            ]);
 
-        if ($storedPath === null) {
             return null;
         }
 
-        if ($this->shouldOptimizeImages() || $this->shouldOptimizeImagesToWebp() || $this->getFlexMaxImageWidth() || $this->getFlexMaxImageHeight()) {
+        $storedPath = $this->saveUploadedFile($file);
+
+        if ($storedPath === null) {
+            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
+                'field' => $this->getName(),
+                'reason' => 'persist_failed',
+            ]);
+
+            return null;
+        }
+
+        if ($this->shouldOptimizeImages() || $this->shouldOptimizeImagesToWebp() || $this->shouldOptimizeImagesToAvif() || $this->getFlexMaxImageWidth() || $this->getFlexMaxImageHeight()) {
             $processor = new FileUploadImageProcessor(
                 optimizeImages: $this->shouldOptimizeImages(),
                 optimizeImagesToWebp: $this->shouldOptimizeImagesToWebp(),
+                optimizeImagesToAvif: $this->shouldOptimizeImagesToAvif(),
                 maxImageWidth: $this->getFlexMaxImageWidth(),
                 maxImageHeight: $this->getFlexMaxImageHeight(),
                 stripExif: $this->shouldStripExif(),
@@ -194,13 +248,85 @@ trait FlexFileUploadStorage
             $storedPath = $processor->process($this->getDisk(), $storedPath);
         }
 
+        if (! $this->passesMediaCaptureVirusScan($storedPath)) {
+            MediaCaptureOs::rejectStoredFile($this->getDiskName(), $storedPath);
+
+            return null;
+        }
+
         $this->writeMetadataForStoredPath($storedPath, $file->getClientOriginalName(), $file);
+
+        if ($this->flexAfterPersistUploadedFileUsing instanceof Closure) {
+            $this->evaluate($this->flexAfterPersistUploadedFileUsing, [
+                'path' => $storedPath,
+                'file' => $file,
+            ]);
+        }
+
+        ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_SUCCESS, [
+            'field' => $this->getName(),
+            'adapter' => 'disk',
+            'path' => $storedPath,
+        ]);
 
         return $storedPath;
     }
 
+    /**
+     * Run the MediaCaptureOs virus-scan hook. When scan fails, records upload.fail.
+     */
+    public function passesMediaCaptureVirusScan(string $storedPath): bool
+    {
+        if (MediaCaptureOs::passesVirusScan($storedPath)) {
+            return true;
+        }
+
+        ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
+            'field' => $this->getName(),
+            'reason' => 'virus_scan',
+            'stage' => 'post_persist',
+            'path' => $storedPath,
+            'adapter' => 'disk',
+        ]);
+
+        return false;
+    }
+
+    /**
+     * Resolve a display/download URL via MediaCaptureOs signed-upload resolver when registered.
+     */
+    public function resolveMediaCaptureSignedUrl(string $path): ?string
+    {
+        $resolver = MediaCaptureOs::signedUploadUrlResolver();
+
+        if ($resolver === null) {
+            return null;
+        }
+
+        $signed = $resolver($this->getDiskName(), $path, [
+            'visibility' => $this->getVisibility(),
+            'field' => $this->getName(),
+        ]);
+
+        return is_string($signed) && filled($signed) ? $signed : null;
+    }
+
+    public function applyMediaCaptureStorageDefaults(): void
+    {
+        if ((bool) config('filament-flex-fields.media_capture.tenant.auto_disk', false)) {
+            $this->disk(function (BaseFileUpload $component): string {
+                /** @var static $component */
+                return MediaCaptureTenantDiskResolver::resolveDisk(null, [
+                    'field' => $component->getName(),
+                    'record' => $component->getRecord(),
+                ]);
+            });
+        }
+    }
+
     public function registerFlexFileUploadHooks(): void
     {
+        $this->applyMediaCaptureStorageDefaults();
         $this->afterStateHydrated(function (BaseFileUpload $component): void {
             /** @var static $component */
             $component->hydrateFiles();
@@ -218,6 +344,23 @@ trait FlexFileUploadStorage
             /** @var static $component */
 
             return $component->persistUploadedFileWithFlexProcessing($file);
+        });
+
+        $this->getUploadedFileUsing(function (BaseFileUpload $component, string $file, string|array|null $storedFileNames): ?array {
+            /** @var static $component */
+            $payload = $component->getUploadedFile($file, $storedFileNames);
+
+            if ($payload === null) {
+                return null;
+            }
+
+            $signedUrl = $component->resolveMediaCaptureSignedUrl($file);
+
+            if ($signedUrl !== null) {
+                $payload['url'] = $signedUrl;
+            }
+
+            return $payload;
         });
 
         $this->deleteUploadedFileUsing(function (BaseFileUpload $component, string $file): void {

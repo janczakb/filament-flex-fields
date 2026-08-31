@@ -25,6 +25,10 @@ class PriceRangePlayground
             'price_range__sm' => ['min' => 50, 'max' => 500],
             'price_range__lg' => ['min' => 1000, 'max' => 4500],
             'price_range__disabled' => ['min' => 200, 'max' => 800],
+            'price_range__rounding_native' => ['min' => 80, 'max' => 920],
+            'price_range__rounding_md' => ['min' => 120, 'max' => 880],
+            'price_range__rounding_lg' => ['min' => 200, 'max' => 760],
+            'price_range__rounding_full' => ['min' => 160, 'max' => 840],
         ];
     }
 
@@ -108,6 +112,43 @@ class PriceRangePlayground
                                 ->max(1000)
                                 ->prefix('$')
                                 ->histogram($histogram),
+                        ]),
+                    Section::make('Border radius')
+                        ->description('Inputs and histogram caps follow rounding() via --fff-global-radius (native, md, lg, full).')
+                        ->extraAttributes(['class' => 'fff-playground-section'])
+                        ->schema([
+                            Grid::make(['default' => 1, 'sm' => 2])
+                                ->extraAttributes(['class' => 'fff-playground-variants'])
+                                ->schema([
+                                    PriceRangeField::make('price_range__rounding_native')
+                                        ->label('Native (0.5rem)')
+                                        ->rounding('native')
+                                        ->min(0)
+                                        ->max(2000)
+                                        ->prefix('$')
+                                        ->histogram($histogram),
+                                    PriceRangeField::make('price_range__rounding_md')
+                                        ->label('Medium (0.75rem)')
+                                        ->rounding('md')
+                                        ->min(0)
+                                        ->max(2000)
+                                        ->prefix('$')
+                                        ->histogram($histogram),
+                                    PriceRangeField::make('price_range__rounding_lg')
+                                        ->label('Large (1rem)')
+                                        ->rounding('lg')
+                                        ->min(0)
+                                        ->max(2000)
+                                        ->prefix('$')
+                                        ->histogram($histogram),
+                                    PriceRangeField::make('price_range__rounding_full')
+                                        ->label('Full pill')
+                                        ->rounding('full')
+                                        ->min(0)
+                                        ->max(2000)
+                                        ->prefix('$')
+                                        ->histogram($histogram),
+                                ]),
                         ]),
                 ]),
         ];

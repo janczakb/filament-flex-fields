@@ -1,0 +1,51 @@
+/* SignaturePreviewColumn (tables) */
+.fff-signature-preview-column {
+    @apply inline-flex max-w-full items-center;
+    min-height: auto;
+}
+
+.fff-signature-preview-column__frame,
+.fff-signature-preview-column__empty {
+    @apply block overflow-hidden rounded-md border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900;
+}
+
+.fff-signature-preview-column__frame svg,
+.fff-signature-preview-column__empty {
+    @apply block h-auto w-full;
+}
+
+.fff-signature-preview-column--sm .fff-signature-preview-column__frame,
+.fff-signature-preview-column--sm .fff-signature-preview-column__empty {
+    width: 4.5rem;
+    aspect-ratio: 5 / 2;
+}
+
+.fff-signature-preview-column--md .fff-signature-preview-column__frame,
+.fff-signature-preview-column--md .fff-signature-preview-column__empty {
+    width: 6.5rem;
+    aspect-ratio: 5 / 2;
+}
+
+.fff-signature-preview-column--lg .fff-signature-preview-column__frame,
+.fff-signature-preview-column--lg .fff-signature-preview-column__empty {
+    width: 8.5rem;
+    aspect-ratio: 5 / 2;
+}
+
+.fff-signature-preview-column.is-empty .fff-signature-preview-column__empty {
+    background:
+        linear-gradient(135deg, rgb(244 244 245) 25%, transparent 25%) -0.25rem 0 / 0.5rem 0.5rem,
+        linear-gradient(225deg, rgb(244 244 245) 25%, transparent 25%) -0.25rem 0 / 0.5rem 0.5rem,
+        linear-gradient(315deg, rgb(244 244 245) 25%, transparent 25%) 0 0 / 0.5rem 0.5rem,
+        linear-gradient(45deg, rgb(244 244 245) 25%, transparent 25%) 0 0 / 0.5rem 0.5rem,
+        rgb(250 250 250);
+}
+
+.dark .fff-signature-preview-column.is-empty .fff-signature-preview-column__empty {
+    background:
+        linear-gradient(135deg, rgb(63 63 70) 25%, transparent 25%) -0.25rem 0 / 0.5rem 0.5rem,
+        linear-gradient(225deg, rgb(63 63 70) 25%, transparent 25%) -0.25rem 0 / 0.5rem 0.5rem,
+        linear-gradient(315deg, rgb(63 63 70) 25%, transparent 25%) 0 0 / 0.5rem 0.5rem,
+        linear-gradient(45deg, rgb(63 63 70) 25%, transparent 25%) 0 0 / 0.5rem 0.5rem,
+        rgb(39 39 42);
+}

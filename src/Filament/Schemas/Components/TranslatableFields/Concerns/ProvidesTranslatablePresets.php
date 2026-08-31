@@ -4,23 +4,19 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields\Concerns;
 
+use Bjanczak\FilamentFlexFields\Enums\TranslatableDirectionScope;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields\TranslatableTab;
+use Bjanczak\FilamentFlexFields\Support\Translatable\TranslatableLocaleDirection;
 use Bjanczak\FilamentFlexFields\Support\Translatable\TranslatableTabState;
 use Filament\Forms\Components\Field;
 
 trait ProvidesTranslatablePresets
 {
-    public function directionByLocale(): static
+    public function directionByLocale(TranslatableDirectionScope $scope = TranslatableDirectionScope::Auto): static
     {
-        return $this->modifyFieldsUsing(function (Field $field, string $locale): void {
-            $rtlLocales = config('filament-flex-fields.translatable.rtl_locales', ['ar', 'he', 'fa', 'ur']);
-
-            $direction = in_array($locale, $rtlLocales, true) || str_starts_with($locale, 'ar')
-                ? 'rtl'
-                : 'ltr';
-
-            $field->extraAttributes(['dir' => $direction], merge: true);
+        return $this->modifyFieldsUsing(function (Field $field, string $locale) use ($scope): void {
+            TranslatableLocaleDirection::applyToField($field, $locale, $scope);
         });
     }
 

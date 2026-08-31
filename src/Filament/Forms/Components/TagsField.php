@@ -129,4 +129,25 @@ class TagsField extends TagsInput
     {
         return ($this->getTagPrefix() ?? '').$tag.($this->getTagSuffix() ?? '');
     }
+
+    /**
+     * @return list<string>
+     */
+    public function getInitialTagsForSsr(): array
+    {
+        $state = $this->getState();
+
+        if (is_array($state)) {
+            return array_values(array_filter($state, fn (mixed $tag): bool => filled($tag)));
+        }
+
+        if (is_string($state) && filled($state) && ($separator = $this->getSeparator())) {
+            return array_values(array_filter(
+                explode($separator, $state),
+                fn (string $tag): bool => filled(trim($tag)),
+            ));
+        }
+
+        return [];
+    }
 }

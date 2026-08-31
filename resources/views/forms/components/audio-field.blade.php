@@ -8,6 +8,7 @@
     $audioSrc = $field->resolveAudioSrc($getState());
     $waveform = $field->resolveWaveform($getState());
     $waveformIsCustom = $field->hasCustomWaveform();
+    $transcriptionConfig = $field->getTranscriptionAlpineConfig();
     $livewireKey = $getLivewireKey();
 @endphp
 
@@ -21,7 +22,7 @@
 >
     <div
         wire:ignore
-        wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getSrc(), $audioSrc, $waveformIsCustom])), 0, 64) }}"
+        wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getSrc(), $audioSrc, $waveformIsCustom, $field->isTranscriptionEnabled()])), 0, 64) }}"
         @class([
             'fff-audio-field',
             'fff-audio-field--'.$getSize(),
@@ -29,6 +30,7 @@
             'is-disabled' => $isDisabled,
             'is-read-only' => $isReadOnly,
             'is-empty' => blank($audioSrc),
+            'has-transcription' => $field->isTranscriptionEnabled(),
         ])
         role="group"
         aria-label="{{ $getLabel() }}"
@@ -47,11 +49,38 @@
                 labels: {
                     play: @js(__('filament-flex-fields::default.audio.play')),
                     pause: @js(__('filament-flex-fields::default.audio.pause')),
+                    transcription: @js([
+                        'settings_title' => __('filament-flex-fields::default.audio.transcription_settings'),
+                        'settings_close' => __('filament-flex-fields::default.audio.transcription_settings_close'),
+                        'model_hint' => __('filament-flex-fields::default.audio.transcription_model_hint'),
+                        'language_hint' => __('filament-flex-fields::default.audio.transcription_language_hint'),
+                        'task_hint' => __('filament-flex-fields::default.audio.transcription_task_hint'),
+                        'multilingual' => __('filament-flex-fields::default.audio.transcription_multilingual'),
+                        'quantized' => __('filament-flex-fields::default.audio.transcription_quantized'),
+                        'transcribe' => __('filament-flex-fields::default.audio.transcribe'),
+                        'transcribing' => __('filament-flex-fields::default.audio.transcribing'),
+                        'empty' => __('filament-flex-fields::default.audio.transcription_empty'),
+                        'loading_audio' => __('filament-flex-fields::default.audio.transcription_loading_audio'),
+                        'loading_model' => __('filament-flex-fields::default.audio.transcription_loading_model'),
+                        'transcribing_phase' => __('filament-flex-fields::default.audio.transcription_running'),
+                        'task_transcribe' => __('filament-flex-fields::default.audio.transcription_task_transcribe'),
+                        'task_translate' => __('filament-flex-fields::default.audio.transcription_task_translate'),
+                        'language_auto' => __('filament-flex-fields::default.audio.language_auto'),
+                        'errors' => [
+                            'audio_fetch_failed' => __('filament-flex-fields::default.audio.transcription_error_fetch'),
+                            'audio_context_unavailable' => __('filament-flex-fields::default.audio.transcription_error_context'),
+                            'transcription_failed' => __('filament-flex-fields::default.audio.transcription_error_failed'),
+                            'transcription_model_timeout' => __('filament-flex-fields::default.audio.transcription_error_model_timeout'),
+                            'transcription_runtime_unconfigured' => __('filament-flex-fields::default.audio.transcription_error_runtime_unconfigured'),
+                        ],
+                    ]),
                 },
+                transcription: @js(filled($transcriptionConfig) ? $transcriptionConfig : null),
             })"
             x-init="init()"
-            class="fff-audio-field__player"
+            class="fff-audio-field__shell"
         >
+            <div class="fff-audio-field__player">
             <div class="fff-audio-field__pill">
                 <button
                     type="button"
@@ -127,6 +156,13 @@
                     preload="metadata"
                     @if ($shouldLoop()) loop @endif
                 ></audio>
+            @endif
+            </div>
+
+            @if ($field->isTranscriptionEnabled())
+                @include('filament-flex-fields::forms.components.partials.audio-field-transcription-panel', [
+                    'settingsVisible' => $field->isTranscriptionSettingsVisible(),
+                ])
             @endif
         </div>
     </div>

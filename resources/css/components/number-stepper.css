@@ -129,7 +129,9 @@
 }
 
 .fff-number-stepper__ssr-value {
-    display: inline-block;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0;
     line-height: 1;
     font-variant-numeric: tabular-nums;
     font-weight: inherit;

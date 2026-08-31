@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Year scroll fixture</title>
+    <link rel="stylesheet" href="../../../resources/dist/css/flex-date-time-field.css">
+    <style>
+        body { margin: 2rem; font-family: system-ui, sans-serif; }
+    </style>
+</head>
+<body>
+    <div
+        class="fff-date-time-field__year-scroll"
+        data-testid="year-scroll"
+        style="width: 15.75rem; --fff-date-time-year-grid-height: 14.75rem; height: 14.75rem; max-height: 14.75rem;"
+    >
+        <div class="fff-date-time-field__year-scroll-inner" id="year-inner"></div>
+    </div>
+    <script type="module">
+        import { bindYearGridWheel } from '../../../resources/js/core/date-time/year-grid-scroll.js'
+
+        const inner = document.getElementById('year-inner')
+        const container = document.querySelector('[data-testid="year-scroll"]')
+
+        for (let year = 1926; year <= 2126; year++) {
+            const button = document.createElement('button')
+            button.type = 'button'
+            button.className = 'fff-date-time-field__picker-cell'
+            button.dataset.year = String(year)
+            button.textContent = String(year)
+            inner.appendChild(button)
+        }
+
+        bindYearGridWheel(container)
+    </script>
+</body>
+</html>

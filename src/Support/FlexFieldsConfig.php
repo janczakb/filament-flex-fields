@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support;
 
+use Bjanczak\FilamentFlexFields\Enums\Density;
+
 class FlexFieldsConfig
 {
     public static function isEnabled(): bool
@@ -45,6 +47,90 @@ class FlexFieldsConfig
     public static function isPlaygroundEnabled(): bool
     {
         return (bool) config('filament-flex-fields.playground.enabled', false);
+    }
+
+    public static function isSchemaResourceEnabled(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.resource_enabled', false);
+    }
+
+    public static function isSchemaManagementPageEnabled(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.management_page_enabled', true)
+            && self::isSchemaResourceEnabled();
+    }
+
+    public static function shouldDiscoverEntitiesFromFilamentResources(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.entity_discovery.from_filament_resources', true);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function getEntityDiscoveryPaths(): array
+    {
+        $paths = config('filament-flex-fields.schema.entity_discovery.paths', []);
+
+        return is_array($paths) ? array_values(array_filter($paths, is_string(...))) : [];
+    }
+
+    public static function getEntityDiscoveryNamespace(): ?string
+    {
+        $namespace = config('filament-flex-fields.schema.entity_discovery.namespace');
+
+        return is_string($namespace) && filled($namespace) ? $namespace : null;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    public static function getConfiguredEntities(): array
+    {
+        $entities = config('filament-flex-fields.schema.entities', []);
+
+        return is_array($entities) ? $entities : [];
+    }
+
+    public static function shouldSyncSchemaFromDatabase(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.sync_from_database', true);
+    }
+
+    public static function shouldSyncSchemaOnSave(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.sync_on_save', true);
+    }
+
+    public static function getSchemaDefaultTargetType(): string
+    {
+        return (string) config('filament-flex-fields.schema.default_target_type', 'App\\Models\\Model');
+    }
+
+    public static function getSchemaPolicyAbility(): string
+    {
+        return (string) config('filament-flex-fields.schema.policy_ability', 'manageFlexFieldSchemas');
+    }
+
+    /**
+     * @return callable|null
+     */
+    public static function getSchemaTenantResolver(): mixed
+    {
+        return config('filament-flex-fields.schema.tenant_resolver');
+    }
+
+    /**
+     * @return callable|null
+     */
+    public static function getSchemaRbacUserKeyResolver(): mixed
+    {
+        return config('filament-flex-fields.schema.rbac_user_key_resolver');
+    }
+
+    public static function shouldScopeSchemaResourceByTenant(): bool
+    {
+        return (bool) config('filament-flex-fields.schema.scope_resource_by_tenant', false);
     }
 
     public static function getPlaygroundNavigationGroup(): ?string
@@ -123,6 +209,23 @@ class FlexFieldsConfig
     public static function getUiDefault(string $key, mixed $default = null): mixed
     {
         return config("filament-flex-fields.ui.{$key}", $default);
+    }
+
+    public static function getDensity(): Density
+    {
+        $density = config('filament-flex-fields.ui.density', Density::default()->value);
+
+        return Density::fromMixed(is_string($density) ? $density : Density::default()->value);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function getTheme(): array
+    {
+        $theme = config('filament-flex-fields.ui.theme', []);
+
+        return is_array($theme) ? $theme : [];
     }
 
     /**

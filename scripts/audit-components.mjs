@@ -33,6 +33,8 @@ const STYLESHEET_ALPINE_ENTRY_ALIASES = {
 };
 
 const PLAYGROUND_STYLESHEET_ALIASES = {
+    'admin-columns': 'progress-column',
+    'hold-confirm': 'hold-confirm-action',
     'date-time-fields': 'flex-date-time-field',
     'file-upload': 'flex-file-upload',
     'verification-code': 'flex-verification-code',
@@ -61,6 +63,7 @@ const STYLESHEET_BY_CLASS = {
     CellSwitch: 'switch',
     ChoiceCards: 'choice-cards',
     ChoiceCheckboxCards: 'choice-cards',
+    ImageChoiceCards: 'image-choice-cards',
     FlexRadiolist: 'flex-checklist',
     FlexImageUpload: 'flex-file-upload',
     FlexSpatieMediaLibraryFileUpload: 'flex-file-upload',
@@ -355,6 +358,7 @@ const DOC_FILE_BY_CLASS = {
     SegmentControl: 'segmentcontrol.md',
     ChoiceCards: 'choicecards.md',
     ChoiceCheckboxCards: 'choicecheckboxcards.md',
+    ImageChoiceCards: 'imagechoicecards.md',
     FlexChecklist: 'flexchecklist.md',
     FlexRadiolist: 'flexradiolist.md',
     MatrixChoiceField: 'matrixchoicefield.md',

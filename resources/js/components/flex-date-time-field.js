@@ -21,6 +21,7 @@ import {
 } from '../core/date-time/segmented-input.js'
 import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
 import { createCalendarInteractionsBehavior } from '../core/date-time/calendar-interactions.js'
+import { buildScrollableYearRange } from '../core/date-time/calendar-panel.js'
 import { loadCalendarPanelModule } from '../core/date-time/calendar-panel-loader.js'
 import { createSegmentEditingBehavior } from '../core/date-time/segment-editing.js'
 
@@ -86,12 +87,87 @@ export default function flexDateTimeFieldFormComponent({
         visibleMonth: null,
         segments: initialSegments?.single ?? {},
         rangeSegments: initialSegments?.range ?? { start: {}, end: {} },
-        timeSegments: { start: {}, end: {} },
+        timeSegments: { start: {}, end: {}, single: {} },
         menuScrollHandler: null,
         menuResizeHandler: null,
         isSyncingState: false,
         segmentInvalid: false,
+        segmentValidationCode: null,
         timePanelReady: false,
+        displayReady: false,
+        yearPickerOpen: false,
+        yearPickerOverlayStyle: '',
+        yearGridWheelCleanups: [],
+
+        parseConfigStoredValue(value, mode, granularity = this.config.granularity) {
+            return parseStoredValue(
+                value,
+                mode,
+                granularity,
+                this.config.timeZone,
+                this.config.calendarIdentifier ?? null,
+            )
+        },
+
+        toConfigStoredValue(value, mode, granularity = this.config.granularity) {
+            return toStoredValue(
+                value,
+                mode,
+                granularity,
+                this.config.showSeconds,
+                this.config.storageFormat,
+                this.config.calendarIdentifier ?? null,
+            )
+        },
+
+        get usesYearPickerOverlay() {
+            return ['date', 'dateTime', 'dateRange'].includes(this.mode)
+        },
+
+        get showsDayCalendarGrid() {
+            if (this.mode === 'month' || this.mode === 'year') {
+                return false
+            }
+
+            return this.calendarViewMode === 'days'
+        },
+
+        get usesScrollableYearGrid() {
+            if (this.mode === 'year') {
+                return true
+            }
+
+            return this.mode === 'month'
+                && this.hasYearSegment
+                && this.calendarViewMode === 'years'
+        },
+
+        get showsCalendarNavigation() {
+            if (this.mode === 'year') {
+                return false
+            }
+
+            if (this.calendarViewMode === 'years') {
+                return false
+            }
+
+            return true
+        },
+
+        resolveConstraintYear(value) {
+            if (! value) {
+                return null
+            }
+
+            const parseMode = this.mode === 'year' ? 'year' : 'date'
+            const parsed = this.parseConfigStoredValue(value, parseMode, 'day')
+
+            if (! parsed) {
+                return null
+            }
+
+            return toCalendarDate(parsed)?.year ?? null
+        },
 
         get isLocked() {
             return this.disabled || this.readOnly
@@ -132,11 +208,11 @@ export default function flexDateTimeFieldFormComponent({
         },
 
         get isCalendarHeaderDisabled() {
-            if (this.calendarViewMode === 'years') {
+            if (this.mode === 'month' && ! this.hasYearSegment) {
                 return true
             }
 
-            if (this.mode === 'month' && ! this.hasYearSegment) {
+            if (this.mode === 'year') {
                 return true
             }
 
@@ -147,6 +223,37 @@ export default function flexDateTimeFieldFormComponent({
             return getSegmentParts('time', this.config.granularity, this.config.hourCycle, this.config.showSeconds, this.config.locale)
         },
 
+        get calendarRangeSummary() {
+            if (! this.isRange || this.mode !== 'dateRange') {
+                return ''
+            }
+
+            const raw = parseRangeStoredValue(this.state)
+
+            if (! raw.start || ! raw.end) {
+                return ''
+            }
+
+            const start = this.parseConfigStoredValue(raw.start, 'dateTime')
+            const end = this.parseConfigStoredValue(raw.end, 'dateTime')
+
+            if (! start || ! end) {
+                return ''
+            }
+
+            const locale = this.config.locale?.replace(/_/g, '-') ?? undefined
+            const formatter = new Intl.DateTimeFormat(locale, {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            })
+
+            const startDate = toCalendarDate(start).toDate(this.config.timeZone || undefined)
+            const endDate = toCalendarDate(end).toDate(this.config.timeZone || undefined)
+
+            return `${this.config.labels.selected_range} ${formatter.formatRange(startDate, endDate)}`
+        },
+
         get showTimeUnderCalendar() {
             if (this.config.hideTimeSection || this.config.granularity === 'day') {
                 return false
@@ -155,8 +262,16 @@ export default function flexDateTimeFieldFormComponent({
             return this.isRange || this.mode === 'dateTime'
         },
 
+        get calendarDirection() {
+            return this.config.direction === 'rtl' ? 'rtl' : 'ltr'
+        },
+
         get weekdayLabels() {
-            return this.calendarPanel?.getWeekdayLabels(this.config.firstDayOfWeek, this.config.locale) ?? []
+            return this.calendarPanel?.getWeekdayLabels(
+                this.config.firstDayOfWeek,
+                this.config.locale,
+                this.calendarDirection,
+            ) ?? []
         },
 
         get monthLabel() {
@@ -183,11 +298,15 @@ export default function flexDateTimeFieldFormComponent({
         },
 
         get yearOptions() {
-            if (! this.visibleMonth || ! this.calendarPanel) {
+            if (! this.visibleMonth) {
                 return []
             }
 
-            return this.calendarPanel.buildYearRange(this.visibleMonth.year)
+            return buildScrollableYearRange({
+                centerYear: this.visibleMonth.year,
+                minYear: this.resolveConstraintYear(this.config.minValue),
+                maxYear: this.resolveConstraintYear(this.config.maxValue),
+            })
         },
 
         get calendarWeeks() {
@@ -195,7 +314,11 @@ export default function flexDateTimeFieldFormComponent({
                 return []
             }
 
-            return this.calendarPanel.buildCalendarWeeks(this.visibleMonth, this.config.firstDayOfWeek)
+            return this.calendarPanel.buildCalendarWeeks(
+                this.visibleMonth,
+                this.config.firstDayOfWeek,
+                this.calendarDirection,
+            )
         },
 
         get displayText() {
@@ -230,7 +353,7 @@ export default function flexDateTimeFieldFormComponent({
                 return null
             }
 
-            return parseStoredValue(this.state, this.mode, this.config.granularity, this.config.timeZone)
+            return parseStoredValue(this.state, this.mode, this.config.granularity, this.config.timeZone, this.config.calendarIdentifier ?? null)
         },
 
         get rangeValue() {
@@ -238,14 +361,14 @@ export default function flexDateTimeFieldFormComponent({
 
             if (this.isTimeRange) {
                 return {
-                    start: raw.start ? parseStoredValue(raw.start, 'time', this.config.granularity, this.config.timeZone) : null,
-                    end: raw.end ? parseStoredValue(raw.end, 'time', this.config.granularity, this.config.timeZone) : null,
+                    start: raw.start ? this.parseConfigStoredValue(raw.start, 'time') : null,
+                    end: raw.end ? this.parseConfigStoredValue(raw.end, 'time') : null,
                 }
             }
 
             return {
-                start: raw.start ? parseStoredValue(raw.start, 'dateTime', this.config.granularity, this.config.timeZone) : null,
-                end: raw.end ? parseStoredValue(raw.end, 'dateTime', this.config.granularity, this.config.timeZone) : null,
+                start: raw.start ? this.parseConfigStoredValue(raw.start, 'dateTime') : null,
+                end: raw.end ? this.parseConfigStoredValue(raw.end, 'dateTime') : null,
             }
         },
 
@@ -271,7 +394,12 @@ export default function flexDateTimeFieldFormComponent({
         init() {
             this.wireExclusiveFlexDropdown()
 
-            if (this.hasHydratedState()) {
+            const hasInitialSegments = this.isRange
+                ? this.segmentsHaveValues(this.rangeSegments?.start)
+                    || this.segmentsHaveValues(this.rangeSegments?.end)
+                : this.segmentsHaveValues(this.segments)
+
+            if (this.hasHydratedState() && ! hasInitialSegments) {
                 this.bootstrapFromState()
             }
 
@@ -294,11 +422,61 @@ export default function flexDateTimeFieldFormComponent({
                     this.scheduleCalendarPosition()
                     this.bindCalendarListeners()
 
+                    this.$nextTick(() => {
+                        requestAnimationFrame(() => {
+                            this.bindYearGridWheelListeners()
+                            this.scheduleScrollActiveYearIntoView()
+                        })
+                    })
+
                     return
                 }
 
                 this.calendarReady = false
+                this.yearPickerOpen = false
                 this.unbindCalendarListeners()
+            })
+
+            this.$watch('yearPickerOpen', () => {
+                if (! this.calendarOpen) {
+                    return
+                }
+
+                this.$nextTick(() => {
+                    requestAnimationFrame(() => {
+                        this.updateYearPickerOverlay()
+                        this.bindYearGridWheelListeners()
+                        this.scheduleScrollActiveYearIntoView()
+                    })
+                })
+            })
+
+            this.$watch('calendarViewMode', () => {
+                if (! this.calendarOpen) {
+                    return
+                }
+
+                this.$nextTick(() => {
+                    requestAnimationFrame(() => {
+                        this.syncStandaloneYearGridHeight()
+                        this.bindYearGridWheelListeners()
+                        this.scheduleScrollActiveYearIntoView()
+                    })
+                })
+            })
+
+            this.$watch('config.isInvalid', () => {
+                this.validateSegmentConstraints()
+            })
+
+            this.markDisplayReady()
+        },
+
+        markDisplayReady() {
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    this.displayReady = true
+                })
             })
         },
 
@@ -320,7 +498,7 @@ export default function flexDateTimeFieldFormComponent({
 
                 if (resetSegments) {
                     const startSegments = buildSegmentsFromValue(
-                        raw.start ? parseStoredValue(raw.start, parseMode, this.config.granularity, this.config.timeZone) : null,
+                        raw.start ? this.parseConfigStoredValue(raw.start, parseMode) : null,
                         this.segmentParts,
                         this.config.locale,
                         this.config.hourCycle,
@@ -328,7 +506,7 @@ export default function flexDateTimeFieldFormComponent({
                         this.config.monthDisplay,
                     )
                     const endSegments = buildSegmentsFromValue(
-                        raw.end ? parseStoredValue(raw.end, parseMode, this.config.granularity, this.config.timeZone) : null,
+                        raw.end ? this.parseConfigStoredValue(raw.end, parseMode) : null,
                         this.segmentParts,
                         this.config.locale,
                         this.config.hourCycle,
@@ -347,7 +525,7 @@ export default function flexDateTimeFieldFormComponent({
                     if (this.showTimeUnderCalendar) {
                         if (hasState || ! this.segmentsHaveValues(this.timeSegments.start)) {
                             this.timeSegments.start = buildSegmentsFromValue(
-                                raw.start ? extractTimeValue(parseStoredValue(raw.start, 'dateTime', this.config.granularity, this.config.timeZone)) : null,
+                                raw.start ? extractTimeValue(this.parseConfigStoredValue(raw.start, 'dateTime')) : null,
                                 this.timeSegmentParts,
                                 this.config.locale,
                                 this.config.hourCycle,
@@ -358,7 +536,7 @@ export default function flexDateTimeFieldFormComponent({
 
                         if (hasState || ! this.segmentsHaveValues(this.timeSegments.end)) {
                             this.timeSegments.end = buildSegmentsFromValue(
-                                raw.end ? extractTimeValue(parseStoredValue(raw.end, 'dateTime', this.config.granularity, this.config.timeZone)) : null,
+                                raw.end ? extractTimeValue(this.parseConfigStoredValue(raw.end, 'dateTime')) : null,
                                 this.timeSegmentParts,
                                 this.config.locale,
                                 this.config.hourCycle,
@@ -372,7 +550,7 @@ export default function flexDateTimeFieldFormComponent({
                 return
             }
 
-            const parsed = parseStoredValue(this.state, this.mode, this.config.granularity, this.config.timeZone)
+            const parsed = this.parseConfigStoredValue(this.state, this.mode)
 
             if (resetSegments) {
                 const hasState = Boolean(this.state)
@@ -389,6 +567,17 @@ export default function flexDateTimeFieldFormComponent({
                     this.config.forceLeadingZeros,
                     this.config.monthDisplay,
                 )
+
+                if (this.showTimeUnderCalendar && this.mode === 'dateTime') {
+                    this.timeSegments.single = buildSegmentsFromValue(
+                        parsed ? extractTimeValue(parsed) : null,
+                        this.timeSegmentParts,
+                        this.config.locale,
+                        this.config.hourCycle,
+                        this.config.forceLeadingZeros,
+                        this.config.monthDisplay,
+                    )
+                }
             }
         },
 
@@ -401,7 +590,7 @@ export default function flexDateTimeFieldFormComponent({
                 return toCalendarDate(source)
             }
 
-            return getToday(this.config.timeZone)
+            return getToday(this.config.timeZone, this.config.calendarIdentifier ?? null)
         },
 
         formatDisplayValue(value) {

@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Schemas\Components;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
+use Bjanczak\FilamentFlexFields\Support\Composition\SegmentTabsV2;
 use Closure;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Concerns\CanPersistTab;
@@ -94,18 +95,28 @@ class SegmentTabs extends Component
     public function getActiveTab(): int
     {
         if ($this->isTabPersistedInQueryString()) {
-            $queryStringTab = request()->query($this->getTabQueryStringKey());
+            $rawQueryTab = request()->query($this->getTabQueryStringKey());
+            $queryStringTab = SegmentTabsV2::parsePersisted(
+                is_string($rawQueryTab) ? $rawQueryTab : null,
+            );
 
-            foreach ($this->getChildSchema()->getComponents() as $index => $tab) {
-                if ($tab->getId() !== $queryStringTab) {
-                    continue;
+            if ($queryStringTab !== null) {
+                foreach ($this->getChildSchema()->getComponents() as $index => $tab) {
+                    if ($tab->getId() !== $queryStringTab) {
+                        continue;
+                    }
+
+                    return $index + 1;
                 }
-
-                return $index + 1;
             }
         }
 
         return $this->evaluate($this->activeTab);
+    }
+
+    public function getTabPersistKey(): string
+    {
+        return SegmentTabsV2::persistKey((string) ($this->getId() ?? ''));
     }
 
     public function getTabQueryStringKey(): ?string

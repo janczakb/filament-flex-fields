@@ -2,9 +2,8 @@ import {
     CalendarDate,
     Time,
     compareDateTimeValues,
+    getToday,
     parseRangeStoredValue,
-    parseStoredValue,
-    toStoredValue,
 } from './format-parse.js'
 import {
     buildSegmentsFromValue,
@@ -16,7 +15,7 @@ import {
     segmentsToTime,
 } from './segmented-input.js'
 import { extractDateValue, extractTimeValue, mergeDateAndTime } from './calendar-grid.js'
-import { getToday } from './format-parse.js'
+import { toGregorianDateString } from './calendar-system.js'
 
 export function createSegmentEditingBehavior() {
     return {
@@ -101,15 +100,160 @@ export function createSegmentEditingBehavior() {
                 return
             }
 
-            const stored = this.resolveStoredFromCurrentSegments()
-
-            if (stored === false) {
-                this.segmentInvalid = this.segmentsHaveValues(this.isRange ? this.rangeSegments[this.activeRangeTarget] : this.segments)
+            if (this.config.isInvalid === true) {
+                this.segmentValidationCode = 'invalid'
+                this.segmentInvalid = true
 
                 return
             }
 
-            this.segmentInvalid = stored !== null && ! this.isStoredWithinConstraints(stored)
+            if (this.isRange) {
+                const stored = this.resolveRangeStoredForValidation()
+                const hasAny = Boolean(stored.start || stored.end)
+                    || this.segmentsHaveValues(this.rangeSegments.start)
+                    || this.segmentsHaveValues(this.rangeSegments.end)
+
+                if (! hasAny) {
+                    this.segmentValidationCode = null
+                    this.segmentInvalid = false
+
+                    return
+                }
+
+                this.segmentValidationCode = this.resolveValidationCode(stored)
+                this.segmentInvalid = this.segmentValidationCode !== null
+
+                return
+            }
+
+            const stored = this.resolveStoredFromCurrentSegments()
+
+            if (stored === false) {
+                this.segmentValidationCode = this.segmentsHaveValues(this.segments)
+                    ? 'invalid'
+                    : null
+                this.segmentInvalid = this.segmentValidationCode !== null
+
+                return
+            }
+
+            this.segmentValidationCode = this.resolveValidationCode(stored)
+            this.segmentInvalid = this.segmentValidationCode !== null
+        },
+
+        segmentValidationMessage() {
+            if ((this.segmentInvalid || this.config.isInvalid) && this.config.segmentInvalidMessage) {
+                return this.config.segmentInvalidMessage
+            }
+
+            const code = this.segmentValidationCode
+            const messages = this.config.validationMessages ?? {}
+
+            if (code && messages[code]) {
+                return messages[code]
+            }
+
+            return messages.invalid ?? 'Please enter a valid date or time.'
+        },
+
+        resolveValidationCode(stored) {
+            if (stored === null) {
+                return null
+            }
+
+            if (typeof stored === 'object') {
+                const start = stored.start
+                const end = stored.end
+                const hasStart = Boolean(start)
+                const hasEnd = Boolean(end)
+
+                if ((hasStart && ! hasEnd) || (! hasStart && hasEnd)) {
+                    const partialSegments = [
+                        ...(this.segmentsHaveValues(this.rangeSegments?.start ?? {}) ? ['start'] : []),
+                        ...(this.segmentsHaveValues(this.rangeSegments?.end ?? {}) ? ['end'] : []),
+                    ]
+
+                    if (partialSegments.length > 0 && (! hasStart || ! hasEnd)) {
+                        return 'incomplete_range'
+                    }
+                }
+
+                if (! hasStart || ! hasEnd) {
+                    return null
+                }
+
+                const startCode = this.resolveValidationCode(start)
+
+                if (startCode) {
+                    return startCode
+                }
+
+                const endCode = this.resolveValidationCode(end)
+
+                if (endCode) {
+                    return endCode
+                }
+
+                const parseMode = this.isTimeRange ? 'time' : 'dateTime'
+                const startParsed = this.parseConfigStoredValue(start, parseMode)
+                const endParsed = this.parseConfigStoredValue(end, parseMode)
+
+                if (startParsed && endParsed && compareDateTimeValues(endParsed, startParsed) < 0) {
+                    return 'range_order'
+                }
+
+                if (
+                    this.mode === 'dateRange'
+                    && ! this.config.allowSameDay
+                    && start === end
+                ) {
+                    return 'same_day_not_allowed'
+                }
+
+                return null
+            }
+
+            const parseMode = this.isTimeRange
+                ? 'time'
+                : (this.mode === 'dateRange' || this.mode === 'timeRange'
+                    ? (this.config.granularity === 'day' ? 'date' : 'dateTime')
+                    : (this.mode === 'duration' ? 'duration' : this.mode))
+
+            const parsed = this.parseConfigStoredValue(stored, parseMode)
+
+            if (! parsed && stored) {
+                return 'invalid'
+            }
+
+            if (this.config.minValue) {
+                const min = this.parseConfigStoredValue(this.config.minValue, parseMode)
+
+                if (min && parsed && compareDateTimeValues(parsed, min) < 0) {
+                    return 'before_min'
+                }
+            }
+
+            if (this.config.maxValue) {
+                const max = this.parseConfigStoredValue(this.config.maxValue, parseMode)
+
+                if (max && parsed && compareDateTimeValues(parsed, max) > 0) {
+                    return 'after_max'
+                }
+            }
+
+            if (this.config.unavailableDates?.length && parsed instanceof CalendarDate) {
+                const iso = toGregorianDateString(parsed)
+
+                if (iso && this.config.unavailableDates.includes(iso)) {
+                    return 'unavailable'
+                }
+            }
+
+            return null
+        },
+
+        isStoredWithinConstraints(stored) {
+            return this.resolveValidationCode(stored) === null
         },
 
         resolveStoredFromCurrentSegments() {
@@ -124,7 +268,7 @@ export function createSegmentEditingBehavior() {
                 const mode = this.isTimeRange ? 'time' : 'dateTime'
 
                 return value
-                    ? toStoredValue(value, mode, this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                    ? this.toConfigStoredValue(value, mode)
                     : null
             }
 
@@ -135,54 +279,23 @@ export function createSegmentEditingBehavior() {
             }
 
             return value
-                ? toStoredValue(value, this.mode, this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                ? this.toConfigStoredValue(value, this.mode)
                 : null
         },
 
-        isStoredWithinConstraints(stored) {
-            if (stored === null) {
-                return true
+        resolveRangeStoredForValidation() {
+            const startValue = this.buildValueFromSegments(this.rangeSegments.start)
+            const endValue = this.buildValueFromSegments(this.rangeSegments.end)
+            const parseMode = this.isTimeRange ? 'time' : 'dateTime'
+
+            return {
+                start: startValue
+                    ? this.toConfigStoredValue(startValue, parseMode)
+                    : null,
+                end: endValue
+                    ? this.toConfigStoredValue(endValue, parseMode)
+                    : null,
             }
-
-            if (typeof stored === 'object') {
-                const start = stored.start
-                const end = stored.end
-
-                return (! start || this.isStoredWithinConstraints(start))
-                    && (! end || this.isStoredWithinConstraints(end))
-            }
-
-            const parsed = parseStoredValue(stored, this.mode === 'duration' ? 'duration' : this.mode, this.config.granularity, this.config.timeZone)
-
-            if (! parsed && stored) {
-                return false
-            }
-
-            if (this.config.minValue) {
-                const min = parseStoredValue(this.config.minValue, this.mode, this.config.granularity, this.config.timeZone)
-
-                if (min && parsed && compareDateTimeValues(parsed, min) < 0) {
-                    return false
-                }
-            }
-
-            if (this.config.maxValue) {
-                const max = parseStoredValue(this.config.maxValue, this.mode, this.config.granularity, this.config.timeZone)
-
-                if (max && parsed && compareDateTimeValues(parsed, max) > 0) {
-                    return false
-                }
-            }
-
-            if (this.config.unavailableDates?.length && parsed instanceof CalendarDate) {
-                const iso = `${String(parsed.year).padStart(4, '0')}-${String(parsed.month).padStart(2, '0')}-${String(parsed.day).padStart(2, '0')}`
-
-                if (this.config.unavailableDates.includes(iso)) {
-                    return false
-                }
-            }
-
-            return true
         },
 
         onSegmentInput(part, event) {
@@ -340,7 +453,7 @@ export function createSegmentEditingBehavior() {
 
             const value = this.buildValueFromSegments(this.segments)
 
-            this.setStateValue(toStoredValue(value, this.mode, this.config.granularity, this.config.showSeconds, this.config.storageFormat))
+            this.setStateValue(this.toConfigStoredValue(value, this.mode))
         },
 
         commitRangeSegments(target) {
@@ -350,10 +463,10 @@ export function createSegmentEditingBehavior() {
             if (this.isTimeRange) {
                 const payload = {
                     start: target === 'start'
-                        ? toStoredValue(dateValue, 'time', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                        ? this.toConfigStoredValue(dateValue, 'time')
                         : raw.start,
                     end: target === 'end'
-                        ? toStoredValue(dateValue, 'time', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                        ? this.toConfigStoredValue(dateValue, 'time')
                         : raw.end,
                 }
 
@@ -367,10 +480,10 @@ export function createSegmentEditingBehavior() {
 
             const payload = {
                 start: target === 'start'
-                    ? toStoredValue(merged, 'dateTime', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                    ? this.toConfigStoredValue(merged, 'dateTime')
                     : raw.start,
                 end: target === 'end'
-                    ? toStoredValue(merged, 'dateTime', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                    ? this.toConfigStoredValue(merged, 'dateTime')
                     : raw.end,
             }
 
@@ -378,9 +491,21 @@ export function createSegmentEditingBehavior() {
         },
 
         commitRangeTime(target) {
+            if (this.mode === 'dateTime' && target === 'single') {
+                const parsed = this.parseConfigStoredValue(this.state, 'dateTime')
+                const date = extractDateValue(parsed) || getToday(this.config.timeZone, this.config.calendarIdentifier ?? null)
+                const time = segmentsToTime(this.timeSegments.single, this.config.hourCycle, this.config.showSeconds)
+                const merged = mergeDateAndTime(date, time, this.config.granularity, this.config.showSeconds)
+
+                this.setStateValue(this.toConfigStoredValue(merged, 'dateTime'))
+                this.bootstrapFromState(true)
+
+                return
+            }
+
             const raw = parseRangeStoredValue(this.state)
-            const existing = parseStoredValue(raw[target], 'dateTime', this.config.granularity, this.config.timeZone)
-            const date = extractDateValue(existing) || getToday(this.config.timeZone)
+            const existing = this.parseConfigStoredValue(raw[target], 'dateTime')
+            const date = extractDateValue(existing) || getToday(this.config.timeZone, this.config.calendarIdentifier ?? null)
             const time = segmentsToTime(this.timeSegments[target], this.config.hourCycle, this.config.showSeconds)
             const merged = mergeDateAndTime(date, time, this.config.granularity, this.config.showSeconds)
 
@@ -389,8 +514,9 @@ export function createSegmentEditingBehavior() {
                 end: raw.end,
             }
 
-            payload[target] = toStoredValue(merged, 'dateTime', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+            payload[target] = this.toConfigStoredValue(merged, 'dateTime')
             this.setStateValue(payload)
+            this.bootstrapFromState(true)
         },
 
         mergeRangeDateTime(target, dateValue) {

@@ -18,6 +18,7 @@ class VoiceNoteRecorderFieldPlayground
     {
         return [
             'voice_note__basic' => null,
+            'voice_note__meta' => [],
             'voice_note__sm' => null,
             'voice_note__lg' => null,
             'voice_note__with_limit' => null,
@@ -37,8 +38,10 @@ class VoiceNoteRecorderFieldPlayground
                 ->schema([
                     VoiceNoteRecorderField::make('voice_note__basic')
                         ->label('Record Voice Note')
-                        ->helperText('Click microphone to start. Stop to review, then save — file lands on disk like FlexFileUpload.')
+                        ->helperText('Click microphone to start. Stop to review, then save — file lands on disk like FlexFileUpload. Transcript and waveform metadata appear in voice_note__meta after save.')
                         ->directory('voice-notes')
+                        ->storeMetadataIn('voice_note__meta')
+                        ->storeWaveformIn('voice_note__meta')
                         ->columnSpanFull(),
                     Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])
                         ->extraAttributes(['class' => 'fff-playground-variants'])

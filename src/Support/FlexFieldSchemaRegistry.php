@@ -38,6 +38,16 @@ class FlexFieldSchemaRegistry
         return $this;
     }
 
+    public function unregister(string $key): self
+    {
+        unset($this->schemas[$key]);
+
+        $this->targetSchemasCache = [];
+        $this->targetFieldsCache = [];
+
+        return $this;
+    }
+
     /**
      * @param  array<string, array<string, mixed>>  $schemas
      */

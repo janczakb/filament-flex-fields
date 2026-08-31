@@ -1,0 +1,7 @@
+@import "../utilities-baseline.css";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/MapPinColumn.php";
+@source "../views/tables/columns/map-pin-column.blade.php";
+
+@import "../core/tables/map-pin-column.css";

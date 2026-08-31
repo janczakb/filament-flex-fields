@@ -70,6 +70,23 @@
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'schedule-field'])
 
+    @once
+        <link
+            rel="modulepreload"
+            href="{{ FilamentAsset::getAlpineComponentSrc('schedule-field', FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+            as="script"
+            crossorigin
+        />
+        @if (filled($config['flexTimeSegmentsSrc'] ?? null))
+            <link
+                rel="modulepreload"
+                href="{{ $config['flexTimeSegmentsSrc'] }}"
+                as="script"
+                crossorigin
+            />
+        @endif
+    @endonce
+
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $size, $getVariant(), $days, $field->showsTimezoneSelector()])), 0, 64) }}"
@@ -438,6 +455,24 @@
                                             </div>
                                         </div>
 
+                                        @unless ($isBreakSlotInitial)
+                                            <div class="fff-schedule-field__slot-meta">
+                                                <button
+                                                    type="button"
+                                                    @class([
+                                                        'fff-schedule-field__overnight-btn',
+                                                        'is-active' => ! empty($slot['overnight']),
+                                                    ])
+                                                    tabindex="-1"
+                                                    aria-hidden="true"
+                                                    disabled
+                                                >
+                                                    <x-filament::icon :icon="GravityIcon::Moon" class="h-3.5 w-3.5" />
+                                                    <span>{{ $labels['overnight'] ?? __('filament-flex-fields::default.schedule.overnight') }}</span>
+                                                </button>
+                                            </div>
+                                        @endunless
+
                                         @if ($canRemoveSlotInitial)
                                             <div class="fff-schedule-field__slot-actions">
                                                 <button
@@ -500,6 +535,8 @@
                                             class="fff-schedule-field__slot"
                                             x-bind:class="{
                                                 'is-invalid': slotIsInvalid(@js($day), slotIndex),
+                                                'is-overlap': slotHasOverlap(@js($day), slotIndex),
+                                                'is-overnight': isSlotOvernight(slot),
                                                 'fff-schedule-field__slot--break': isBreakSlot(slot),
                                             }"
                                         >
@@ -561,13 +598,55 @@
                                     </template>
 
                                     <div
+                                        class="fff-schedule-field__slot-meta"
+                                        x-show="slotShowsOvernightToggle(slot)"
+                                        x-cloak
+                                    >
+                                        <button
+                                            type="button"
+                                            class="fff-schedule-field__overnight-btn"
+                                            x-bind:class="{ 'is-active': isSlotOvernight(slot) }"
+                                            x-on:click="toggleSlotOvernight(@js($day), slotIndex)"
+                                            x-bind:disabled="! isInteractive"
+                                            x-bind:aria-pressed="isSlotOvernight(slot) ? 'true' : 'false'"
+                                            x-bind:aria-label="labels.overnight"
+                                        >
+                                            <x-filament::icon :icon="GravityIcon::Moon" class="h-3.5 w-3.5" />
+                                            <span x-text="labels.overnight"></span>
+                                        </button>
+                                    </div>
+
+                                    <div
                                         class="fff-schedule-field__slot-actions"
-                                        x-show="canRemoveSlot(@js($day))"
+                                        x-show="canRemoveSlot(@js($day)) || canMoveSlotUp(@js($day), slotIndex) || canMoveSlotDown(@js($day), slotIndex)"
                                         x-cloak
                                     >
                                         <button
                                             type="button"
                                             class="fff-schedule-field__icon-btn"
+                                            x-show="canMoveSlotUp(@js($day), slotIndex)"
+                                            x-on:click="moveSlotUp(@js($day), slotIndex)"
+                                            x-bind:disabled="! isInteractive"
+                                            x-bind:aria-label="labels.moveSlotUp"
+                                        >
+                                            <x-filament::icon icon="heroicon-m-chevron-up" class="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="fff-schedule-field__icon-btn"
+                                            x-show="canMoveSlotDown(@js($day), slotIndex)"
+                                            x-on:click="moveSlotDown(@js($day), slotIndex)"
+                                            x-bind:disabled="! isInteractive"
+                                            x-bind:aria-label="labels.moveSlotDown"
+                                        >
+                                            <x-filament::icon icon="heroicon-m-chevron-down" class="h-4 w-4" />
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="fff-schedule-field__icon-btn"
+                                            x-show="canRemoveSlot(@js($day))"
                                             x-on:click="removeSlot(@js($day), slotIndex)"
                                             x-bind:disabled="! isInteractive"
                                             x-bind:aria-label="labels.removeSlot"

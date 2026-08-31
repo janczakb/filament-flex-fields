@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Pages;
 
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
+use Bjanczak\FilamentFlexFields\Support\Playground\Contracts\PlaygroundWithPersistence;
+use Bjanczak\FilamentFlexFields\Support\Playground\FlexFieldsPlaygroundStore;
+use Bjanczak\FilamentFlexFields\Support\Wow\CommandPaletteCatalog;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -58,7 +61,23 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
         /** @var object{components(): list<Component>, defaultState?: (): array<string, mixed>} $playground */
         $playground = app($definition['playground']);
 
-        $this->form->fill(method_exists($playground, 'defaultState') ? $playground->defaultState() : []);
+        $state = method_exists($playground, 'defaultState') ? $playground->defaultState() : [];
+
+        if ($playground instanceof PlaygroundWithPersistence) {
+            $stored = app(FlexFieldsPlaygroundStore::class)->get($playground->playgroundSlug());
+
+            if ($stored !== null) {
+                $keys = $playground->persistedStateKeys();
+
+                foreach ($stored as $key => $value) {
+                    if ($keys === null || in_array($key, $keys, true) || $key === '_meta') {
+                        $state[$key] = $value;
+                    }
+                }
+            }
+        }
+
+        $this->form->fill($state);
     }
 
     public function form(Schema $schema): Schema
@@ -80,6 +99,31 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
     public function getPlaygroundSlug(): ?string
     {
         return Filament::getCurrentPageConfigurationKey() ?? static::resolveSlugFromRequest();
+    }
+
+    /**
+     * ⌘K palette entries with resolved playground URLs.
+     *
+     * Built in PHP because Livewire compiles Blade as a closure — `use`
+     * statements inside `@php` are a parse error.
+     *
+     * @return list<array{id: string, label: string, playground_slug: string|null, url: string|null}>
+     */
+    public function commandPaletteEntries(): array
+    {
+        return array_values(array_map(
+            static function (array $entry): array {
+                $slug = $entry['playground_slug'] ?? null;
+
+                return [
+                    ...$entry,
+                    'url' => filled($slug)
+                        ? static::getUrl(configuration: $slug)
+                        : null,
+                ];
+            },
+            CommandPaletteCatalog::all(),
+        ));
     }
 
     /**
@@ -115,7 +159,51 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
         $this->form->validate();
 
         Notification::make()
-            ->title('Validation passed')
+            ->title(__('filament-flex-fields::default.flex_fields_playground.validation_passed'))
+            ->success()
+            ->send();
+    }
+
+    public function savePlaygroundState(): void
+    {
+        $definition = static::resolveDefinition();
+
+        if ($definition === null) {
+            return;
+        }
+
+        /** @var object $playground */
+        $playground = app($definition['playground']);
+
+        if (! $playground instanceof PlaygroundWithPersistence) {
+            return;
+        }
+
+        $this->form->validate();
+
+        $state = $this->form->getState();
+        $keys = $playground->persistedStateKeys();
+        $toStore = [];
+
+        foreach ($state as $key => $value) {
+            if ($keys === null || in_array($key, $keys, true)) {
+                $toStore[$key] = $value;
+            }
+        }
+
+        if (method_exists($playground, 'sealPersistedState')) {
+            $toStore = $playground->sealPersistedState($toStore);
+        }
+
+        app(FlexFieldsPlaygroundStore::class)->put($playground->playgroundSlug(), $toStore);
+
+        $sealedAt = is_array($toStore['_meta'] ?? null)
+            ? ($toStore['_meta']['sealed_at'] ?? null)
+            : null;
+
+        Notification::make()
+            ->title(__('filament-flex-fields::default.flex_fields_playground.saved'))
+            ->body($sealedAt ? __('filament-flex-fields::default.flex_fields_playground.saved_sealed_at', ['at' => $sealedAt]) : null)
             ->success()
             ->send();
     }
@@ -140,7 +228,24 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
 
     protected function getHeaderActions(): array
     {
+        $actions = [];
+
+        $definition = static::resolveDefinition();
+
+        if ($definition !== null) {
+            $playground = app($definition['playground']);
+
+            if ($playground instanceof PlaygroundWithPersistence) {
+                $actions[] = Action::make('savePlaygroundState')
+                    ->label(__('filament-flex-fields::default.flex_fields_playground.save'))
+                    ->icon('heroicon-o-cloud-arrow-up')
+                    ->color('primary')
+                    ->action('savePlaygroundState');
+            }
+        }
+
         return [
+            ...$actions,
             Action::make('validateForm')
                 ->label('Validate')
                 ->icon('heroicon-o-shield-check')

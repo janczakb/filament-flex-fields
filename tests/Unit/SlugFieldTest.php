@@ -489,3 +489,12 @@ it('hides the secondary actions group when no secondary buttons are visible', fu
         ->and($js)->toMatch('/showCopyButton && this\.fullUrl\(\)/s')
         ->and($js)->toMatch('/showVisitLink && this\.canVisitLink && this\.fullUrl\(\)/s');
 });
+
+it('does not double-stack locale tab spacing in fused title slug groups', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/title-slug-fused.css');
+
+    expect($css)
+        ->toContain('.fff-title-slug-field__translatable-tabs .fff-segment-overflow-shell .fff-segment-tabs__control')
+        ->toContain('@apply mb-0')
+        ->not->toMatch('/fff-title-slug-field__translatable-tabs\s+\.fff-segment-tabs__control\s*\{[^}]*mb-3/s');
+});

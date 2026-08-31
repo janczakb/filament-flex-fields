@@ -34,6 +34,7 @@ class SegmentControlPlayground
             'segment_control__icon_expand_default' => 'chat',
             'segment_control__reference' => 'monthly',
             'segment_control__ghost_reference' => 'mtd',
+            'segment_control__overflow' => 'engagement',
         ];
     }
 
@@ -146,6 +147,11 @@ class SegmentControlPlayground
                                 'ytd' => 'YTD',
                                 'all' => 'ALL',
                             ]),
+                        SegmentControl::make('segment_control__overflow')
+                            ->label('Overflow · nine tabs')
+                            ->separators(false)
+                            ->options(PlaygroundOptions::heroOverflow())
+                            ->helperText('Horizontal overflow — rounded shell, fade masks, hidden scrollbar, chevron nudge (issue #49).'),
                     ]),
             ]);
     }

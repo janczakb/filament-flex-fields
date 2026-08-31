@@ -1,10 +1,15 @@
 @php
     use Filament\Support\Enums\IconSize;
+    use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
+    use Filament\Support\Facades\FilamentAsset;
 
     $statePath = $getStatePath();
     $isDisabled = $isDisabled();
     $isReadOnly = $isReadOnly();
     $livewireKey = $getLivewireKey();
+    $hasError = filled($statePath) && $errors->has($statePath);
+    $alpineConfig = $field->getAlpineConfiguration($isRequired());
+    $signatureAssetSrc = FilamentAsset::getAlpineComponentSrc('signature-field', FilamentFlexFieldsPlugin::PACKAGE_NAME);
 @endphp
 
 <x-dynamic-component
@@ -28,9 +33,21 @@
         aria-label="{{ $getLabel() }}"
     >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'signature-field'])
+        @if ($field->requiresLegalInk())
+            <div class="fff-signature__legal-banner" role="note">
+                {{ __('filament-flex-fields::default.signature.legal_acknowledgment') }}
+            </div>
+        @endif
+        @if (filled($signatureAssetSrc))
+            <link
+                rel="modulepreload"
+                href="{{ $signatureAssetSrc }}"
+                as="script"
+            />
+        @endif
         <div
             x-load
-            x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('signature-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+            x-load-src="{{ $signatureAssetSrc }}"
             x-data="signatureFieldFormComponent({
                 state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
                 penColor: @js($field->getPenColor()),
@@ -49,6 +66,13 @@
                 downloadFilename: @js($field->getDownloadFilename()),
                 webpQuality: @js($field->getWebpQuality()),
                 storedSvg: @js($field->getStoredSvgContent()),
+                minStrokes: @js($alpineConfig['minStrokes']),
+                maxSizeKb: @js($alpineConfig['maxSizeKb']),
+                required: @js($alpineConfig['required']),
+                validationMessages: @js($alpineConfig['validationMessages']),
+                inkTrailEnabled: @js($alpineConfig['inkTrailEnabled']),
+                pdfPreviewEnabled: @js($alpineConfig['pdfPreviewEnabled']),
+                legalAcknowledgment: @js($alpineConfig['legalAcknowledgment']),
                 labels: {
                     placeholder: @js($field->isTrackpadGlideEnabled()
                         ? __('filament-flex-fields::default.signature.trackpad_placeholder')
@@ -61,6 +85,9 @@
                     close: @js(__('filament-flex-fields::default.signature.close')),
                     trackpad_pill_paused: @js(__('filament-flex-fields::default.signature.trackpad_pill_paused')),
                     trackpad_pill_active: @js(__('filament-flex-fields::default.signature.trackpad_pill_active')),
+                    pdf_preview: @js(__('filament-flex-fields::default.signature.pdf_preview')),
+                    pdf_preview_title: @js(__('filament-flex-fields::default.signature.pdf_preview_title')),
+                    pdf_preview_body: @js(__('filament-flex-fields::default.signature.pdf_preview_body')),
                 },
             })"
             x-init="init()"
@@ -70,14 +97,16 @@
             @class([
                 'fff-signature__root',
                 'is-trackpad-glide' => $field->isTrackpadGlideEnabled(),
+                'has-validation-error' => $hasError,
             ])
-            x-bind:style="{ '--fff-signature-aspect-ratio': aspectRatio }"
+            style="--fff-signature-aspect-ratio: {{ $field->getViewBoxWidth() }} / {{ $field->getViewBoxHeight() }};"
+            x-bind:class="{ 'is-ready': displayReady }"
         >
             <div
                 class="fff-signature__pad"
                 x-on:pointerdown="engageGlide()"
                 x-bind:class="{ 'has-guidelines': guidelinesEnabled }"
-                x-bind:style="guidelinesEnabled && backgroundColor ? { backgroundColor } : null"
+                x-bind:style="padInlineBackgroundStyle"
             >
                 <div
                     class="fff-signature__guidelines"
@@ -86,6 +115,7 @@
                     aria-hidden="true"
                 ></div>
 
+                @if ($field->isTrackpadGlideEnabled() && ! $isDisabled && ! $isReadOnly)
                 <button
                     type="button"
                     class="fff-signature__glide-pill"
@@ -99,6 +129,7 @@
                     <span x-text="glidePillText"></span>
                     <kbd class="fff-signature__glide-pill-key" x-text="trackpadGlideKeyLabel"></kbd>
                 </button>
+                @endif
 
                 <canvas
                     x-ref="canvas"
@@ -116,57 +147,156 @@
                 <p
                     class="fff-signature__placeholder"
                     x-show="! hasSignature && ! isDrawing"
+                    x-cloak
                     x-text="labels.placeholder"
                 ></p>
 
-                <div class="fff-signature__toolbar" x-show="! readOnly">
-                    <button
-                        type="button"
-                        class="fff-signature__action"
-                        x-on:click="undo()"
-                        x-bind:disabled="! canUndo"
-                        x-bind:aria-label="labels.undo"
-                    >
-                        <span class="fff-signature__action-icon" aria-hidden="true">
-                            {{ \Filament\Support\generate_icon_html($field->getUndoIcon(), size: IconSize::Small) }}
-                        </span>
-                    </button>
+                <div class="fff-signature__dock">
+                    <p
+                        class="fff-signature__validation"
+                        x-show="clientValidationError"
+                        x-cloak
+                        x-text="clientValidationError"
+                        role="alert"
+                    ></p>
 
-                    <button
-                        type="button"
-                        class="fff-signature__action"
-                        x-on:click="clear()"
-                        x-bind:disabled="! canClear"
-                        x-bind:aria-label="labels.clear"
+                @if (! $isDisabled && ! $isReadOnly)
+                <div class="fff-signature__toolbar">
+                    <span
+                        class="fff-signature__action-wrap"
+                        x-tooltip="{ content: labels.undo, theme: $store.theme }"
                     >
-                        <span class="fff-signature__action-icon" aria-hidden="true">
-                            {{ \Filament\Support\generate_icon_html($field->getClearIcon(), size: IconSize::Small) }}
-                        </span>
-                    </button>
+                        <button
+                            type="button"
+                            class="fff-signature__action"
+                            x-on:click="undo()"
+                            x-bind:disabled="! canUndo"
+                            x-bind:aria-label="labels.undo"
+                        >
+                            <span class="fff-signature__action-icon" aria-hidden="true">
+                                {{ \Filament\Support\generate_icon_html($field->getUndoIcon(), size: IconSize::Small) }}
+                            </span>
+                        </button>
+                    </span>
 
-                    <button
-                        type="button"
-                        class="fff-signature__action"
+                    <span
+                        class="fff-signature__action-wrap"
+                        x-tooltip="{ content: labels.clear, theme: $store.theme }"
+                    >
+                        <button
+                            type="button"
+                            class="fff-signature__action"
+                            x-on:click="clear()"
+                            x-bind:disabled="! canClear"
+                            x-bind:aria-label="labels.clear"
+                        >
+                            <span class="fff-signature__action-icon" aria-hidden="true">
+                                {{ \Filament\Support\generate_icon_html($field->getClearIcon(), size: IconSize::Small) }}
+                            </span>
+                        </button>
+                    </span>
+
+                    @if ($field->isPdfPreviewEnabled())
+                    <span
+                        class="fff-signature__action-wrap"
+                        x-tooltip="{ content: labels.pdf_preview, theme: $store.theme }"
+                    >
+                        <button
+                            type="button"
+                            class="fff-signature__action"
+                            x-on:click="openPdfPreview()"
+                            x-bind:aria-label="labels.pdf_preview"
+                        >
+                            <span class="fff-signature__action-icon" aria-hidden="true">
+                                {{ \Filament\Support\generate_icon_html($field->getPdfPreviewIcon(), size: IconSize::Small) }}
+                            </span>
+                        </button>
+                    </span>
+                    @endif
+
+                    @if (filled($field->getDownloadFormat()))
+                    <span
+                        class="fff-signature__action-wrap"
                         x-show="canDownload"
-                        x-on:click="downloadSignature()"
-                        x-bind:aria-label="labels.download"
+                        x-cloak
+                        x-tooltip="{ content: labels.download, theme: $store.theme }"
                     >
-                        <span class="fff-signature__action-icon" aria-hidden="true">
-                            {{ \Filament\Support\generate_icon_html($field->getDownloadIcon(), size: IconSize::Small) }}
-                        </span>
-                    </button>
+                        <button
+                            type="button"
+                            class="fff-signature__action"
+                            x-on:click="downloadSignature()"
+                            x-bind:aria-label="labels.download"
+                        >
+                            <span class="fff-signature__action-icon" aria-hidden="true">
+                                {{ \Filament\Support\generate_icon_html($field->getDownloadIcon(), size: IconSize::Small) }}
+                            </span>
+                        </button>
+                    </span>
+                    @endif
 
-                    <button
-                        type="button"
-                        class="fff-signature__action"
-                        x-show="fullscreenEnabled"
-                        x-on:click="openFullscreen()"
-                        x-bind:aria-label="labels.fullscreen"
+                    @if ($field->isFullscreenEnabled())
+                    <span
+                        class="fff-signature__action-wrap"
+                        x-tooltip="{ content: labels.fullscreen, theme: $store.theme }"
                     >
-                        <span class="fff-signature__action-icon" aria-hidden="true">
-                            {{ \Filament\Support\generate_icon_html($field->getFullscreenIcon(), size: IconSize::Small) }}
+                        <button
+                            type="button"
+                            class="fff-signature__action"
+                            x-on:click="openFullscreen()"
+                            x-bind:aria-label="labels.fullscreen"
+                        >
+                            <span class="fff-signature__action-icon" aria-hidden="true">
+                                {{ \Filament\Support\generate_icon_html($field->getFullscreenIcon(), size: IconSize::Small) }}
+                            </span>
+                        </button>
+                    </span>
+                    @endif
+                </div>
+                @endif
+                </div>
+            </div>
+
+            <div
+                class="fff-signature__pdf-modal"
+                x-show="isPdfPreviewOpen"
+                x-cloak
+                x-on:keydown.escape.window="closePdfPreview()"
+            >
+                <div class="fff-signature__modal-backdrop" x-on:click="closePdfPreview()"></div>
+
+                <div
+                    class="fff-signature__pdf-panel"
+                    role="dialog"
+                    aria-modal="true"
+                    x-bind:aria-label="labels.pdf_preview_title"
+                >
+                    <div class="fff-signature__modal-header">
+                        <p class="fff-signature__modal-title" x-text="labels.pdf_preview_title"></p>
+
+                        <span
+                            class="fff-signature__action-wrap"
+                            x-tooltip="{ content: labels.close, theme: $store.theme }"
+                        >
+                            <button
+                                type="button"
+                                class="fff-signature__modal-close"
+                                x-on:click="closePdfPreview()"
+                                x-bind:aria-label="labels.close"
+                            >
+                                <span class="fff-signature__modal-close-icon" aria-hidden="true">
+                                    {{ \Filament\Support\generate_icon_html($field->getCloseIcon(), size: IconSize::Small) }}
+                                </span>
+                            </button>
                         </span>
-                    </button>
+                    </div>
+
+                    <div class="fff-signature__pdf-body">
+                        <p class="fff-signature__pdf-copy" x-text="labels.pdf_preview_body"></p>
+
+                        <div class="fff-signature__pdf-document">
+                            <div class="fff-signature__pdf-signature-slot" x-html="previewSvgMarkup"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -187,23 +317,28 @@
                     <div class="fff-signature__modal-header">
                         <p class="fff-signature__modal-title">{{ $getLabel() }}</p>
 
-                        <button
-                            type="button"
-                            class="fff-signature__modal-close"
-                            x-on:click="closeFullscreen()"
-                            x-bind:aria-label="labels.close"
+                        <span
+                            class="fff-signature__action-wrap"
+                            x-tooltip="{ content: labels.close, theme: $store.theme }"
                         >
-                            <span class="fff-signature__modal-close-icon" aria-hidden="true">
-                                {{ \Filament\Support\generate_icon_html($field->getCloseIcon(), size: IconSize::Small) }}
-                            </span>
-                        </button>
+                            <button
+                                type="button"
+                                class="fff-signature__modal-close"
+                                x-on:click="closeFullscreen()"
+                                x-bind:aria-label="labels.close"
+                            >
+                                <span class="fff-signature__modal-close-icon" aria-hidden="true">
+                                    {{ \Filament\Support\generate_icon_html($field->getCloseIcon(), size: IconSize::Small) }}
+                                </span>
+                            </button>
+                        </span>
                     </div>
 
                     <div
                         class="fff-signature__modal-pad"
                         x-on:pointerdown="engageGlide()"
                         x-bind:class="{ 'has-guidelines': guidelinesEnabled }"
-                        x-bind:style="guidelinesEnabled && backgroundColor ? { backgroundColor } : null"
+                        x-bind:style="padInlineBackgroundStyle"
                     >
                         <div
                             class="fff-signature__guidelines"

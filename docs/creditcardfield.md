@@ -153,6 +153,29 @@ See [Playground](/docs/index#playground) for setup.
 
 ---
 
+### PCI & Media Capture OS
+
+CreditCardField integrates with [Media & Capture OS](/docs/media-capture-os) for enterprise PCI posture.
+
+| Env | Default | Purpose |
+|-----|---------|---------|
+| `FLEX_FIELDS_PCI_NEVER_STORE_PAN` | `true` | Dehydrate never writes raw PAN — only `token` + `last4` when tokenizer is registered |
+| `FLEX_FIELDS_PCI_REQUIRE_TOKENIZATION` | `false` | When `true`, validation fails unless host registers `MediaCaptureOs::registerTokenizeCreditCardCallback()` |
+
+Host wiring:
+
+```php
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
+
+MediaCaptureOs::registerTokenizeCreditCardCallback(
+    fn (string $pan): ?string => app(PaymentGateway::class)->tokenize($pan),
+);
+```
+
+CVV is **never** persisted in dehydrated state. For public/embed flows, pair with a hosted tokenizer (Stripe Elements, etc.) — PAN exists in Livewire session only until dehydrate.
+
+---
+
 ### CSS classes (reference)
 
 | Class | Role |

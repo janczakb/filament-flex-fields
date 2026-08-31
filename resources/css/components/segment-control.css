@@ -100,14 +100,12 @@
     box-shadow: none;
 }
 
-.fff-segment-control.fi-color-primary .fff-segment-indicator--ghost,
-.fff-segment-tabs.fi-color-primary .fff-segment-indicator--ghost {
+.fff-segment-control.fi-color-primary .fff-segment-indicator--ghost {
     background-color: var(--color-600);
     box-shadow: none;
 }
 
-.dark .fff-segment-control.fi-color-primary .fff-segment-indicator--ghost,
-.dark .fff-segment-tabs.fi-color-primary .fff-segment-indicator--ghost {
+.dark .fff-segment-control.fi-color-primary .fff-segment-indicator--ghost {
     background-color: var(--color-500);
     box-shadow: none;
 }
@@ -279,48 +277,6 @@
     background-color: rgb(255 255 255 / 0.12);
 }
 
-.fff-segment-tabs {
-    @apply relative flex w-full flex-col;
-}
-
-.fff-segment-tabs__control {
-    @apply w-full;
-}
-
-.fff-segment-tabs__panel {
-    display: none;
-    @apply outline-hidden;
-}
-
-.fff-segment-tabs__panel.is-active {
-    display: block;
-    @apply mt-4;
-}
-
-.fff-translatable-fields .fff-segment-tabs__control {
-    @apply mb-3;
-}
-
-.fff-translatable-fields .fff-segment-tabs__panel.is-active {
-    @apply mt-0;
-}
-
-.fff-translatable-fields .fff-segment-tabs__panel.is-active .fi-fo-field-wrp {
-    @apply mb-0;
-}
-
-.fff-translatable-fields .fff-segment-tabs__panel.is-active .fi-fo-field-wrp + .fi-fo-field-wrp {
-    @apply mt-4;
-}
-
-.fff-translatable-fields--bordered .fff-segment-tabs__panel.is-active {
-    @apply rounded-xl border border-gray-200 bg-white p-4;
-}
-
-.dark .fff-translatable-fields--bordered .fff-segment-tabs__panel.is-active {
-    @apply border-zinc-700 bg-zinc-900;
-}
-
 .fff-segment-control.w-full .fff-segment-track {
     display: flex;
     width: 100%;
@@ -360,4 +316,170 @@
 
 .fi-fo-field-has-inline-label:has(.fff-switch--inline) .fi-fo-field-label-content {
     @apply leading-none;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Overflow shell — compact track + horizontal scroll with fade masks         */
+/* -------------------------------------------------------------------------- */
+
+.fff-segment-control:has(.fff-segment-overflow-shell) {
+    @apply w-fit min-w-0 max-w-full;
+}
+
+.fff-segment-overflow-shell {
+    @apply relative w-fit min-w-0 max-w-full;
+    border-radius: var(--fff-global-radius, 0.75rem);
+}
+
+.fff-segment-overflow-shell:not(.fff-segment-overflow-shell--ghost) {
+    @apply bg-gray-100;
+}
+
+.dark .fff-segment-overflow-shell:not(.fff-segment-overflow-shell--ghost) {
+    @apply bg-zinc-800;
+}
+
+.fff-segment-overflow-shell--ghost {
+    @apply bg-transparent;
+}
+
+.fff-segment-overflow-shell .fff-segment-control {
+    @apply block w-fit min-w-0 max-w-full;
+}
+
+.fff-segment-overflow-shell .fff-segment-tabs__control {
+    @apply mb-0 w-fit min-w-0 max-w-full;
+}
+
+.fff-segment-track--in-shell {
+    @apply bg-transparent;
+    width: max-content;
+}
+
+.fff-segment-scroll-shadow {
+    @apply relative w-full max-w-full;
+    --fff-segment-scroll-shadow-size: 2.5rem;
+    --fff-segment-scroll-shadow-scrollbar-size: 0px;
+}
+
+.fff-segment-scroll-shadow--horizontal {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-behavior: auto;
+}
+
+.fff-segment-scroll-shadow--horizontal::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.fff-segment-scroll-shadow--horizontal.fff-segment-scroll-shadow--preparing {
+    visibility: hidden;
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal:where(
+    [data-left-scroll='true'],
+    [data-right-scroll='true'],
+    [data-left-right-scroll='true']
+) {
+    mask-image: linear-gradient(var(--fff-segment-scroll-linear-gradient)), linear-gradient(#000, #000);
+    mask-position:
+        left top,
+        left bottom;
+    mask-repeat: no-repeat;
+    mask-size:
+        100% calc(100% - var(--fff-segment-scroll-shadow-scrollbar-size)),
+        100% var(--fff-segment-scroll-shadow-scrollbar-size);
+    -webkit-mask-image: linear-gradient(var(--fff-segment-scroll-linear-gradient)), linear-gradient(#000, #000);
+    -webkit-mask-position:
+        left top,
+        left bottom;
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-size:
+        100% calc(100% - var(--fff-segment-scroll-shadow-scrollbar-size)),
+        100% var(--fff-segment-scroll-shadow-scrollbar-size);
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal[data-left-scroll='true'] {
+    --fff-segment-scroll-linear-gradient: 270deg, #000 calc(100% - var(--fff-segment-scroll-shadow-size)), transparent;
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal[data-left-scroll='true']:dir(rtl) {
+    --fff-segment-scroll-linear-gradient: 90deg, #000 calc(100% - var(--fff-segment-scroll-shadow-size)), transparent;
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal[data-right-scroll='true'] {
+    --fff-segment-scroll-linear-gradient: 90deg, #000 calc(100% - var(--fff-segment-scroll-shadow-size)), transparent;
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal[data-right-scroll='true']:dir(rtl) {
+    --fff-segment-scroll-linear-gradient: 270deg, #000 calc(100% - var(--fff-segment-scroll-shadow-size)), transparent;
+}
+
+.fff-segment-scroll-shadow--fade.fff-segment-scroll-shadow--horizontal[data-left-right-scroll='true'] {
+    --fff-segment-scroll-linear-gradient:
+        to right,
+        #000,
+        #000,
+        transparent 0,
+        #000 var(--fff-segment-scroll-shadow-size),
+        #000 calc(100% - var(--fff-segment-scroll-shadow-size)),
+        transparent;
+}
+
+.fff-segment-overflow-shell__scroll-prev,
+.fff-segment-overflow-shell__scroll-next {
+    @apply absolute z-[2] hidden size-4 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 text-gray-700 outline-none;
+    transition: opacity 150ms ease;
+}
+
+.fff-segment-overflow-shell:not(.is-overflow-interactive):has(> .fff-segment-scroll-shadow[data-left-scroll='true']) .fff-segment-overflow-shell__scroll-prev,
+.fff-segment-overflow-shell:not(.is-overflow-interactive):has(> .fff-segment-scroll-shadow[data-left-right-scroll='true']) .fff-segment-overflow-shell__scroll-prev {
+    @apply inline-flex;
+}
+
+.fff-segment-overflow-shell:not(.is-overflow-interactive):has(> .fff-segment-scroll-shadow[data-right-scroll='true']) .fff-segment-overflow-shell__scroll-next,
+.fff-segment-overflow-shell:not(.is-overflow-interactive):has(> .fff-segment-scroll-shadow[data-left-right-scroll='true']) .fff-segment-overflow-shell__scroll-next {
+    @apply inline-flex;
+}
+
+.fff-segment-overflow-shell.is-overflow-interactive .fff-segment-overflow-shell__scroll-prev:not(.hidden),
+.fff-segment-overflow-shell.is-overflow-interactive .fff-segment-overflow-shell__scroll-next:not(.hidden) {
+    @apply inline-flex;
+}
+
+.dark .fff-segment-overflow-shell__scroll-prev,
+.dark .fff-segment-overflow-shell__scroll-next {
+    @apply text-zinc-200;
+}
+
+@media (hover: hover) {
+    .fff-segment-overflow-shell__scroll-prev:hover,
+    .fff-segment-overflow-shell__scroll-next:hover {
+        @apply opacity-70;
+    }
+}
+
+.fff-segment-overflow-shell__scroll-prev:focus-visible,
+.fff-segment-overflow-shell__scroll-next:focus-visible {
+    outline: 2px solid var(--primary-500, #3b82f6);
+    outline-offset: 2px;
+}
+
+.fff-segment-overflow-shell__scroll-prev {
+    @apply start-1 top-1/2 -translate-y-1/2;
+}
+
+.fff-segment-overflow-shell__scroll-next {
+    @apply end-1 top-1/2 -translate-y-1/2;
+}
+
+.fff-segment-overflow-shell:dir(rtl) .fff-segment-overflow-shell__scroll-prev svg,
+.fff-segment-overflow-shell:dir(rtl) .fff-segment-overflow-shell__scroll-next svg {
+    transform: rotate(180deg);
 }

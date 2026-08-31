@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test'
 import { trackConsoleErrors } from './helpers/console-errors.mjs'
 
 test.describe('Flex Fields playground calculator field', () => {
-    test.skip(! process.env.FLEX_FIELDS_PLAYGROUND_URL, 'Set FLEX_FIELDS_PLAYGROUND_URL to run playground E2E')
 
     test('calculator-field opens shared panel on trigger click', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)

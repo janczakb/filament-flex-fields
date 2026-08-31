@@ -84,21 +84,40 @@ it('normalizes rich option arrays for segment control', function () {
 
 it('server renders segment selected state before alpine hydrates', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/segment-control.blade.php');
+    $trackItems = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/segment-control-track-items.blade.php');
     $css = file_get_contents(__DIR__.'/../../resources/css/components/segment-control.css');
 
     expect($blade)
         ->toContain('$currentState = $getState()')
         ->toContain('$normalizedCurrentState')
+        ->toContain('overflowShell: @js(! $isFullWidth)')
+        ->toContain('x-filament-flex-fields::segment-overflow-shell');
+
+    expect($trackItems)
         ->toContain('$isSelected = $normalizedCurrentState !== null && (string) $value === $normalizedCurrentState')
         ->toContain('data-segment-selected="{{ $isSelected ? \'true\' : \'false\' }}"')
         ->toContain('aria-checked="{{ $isSelected ? \'true\' : \'false\' }}"')
         ->toContain('@unless ($isSelected)')
-        ->toContain('x-show="isSelected(@js($value))"')
-        ->toContain("'is-hydrated': indicatorHydrated");
+        ->toContain('x-show="isSelected(@js($value))"');
+
+    expect($blade)->toContain("'is-hydrated': indicatorHydrated");
 
     expect($css)
         ->toContain('.fff-segment-track:not(.is-hydrated) .fff-segment-item[data-segment-selected=\'true\']')
-        ->toContain('.fff-segment-track.is-hydrated .fff-segment-item[data-segment-selected=\'true\']');
+        ->toContain('.fff-segment-track.is-hydrated .fff-segment-item[data-segment-selected=\'true\']')
+        ->toContain('.fff-segment-overflow-shell')
+        ->toContain('data-left-right-scroll')
+        ->toContain('scrollbar-width: none')
+        ->toContain('w-fit min-w-0 max-w-full');
+
+    $overflowShell = file_get_contents(__DIR__.'/../../resources/views/components/segment-overflow-shell.blade.php');
+
+    expect($overflowShell)
+        ->toContain('segmentOverflowInteractive')
+        ->toContain('is-overflow-interactive')
+        ->toContain('data-fff-segment-overflow')
+        ->toContain('FlexFieldAssets::segmentOverflowSsrInlineContents()')
+        ->not->toContain('document.currentScript.parentElement');
 });
 
 it('hydrates file-upload source tabs with the same segment indicator flags as segment-tabs', function () {

@@ -7,7 +7,7 @@ import fffSelectFieldCoordinator, {
     bootSelectFieldPatches,
     createSelectFieldAttachFailureMessage,
     markSelectFieldShellAttached,
-} from '../../resources/js/components/select-field.js'
+} from '../fixtures/js/select-field-legacy.js'
 
 function createMockShell({ innerRoot = null, alpineData = null } = {}) {
     const events = []

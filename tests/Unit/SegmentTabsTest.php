@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
+use Bjanczak\FilamentFlexFields\Support\Composition\SegmentTabsV2;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 
@@ -60,7 +61,7 @@ it('loads segment control styles for segment tabs', function () {
     expect($blade)
         ->toContain('partials.load-stylesheet')
         ->and($blade)->toContain("'component' => 'segment-tabs'")
-        ->and(FlexFieldAssets::stylesheetsFor('segment-tabs'))->toBe(['segment-control']);
+        ->and(FlexFieldAssets::stylesheetsFor('segment-tabs'))->toBe(['segment-control', 'segment-tabs']);
 });
 
 it('defaults ghost variant color to primary for segment tabs', function () {
@@ -76,7 +77,7 @@ it('defaults ghost variant color to primary for segment tabs', function () {
 
 it('renders only the active tab panel before alpine hydration', function () {
     $panel = file_get_contents(__DIR__.'/../../resources/views/schemas/components/segment-tabs/segment-tab.blade.php');
-    $css = file_get_contents(__DIR__.'/../../resources/css/components/segment-control.css');
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/segment-tabs.css');
 
     expect($panel)
         ->toContain('x-bind:class="{')
@@ -88,4 +89,17 @@ it('renders only the active tab panel before alpine hydration', function () {
         ->and($css)->toContain('display: none;')
         ->and($css)->toContain('.fff-segment-tabs__panel.is-active {')
         ->and($css)->not->toContain('.fff-segment-tabs__panel:not(.is-active)');
+});
+
+it('wires SegmentTabsV2 persist key into localStorage tab persistence', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/schemas/components/segment-tabs.blade.php');
+
+    expect(SegmentTabsV2::persistKey('settings-tabs'))
+        ->toBe('fff-segment-tabs::settings-tabs')
+        ->and(SegmentTabsV2::persistKey(''))->toBe('fff-segment-tabs')
+        ->and(SegmentTabsV2::parsePersisted('general'))->toBe('general')
+        ->and(SegmentTabsV2::parsePersisted('<script>'))->toBeNull()
+        ->and($blade)->toContain('segmentTabsSchemaComponent')
+        ->and($blade)->toContain('tabPersistKey')
+        ->and($blade)->toContain('isTabPersisted');
 });

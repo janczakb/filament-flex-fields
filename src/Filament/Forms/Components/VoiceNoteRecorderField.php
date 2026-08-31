@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Closure;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -32,6 +33,8 @@ class VoiceNoteRecorderField extends FlexFileUpload
 
     protected string|BackedEnum|Htmlable|Closure|null $checkmarkIcon = null;
 
+    protected string|Closure|null $storeWaveformIn = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -47,6 +50,69 @@ class VoiceNoteRecorderField extends FlexFileUpload
         ]);
 
         $this->deleteFileOnRemove();
+
+        $this->afterPersistUploadedFileUsing(function (VoiceNoteRecorderField $component, string $path): void {
+            $transcriber = MediaCaptureOs::transcriptionInterface();
+
+            if ($transcriber === null) {
+                return;
+            }
+
+            $transcript = $transcriber->transcribe(
+                $component->getDiskName(),
+                $path,
+                ['field' => $component->getName()],
+            );
+
+            if (! is_string($transcript) || $transcript === '') {
+                return;
+            }
+
+            $metadataPath = $component->getStoreMetadataInPath();
+
+            if (blank($metadataPath)) {
+                return;
+            }
+
+            $set = $component->makeSetUtility();
+            $get = $component->makeGetUtility();
+            $existing = $get($metadataPath) ?? [];
+
+            if ($component->isMultiple()) {
+                if (! is_array($existing)) {
+                    $existing = [];
+                }
+
+                $entry = is_array($existing[$path] ?? null) ? $existing[$path] : [];
+                $entry['transcript'] = $transcript;
+                $existing[$path] = $entry;
+                $set($metadataPath, $existing);
+
+                return;
+            }
+
+            $entry = is_array($existing) ? $existing : [];
+            $entry['transcript'] = $transcript;
+            $set($metadataPath, $entry);
+        });
+    }
+
+    public function storeWaveformIn(string|Closure $statePath): static
+    {
+        $this->storeWaveformIn = $statePath;
+
+        return $this;
+    }
+
+    public function getStoreWaveformInPath(): ?string
+    {
+        $path = $this->evaluate($this->storeWaveformIn);
+
+        if (filled($path)) {
+            return (string) $path;
+        }
+
+        return $this->getStoreMetadataInPath();
     }
 
     public function maxDuration(int|Closure $seconds): static

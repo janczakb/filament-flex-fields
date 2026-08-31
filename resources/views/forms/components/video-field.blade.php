@@ -26,6 +26,15 @@
     $controlsLayout = $getControlsLayout();
     $usesCompactControls = $usesCompactControls();
     $showPictureInPictureControl = $isPictureInPictureable() && ! $usesYoutube && ! $usesVimeo && filled($videoSrc);
+    $showSettingsMenu = $showCustomControls && $field->showsSettingsMenu($getState());
+    $showTooltips = $showCustomControls && $field->showsTooltips();
+    $showCastControl = $showCustomControls && $field->isCastable($getState());
+    $showAirPlayControl = $showCustomControls && $field->isAirPlayable($getState());
+    $showRemotePlaybackControl = $showCastControl || $showAirPlayControl;
+    $hasPlaybackRateControl = $showCustomControls && $field->hasPlaybackRateControl($getState());
+    $hasQualityControl = $showCustomControls && $field->hasQualityControl($getState());
+    $playbackRates = $field->getPlaybackRates() ?? [];
+    $qualityOptions = $field->getQualityOptions();
 @endphp
 
 <x-dynamic-component
@@ -129,13 +138,12 @@
                                     <div class="fff-video-field__toolbar-start">
                                         <button
                                             type="button"
-                                            class="fff-video-field__pill"
+                                            class="fff-video-field__glass-btn"
                                             x-on:click="activate()"
                                             aria-label="{{ __('filament-flex-fields::default.video.play') }}"
                                             @disabled($isDisabled || $isReadOnly)
                                         >
-                                            {{ \Filament\Support\generate_icon_html($field->getPlayIcon(), size: IconSize::ExtraSmall) }}
-                                            <span>{{ __('filament-flex-fields::default.video.play') }}</span>
+                                            {{ \Filament\Support\generate_icon_html($field->getPlayIcon(), size: IconSize::Small) }}
                                         </button>
                                     </div>
 
@@ -215,15 +223,33 @@
                     autoHideControls: @js($autoHidesControls()),
                     pictureInPictureable: @js($isPictureInPictureable()),
                     volumeControl: @js($hasVolumeControl()),
+                    settingsMenu: @js($showSettingsMenu),
+                    tooltips: @js($showTooltips),
+                    castable: @js($showCastControl),
+                    airPlayable: @js($showAirPlayControl),
+                    playbackRates: @js($playbackRates),
+                    qualityOptions: @js($qualityOptions),
                     labels: {
                         play: @js(__('filament-flex-fields::default.video.play')),
                         pause: @js(__('filament-flex-fields::default.video.pause')),
+                        settings: @js(__('filament-flex-fields::default.video.settings')),
+                        speed: @js(__('filament-flex-fields::default.video.speed')),
+                        quality: @js(__('filament-flex-fields::default.video.quality')),
+                        cast: @js(__('filament-flex-fields::default.video.cast')),
+                        stopCast: @js(__('filament-flex-fields::default.video.stop_cast')),
+                        airplay: @js(__('filament-flex-fields::default.video.airplay')),
+                        stopAirplay: @js(__('filament-flex-fields::default.video.stop_airplay')),
+                        connecting: @js(__('filament-flex-fields::default.video.connecting')),
                     },
                 })"
-                x-bind:class="{ 'is-hydrated': uiTransitionsEnabled }"
+                x-bind:class="{ 'is-hydrated': uiTransitionsEnabled, 'is-coarse-pointer': coarsePointer }"
                 x-init="init()"
-                x-on:mousemove="onFrameMove()"
-                x-on:mouseleave="onFrameLeave()"
+                x-on:pointermove="onFrameMove()"
+                x-on:pointerleave="onFrameLeave($event)"
+                x-on:pointerdown="onFramePointerDown($event)"
+                x-on:pointerup="onFramePointerUp($event)"
+                x-on:keydown="onFrameKeydown($event)"
+                tabindex="0"
             >
                 <div
                     class="fff-video-field__frame"
@@ -265,8 +291,21 @@
                             @if ($shouldStartMuted()) muted @endif
                             @if ($shouldPlayInline()) playsinline @endif
                             @if ($shouldUseNativeControls()) controls @endif
+                            @if ($showRemotePlaybackControl) x-webkit-airplay="allow" @endif
                             x-bind:muted="muted"
                         ></video>
+
+                        @if ($showCustomControls)
+                            <video
+                                class="fff-video-field__preview-source"
+                                x-ref="previewVideo"
+                                preload="metadata"
+                                muted
+                                playsinline
+                                tabindex="-1"
+                                aria-hidden="true"
+                            ></video>
+                        @endif
 
                         @if ($showPictureInPictureControl)
                             <div

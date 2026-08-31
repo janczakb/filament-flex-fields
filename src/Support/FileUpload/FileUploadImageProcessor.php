@@ -8,6 +8,7 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
+use Intervention\Image\Encoders\AvifEncoder;
 use Intervention\Image\Encoders\WebpEncoder;
 use Intervention\Image\ImageManager;
 
@@ -16,6 +17,7 @@ class FileUploadImageProcessor
     public function __construct(
         protected bool $optimizeImages = true,
         protected bool $optimizeImagesToWebp = false,
+        protected bool $optimizeImagesToAvif = false,
         protected ?int $maxImageWidth = null,
         protected ?int $maxImageHeight = null,
         protected ?int $maxImageLongEdge = null,
@@ -74,6 +76,7 @@ class FileUploadImageProcessor
     {
         return $this->optimizeImages
             || $this->optimizeImagesToWebp
+            || $this->optimizeImagesToAvif
             || $this->maxImageWidth
             || $this->maxImageHeight
             || $this->maxImageLongEdge;
@@ -120,12 +123,35 @@ class FileUploadImageProcessor
         $image->toWebp(quality: 85)->save($absolutePath);
     }
 
-    protected function processWithIntervention(Filesystem $disk, string $path, string $absolutePath): string
+    protected function saveInterventionImageAsAvif(mixed $image, string $absolutePath): void
     {
-        $manager = $this->createInterventionImageManager();
-        $image = $this->loadInterventionImage($manager, $absolutePath);
+        if (class_exists(AvifEncoder::class)) {
+            $image->encode(new AvifEncoder(quality: 65))->save($absolutePath);
 
-        $this->applyInterventionScaling($image);
+            return;
+        }
+
+        if (method_exists($image, 'toAvif')) {
+            $image->toAvif(quality: 65)->save($absolutePath);
+        }
+    }
+
+    protected function encodeOptimizedImage(mixed $image, Filesystem $disk, string $path, string $absolutePath): ?string
+    {
+        if ($this->optimizeImagesToAvif && $this->supportsAvif()) {
+            $newPath = $this->replaceExtension($path, 'avif');
+            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+
+            if (is_string($newAbsolutePath)) {
+                $this->saveInterventionImageAsAvif($image, $newAbsolutePath);
+
+                if ($newPath !== $path) {
+                    $disk->delete($path);
+                }
+
+                return $newPath;
+            }
+        }
 
         if ($this->optimizeImagesToWebp && $this->supportsWebp()) {
             $newPath = $this->replaceExtension($path, 'webp');
@@ -145,6 +171,18 @@ class FileUploadImageProcessor
         $image->save($absolutePath);
 
         return $path;
+    }
+
+    protected function processWithIntervention(Filesystem $disk, string $path, string $absolutePath): string
+    {
+        $manager = $this->createInterventionImageManager();
+        $image = $this->loadInterventionImage($manager, $absolutePath);
+
+        $this->applyInterventionScaling($image);
+
+        $encodedPath = $this->encodeOptimizedImage($image, $disk, $path, $absolutePath);
+
+        return $encodedPath ?? $path;
     }
 
     protected function processLocalPathWithIntervention(string $absolutePath): string
@@ -229,6 +267,22 @@ class FileUploadImageProcessor
                 imagecopyresampled($resized, $resource, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
                 imagedestroy($resource);
                 $resource = $resized;
+            }
+        }
+
+        if ($this->optimizeImagesToAvif && $this->supportsAvif()) {
+            $newPath = $this->replaceExtension($path, 'avif');
+            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+
+            if (is_string($newAbsolutePath)) {
+                imageavif($resource, $newAbsolutePath, 65);
+                imagedestroy($resource);
+
+                if ($newPath !== $path) {
+                    $disk->delete($path);
+                }
+
+                return $newPath;
             }
         }
 
@@ -332,5 +386,10 @@ class FileUploadImageProcessor
     protected function supportsWebp(): bool
     {
         return function_exists('imagewebp');
+    }
+
+    protected function supportsAvif(): bool
+    {
+        return function_exists('imageavif');
     }
 }

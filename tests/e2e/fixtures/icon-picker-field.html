@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Icon picker field fixture</title>
+        <link rel="stylesheet" href="/resources/dist/css/icon-picker-field.css" />
+        <link rel="stylesheet" href="/resources/dist/css/select-field.css" />
+        <link rel="stylesheet" href="/resources/dist/css/teleported-menu.css" />
+        <script type="module" src="./icon-picker-field.harness.mjs"></script>
+        <style>
+            body {
+                margin: 2rem;
+                font-family: system-ui, sans-serif;
+            }
+
+            .fixture-trigger-wrap {
+                width: 22rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div wire:id="fixture-wire" class="fixture-trigger-wrap">
+            <div
+                class="fi-select-input fff-icon-picker fff-icon-picker--layout-icons is-trigger-hydrated"
+                x-data="iconPickerFixture()"
+                x-init="init()"
+                x-on:click.outside="if ($refs.pickerPanel?.contains($event.target)) { return }; closePanel()"
+                x-on:keydown.escape.window="closePanel()"
+            >
+                <div class="fi-select-input-ctn">
+                    <button
+                        type="button"
+                        id="icon-picker-trigger"
+                        class="fi-select-input-btn"
+                        x-ref="pickerTrigger"
+                        x-on:click.stop="togglePanel()"
+                        x-bind:aria-expanded="panelOpen"
+                    >
+                        <span class="fi-select-input-value-ctn">
+                            <span class="fi-select-input-value-label fi-select-input-placeholder">
+                                <span class="fff-icon-picker__name" x-text="state || placeholder"></span>
+                            </span>
+                        </span>
+                    </button>
+                </div>
+
+                <template x-teleport="body">
+                    <div
+                        x-ref="pickerPanel"
+                        class="fff-icon-picker__panel fff-select-headless-menu fi-dropdown-panel fff-select-dropdown-panel fff-teleported-menu fff-select-dropdown-panel--below fff-select-dropdown-panel--dropdown-fixed fi-color-primary fff-select-dropdown-panel--layout-grid"
+                        x-show="panelOpen"
+                        x-bind:class="{ 'is-positioned': panelReady, 'is-open': panelOpen && panelReady }"
+                        x-on:click.stop
+                        role="dialog"
+                        aria-label="Icon picker fixture"
+                    >
+                        <div class="fff-icon-picker__toolbar">
+                            <div class="fff-teleported-menu__search-wrap fi-select-input-search-ctn">
+                                <input
+                                    type="search"
+                                    x-ref="iconSearch"
+                                    x-model="searchQuery"
+                                    x-on:input="onSearchInput()"
+                                    placeholder="Search icons"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="fff-icon-picker__divider" aria-hidden="true"></div>
+
+                        <div
+                            x-ref="iconResults"
+                            class="fff-headless-overlay__list fff-icon-picker__results fi-select-input-options-ctn fff-icon-picker__results--grid fff-icon-picker__results--icons-only"
+                            x-bind:class="{ 'is-loading': showInitialSkeleton || showScrollLoadSkeleton }"
+                            x-on:scroll.passive="onIconResultsScroll($event)"
+                            tabindex="-1"
+                            role="listbox"
+                            x-bind:aria-busy="showInitialSkeleton || loadingMore"
+                        >
+                            <div
+                                class="fff-icon-picker__initial-skeleton"
+                                x-show="showInitialSkeleton"
+                                x-bind:class="{ 'is-fading': iconSkeletonFading }"
+                                role="status"
+                            >
+                                <div class="fff-icon-picker__grid fff-icon-picker__skeleton-grid" x-bind:style="iconResultsGridStyle">
+                                    <template x-for="slot in initialSkeletonSlots" x-bind:key="'initial-skeleton-' + slot">
+                                        <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                            <span class="fff-icon-picker__option-icon">
+                                                <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--icon"></span>
+                                            </span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div
+                                class="fff-icon-picker__track"
+                                x-show="loadedIconItems.length > 0 && ! showInitialSkeleton && resultsGeometryReady"
+                                x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
+                                x-bind:style="iconTrackStyle"
+                            >
+                                <div
+                                    class="fff-icon-picker__virtual-spacer-top"
+                                    x-show="usesIconVirtualScroll && iconVirtualWindow.paddingTop > 0"
+                                    x-bind:style="virtualTopSpacerStyle"
+                                    aria-hidden="true"
+                                ></div>
+
+                                <div
+                                    x-ref="iconGrid"
+                                    class="fff-icon-picker__grid"
+                                    x-bind:style="iconResultsGridStyle"
+                                >
+                                    <template x-for="entry in visibleIconEntries" x-bind:key="'icon-option-' + entry.item.name + '-' + entry.index">
+                                        <button
+                                            type="button"
+                                            class="fff-icon-picker__option fi-select-input-option"
+                                            x-bind:data-icon-index="entry.index"
+                                            role="option"
+                                        >
+                                            <span class="fff-icon-picker__option-icon" x-bind:data-icon-name="entry.item.name">
+                                                <span x-show="svgFor(entry.item.name)" x-html="svgFor(entry.item.name)"></span>
+                                                <span
+                                                    class="fff-icon-picker__option-icon-skeleton"
+                                                    x-bind:class="{ 'is-visible': ! svgFor(entry.item.name) }"
+                                                    aria-hidden="true"
+                                                ></span>
+                                            </span>
+                                        </button>
+                                    </template>
+                                </div>
+
+                                <div
+                                    class="fff-icon-picker__virtual-spacer-bottom"
+                                    x-show="usesIconVirtualScroll && iconVirtualWindow.paddingBottom > 0"
+                                    x-bind:style="virtualBottomSpacerStyle"
+                                    aria-hidden="true"
+                                ></div>
+
+                                <div
+                                    x-ref="iconLoadMoreSentinel"
+                                    class="fff-icon-picker__load-more-sentinel"
+                                    x-show="hasMore && ! loadingMore"
+                                    aria-hidden="true"
+                                ></div>
+
+                                <div
+                                    class="fff-icon-picker__load-more-tail"
+                                    x-show="showLoadMoreTailSkeleton"
+                                    x-bind:style="loadMoreTailStyle"
+                                >
+                                    <div class="fff-icon-picker__grid fff-icon-picker__load-more-tail-grid" x-bind:style="iconResultsGridStyle">
+                                        <template x-for="slot in loadMoreSkeletonSlots" x-bind:key="'load-more-tail-' + slot">
+                                            <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                                <span class="fff-icon-picker__option-icon">
+                                                    <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--icon"></span>
+                                                </span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </body>
+</html>

@@ -76,6 +76,8 @@ public function panel(Panel $panel): Panel
 
 Then drop any component into a form — e.g. `MatrixChoiceField::make('priorities')`. Full install options (path repo, config, translations): [Installation](#installation). **Already installed?** See [Upgrading](#upgrading) below.
 
+**Fresh install:** all v3 Select (headless combobox), schema conditions, FormBuilder, and playground demos work out of the box — no `php artisan migrate` required. Optional: `php artisan fff:v3:upgrade` only refreshes the asset registry marker.
+
 ---
 
 ## Upgrading
@@ -177,7 +179,7 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 
 </details>
 
-<a id="dynamic-custom-fields-json"></a>**JSON custom fields** — define schemas in PHP config or `FlexFieldSchemaRegistry`, store values in one JSON column via `HasFlexFields`. `FlexFieldFormBuilder` renders live Filament forms. Ideal for CMS, tenant settings, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php).
+<a id="dynamic-custom-fields-json"></a>**JSON custom fields** — define schemas in PHP config, `FlexFieldSchemaRegistry`, or the optional **Field groups** admin; store values in one JSON column via `HasFlexFields`. `FlexFieldStudio` wires forms, tables, and infolists in one line; `FlexFieldFormBuilder` renders 70+ field types with conditions, formulas, tenant packs, and RBAC. Ideal for CMS, multi-tenant SaaS, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php). **Optional:** database-backed field groups + version history — see [Flex Field Groups](https://flex-fields.bjanczak.com/docs/flex-field-groups) (`FLEX_FIELDS_SCHEMA_RESOURCE_ENABLED`, migrations ship with the package).
 
 **Playground & docs** — local preview of all 70 components; every field documented in `docs/` with methods, validation, and examples.
 
@@ -205,6 +207,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
 ## Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/imagechoicecards"><img src="art/sc-image-check.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ImageChoiceCards - Full-bleed image choice cards with footer label and selection indicator, radio exclusive or checkbox multi, default and overlay layouts"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">ImageChoiceCards — Image Card Selection with Footer Bar</p>
+  </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/nps-field"><img src="art/sc-33.png" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="NpsField - Enterprise NPS, CSAT, and Likert scale inputs with pills, segments, and emoji variants, color-coded detractor/passive/promoter ranges, and optional deselect"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">NpsField — NPS, CSAT & Likert Survey Scales</p>
@@ -423,6 +429,8 @@ Full API for each component: **[https://flex-fields.bjanczak.com/docs/index](htt
 
 ### Media, color & location (12)
 
+> **Media & Capture OS** — enterprise AV, PCI tokenization, Spatie integration, retention, legal signature audit: [docs/media-capture-os.md](/docs/media-capture-os).
+
 | Component | Description |
 |-----------|-------------|
 | [`ColorSwatchField`](https://flex-fields.bjanczak.com/docs/colorswatchfield) | Preset color swatch picker |
@@ -431,7 +439,7 @@ Full API for each component: **[https://flex-fields.bjanczak.com/docs/index](htt
 | [`FlexImageUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Image upload with processing options |
 | [`FlexSpatieMediaLibraryFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Spatie Media Library upload integration |
 | [`VideoField`](https://flex-fields.bjanczak.com/docs/videofield) | Video URL / player with YouTube support |
-| [`AudioField`](https://flex-fields.bjanczak.com/docs/audiofield) | Audio URL / player with waveform |
+| [`AudioField`](https://flex-fields.bjanczak.com/docs/audiofield) | Audio URL / player with waveform; optional client-side Whisper transcription |
 | [`VoiceNoteRecorderField`](https://flex-fields.bjanczak.com/docs/voicenoterecorderfield) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
 | [`MapPickerField`](https://flex-fields.bjanczak.com/docs/mappickerfield) | Interactive map pin picker with draggable marker and address autofill |
 | [`SignatureField`](https://flex-fields.bjanczak.com/docs/signaturefield) | Canvas signature pad |
@@ -852,28 +860,58 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 25.5 (gzip 5.5) |
-| PhoneField | 5.9 (gzip 1.9) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + search-normalize 0.1 (gzip 0.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) + phone-lib 184.9 (gzip 43.3) | 32.3 (gzip 6.4) + deps 68.6 |
-| CountryField | 3.9 (gzip 1.4) + virtualized-list 7.3 (gzip 2.5) + select-menu 5.4 (gzip 1.9) + search-normalize 0.1 (gzip 0.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 28.6 (gzip 5.9) + deps 68.6 |
-| FlexTextInput | 10.9 (gzip 3.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 40.4 (gzip 7.4) + deps 22.5 |
-| TagsField | 3.2 (gzip 1.2) + search-normalize 0.1 (gzip 0.1) | 23.4 (gzip 5.2) + deps 65.7 |
-| RatingField | 0.7 (gzip 0.3) | 25.4 (gzip 5.6) |
-| SwitchField | Alpine inline | 32.5 (gzip 6.2) |
-| UserSelect | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 31.9 (gzip 6.4) + deps 159.9 |
-| MapPickerField | 9.3 (gzip 2.9) + mapbox 6.1 (gzip 2.3) + select-menu 5.4 (gzip 1.9) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.5 (gzip 0.3) | 29.8 (gzip 6.5) + deps 52.7 |
-| SelectField | 14.6 (gzip 4.8) + select-menu 5.4 (gzip 1.9) + theme-utils 0.5 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 82.2 (gzip 12.7) + deps 28.2 |
+| core (always) | — | 30.1 (gzip 6.3) |
+| PhoneField | 6 (gzip 1.9) + country-registry 3.9 (gzip 1.7) + virtualized-list 1.8 (gzip 0.6) + select-menu 18.6 (gzip 5.7) + search-normalize 0.1 (gzip 0.1) + overlay-menu-keyboard 2.9 (gzip 1.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.6 (gzip 0.3) + phone-lib 184.9 (gzip 43.3) | 37.1 (gzip 7.2) + deps 77.8 |
+| CountryField | 4 (gzip 1.4) + country-registry 3.9 (gzip 1.7) + virtualized-list 1.8 (gzip 0.6) + select-menu 18.6 (gzip 5.7) + search-normalize 0.1 (gzip 0.1) + overlay-menu-keyboard 2.9 (gzip 1.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.6 (gzip 0.3) | 33.4 (gzip 6.7) + deps 77.8 |
+| FlexTextInput | 11.5 (gzip 3.4) + flex-dropdown-coordinator 1.7 (gzip 0.8) + emoji 19.7 (gzip 6.2) lazy | 45.2 (gzip 8.2) + deps 27.4 |
+| TagsField | 5.9 (gzip 2.1) + search-normalize 0.1 (gzip 0.1) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 18.6 (gzip 5.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + theme-utils 0.6 (gzip 0.3) | 28.4 (gzip 6) + deps 227.9 |
+| RatingField | 0.7 (gzip 0.3) | 30.3 (gzip 6.4) |
+| SwitchField | Alpine inline | 37.3 (gzip 7) |
+| UserSelect | 48.4 (gzip 12.4) + combobox-engine 3.9 (gzip 1.7) + search-normalize 0.1 (gzip 0.1) + select-menu 18.6 (gzip 5.7) + theme-utils 0.6 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 37.6 (gzip 7.2) + deps 211.7 |
+| MapPickerField | 7.6 (gzip 2.6) + mapbox 15.4 (gzip 4.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 18.6 (gzip 5.7) + theme-utils 0.6 (gzip 0.3) | 35 (gzip 7.4) + deps 105.3 |
+| SelectField | 48.4 (gzip 12.4) + combobox-engine 3.9 (gzip 1.7) + search-normalize 0.1 (gzip 0.1) + select-menu 18.6 (gzip 5.7) + theme-utils 0.6 (gzip 0.3) + flex-dropdown-coordinator 1.7 (gzip 0.8) | 119.9 (gzip 17.1) + deps 32.6 |
 
-Sample bundles (10 of **59** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **66** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---
 
 ## License
 
-Flex Fields is **source-available and dual-licensed**. Many real-world projects qualify for free use under the LICENSE; shipping a commercial SaaS or product that depends on Flex Fields—or redistributing Flex Fields as a kit—may require a separate commercial license.
+Flex Fields is **source-available and dual-licensed**. In **most real-world cases** you can use it **for free** under **Permitted Free Use** in [LICENSE](LICENSE) (v1.1) — no purchase required. A **commercial license** is only needed when you go beyond that (typical examples: your own commercial SaaS/product where Flex Fields is a material dependency, or redistributing Flex Fields as a kit).
 
-- Full license text (Permitted Free Use and restrictions): [LICENSE](LICENSE) (v1.1)
-- Commercial plans, Custom / OEM kit terms, and Lemon Squeezy purchase: [COMMERCIAL.md](COMMERCIAL.md)
+### What free use (Permitted Free Use) allows
+
+| You can… | Free? |
+|----------|-------|
+| Run Flex Fields in your **company’s internal / staff** Filament admin | Yes — LICENSE §1.7(a) |
+| Use **staging, preview, CI, and local** environments for the same entity | Yes |
+| Keep `vendor/` and published Filament assets in a **private application repo** (no standalone FF transfer to third parties) | Yes — §1.5(iii) |
+| **Override app CSS** that targets Flex Fields output (e.g. `.fff-*`) | Yes — §2.3 |
+| Apply **local patches under `vendor/`** only for your permitted install | Yes — §2.4 |
+| Build **one client project** as work-for-hire — client gets the **running app**, not a reusable standalone copy of Flex Fields | Yes — §1.7(b) |
+
+### Quick counsel
+
+| Question | Answer |
+|----------|--------|
+| Internal staff back-office | **Free** — §1.7(a) |
+| Private app repo + published assets | **Allowed** (free) |
+| App CSS override of `.fff-*` | **Allowed** (free) |
+| Local `vendor/` patch only for your install | **Allowed** (free) |
+| **Publishing / redistributing** a modified copy as a kit or standalone package | **Commercial license** required |
+
+Free §1.7(b) **does not** apply if the client **resells, licenses, or commercially distributes** the product to third parties — then the **distributing party** needs a commercial license.
+
+### When a commercial license is typically required
+
+| Situation | Plan (from [COMMERCIAL.md](COMMERCIAL.md)) |
+|-----------|---------------------------------------------|
+| Your **commercial SaaS / product**; customers use **your app only** (no standalone Flex Fields copy) | **Single Product** ($169) or **Unlimited** ($299) — one-time |
+| You **sell or redistribute Flex Fields itself** (starter kit, OEM, white-label field pack) | **Custom** (from $1,500) |
+
+- Full license text: [LICENSE](LICENSE) (v1.1)
+- Commercial plans, Custom / OEM, and purchase: [COMMERCIAL.md](COMMERCIAL.md)
 - Third-party attributions: [CREDITS.md](CREDITS.md)
 
 Questions: open a GitHub issue or email [barek122@gmail.com](mailto:barek122@gmail.com).

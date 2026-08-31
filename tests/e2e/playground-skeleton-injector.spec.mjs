@@ -44,7 +44,6 @@ async function assertSkeletonInjectorInOverlay(page, { buttonLabel, headingPatte
 }
 
 test.describe('Flex Fields playground skeleton asset injector', () => {
-    test.skip(! process.env.FLEX_FIELDS_PLAYGROUND_URL, 'Set FLEX_FIELDS_PLAYGROUND_URL to run playground E2E')
 
     test.beforeEach(async ({ page }) => {
         await page.goto(playgroundUrl(playgroundSlug), { waitUntil: 'domcontentloaded' })

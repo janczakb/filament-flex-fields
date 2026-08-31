@@ -3,5 +3,6 @@
 
 @source "../views/forms/components/map-picker-field.blade.php";
 @source "../views/forms/components/address-autocomplete-field.blade.php";
+@source "../views/forms/components/partials/geocoding-search-dropdown-panel.blade.php";
 
 @import "../components/map-picker-dropdown.css";

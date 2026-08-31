@@ -1,13 +1,8 @@
-function resolveListItems(component, itemsKey) {
-    const value = component[itemsKey]
+import { createOverlayMenuKeyboardMixin } from './overlay-menu-keyboard.js'
 
-    if (typeof value === 'function') {
-        return value.call(component)
-    }
-
-    return value ?? []
-}
-
+/**
+ * Address / geocoding dropdown keyboard — combobox contract (focus stays in search input).
+ */
 export function createGeocodingListKeyboardMixin({
     openKey = 'searchOpen',
     resultsKey = 'searchResults',
@@ -16,92 +11,53 @@ export function createGeocodingListKeyboardMixin({
     highlightedIndexKey = 'highlightedIndex',
     selectMethod = 'selectSearchResult',
     optionIdPrefix = 'fff-geocoding-option',
+    closeMethod = 'closeSearchDropdown',
 } = {}) {
+    const unified = createOverlayMenuKeyboardMixin({
+        openKey,
+        resultsKey,
+        scrollRef: null,
+        menuRef,
+        searchRef,
+        itemHeight: 40,
+        selectMethod,
+        optionIdPrefix,
+        activeIndexKey: highlightedIndexKey,
+        getItemValue: (item) => item,
+        onEscape: closeMethod,
+    })
+
     return {
+        ...unified,
+
         initGeocodingListKeyboard() {
+            // Combobox: never steal focus into the teleported list or restore it on close —
+            // overlay-menu-keyboard focus management causes focus/blur infinite loops here.
             this.$watch(openKey, (open) => {
-                if (! open) {
-                    this[highlightedIndexKey] = -1
+                if (open) {
+                    this.syncOverlayMenuActiveIndex()
+
+                    return
                 }
+
+                this[highlightedIndexKey] = -1
             })
         },
 
         geocodingOptionId(index) {
-            return `${optionIdPrefix}-${index}`
+            if (typeof index === 'string') {
+                return `${optionIdPrefix}-${index}`
+            }
+
+            return this.overlayMenuOptionId(index)
         },
 
         syncGeocodingHighlightedIndex() {
-            const items = resolveListItems(this, resultsKey)
-
-            if (items.length === 0) {
-                this[highlightedIndexKey] = -1
-
-                return
-            }
-
-            if (this[highlightedIndexKey] < 0 || this[highlightedIndexKey] >= items.length) {
-                this[highlightedIndexKey] = 0
-            }
+            this.syncOverlayMenuActiveIndex()
         },
 
         onGeocodingSearchKeydown(event) {
-            if (! this[openKey]) {
-                return
-            }
-
-            const items = resolveListItems(this, resultsKey)
-
-            if (items.length === 0) {
-                return
-            }
-
-            if (event.key === 'ArrowDown') {
-                event.preventDefault()
-                this[highlightedIndexKey] = Math.min(this[highlightedIndexKey] + 1, items.length - 1)
-                this.scrollGeocodingOptionIntoView()
-
-                return
-            }
-
-            if (event.key === 'ArrowUp') {
-                event.preventDefault()
-                this[highlightedIndexKey] = Math.max(this[highlightedIndexKey] - 1, 0)
-                this.scrollGeocodingOptionIntoView()
-
-                return
-            }
-
-            if (event.key === 'Home') {
-                event.preventDefault()
-                this[highlightedIndexKey] = 0
-                this.scrollGeocodingOptionIntoView()
-
-                return
-            }
-
-            if (event.key === 'End') {
-                event.preventDefault()
-                this[highlightedIndexKey] = items.length - 1
-                this.scrollGeocodingOptionIntoView()
-
-                return
-            }
-
-            if (event.key === 'Enter') {
-                event.preventDefault()
-                const item = items[this[highlightedIndexKey]]
-
-                if (item && typeof this[selectMethod] === 'function') {
-                    this[selectMethod](item)
-                }
-
-                return
-            }
-
-            if (event.key === 'Escape') {
-                event.preventDefault()
-                this[openKey] = false
-            }
+            this.onOverlayMenuSearchKeydown(event)
         },
 
         scrollGeocodingOptionIntoView() {
@@ -109,6 +65,10 @@ export function createGeocodingListKeyboardMixin({
             const option = menu?.querySelector(`#${this.geocodingOptionId(this[highlightedIndexKey])}`)
 
             option?.scrollIntoView({ block: 'nearest' })
+        },
+
+        scrollOverlayMenuActiveIntoView() {
+            this.scrollGeocodingOptionIntoView()
         },
     }
 }

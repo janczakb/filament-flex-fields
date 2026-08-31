@@ -1,6 +1,10 @@
 const STYLESHEET_SELECTOR = 'link[rel="stylesheet"][href*="filament-flex-fields"]'
 const CHUNK_SELECTOR = 'link[rel="modulepreload"][href*="filament-flex-fields"]'
 
+import { bootSegmentOverflowElements } from './segment-overflow-position.js'
+
+export { bootSegmentOverflowElements }
+
 export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined' ? document.baseURI : 'http://localhost/') {
     if (!url) {
         return ''
@@ -882,6 +886,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         await awaitInlineEmitAssetsIn(scope)
         await awaitInflightAssetLoads()
         dedupeDocumentAssets()
+        bootSegmentOverflowElements(scope === document ? document : scope)
     }
 
     const handleLivewireNavigated = async () => {
@@ -1345,6 +1350,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         purgeLazyAssets,
         resyncLoadedAssetsFromDocument,
         handleLivewireNavigated,
+        bootSegmentOverflowElements,
         boot,
     }
 }

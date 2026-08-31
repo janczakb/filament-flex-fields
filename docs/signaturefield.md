@@ -19,6 +19,21 @@ Canvas signature pad storing normalized SVG markup. Supports undo, fullscreen, o
 | **Storage constants** | `STORE_SVG = 'svg'` |
 | **Playground** | `signature-field` slug in Flex Fields playground |
 
+### Mobile, touch & stylus (enterprise)
+
+SignatureField uses the **Pointer Events** API — one code path for mouse, finger, and active stylus:
+
+| Input | Support |
+|-------|---------|
+| **Mobile / tablet (finger)** | Yes — draw directly on the pad; `touch-action: none` prevents page scroll while signing |
+| **Apple Pencil / active stylus** | Yes — `pointerType: pen` with **pressure-sensitive** stroke width |
+| **Mouse / trackpad** | Yes — optional `trackpadGlide()` for Mac trackpad drawing without click-drag |
+| **Retina / HiDPI** | Canvas scales with `devicePixelRatio` for sharp output on iPad and phones |
+
+Toolbar icon buttons expose **Filament tooltips** (same copy as `aria-label`) and use larger hit targets on coarse pointers (`@media (pointer: coarse)`).
+
+**Note:** passive capacitive styluses (no pressure, reported as touch) behave like finger input. Palm rejection is handled by single-pointer capture — only one active stroke at a time.
+
 ### Basic usage
 
 ```php
@@ -53,6 +68,32 @@ State is a compact SVG string produced by `SignatureSvg::normalize()`. `null` or
 
 Use `normalizeState(mixed $state): ?string` to sanitize external SVG before setting state.
 
+### Legal pack & Media Capture OS
+
+Enterprise e-sign metadata via [Media & Capture OS](/docs/media-capture-os):
+
+```php
+SignatureField::make('contract_signature')
+    ->legalPack()
+    ->timestampSeal()
+    ->legalMetadataIn('signature_legal')
+    ->inkTrail()
+    ->pdfPreview();
+```
+
+On save, `legalMetadataIn` receives:
+
+| Key | Source |
+|-----|--------|
+| `sealed_at` | UTC ISO-8601 timestamp |
+| `signer_id` | `MediaCaptureOs::resolveLegalSignerId()` or authenticated user |
+| `ip_address` | Current request IP |
+| `user_agent` | Current request user agent (truncated) |
+| `document_hash` | Optional `MediaCaptureOs::registerDocumentHashResolver()` |
+| `signature_path_count` | SVG path count at seal time |
+
+`legalPack()` requires visible ink (`SignatureLegalPack::requiresInk()`).
+
 ### Validation
 
 | Check | Detail |
@@ -86,6 +127,8 @@ SignatureField::make('field_name')
 
 
 Canvas background hex, or `null` / `'transparent'` for transparent. Default: `#ffffff`.
+
+When left at the default, the pad follows Filament dark mode in the UI (dark zinc pad, light ink) while exported SVG/WebP still uses a white background for document output. Set an explicit hex to lock both display and export.
 
 ```php
 SignatureField::make('field_name')

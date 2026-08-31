@@ -393,6 +393,37 @@
     @apply border-red-300 ring-1 ring-red-400/40;
 }
 
+.fff-schedule-field__slot.is-overlap:not(.is-invalid) {
+    @apply border-amber-300 ring-2 ring-amber-400/50;
+    box-shadow: 0 0 0 1px rgb(251 191 36 / 0.25);
+}
+
+.fff-schedule-field__slot.is-overnight:not(.is-invalid):not(.is-overlap) {
+    @apply border-violet-300/80;
+}
+
+.fff-schedule-field__slot-meta {
+    @apply inline-flex shrink-0 items-center;
+}
+
+.fff-schedule-field__overnight-btn {
+    @apply inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-xs font-medium transition-colors;
+    border-color: var(--fff-schedule-border);
+    color: var(--fff-schedule-muted);
+}
+
+.fff-schedule-field__overnight-btn.is-active {
+    @apply border-violet-400/60 bg-violet-500/10 text-violet-700;
+}
+
+.dark .fff-schedule-field__overnight-btn.is-active {
+    @apply border-violet-400/40 bg-violet-500/15 text-violet-200;
+}
+
+.dark .fff-schedule-field__slot.is-overlap:not(.is-invalid) {
+    @apply border-amber-500/50 ring-amber-400/35;
+}
+
 .dark .fff-schedule-field__slot {
     @apply border-zinc-700/80 bg-zinc-900/90 shadow-none;
 }

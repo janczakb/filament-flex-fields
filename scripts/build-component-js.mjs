@@ -55,6 +55,10 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (_modules, inputs) => inputs.some((input) => input.includes('@zxing/')),
     },
     {
+        slug: 'flex-fields-whisper',
+        matches: (_modules, inputs) => inputs.some((input) => input.includes('@xenova/transformers')),
+    },
+    {
         slug: 'flex-fields-time-panel',
         matches: (modules) => modules.includes('core/date-time/time-panel.js'),
     },

@@ -127,6 +127,8 @@ final class GravityIcon
 
     public const string CircleXmark = 'gravityui-circle-xmark';
 
+    public const string CircleXmarkFill = 'gravityui-circle-xmark-fill';
+
     public const string Star = 'gravityui-star';
 
     public const string OfficeBadge = 'gravityui-office-badge';

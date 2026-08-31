@@ -1,14 +1,13 @@
 import {
     emptyAddressCanonical,
-    GeocodingApiError,
     hasStreetAddress,
     isStreetLevelFeature,
     parseGeocodeFeature,
-    searchMapboxPlaces,
 } from '../support/mapbox-geocoding.js'
 import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+import { createGeocodingComboboxMixin } from '../core/geocoding-combobox-alpine.js'
+import { createGeocodingDropdownMenuMixin } from '../core/geocoding-dropdown-menu.js'
 import { createGeocodingListKeyboardMixin } from '../core/geocoding-list-keyboard.js'
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
 
 const exclusiveDropdown = createExclusiveDropdownMixin({
     openKey: 'searchOpen',
@@ -16,13 +15,13 @@ const exclusiveDropdown = createExclusiveDropdownMixin({
     ownerIdPrefix: 'fff-address-autocomplete',
 })
 
-const geocodingDropdown = createSearchableSelectMenuMixin({
+const geocodingDropdown = createGeocodingDropdownMenuMixin({
     openKey: 'searchOpen',
     readyKey: 'searchDropdownReady',
     triggerRef: 'searchShell',
+    widthRef: 'searchInput',
     menuRef: 'searchDropdown',
     closeMethod: 'closeSearchDropdown',
-    ownerIdPrefix: 'fff-address-autocomplete',
 })
 
 const geocodingKeyboard = createGeocodingListKeyboardMixin({
@@ -48,8 +47,14 @@ export default function addressAutocompleteFormComponent({
     minSearchLength = 2,
     searchDebounce = 350,
 }) {
+    const geocodingCombobox = createGeocodingComboboxMixin({
+        minSearchLength,
+        searchDebounce,
+    })
+
     return {
         ...exclusiveDropdown,
+        ...geocodingCombobox,
         ...geocodingDropdown,
         ...geocodingKeyboard,
         state,
@@ -67,22 +72,12 @@ export default function addressAutocompleteFormComponent({
         searchDebounce,
         selectionError: null,
         geocodeError: null,
-        searchQuery: '',
-        selectedLabel: '',
-        searchResults: [],
-        searchOpen: false,
-        searchDropdownReady: false,
-        searchLoading: false,
-        searchHasMinQuery: false,
-        searchFocused: false,
-        highlightedIndex: -1,
-        searchDebounceTimer: null,
-        searchRequestId: 0,
         tokenError: null,
 
         init() {
+            this.initGeocodingComboboxState()
             this.wireExclusiveFlexDropdown()
-            this.bindSelectMenuLifecycle({ wireExclusive: false })
+            this.bindGeocodingDropdownMenu()
             this.initGeocodingListKeyboard()
             this.syncSearchInputFromState()
             this.updateSearchHasMinQuery()
@@ -98,10 +93,6 @@ export default function addressAutocompleteFormComponent({
             this.$watch('state', () => {
                 this.syncSearchInputFromState()
             })
-        },
-
-        updateSearchHasMinQuery() {
-            this.searchHasMinQuery = this.searchQuery.trim().length >= this.minSearchLength
         },
 
         buildLabelFromState() {
@@ -123,144 +114,28 @@ export default function addressAutocompleteFormComponent({
             }
         },
 
-        scheduleSearch() {
-            window.clearTimeout(this.searchDebounceTimer)
-
-            if (! this.searchHasMinQuery) {
-                this.searchLoading = false
-                this.searchResults = []
-
-                return
-            }
-
-            this.searchLoading = true
-            this.searchResults = []
-
-            this.searchDebounceTimer = window.setTimeout(() => {
-                this.performSearch()
-            }, this.searchDebounce)
-        },
-
-        onSearchInput() {
-            this.highlightedIndex = -1
-            this.searchOpen = true
-            this.updateSearchHasMinQuery()
-            this.scheduleSearch()
-        },
-
-        onSearchFocus() {
-            this.searchFocused = true
-            this.searchOpen = true
-
-            this.$nextTick(() => {
-                this.$refs.searchInput?.select?.()
-            })
-        },
-
-        onSearchBlur() {
-            this.searchFocused = false
-            window.clearTimeout(this.searchDebounceTimer)
-
-            window.setTimeout(() => {
-                this.searchOpen = false
-                this.searchLoading = false
-                this.highlightedIndex = -1
-                this.searchQuery = this.selectedLabel
-                this.searchResults = []
-                this.updateSearchHasMinQuery()
-            }, 150)
-        },
-
         canGeocode() {
             return Boolean(this.geocodeSearchUrl || this.accessToken)
         },
 
-        onSearchKeydown(event) {
-            if (! this.searchOpen) {
-                if (event.key === 'ArrowDown' || event.key === 'Enter') {
-                    this.searchOpen = true
-                    this.scheduleSearch()
-                }
-
-                return
-            }
-
-            if (['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter', 'Escape'].includes(event.key)) {
-                this.onGeocodingSearchKeydown(event)
-
-                if (event.key === 'Escape') {
-                    this.highlightedIndex = -1
-                    this.searchQuery = this.selectedLabel
-                    this.searchResults = []
-                    event.target?.blur?.()
-                }
-            }
+        onSearchInput() {
+            this.onGeocodingSearchInput()
         },
 
-        async performSearch() {
-            const query = this.searchQuery.trim()
+        onSearchFocus() {
+            this.onGeocodingSearchFocus()
+        },
 
-            if (! this.searchable || ! this.canGeocode()) {
-                this.searchResults = []
-                this.searchLoading = false
+        onSearchBlur() {
+            this.onGeocodingSearchBlur()
+        },
 
-                return
-            }
-
-            if (query.length < this.minSearchLength) {
-                this.searchResults = []
-                this.searchLoading = false
-
-                return
-            }
-
-            const requestId = ++this.searchRequestId
-            this.searchLoading = true
-            this.geocodeError = null
-
-            try {
-                const features = await searchMapboxPlaces({
-                    query,
-                    accessToken: this.accessToken,
-                    geocodeSearchUrl: this.geocodeSearchUrl,
-                    countries: this.countries,
-                    language: this.language,
-                    streetAddressesOnly: this.streetAddressesOnly,
-                    types: this.searchTypes,
-                })
-
-                if (requestId !== this.searchRequestId) {
-                    return
-                }
-
-                this.searchResults = features.map((feature) => ({
-                    id: feature.id,
-                    label: feature.place_name,
-                    feature,
-                }))
-                this.syncGeocodingHighlightedIndex()
-            } catch (error) {
-                if (requestId !== this.searchRequestId) {
-                    return
-                }
-
-                console.error(error)
-                this.searchResults = []
-                this.highlightedIndex = -1
-                this.geocodeError = error instanceof GeocodingApiError
-                    ? error.message
-                    : this.labels.geocodeFailed ?? 'Geocoding search failed.'
-            } finally {
-                if (requestId === this.searchRequestId) {
-                    this.searchLoading = false
-                }
-            }
+        onSearchKeydown(event) {
+            this.onGeocodingComboboxKeydown(event)
         },
 
         closeSearchDropdown() {
-            this.searchOpen = false
-            this.searchLoading = false
-            this.highlightedIndex = -1
+            this.dismissGeocodingDropdown()
             window.clearTimeout(this.searchDebounceTimer)
         },
 
@@ -281,6 +156,10 @@ export default function addressAutocompleteFormComponent({
 
             this.selectionError = null
 
+            this.selectedLabel = this.state.place_name ?? result.label
+            this.searchQuery = this.selectedLabel
+            this.finalizeGeocodingSelection(result)
+
             this.state = {
                 ...emptyAddressCanonical(),
                 street: parsed.street,
@@ -292,13 +171,7 @@ export default function addressAutocompleteFormComponent({
                 place_name: parsed.place_name ?? result.label,
             }
 
-            this.selectedLabel = this.state.place_name ?? result.label
-            this.searchQuery = this.selectedLabel
-            this.searchOpen = false
-            this.searchLoading = false
-            this.searchResults = []
-            this.highlightedIndex = -1
-            this.updateSearchHasMinQuery()
+            this.dismissGeocodingDropdown({ restoreQuery: false })
             window.clearTimeout(this.searchDebounceTimer)
         },
 
@@ -312,6 +185,8 @@ export default function addressAutocompleteFormComponent({
             this.selectedLabel = ''
             this.searchQuery = ''
             this.searchResults = []
+            this.selectedResultId = null
+            this.geocodingRecentResults = []
             this.searchOpen = false
             this.highlightedIndex = -1
             this.updateSearchHasMinQuery()

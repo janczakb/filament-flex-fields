@@ -134,8 +134,39 @@ it('registers audio field playground variants', function () {
         'audio__sm',
         'audio__lg',
         'audio__custom_wave',
+        'audio__stt_tiny_en',
+        'audio__stt_small_multi',
     ]);
 });
+
+it('exposes whisper transcription configuration on audio field', function () {
+    $field = AudioField::make('voice')
+        ->transcription()
+        ->whisperModel('Xenova/whisper-small')
+        ->whisperMultilingual(true)
+        ->whisperLanguage('pl')
+        ->whisperQuantized(true)
+        ->whisperTask('translate');
+
+    expect($field->isTranscriptionEnabled())->toBeTrue()
+        ->and($field->getWhisperModel())->toBe('Xenova/whisper-small')
+        ->and($field->isWhisperMultilingual())->toBeTrue()
+        ->and($field->getWhisperLanguage())->toBe('pl')
+        ->and($field->isWhisperQuantized())->toBeTrue()
+        ->and($field->getWhisperTask())->toBe('translate');
+
+    $config = $field->getTranscriptionAlpineConfig();
+
+    expect($config)->toHaveKeys(['model', 'quantized', 'multilingual', 'language', 'task', 'models', 'languages', 'runtimeModuleUrl', 'runtimeWasmBaseUrl'])
+        ->and($config['model'])->toBe('Xenova/whisper-small')
+        ->and($config['language'])->toBe('pl')
+        ->and($config['runtimeModuleUrl'])->toContain('whisper/transformers.min.js')
+        ->and($config['runtimeWasmBaseUrl'])->toContain('whisper/');
+});
+
+it('rejects invalid whisper task', function () {
+    AudioField::make('voice')->transcription()->whisperTask('invalid')->getWhisperTask();
+})->throws(InvalidArgumentException::class);
 
 it('uses gravity ui icons for audio controls by default', function () {
     $field = AudioField::make('voice');

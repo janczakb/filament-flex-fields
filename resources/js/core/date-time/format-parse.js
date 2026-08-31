@@ -11,6 +11,11 @@ import {
 } from '@internationalized/date'
 
 import { getMonthSegmentPlaceholder, isMonthDisplayTextual } from './month-display.js'
+import {
+    parseGregorianDateString,
+    toFieldCalendarDate,
+    toGregorianDateString,
+} from './calendar-system.js'
 
 const DATE_PARTS = ['month', 'day', 'year']
 const TIME_PARTS = ['hour', 'minute', 'second', 'dayPeriod']
@@ -27,11 +32,13 @@ export function resolveTimeZone(timeZone) {
     return timeZone || getLocalTimeZone()
 }
 
-export function getToday(timeZone) {
-    return today(resolveTimeZone(timeZone))
+export function getToday(timeZone, calendarIdentifier = null) {
+    const gregorianToday = today(resolveTimeZone(timeZone))
+
+    return toFieldCalendarDate(gregorianToday, calendarIdentifier) ?? gregorianToday
 }
 
-export function parseStoredValue(value, mode, granularity, timeZone) {
+export function parseStoredValue(value, mode, granularity, timeZone, calendarIdentifier = null) {
     if (! value) {
         return null
     }
@@ -64,18 +71,35 @@ export function parseStoredValue(value, mode, granularity, timeZone) {
         }
 
         if (mode === 'date' || granularity === 'day') {
-            const datePart = String(value).split('T')[0].split(' ')[0]
+            const gregorian = parseGregorianDateString(String(value))
 
-            return parseDate(datePart)
+            return gregorian ? toFieldCalendarDate(gregorian, calendarIdentifier) : null
         }
 
         if (String(value).includes('T') || String(value).includes(' ')) {
             const normalized = String(value).replace(' ', 'T')
+            const parsed = parseDateTime(normalized)
+            const datePart = toFieldCalendarDate(toCalendarDate(parsed), calendarIdentifier)
 
-            return parseDateTime(normalized)
+            if (! datePart) {
+                return parsed
+            }
+
+            return new CalendarDateTime(
+                datePart.calendar,
+                datePart.year,
+                datePart.month,
+                datePart.day,
+                parsed.hour,
+                parsed.minute,
+                parsed.second,
+                parsed.millisecond,
+            )
         }
 
-        return parseDate(String(value))
+        const gregorian = parseGregorianDateString(String(value))
+
+        return gregorian ? toFieldCalendarDate(gregorian, calendarIdentifier) : null
     } catch {
         return null
     }
@@ -105,7 +129,7 @@ export function parseRangeStoredValue(value) {
     return { start: null, end: null }
 }
 
-export function toStoredValue(dateValue, mode, granularity, showSeconds, storageFormat) {
+export function toStoredValue(dateValue, mode, granularity, showSeconds, storageFormat, calendarIdentifier = null) {
     if (! dateValue) {
         return null
     }
@@ -127,16 +151,19 @@ export function toStoredValue(dateValue, mode, granularity, showSeconds, storage
     }
 
     if (dateValue instanceof CalendarDate) {
-        return formatDateValue(dateValue, storageFormat)
+        return formatDateValue(dateValue, storageFormat, calendarIdentifier)
     }
 
     return null
 }
 
-export function formatDateValue(date, storageFormat = 'Y-m-d') {
-    const year = String(date.year).padStart(4, '0')
-    const month = String(date.month).padStart(2, '0')
-    const day = String(date.day).padStart(2, '0')
+export function formatDateValue(date, storageFormat = 'Y-m-d', calendarIdentifier = null) {
+    const gregorian = toGregorianDateString(date) ?? ''
+    const [year, month, day] = gregorian.split('-')
+
+    if (! year || ! month || ! day) {
+        return ''
+    }
 
     return storageFormat
         .replace('Y', year)

@@ -7,6 +7,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Media\SignatureLegalPack;
+use Bjanczak\FilamentFlexFields\Support\SignatureStorage;
 use Bjanczak\FilamentFlexFields\Support\SignatureSvg;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -67,15 +69,72 @@ class SignatureField extends Field
 
     protected string|BackedEnum|Htmlable|Closure|null $fullscreenIcon = null;
 
+    protected string|BackedEnum|Htmlable|Closure|null $pdfPreviewIcon = null;
+
     protected string|BackedEnum|Htmlable|Closure|null $closeIcon = null;
 
     protected ?Closure $resolveStoredSvgUsing = null;
+
+    protected bool|Closure $storeToDiskEnabled = false;
+
+    protected string|Closure $storageDirectory = 'signatures';
+
+    protected string|Closure|null $storageDisk = null;
+
+    protected bool|Closure $legalPackEnabled = false;
+
+    protected bool|Closure $timestampSealEnabled = false;
+
+    protected string|Closure|null $legalMetadataIn = null;
+
+    protected bool|Closure $inkTrailEnabled = false;
+
+    protected bool|Closure $pdfPreviewEnabled = false;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->default(null);
+
+        $this->dehydrateStateUsing(function (SignatureField $component, mixed $state): ?string {
+            if (! is_string($state) || trim($state) === '') {
+                return null;
+            }
+
+            if ($component->isStoredFileReference($state)) {
+                return $state;
+            }
+
+            if ($component->shouldStoreToDisk()) {
+                return SignatureStorage::store(
+                    $state,
+                    $component->getStorageDirectory(),
+                    $component->getStorageDisk(),
+                );
+            }
+
+            return $component->normalizeState($state);
+        });
+
+        $this->beforeStateDehydrated(function (SignatureField $component): void {
+            if (! $component->shouldTimestampSeal()) {
+                return;
+            }
+
+            $metadataPath = $component->getLegalMetadataInPath();
+
+            if (blank($metadataPath)) {
+                return;
+            }
+
+            if (! SignatureLegalPack::requiresInk($component->getState())) {
+                return;
+            }
+
+            $set = $component->makeSetUtility();
+            $set($metadataPath, SignatureLegalPack::legalAuditSeal($component->getState()));
+        });
 
         $this->rule(function (SignatureField $component): Closure {
             return function (string $attribute, mixed $value, Closure $fail) use ($component): void {
@@ -95,6 +154,12 @@ class SignatureField extends Field
 
                 // Staged / permanent file refs (e.g. Flex Forms ffstage: after dehydrate) are valid.
                 if ($component->isStoredFileReference($value)) {
+                    return;
+                }
+
+                if ($component->requiresLegalInk() && ! SignatureLegalPack::requiresInk($value)) {
+                    $fail(__('filament-flex-fields::default.validation.signature.too_few_strokes'));
+
                     return;
                 }
 
@@ -119,6 +184,68 @@ class SignatureField extends Field
                 }
             };
         });
+    }
+
+    public function legalPack(bool|Closure $condition = true): static
+    {
+        $this->legalPackEnabled = $condition;
+
+        return $this;
+    }
+
+    public function timestampSeal(bool|Closure $condition = true): static
+    {
+        $this->timestampSealEnabled = $condition;
+
+        return $this;
+    }
+
+    public function legalMetadataIn(string|Closure $statePath): static
+    {
+        $this->legalMetadataIn = $statePath;
+
+        return $this;
+    }
+
+    public function requiresLegalInk(): bool
+    {
+        return (bool) $this->evaluate($this->legalPackEnabled);
+    }
+
+    public function shouldTimestampSeal(): bool
+    {
+        return (bool) $this->evaluate($this->timestampSealEnabled);
+    }
+
+    public function getLegalMetadataInPath(): ?string
+    {
+        $path = $this->evaluate($this->legalMetadataIn);
+
+        return filled($path) ? (string) $path : null;
+    }
+
+    public function inkTrail(bool|Closure $condition = true): static
+    {
+        $this->inkTrailEnabled = $condition;
+
+        return $this;
+    }
+
+    public function pdfPreview(bool|Closure $condition = true): static
+    {
+        $this->pdfPreviewEnabled = $condition;
+
+        return $this;
+    }
+
+    public function isInkTrailEnabled(): bool
+    {
+        return (bool) $this->evaluate($this->inkTrailEnabled);
+    }
+
+    public function isPdfPreviewEnabled(): bool
+    {
+        return (bool) $this->evaluate($this->pdfPreviewEnabled);
     }
 
     public function penColor(string|Closure $color): static
@@ -262,6 +389,13 @@ class SignatureField extends Field
         return $this;
     }
 
+    public function pdfPreviewIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->pdfPreviewIcon = $icon;
+
+        return $this;
+    }
+
     public function closeIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
     {
         $this->closeIcon = $icon;
@@ -287,6 +421,11 @@ class SignatureField extends Field
     public function getFullscreenIcon(): string|BackedEnum|Htmlable
     {
         return $this->resolveFieldIcon($this->fullscreenIcon, 'signature_fullscreen_icon', GravityIcon::ChevronsExpandUpRight);
+    }
+
+    public function getPdfPreviewIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->pdfPreviewIcon, 'signature_pdf_preview_icon', GravityIcon::FileText);
     }
 
     public function getCloseIcon(): string|BackedEnum|Htmlable
@@ -409,20 +548,85 @@ class SignatureField extends Field
         return $this;
     }
 
+    public function storeToDisk(
+        string|Closure $directory = 'signatures',
+        string|Closure|null $disk = null,
+    ): static {
+        $this->storeToDiskEnabled = true;
+        $this->storageDirectory = $directory;
+
+        if ($disk !== null) {
+            $this->storageDisk = $disk;
+        }
+
+        return $this;
+    }
+
+    public function shouldStoreToDisk(): bool
+    {
+        return (bool) $this->evaluate($this->storeToDiskEnabled);
+    }
+
+    public function getStorageDirectory(): string
+    {
+        $directory = trim((string) $this->evaluate($this->storageDirectory));
+
+        return $directory !== '' ? $directory : 'signatures';
+    }
+
+    public function getStorageDisk(): ?string
+    {
+        $disk = $this->evaluate($this->storageDisk);
+
+        return is_string($disk) && $disk !== '' ? $disk : null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getAlpineConfiguration(bool $isRequired = false): array
+    {
+        return [
+            'minStrokes' => $this->getMinStrokes(),
+            'maxSizeKb' => $this->getMaxSizeKb(),
+            'required' => $isRequired,
+            'validationMessages' => [
+                'required' => __('filament-flex-fields::default.signature.ui.required'),
+                'too_few_strokes' => __('filament-flex-fields::default.signature.ui.too_few_strokes', [
+                    'min' => $this->getMinStrokes(),
+                ]),
+                'too_large' => __('filament-flex-fields::default.signature.ui.too_large', [
+                    'max' => $this->getMaxSizeKb(),
+                ]),
+            ],
+            'inkTrailEnabled' => $this->isInkTrailEnabled(),
+            'pdfPreviewEnabled' => $this->isPdfPreviewEnabled(),
+            'legalAcknowledgment' => $this->requiresLegalInk()
+                ? __('filament-flex-fields::default.signature.legal_acknowledgment')
+                : null,
+        ];
+    }
+
     /**
      * SVG markup for durable file refs (ffstage:/path.svg) so the pad can redraw after remount.
      */
     public function getStoredSvgContent(): ?string
     {
-        if ($this->resolveStoredSvgUsing === null) {
-            return null;
+        $state = $this->getState();
+
+        if ($this->resolveStoredSvgUsing !== null) {
+            $resolved = $this->evaluate($this->resolveStoredSvgUsing, [
+                'state' => $state,
+            ]);
+
+            return is_string($resolved) && str_contains($resolved, '<svg') ? $resolved : null;
         }
 
-        $resolved = $this->evaluate($this->resolveStoredSvgUsing, [
-            'state' => $this->getState(),
-        ]);
+        if ($this->shouldStoreToDisk() && is_string($state) && $state !== '') {
+            return SignatureStorage::resolve($state, $this->getStorageDisk());
+        }
 
-        return is_string($resolved) && str_contains($resolved, '<svg') ? $resolved : null;
+        return null;
     }
 
     public function normalizeState(mixed $state): ?string

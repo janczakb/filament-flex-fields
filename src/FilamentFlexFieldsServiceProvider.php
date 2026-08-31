@@ -13,11 +13,23 @@ namespace Bjanczak\FilamentFlexFields;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsAlpineComponent;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
+use Bjanczak\FilamentFlexFields\Console\ExportAssetRegistryCommand;
+use Bjanczak\FilamentFlexFields\Console\MakeFlexFieldSchemaMigrationCommand;
+use Bjanczak\FilamentFlexFields\Console\PruneCaptureMediaCommand;
+use Bjanczak\FilamentFlexFields\Console\UpgradeToV3Command;
+use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
+use Bjanczak\FilamentFlexFields\Policies\FlexFieldGroupPolicy;
 use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
+use Bjanczak\FilamentFlexFields\Support\Enterprise\SiemBridge;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
-use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupRegistrySync;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldInfolistBuilder;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldStudio;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTableBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
@@ -27,15 +39,22 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Registry\FieldTypeHandlerReg
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
+use Bjanczak\FilamentFlexFields\Support\Geocoding\GeocodingOs;
+use Bjanczak\FilamentFlexFields\Support\Media\CaptureRetentionSchedule;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
+use Bjanczak\FilamentFlexFields\Support\Theme\FlexFieldsTheme;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
+use Bjanczak\FilamentFlexFields\Support\Upgrade\V3AutoUpgrade;
 use Bjanczak\FilamentFlexFields\Support\UserSelectQueryCache;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class FilamentFlexFieldsServiceProvider extends ServiceProvider
@@ -52,6 +71,16 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             return $registry;
         });
 
+        $this->app->singleton(FlexFieldGroupRegistrySync::class);
+        $this->app->singleton(FlexFieldEntityDiscovery::class);
+        $this->app->singleton(FlexFieldEntityRegistry::class);
+        $this->app->singleton(FlexFieldSchemaResolver::class);
+        $this->app->singleton(FlexFieldFilterBuilder::class);
+        $this->app->singleton(FlexFieldGroupValidator::class);
+        $this->app->singleton(FlexFieldTableBuilder::class);
+        $this->app->singleton(FlexFieldInfolistBuilder::class);
+        $this->app->singleton(FlexFieldStudio::class);
+
         $this->app->singleton(FieldTypeHandlerRegistry::class);
         $this->app->singleton(FieldComponentFactory::class);
         $this->app->singleton(FlexFieldFormBuilder::class);
@@ -64,19 +93,36 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->app->scoped(UserSelectQueryCache::class);
         $this->app->singleton(IconCatalogResolver::class);
         $this->app->singleton(IconSvgCache::class);
+        $this->app->singleton(FlexFieldsTheme::class, function (): FlexFieldsTheme {
+            $theme = new FlexFieldsTheme;
+
+            $theme
+                ->setDensity(FlexFieldsConfig::getDensity())
+                ->mergeTheme(FlexFieldsConfig::getTheme());
+
+            return $theme;
+        });
     }
 
     public function boot(): void
     {
         RichEditorGravityIcons::register();
 
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+
         $this->publishes([
             __DIR__.'/../config/filament-flex-fields.php' => config_path('filament-flex-fields.php'),
         ], 'filament-flex-fields-config');
 
         $this->publishes([
+            __DIR__.'/../database/migrations' => database_path('migrations'),
+        ], 'filament-flex-fields-migrations');
+
+        $this->publishes([
             __DIR__.'/../resources/lang' => lang_path('vendor/filament-flex-fields'),
         ], 'filament-flex-fields-translations');
+
+        Gate::policy(FlexFieldGroup::class, FlexFieldGroupPolicy::class);
 
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'filament-flex-fields');
 
@@ -94,6 +140,14 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         ], package: FilamentFlexFieldsPlugin::PACKAGE_NAME);
 
         $this->publishStalePackageAssets();
+
+        V3AutoUpgrade::ensure();
+
+        MediaCaptureOs::bootFromConfig();
+
+        GeocodingOs::bootFromConfig();
+
+        SiemBridge::boot();
 
         if (FlexFieldsConfig::isPlaygroundEnabled()) {
             FilamentView::registerRenderHook(
@@ -165,10 +219,22 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 BuildIconManifestCommand::class,
+                ExportAssetRegistryCommand::class,
+                PruneCaptureMediaCommand::class,
+                UpgradeToV3Command::class,
+                MakeFlexFieldSchemaMigrationCommand::class,
             ]);
         }
 
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+
+        $this->callAfterResolving(Schedule::class, function (Schedule $schedule): void {
+            CaptureRetentionSchedule::register($schedule);
+        });
+
+        $this->app->booted(function (): void {
+            app(FlexFieldGroupRegistrySync::class)->syncAllFromDatabase();
+        });
     }
 
     /**
@@ -218,6 +284,10 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
                 __DIR__.'/../resources/dist/core/flex-field-asset-injector.js',
             )->loadedOnRequest(),
             Js::make(
+                FlexFieldAssets::ASSET_INSPECTOR_SCRIPT_ID,
+                __DIR__.'/../resources/dist/core/flex-field-asset-inspector.js',
+            )->loadedOnRequest(),
+            Js::make(
                 FlexFieldAssets::FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID,
                 __DIR__.'/../resources/dist/support/flex-rich-editor-paste-extension.js',
             )->loadedOnRequest(),
@@ -228,6 +298,10 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             Js::make(
                 FlexFieldAssets::FLEX_RICH_EDITOR_YOUTUBE_EXTENSION_SCRIPT_ID,
                 __DIR__.'/../resources/dist/support/flex-rich-editor-youtube-extension.js',
+            )->loadedOnRequest(),
+            Js::make(
+                FlexFieldAssets::SEGMENT_OVERFLOW_SSR_SCRIPT_ID,
+                __DIR__.'/../resources/dist/core/segment-overflow-ssr.js',
             )->loadedOnRequest(),
         ];
 

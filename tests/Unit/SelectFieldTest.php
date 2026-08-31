@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Playground\SelectPlayground;
 use Filament\Forms\Components\Select;
 
 it('extends filament select and exposes custom styling api', function () {
@@ -256,6 +257,24 @@ it('includes triggerLabel for rich list options', function () {
         ->and($options[0]['triggerLabel'])->toContain('fff-select-option--trigger');
 });
 
+it('uses chipLabel as triggerLabel in getOptionsForJs', function () {
+    $field = SelectField::make('recipients')
+        ->richOptions()
+        ->options([
+            'jane' => [
+                'label' => 'Jane Cooper',
+                'description' => 'jane.cooper@example.com',
+                'chipLabel' => 'jane.cooper@example.com',
+            ],
+        ]);
+
+    $options = $field->getOptionsForJs();
+
+    expect($options[0]['label'])->toContain('Jane Cooper')
+        ->and($options[0]['label'])->toContain('jane.cooper@example.com')
+        ->and($options[0]['triggerLabel'])->toBe('jane.cooper@example.com');
+});
+
 it('can disable clear button for bordered selects', function () {
     $field = SelectField::make('status')
         ->options(['draft' => 'Draft'])
@@ -359,9 +378,9 @@ it('keeps compact trigger layout for rich list selected value', function () {
 
 it('accepts desc alias and omits optional icon or description in rich options', function () {
     $field = SelectField::make('plan')->richOptions();
-    $normalize = (new \ReflectionClass($field))->getMethod('normalizeOption');
+    $normalize = (new ReflectionClass($field))->getMethod('normalizeOption');
     $normalize->setAccessible(true);
-    $render = (new \ReflectionClass($field))->getMethod('renderRichOptionLabel');
+    $render = (new ReflectionClass($field))->getMethod('renderRichOptionLabel');
     $render->setAccessible(true);
 
     $fromDescAlias = $normalize->invoke($field, 'pro', [
@@ -498,10 +517,10 @@ it('can keep selected options visible in the multi-select dropdown', function ()
 });
 
 it('passes keep-selected dropdown config into the select field blade patch payload', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
 
     expect($blade)
-        ->toContain("'keepSelectedOptionsInDropdown' => \$field->shouldKeepSelectedOptionsInDropdown()");
+        ->toContain('keepSelectedOptionsInDropdown: @js($field->shouldKeepSelectedOptionsInDropdown())');
 });
 
 it('treats static playground selects as client-side option lists', function () {
@@ -525,7 +544,51 @@ it('keeps dynamic option fetching for closure based option lists', function () {
 
     expect($field->hasClientSideOptionList())->toBeFalse()
         ->and($field->hasDynamicOptions())->toBeTrue()
+        ->and($field->hasDynamicSearchResults())->toBeFalse()
         ->and($field->hasInitialNoOptionsMessage())->toBeTrue();
+});
+
+it('defers dynamic option closure evaluation until options are fetched for headless hydration', function () {
+    $invocations = 0;
+
+    $field = SelectField::make('status')
+        ->options(function () use (&$invocations): array {
+            $invocations++;
+
+            return ['published' => 'Published'];
+        })
+        ->variant('bordered')
+        ->default('published')
+        ->searchable();
+
+    expect($field->getHeadlessInitialOptionsForJs())->toBe([])
+        ->and($invocations)->toBe(0)
+        ->and($field->getInitialTriggerLabel())->toBe('published');
+
+    $field->getOptionsForJs();
+
+    expect($invocations)->toBeGreaterThan(0);
+});
+
+it('seeds headless alpine with initial state and trigger label for deferred dynamic options', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+
+    expect($blade)
+        ->toContain('initialState: @js($headlessInitialState)')
+        ->toContain('$headlessInitialOptionLabel = (blank($state) || $isMultiple) ? null : $field->getInitialTriggerLabel()')
+        ->not->toContain('($hasDynamicOptions && ! $isPreloaded()) ? null : $getOptionLabel()');
+});
+
+it('keeps client-side headless search query out of combobox engine sync', function () {
+    $alpine = file_get_contents(__DIR__.'/../../resources/js/components/select-field/headless-combobox-alpine.js');
+    $livewire = file_get_contents(__DIR__.'/../../resources/js/components/select-field/headless-combobox-livewire.js');
+
+    expect($alpine)
+        ->toContain('function resolveHeadlessBoundState')
+        ->toContain('initialState,')
+        ->toMatch('/if \(this\.hasDynamicSearchResults\) \{\s*this\.comboboxQuery = snapshot\.query/')
+        ->and($livewire)
+        ->toContain('resolveLivewire()');
 });
 
 it('keeps dynamic option fetching for preloaded selects', function () {
@@ -564,45 +627,165 @@ it('stores select field search results in request cache', function () {
 
 it('loads select field stylesheet for enhanced select fields to coordinate ssr and alpine trigger', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $headlessBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
 
     expect($blade)
         ->toContain('! $isNative')
         ->toContain("'component' => 'select-field'")
+        ->and($headlessBlade)
+        ->toContain('getHeadlessInitialOptionsForJs')
         ->toContain('fff-select-trigger-ssr');
 });
 
-it('renders select trigger ssr with eager lazy alpine mount when initial label exists', function () {
-    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+it('renders select trigger ssr with viewport deferred alpine mount when initial label exists', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+    $mountBlade = file_get_contents(__DIR__.'/../../resources/views/components/lazy-alpine-mount.blade.php');
 
     expect($blade)
-        ->toContain(':eager="$showInitialTriggerSsr"')
-        ->toContain(':mount-immediately="$isDisabled || $showInitialTriggerSsr"')
+        ->toContain('$shouldDeferHeadlessAlpine = false')
+        ->toContain('$headlessComponentKey = $getKey()')
+        ->toContain('componentKey: @js($headlessComponentKey)')
+        ->toContain(':mount-on-interaction="$shouldDeferHeadlessAlpine"')
+        ->toContain(':wrap-slot="false"')
+        ->toContain('fff-select-field__interactive')
         ->toContain('modulepreload')
+        ->toContain('fff-select-dropdown-loading__spinner')
         ->toContain("getAlpineComponentSrc('select-field'");
+
+    expect($mountBlade)->toContain('fff-lazy-alpine-gate')
+        ->toContain('wrapSlot');
 });
 
-it('uses coordinator shell for select field alpine patching without window globals', function () {
+it('uses headless shell for enhanced select fields without filament select coordinator markup', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
 
     expect($blade)
-        ->toContain('fffSelectFieldCoordinator')
-        ->toContain('selectFormComponent({')
-        ->toContain('data-fff-select-root')
+        ->toContain('select-field-headless')
+        ->not->toContain('fffSelectFieldCoordinator')
+        ->not->toContain('selectFormComponent({')
+        ->not->toContain('data-fff-select-root')
         ->not->toContain('selectFieldPreload')
         ->not->toContain('window.bootSelectFieldPatches')
         ->not->toContain('requestAnimationFrame(applyPatches)');
 });
 
-it('keeps select field patch bootstrapping inside the coordinator module without window globals', function () {
-    $source = file_get_contents(__DIR__.'/../../resources/dist/components/select-field.js');
+it('wires filament select parity into the headless combobox partial', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+    $optionBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless-option.blade.php');
+
+    expect($blade)
+        ->toContain('comboboxFilteredDropdownRows()')
+        ->toContain('fi-select-input-option-group')
+        ->toContain('isReorderable')
+        ->toContain('canOptionLabelsWrap')
+        ->toContain('reorderSelectedChips')
+        ->toContain('x-sortable-handle')
+        ->toContain('fi-reorderable')
+        ->toContain('select-field-headless-option')
+        ->toContain('fff-select-dropdown-empty')
+        ->toContain('shouldShowHeadlessSelectEmptyState')
+        ->toContain('shouldShowHeadlessSelectSkeleton')
+        ->toContain('fff-select-dropdown-loading__spinner')
+        ->not->toContain('fff-select-dropdown-loading__row')
+        ->toContain('getSelectMessagesForJs')
+        ->toContain('selectNoOptionsIconHtml: @js($headlessSelectNoOptionsIconHtml)')
+        ->toContain('selectNoResultsIconHtml: @js($headlessSelectNoResultsIconHtml)')
+        ->toContain('selectEmptyStateHints: @js($field->getSelectEmptyStateHintsForJs())')
+        ->toContain('userSelectEmptyStateHints: @js($isUserSelectField ? $field->getUserSelectEmptyStateHintsForJs() : [])')
+        ->toContain('shouldShowHeadlessDropdownOptions()')
+        ->toContain('fff-select-headless-options-root')
+        ->toContain('fff-select-headless-dropdown-row')
+        ->toContain('fff-select-headless-menu')
+        ->toMatch('/x-for="row in comboboxFilteredDropdownRows\(\)"[\s\S]*fff-select-headless-dropdown-row[\s\S]*<template x-if="row\.type === \'group\'"/')
+        ->and($optionBlade)
+        ->toContain('isHeadlessOptionDisabled');
+});
+
+it('marks disabled options in js payloads for disableOptionWhen', function () {
+    $field = SelectField::make('status')
+        ->options([
+            'draft' => 'Draft',
+            'published' => 'Published',
+        ])
+        ->disableOptionWhen(fn (string $value): bool => $value === 'published');
+
+    $options = $field->getOptionsForJs();
+
+    expect(collect($options)->firstWhere('value', 'draft')['isDisabled'] ?? null)->toBeFalse()
+        ->and(collect($options)->firstWhere('value', 'published')['isDisabled'] ?? null)->toBeTrue();
+});
+
+it('styles disabled dropdown options with muted text color', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
 
     expect($source)
-        ->toContain('bootSelectFieldPatches')
-        ->toContain('data-fff-select-root')
-        ->toContain('fff-select-coordinator-attach-failed')
-        ->toContain('fffSelectAttached')
-        ->not->toContain('window.bootSelectFieldPatches')
-        ->not->toContain('selectFieldPreload');
+        ->toContain('--fff-select-option-disabled')
+        ->toMatch('/\.fi-select-input-option\.fi-disabled[\s\S]*--fff-select-option-disabled/')
+        ->and($css)
+        ->toContain('--fff-select-option-disabled')
+        ->toMatch('/\.fi-select-input-option\.fi-disabled[\s\S]*--fff-select-option-disabled/');
+});
+
+it('keeps disableOptionWhen selects on the client-side headless option list', function () {
+    $field = SelectField::make('status')
+        ->options([
+            'draft' => 'Draft',
+            'published' => 'Published',
+        ])
+        ->default('draft')
+        ->disableOptionWhen(fn (string $value): bool => $value === 'published')
+        ->searchable();
+
+    expect($field->hasClientSideOptionList())->toBeTrue()
+        ->and($field->hasDynamicOptions())->toBeFalse()
+        ->and($field->hasDynamicSearchResults())->toBeFalse()
+        ->and($field->getHeadlessInitialOptionsForJs())->not->toBeEmpty()
+        ->and(collect($field->getHeadlessInitialOptionsForJs())->pluck('value')->all())->toContain('draft', 'published');
+});
+
+it('resolves translatable select empty state hints for js from package lang files', function () {
+    app()->setLocale('pl');
+
+    $field = SelectField::make('status')->options([]);
+
+    expect($field->getSelectEmptyStateHintsForJs())
+        ->toMatchArray([
+            'pleaseWait' => 'Proszę czekać…',
+            'minSearchLength' => 'Wpisz co najmniej 0 znaków, aby wyszukać.',
+            'filterList' => 'Zacznij pisać, aby filtrować listę.',
+            'tryDifferentSearch' => 'Spróbuj innej frazy wyszukiwania.',
+            'noOptionsAvailable' => 'Obecnie nie ma dostępnych opcji.',
+        ]);
+});
+
+it('resolves translatable select messages for js from filament lang files', function () {
+    app()->setLocale('pl');
+
+    $field = SelectField::make('status')->options(fn (): array => ['draft' => 'Draft']);
+
+    expect($field->getSelectMessagesForJs())
+        ->toMatchArray([
+            'loading' => 'Wczytywanie...',
+            'searching' => 'Szukanie...',
+            'noOptions' => 'Brak dostępnych opcji.',
+            'noSearchResults' => 'Żadne wyniki nie pasują do Twojego wyszukiwania.',
+            'searchPrompt' => 'Zacznij pisać aby wyszukać...',
+        ]);
+});
+
+it('keeps headless select runtime in the select field bundle', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/dist/components/select-field.js');
+    $entry = file_get_contents(__DIR__.'/../../resources/js/components/select-field.js');
+
+    expect($source)
+        ->toContain('fffHeadlessSelectField')
+        ->not->toContain('bootSelectFieldPatches')
+        ->not->toContain('fffSelectFieldCoordinator')
+        ->not->toContain('selectFieldPreload')
+        ->and($entry)
+        ->not->toContain('select-field-patches')
+        ->toContain('fffHeadlessSelectField');
 });
 
 it('loads user select stylesheet only for user select fields', function () {
@@ -655,7 +838,7 @@ it('hides hydrated clear and chevron while the SSR trigger is visible', function
 
 it('aligns grid layout trigger start padding with multi-select chips', function () {
     $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
-    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
 
     expect($source)
@@ -702,7 +885,7 @@ it('compacts rich list dropdown icons without a background tile', function () {
 
 it('scales multi-select chips with field size tokens', function () {
     $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
-    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
 
     expect($source)
@@ -721,12 +904,8 @@ it('scales multi-select chips with field size tokens', function () {
 });
 
 it('demos multi-select chips in small medium and large on the select playground', function () {
-    $playground = app(\Bjanczak\FilamentFlexFields\Support\Playground\SelectPlayground::class);
+    $playground = app(SelectPlayground::class);
     $state = $playground->defaultState();
-    $section = collect($playground->components())
-        ->first(fn ($component) => $component instanceof \Filament\Schemas\Components\Section);
-
-    expect($section)->not->toBeNull();
 
     $flatten = function (array $components) use (&$flatten): array {
         $out = [];
@@ -742,27 +921,57 @@ it('demos multi-select chips in small medium and large on the select playground'
         return $out;
     };
 
-    $fields = collect($flatten($section->getDefaultChildComponents()))
-        ->filter(fn ($component) => $component instanceof \Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField)
+    $fields = collect($flatten($playground->components()))
+        ->filter(fn ($component) => $component instanceof SelectField)
         ->keyBy(fn ($field) => $field->getName());
 
     expect($state)
         ->toHaveKey('select__multiple_checklist')
+        ->toHaveKey('select__disabled_options')
+        ->toHaveKey('select__dynamic_options')
+        ->toHaveKey('select__truncate_labels')
+        ->toHaveKey('select__reorderable')
+        ->toHaveKey('select__boolean')
         ->toHaveKey('select__multiple_sm')
         ->toHaveKey('select__multiple_md')
         ->toHaveKey('select__multiple_lg')
+        ->toHaveKey('select__item_card')
+        ->toHaveKey('select__inline_search')
+        ->toHaveKey('select__inline_field_label')
+        ->toHaveKey('select__not_clearable')
+        ->toHaveKey('select__domain_affix')
+        ->toHaveKey('select__dropdown_align_end')
         ->and($fields->keys()->all())
         ->toContain('select__multiple_checklist')
+        ->toContain('select__disabled_options')
+        ->toContain('select__dynamic_options')
+        ->toContain('select__truncate_labels')
+        ->toContain('select__reorderable')
+        ->toContain('select__boolean')
         ->toContain('select__multiple_sm')
         ->toContain('select__multiple_md')
         ->toContain('select__multiple_lg')
+        ->toContain('select__item_card')
+        ->toContain('select__inline_search')
+        ->toContain('select__inline_field_label')
+        ->toContain('select__not_clearable')
+        ->toContain('select__domain_affix')
+        ->toContain('select__dropdown_align_end')
         ->and($fields['select__multiple_checklist']->isMultiple())->toBeTrue()
         ->and($fields['select__multiple_checklist']->shouldKeepSelectedOptionsInDropdown())->toBeTrue()
         ->and($fields['select__multiple']->shouldKeepSelectedOptionsInDropdown())->toBeFalse()
         ->and($fields['select__multiple_sm']->getSize())->toBe('sm')
         ->and($fields['select__multiple_sm']->isMultiple())->toBeTrue()
         ->and($fields['select__multiple_md']->getSize())->toBe('md')
-        ->and($fields['select__multiple_lg']->getSize())->toBe('lg');
+        ->and($fields['select__multiple_lg']->getSize())->toBe('lg')
+        ->and($fields['select__reorderable']->isReorderable())->toBeTrue()
+        ->and($fields['select__truncate_labels']->canOptionLabelsWrap())->toBeFalse()
+        ->and($fields['select__dynamic_options']->hasDynamicOptions())->toBeTrue()
+        ->and($fields['select__item_card']->getVariant())->toBe('item-card')
+        ->and($fields['select__inline_search']->hasInlineSearch())->toBeTrue()
+        ->and($fields['select__inline_field_label']->hasInlineFieldLabel())->toBeTrue()
+        ->and($fields['select__not_clearable']->isClearable())->toBeFalse()
+        ->and($fields['select__dropdown_align_end']->getDropdownAlign())->toBe('end');
 });
 
 it('styles grid selected checkmarks with a circular badge in the select field bundle', function () {
@@ -823,4 +1032,201 @@ it('styles grouped option headers distinctly from selectable options in the sele
         ->toContain('.fi-dropdown-panel.fff-select-dropdown-panel .fi-select-input-option-group .fi-dropdown-header')
         ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-option-group\s+\.fi-dropdown-header[\s\S]*text-transform:uppercase/')
         ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-option-group:not\(:first-child\)\s+\.fi-dropdown-header[\s\S]*border-top:1px solid var\(--fff-select-group-divider\)/');
+});
+
+it('styles inline prefix and suffix affixes with internal vertical dividers in the select field bundle', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+
+    expect($css)
+        ->toContain('--fff-select-affix-divider')
+        ->toMatch('/\.fi-input-wrp\.fff-select-field\s+\.fi-input-wrp-prefix\.fi-input-wrp-prefix-has-content[\s\S]*border-inline-end:1px solid var\(--fff-select-affix-divider/')
+        ->toMatch('/\.fi-input-wrp\.fff-select-field\s+\.fi-input-wrp-suffix[\s\S]*border-inline-start:1px solid var\(--fff-select-affix-divider/')
+        ->toMatch('/\.dark\s+\.fff-select-field[\s\S]*--fff-select-affix-divider:#ffffff1a/');
+});
+
+it('keeps item card ssr visible until displayReady and adds inline field label value gap', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+    $alpine = file_get_contents(__DIR__.'/../../resources/js/components/select-field/headless-combobox-alpine.js');
+    $wrapperBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+
+    expect($blade)
+        ->toContain('fff-select-item-card-ssr')
+        ->toContain('fff-select-item-card-trigger__chevron')
+        ->toContain('$isItemCardVariant');
+
+    expect($alpine)->toContain('markHeadlessDisplayReady');
+
+    expect($wrapperBlade)->toContain('$showItemCardTriggerSsr');
+
+    expect($css)
+        ->toContain('--fff-select-inline-field-label-value-gap')
+        ->toContain('.fff-select-field--inline-field-label .fi-select-input-ctn-clearable .fi-select-input-value-ctn')
+        ->toContain('margin-inline-end: var(--fff-select-inline-field-label-value-gap)')
+        ->toContain('.fff-select-field__shell--headless > .fff-lazy-alpine-gate')
+        ->toContain('pointer-events: auto')
+        ->toContain('.fi-input-wrp.fff-select-field--item-card .fff-select-item-card-ssr.is-replaced')
+        ->toContain('.fi-input-wrp.fff-select-field--item-card .fi-select-input:has(.fff-select-item-card-ssr:not(.is-replaced)) .fff-select-item-card-ssr:not(.is-replaced)')
+        ->toContain('.fi-input-wrp.fff-select-field--item-card .fi-select-input:has(.fff-select-item-card-ssr:not(.is-replaced)) .fi-select-input-btn .fi-select-input-value-ctn')
+        ->toContain('.fff-select-item-card-trigger__chevron')
+        ->toContain('--fff-select-value-label: var(--item-card-group-title, var(--fff-select-text))')
+        ->toContain('visibility: hidden');
+});
+
+it('wires dependsOn as a closure options resolver', function () {
+    $field = SelectField::make('region')
+        ->dependsOn('country', fn (?string $country): array => match ($country) {
+            'us' => ['ca' => 'California'],
+            default => [],
+        });
+
+    $optionsProperty = new ReflectionProperty($field, 'options');
+    $optionsProperty->setAccessible(true);
+
+    expect($optionsProperty->getValue($field))->toBeInstanceOf(Closure::class);
+});
+
+it('marks disabled options from disabledOptions helper', function () {
+    $field = SelectField::make('animal')
+        ->options([
+            'dog' => 'Dog',
+            'cat' => 'Cat',
+        ])
+        ->disabledOptions(['cat']);
+
+    $options = $field->getOptionsForJs();
+
+    expect(collect($options)->firstWhere('value', 'cat')['isDisabled'] ?? null)->toBeTrue()
+        ->and(collect($options)->firstWhere('value', 'dog')['isDisabled'] ?? null)->toBeFalse();
+});
+
+it('exposes paginated async search configuration for js', function () {
+    $field = SelectField::make('character')
+        ->searchable()
+        ->paginatedSearchResults()
+        ->searchResultsPageSize(2)
+        ->getSearchResultsPageUsing(fn (): array => [
+            'items' => [],
+            'cursor' => null,
+            'hasMore' => false,
+        ]);
+
+    expect($field->hasDynamicSearchResults())->toBeTrue()
+        ->and($field->hasPaginatedSearchResults())->toBeTrue()
+        ->and($field->getSearchResultsPageSize())->toBe(2);
+});
+
+it('defaults option group separators to enabled', function () {
+    $field = SelectField::make('country')->options([]);
+
+    expect($field->hasOptionGroupSeparators())->toBeTrue();
+
+    $field->optionGroupSeparators(false);
+
+    expect($field->hasOptionGroupSeparators())->toBeFalse();
+});
+
+it('renders grouped separators and load-more hooks in headless blade', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+
+    expect($blade)
+        ->toContain("row.type === 'separator'")
+        ->toContain('fff-select-option-group-separator')
+        ->toContain('headlessLoadMoreSentinel')
+        ->toContain('shouldShowHeadlessTriggerLoading()')
+        ->toContain('hasPaginatedSearchResults')
+        ->toContain('optionGroupSeparators');
+});
+
+it('renders custom option views through optionView api', function () {
+    $field = SelectField::make('user')
+        ->options([
+            'fred' => [
+                'label' => 'Fred',
+                'description' => 'fred@example.com',
+            ],
+        ])
+        ->optionView('filament-flex-fields::forms.components.partials.select-option-view-user');
+
+    expect($field->hasOptionView())->toBeTrue()
+        ->and($field->usesRichOptionHtml())->toBeTrue()
+        ->and($field->isHtmlAllowed())->toBeTrue();
+
+    $options = $field->getOptionsForJs();
+
+    expect($options[0]['label'])
+        ->toContain('fff-select-option-view-user')
+        ->toContain('Fred')
+        ->toContain('fff-select-option__description')
+        ->and($options[0]['triggerLabel'])
+        ->toContain('fff-select-option--trigger')
+        ->toContain('Fred')
+        ->not->toContain('fff-select-option__description');
+});
+
+it('supports separate optionTriggerView for compact trigger html', function () {
+    $field = SelectField::make('user')
+        ->options([
+            'fred' => [
+                'label' => 'Fred',
+                'description' => 'fred@example.com',
+            ],
+        ])
+        ->optionView(fn (array $option): string => '<span class="fff-custom-list">'.$option['label'].' · '.$option['description'].'</span>')
+        ->optionTriggerView(fn (array $option): string => '<span class="fff-custom-trigger">'.$option['label'].'</span>');
+
+    $options = $field->getOptionsForJs();
+
+    expect($options[0]['label'])->toContain('fff-custom-list')
+        ->and($options[0]['label'])->toContain('Fred')
+        ->and($options[0]['triggerLabel'])->toContain('fff-custom-trigger')
+        ->and($options[0]['triggerLabel'])->not->toContain('fff-custom-list');
+});
+
+it('uses full list layout in trigger when richListTriggerDisplay is enabled', function () {
+    $field = SelectField::make('user')
+        ->options([
+            'fred' => [
+                'label' => 'Fred',
+                'description' => 'fred@example.com',
+            ],
+        ])
+        ->optionView('filament-flex-fields::forms.components.partials.select-option-view-user')
+        ->richListTriggerDisplay()
+        ->default('fred');
+
+    $trigger = $field->getInitialTriggerLabel();
+
+    expect($field->shouldUseRichListTriggerDisplay())->toBeTrue()
+        ->and($field->getWrapperClasses())->toHaveKey('fff-select-field--rich-list-trigger')
+        ->and($trigger)->toContain('fff-select-option--list')
+        ->and($trigger)->toContain('fff-select-option__description');
+});
+
+it('merges optionViewData into custom option views', function () {
+    $field = SelectField::make('user')
+        ->options(['fred' => ['label' => 'Fred', 'description' => 'fred@example.com']])
+        ->optionViewData(['accent' => 'violet'])
+        ->optionView(fn (array $option, string $layout, string $accent): string => '<span class="fff-accent-'.$accent.'">'.$option['label'].'</span>');
+
+    $options = $field->getOptionsForJs();
+
+    expect($options[0]['label'])->toContain('fff-accent-violet');
+});
+
+it('transforms ten thousand plain options within a reasonable time budget', function () {
+    $options = [];
+
+    for ($index = 1; $index <= 10_000; $index++) {
+        $options['opt_'.$index] = 'Option '.str_pad((string) $index, 5, '0', STR_PAD_LEFT);
+    }
+
+    $field = SelectField::make('scale')->options($options);
+
+    $start = hrtime(true);
+    $transformed = $field->getOptionsForJs();
+    $elapsedMs = (hrtime(true) - $start) / 1_000_000;
+
+    expect($transformed)->toHaveCount(10_000)
+        ->and($elapsedMs)->toBeLessThan(500);
 });

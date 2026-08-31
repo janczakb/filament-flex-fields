@@ -15,6 +15,7 @@
         "cms-fields",
         "matrix-choice",
         "choice-cards",
+        "image-choice-cards",
         "slug-field",
         "phone-input",
         "international-phone",
@@ -59,7 +60,8 @@
     },
     "autoload": {
         "psr-4": {
-            "Bjanczak\\FilamentFlexFields\\": "src/"
+            "Bjanczak\\FilamentFlexFields\\": "src/",
+            "Bjanczak\\FilamentFlexFields\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
@@ -71,7 +73,10 @@
         "laravel": {
             "providers": [
                 "Bjanczak\\FilamentFlexFields\\FilamentFlexFieldsServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "FlexFields": "Bjanczak\\FilamentFlexFields\\Facades\\FlexFields"
+            }
         },
         "suggest": {
             "spatie/laravel-sluggable": "Optional model-based slug generation for SlugField via spatieModel().",

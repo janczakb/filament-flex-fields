@@ -18,5 +18,8 @@
         @include('filament-flex-fields::forms.components.partials.user-select-client-patches')
 
         @include('filament-flex-fields::forms.components.partials.user-select-trigger-patches')
+
+        window.patchUserSelectClient = patchUserSelectClient;
+        window.patchUserSelectMultiple = patchUserSelectMultiple;
     </script>
 @endonce

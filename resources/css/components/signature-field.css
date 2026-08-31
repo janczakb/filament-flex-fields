@@ -3,6 +3,16 @@
     width: 100%;
 }
 
+.fff-signature [x-cloak] {
+    display: none !important;
+}
+
+.fff-signature__root:not(.is-ready) .fff-signature__dock,
+.fff-signature__root:not(.is-ready) .fff-signature__glide-pill {
+    visibility: hidden;
+    pointer-events: none;
+}
+
 .fff-signature__pad,
 .fff-signature__modal-pad {
     position: relative;
@@ -12,6 +22,9 @@
     border: 1px solid rgb(228 228 231);
     border-radius: 1rem;
     background-color: rgb(255 255 255);
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .fff-signature__modal-pad {
@@ -145,13 +158,54 @@
     color: rgb(161 161 170);
 }
 
-.fff-signature__toolbar {
+.fff-signature__dock {
     position: absolute;
-    right: 0.625rem;
+    inset-inline: 0.625rem;
     bottom: 0.625rem;
-    z-index: 2;
+    z-index: 4;
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    pointer-events: none;
+}
+
+.fff-signature__validation {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    margin-inline-end: auto;
+    padding: 0.35rem 0.55rem;
+    border-radius: 0.5rem;
+    background-color: rgb(254 242 242 / 0.96);
+    color: rgb(185 28 28);
+    font-size: 0.75rem;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+}
+
+.fff-signature__root.has-validation-error .fff-signature__pad,
+.fff-signature__root.has-validation-error .fff-signature__modal-pad {
+    border-color: rgb(239 68 68);
+}
+
+.fff-signature__toolbar {
+    position: static;
+    z-index: 1;
+    display: flex;
+    flex: 0 0 auto;
     gap: 0.375rem;
+    pointer-events: auto;
+}
+
+.fff-signature__action-wrap {
+    display: inline-flex;
 }
 
 .fff-signature__action {
@@ -187,6 +241,20 @@
     display: inline-flex;
     width: 1rem;
     height: 1rem;
+}
+
+@media (pointer: coarse) {
+    .fff-signature__action {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .fff-signature__action-icon,
+    .fff-signature__action .fi-icon,
+    .fff-signature__action svg {
+        width: 1.125rem;
+        height: 1.125rem;
+    }
 }
 
 .fff-signature__modal {
@@ -351,7 +419,12 @@ html.fff-signature-field--modal-open body {
 }
 
 .dark .fff-signature__guidelines {
-    --fff-signature-guide-color: rgb(147 197 253 / 0.09);
+    --fff-signature-guide-color: rgb(161 161 170 / 0.1);
+}
+
+.dark .fff-signature__validation {
+    background-color: rgb(69 10 10 / 0.92);
+    color: rgb(252 165 165);
 }
 
 .dark .fff-signature__action {
@@ -393,4 +466,65 @@ html.fff-signature-field--modal-open body {
     border-color: rgb(244 244 245);
     background: rgb(244 244 245);
     color: rgb(24 24 27);
+}
+
+.fff-signature__legal-banner {
+    margin-block-end: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid rgb(191 219 254);
+    border-radius: 0.75rem;
+    background: rgb(239 246 255);
+    color: rgb(30 64 175);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
+.fff-signature__pdf-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    padding: 1rem;
+}
+
+.fff-signature__pdf-panel {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 42rem);
+    max-height: min(88vh, 52rem);
+    overflow: auto;
+    border-radius: 1rem;
+    background: rgb(255 255 255);
+    box-shadow: 0 24px 48px rgb(0 0 0 / 0.18);
+}
+
+.fff-signature__pdf-body {
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.fff-signature__pdf-copy {
+    margin-block-end: 1rem;
+    color: rgb(63 63 70);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.fff-signature__pdf-document {
+    min-height: 14rem;
+    padding: 1rem;
+    border: 1px dashed rgb(212 212 216);
+    border-radius: 0.75rem;
+    background: rgb(250 250 250);
+}
+
+.fff-signature__pdf-signature-slot {
+    display: grid;
+    place-items: center;
+    min-height: 8rem;
+}
+
+.fff-signature__pdf-svg {
+    width: min(100%, 28rem);
+    height: auto;
 }

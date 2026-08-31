@@ -1143,3 +1143,37 @@ test('logic: CSS+chunk bundle for modal uninstalls both when page retained neith
     assert.equal(headHas(head, 'phone-field'), false)
     assert.equal(headHas(head, 'phone-lib'), false)
 })
+
+test('logic: ensureAssets boots unprepared segment overflow shells inside modal scope', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+
+    const modal = createElement('div')
+    modal.id = 'segment-modal'
+    modal.classList.add('fi-modal')
+    modal.appendChild(createAssetBatch([css('segment-control')]))
+
+    const scrollElement = createElement('div')
+    scrollElement.setAttribute('data-fff-segment-overflow', '')
+    scrollElement.classList.add('fff-segment-scroll-shadow--preparing')
+
+    const selected = createElement('button')
+    selected.setAttribute('data-segment-selected', 'true')
+    Object.defineProperty(selected, 'offsetLeft', { value: 120 })
+    Object.defineProperty(selected, 'offsetWidth', { value: 40 })
+    scrollElement.appendChild(selected)
+
+    Object.defineProperty(scrollElement, 'clientWidth', { value: 200 })
+    Object.defineProperty(scrollElement, 'scrollWidth', { value: 400 })
+    scrollElement.scrollLeft = 0
+
+    modal.appendChild(scrollElement)
+    body.appendChild(modal)
+    registerModals(document, { 'segment-modal': modal })
+
+    await openModal(injector, head, modal, 'segment-modal')
+
+    assert.equal(scrollElement.dataset.ssrScrollPositioned, 'true')
+    assert.equal(scrollElement.classList.contains('fff-segment-scroll-shadow--preparing'), false)
+    assert.equal(scrollElement.scrollLeft, 40)
+})

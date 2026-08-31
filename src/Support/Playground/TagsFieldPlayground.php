@@ -19,6 +19,7 @@ class TagsFieldPlayground
         return [
             'tags_field__basic' => ['laravel', 'filament'],
             'tags_field__suggestions' => ['tailwindcss'],
+            'tags_field__search' => [],
             'tags_field__comma' => 'php,pest',
             'tags_field__suffix' => ['12', '24'],
             'tags_field__reorderable' => ['alpha', 'beta', 'gamma'],
@@ -54,7 +55,38 @@ class TagsFieldPlayground
                                 'livewire',
                                 'filament',
                             ])
-                            ->helperText('Pick from suggestions or type your own.'),
+                            ->helperText('Same teleported dropdown panel as SelectField — type to filter, Enter to add.'),
+                        TagsField::make('tags_field__search')
+                            ->label('Select-style search')
+                            ->getSearchResultsUsing(function (string $search): array {
+                                $pool = [
+                                    'laravel',
+                                    'filament',
+                                    'livewire',
+                                    'alpinejs',
+                                    'tailwindcss',
+                                    'pest',
+                                    'php',
+                                    'redis',
+                                    'docker',
+                                    'mysql',
+                                ];
+
+                                $needle = strtolower(trim($search));
+
+                                if ($needle === '') {
+                                    return [];
+                                }
+
+                                return array_values(array_filter(
+                                    $pool,
+                                    static fn (string $item): bool => str_contains(strtolower($item), $needle),
+                                ));
+                            })
+                            ->minSearchLength(2)
+                            ->maxTags(6)
+                            ->showTagCount()
+                            ->helperText('Server-side search with loading / empty states in the shared select dropdown.'),
                         TagsField::make('tags_field__comma')
                             ->label('Comma-separated storage')
                             ->separator(',')

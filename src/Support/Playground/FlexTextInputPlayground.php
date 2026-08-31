@@ -47,6 +47,7 @@ class FlexTextInputPlayground
                     FlexTextInput::make('flex_text_input__basic')
                         ->label('Basic')
                         ->placeholder('Type something…')
+                        ->autofocus()
                         ->maxLength(80)
                         ->characterCounter()
                         ->emojiPicker()

@@ -19,7 +19,6 @@ const userSelectSmokeTargets = [
 ]
 
 test.describe('Flex Fields playground select fields', () => {
-    test.skip(! process.env.FLEX_FIELDS_PLAYGROUND_URL, 'Set FLEX_FIELDS_PLAYGROUND_URL to run playground E2E')
 
     for (const path of playgroundPaths) {
         test(`${path} loads without JS errors and attaches coordinators`, async ({ page }) => {
@@ -115,5 +114,55 @@ test.describe('Flex Fields playground select fields', () => {
         }
 
         assertClean()
+    })
+
+    test('multiple checklist toggles options inside the teleported panel', async ({ page }) => {
+        const { assertClean } = trackConsoleErrors(page)
+
+        await page.goto('/select-field')
+        await waitForSelectCoordinatorAttached(page)
+
+        const trigger = page.locator('[id$="select__multiple_checklist"] .fi-select-input-btn').first()
+
+        await trigger.click()
+
+        const panel = page.locator('body > .fff-select-dropdown-panel, body > .fi-dropdown-panel.fff-select-dropdown-panel').first()
+        const firstOption = panel.locator('.fi-select-input-option').first()
+
+        await expect(firstOption).toBeVisible()
+        await firstOption.click()
+        await expect(firstOption).toHaveAttribute('aria-selected', 'true')
+        await page.keyboard.press('Escape')
+
+        assertClean()
+    })
+
+    test('multiple chips field opens teleported panel', async ({ page }) => {
+        const { assertClean } = trackConsoleErrors(page)
+
+        await page.goto('/select-field')
+        await waitForSelectCoordinatorAttached(page)
+
+        const trigger = page.locator('[id$="select__multiple"] .fi-select-input-btn').first()
+
+        await trigger.click()
+        await expect(page.locator('body > .fff-select-dropdown-panel .fi-select-input-option').first()).toBeVisible()
+        await page.keyboard.press('Escape')
+
+        assertClean()
+    })
+
+    test('teleported select panel renders in body portal', async ({ page }) => {
+        await page.goto('/select-field')
+        await waitForSelectCoordinatorAttached(page)
+
+        const trigger = page.locator('[id$="select__searchable"] .fi-select-input-btn').first()
+
+        await trigger.click()
+
+        const panel = page.locator('body > .fff-select-dropdown-panel, body > .fi-dropdown-panel.fff-select-dropdown-panel').first()
+
+        await expect(panel).toBeVisible()
+        await expect(panel).toHaveClass(/fff-teleported-menu|fff-select-dropdown-panel/)
     })
 })

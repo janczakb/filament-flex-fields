@@ -2,9 +2,13 @@
  * Shared design tokens for Filament Flex Fields components.
  */
 :root {
-    --fff-track-h-sm: 2rem;
-    --fff-track-h-md: 2.5rem;
-    --fff-track-h-lg: 3rem;
+    --fff-density-scale: 1;
+    --fff-track-h-sm-base: 2rem;
+    --fff-track-h-md-base: 2.5rem;
+    --fff-track-h-lg-base: 3rem;
+    --fff-track-h-sm: calc(var(--fff-track-h-sm-base) * var(--fff-density-scale));
+    --fff-track-h-md: calc(var(--fff-track-h-md-base) * var(--fff-density-scale));
+    --fff-track-h-lg: calc(var(--fff-track-h-lg-base) * var(--fff-density-scale));
 
     --fff-track-p-sm: 0.1875rem;
     --fff-track-p-md: 0.25rem;
@@ -139,6 +143,19 @@
     --fff-rich-editor-tool-size: 2rem;
     --fff-rich-editor-icon-size: 1.0625rem;
     --fff-rich-editor-content-p: 1rem;
+
+    --fff-motion-duration-fast: 150ms;
+    --fff-motion-duration-base: 250ms;
+    --fff-motion-duration-slow: 400ms;
+    --fff-motion-ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --fff-motion-duration-fast: 0.01ms;
+        --fff-motion-duration-base: 0.01ms;
+        --fff-motion-duration-slow: 0.01ms;
+    }
 }
 
 .dark {
@@ -214,4 +231,28 @@
 .fff-rounding-full {
     --fff-global-radius: 9999px;
     --fff-global-menu-radius: 1.5rem;
+}
+
+/* Density OS — scales --fff-track-h-* via --fff-density-scale */
+[data-fff-density="compact"] {
+    --fff-density-scale: 0.875;
+}
+
+[data-fff-density="comfortable"] {
+    --fff-density-scale: 1;
+}
+
+[data-fff-density="spacious"] {
+    --fff-density-scale: 1.125;
+}
+
+/* Universal focus outline (when .has-focus-outline on field root) */
+.has-focus-outline:focus-within {
+    outline: none;
+}
+
+.has-focus-outline:focus-within .fff-focus-target,
+.has-focus-outline:focus-within:is(input, textarea, button, [role="combobox"]) {
+    border-color: var(--fff-field-focus-border) !important;
+    box-shadow: 0 0 0 var(--fff-field-focus-ring-width) var(--fff-field-focus-ring);
 }

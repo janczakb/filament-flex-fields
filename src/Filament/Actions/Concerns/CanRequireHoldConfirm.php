@@ -12,6 +12,8 @@ use InvalidArgumentException;
 
 trait CanRequireHoldConfirm
 {
+    use HasAuditReasonRequirement;
+
     protected int|Closure|null $holdConfirmDuration = null;
 
     protected string|Closure $holdConfirmSweep = 'right';

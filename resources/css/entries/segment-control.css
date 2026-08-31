@@ -3,7 +3,6 @@
 
 @source "../../src/Filament/Forms/Components/SegmentControl.php";
 @source "../views/forms/components/segment-control.blade.php";
-@source "../views/schemas/components/segment-tabs.blade.php";
-@source "../views/schemas/components/segment-tabs/segment-tab.blade.php";
+@source "../views/components/segment-overflow-shell.blade.php";
 
 @import "../components/segment-control.css";

@@ -207,16 +207,17 @@ it('entangles state non-live and passes the debounce ms to alpine when live(debo
         ->toContain('liveDebounce: 500');
 });
 
-it('keeps entangling state live with no client debounce when live() has no debounce', function () {
+it('keeps ssr main and suffix adjacent so hydrate does not drop inter-span whitespace before %', function () {
     TestableNumberStepperForm::$formSchema = [
-        NumberStepper::make('count')->live(),
+        NumberStepper::make('pct')->suffix('%')->default(25),
     ];
 
-    $html = html_entity_decode(Livewire::test(TestableNumberStepperForm::class)->html());
+    $html = Livewire::test(TestableNumberStepperForm::class)->html();
 
     expect($html)
-        ->toContain("entangle('data.count', true)")
-        ->toContain('liveDebounce: null');
+        ->toContain('fff-number-stepper__ssr-suffix">&nbsp;%')
+        ->toMatch('/fff-number-stepper__ssr-main[^>]*>[^<]*<\/span>(?:<!--.*?-->)*<span class="[^"]*fff-number-stepper__ssr-suffix/s')
+        ->and($html)->not->toMatch('/fff-number-stepper__ssr-main[^>]*>[^<]*<\/span>\s+<span class="[^"]*fff-number-stepper__ssr-suffix/');
 });
 
 it('keeps entangling state non-live with no client debounce when the field is not live at all', function () {
@@ -243,5 +244,8 @@ it('debounces the committed value in the alpine component instead of committing 
     expect($js)
         ->toContain('commitDebounced()')
         ->toContain('clearTimeout(this.commitTimer)')
-        ->toContain('this.$wire.set(this.statePath, this.state, true)');
+        ->toContain('this.$wire.set(this.statePath, this.state, true)')
+        ->toContain('lastFlowValue')
+        ->toContain('duration: 380')
+        ->toContain('Object.is(next, this.lastFlowValue)');
 });

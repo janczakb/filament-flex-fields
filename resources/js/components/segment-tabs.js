@@ -1,123 +1,58 @@
+import { createSegmentOverflowMixin } from './segment-scroll-shadow.js'
+
 export default function segmentTabsSchemaComponent({
-    activeTab,
-    activeTabKey,
-    isTabPersisted,
-    isTabPersistedInQueryString,
+    activeTabIndex = 0,
+    activeTabKey = null,
+    isTabPersisted = false,
+    isTabPersistedInQueryString = false,
+    isTabPersistedFlag = false,
     livewireId,
+    optionKeys = [],
     schemaKey,
-    tab,
-    tabQueryStringKey,
+    separators = false,
+    tabPersistKey = null,
+    tabQueryStringKey = null,
+    overflowShell = true,
 }) {
+    const initialTab = activeTabKey ?? optionKeys[activeTabIndex] ?? optionKeys[0] ?? null
+
     return {
-        boundResetHandler: null,
+        ...createSegmentOverflowMixin(),
+        tab:
+            isTabPersisted && typeof Alpine !== 'undefined' && typeof Alpine.$persist === 'function'
+                ? Alpine.$persist(initialTab).as(tabPersistKey)
+                : initialTab,
+        optionKeys,
+        separators,
+        overflowShell,
+        indicatorStyle: '',
         indicatorAnimated: false,
         indicatorHydrated: false,
-        indicatorStyle: '',
         resizeObserver: null,
-        tab,
+        boundResetHandler: null,
         unsubscribeLivewireHook: null,
 
-        init() {
-            const tabs = this.getTabs()
-            const queryString = new URLSearchParams(window.location.search)
-
-            if (
-                isTabPersistedInQueryString &&
-                queryString.has(tabQueryStringKey) &&
-                tabs.includes(queryString.get(tabQueryStringKey))
-            ) {
-                this.tab = queryString.get(tabQueryStringKey)
-            }
-
-            if (! this.tab || ! tabs.includes(this.tab)) {
-                if (activeTabKey && tabs.includes(activeTabKey)) {
-                    this.tab = activeTabKey
-                } else {
-                    this.tab = tabs[activeTab - 1]
-                }
-            }
-
-            this.$watch('tab', () => {
-                this.updateQueryString()
-                this.$nextTick(() => this.updateIndicator())
-            })
-
-            this.$nextTick(() => {
-                this.updateIndicator()
-                this.enableIndicatorAnimation()
-            })
-
-            if (typeof ResizeObserver !== 'undefined' && this.$refs.track) {
-                this.resizeObserver = new ResizeObserver(() => this.updateIndicator())
-                this.resizeObserver.observe(this.$refs.track)
-            }
-
-            this.unsubscribeLivewireHook = Livewire.interceptMessage(({ message, onSuccess }) => {
-                onSuccess(() => {
-                    this.$nextTick(() => {
-                        if (message.component.id !== livewireId) {
-                            return
-                        }
-
-                        const tabs = this.getTabs()
-
-                        if (! tabs.includes(this.tab)) {
-                            this.tab = tabs[activeTab - 1] ?? this.tab
-                        }
-
-                        this.updateIndicator()
-                    })
-                })
-            })
-
-            this.boundResetHandler = (event) => {
-                if (
-                    event.detail.livewireId !== livewireId ||
-                    event.detail.schemaKey !== schemaKey ||
-                    isTabPersisted ||
-                    isTabPersistedInQueryString
-                ) {
-                    return
-                }
-
-                this.$nextTick(() => {
-                    this.tab = this.getTabs()[activeTab - 1] ?? this.tab
-                    this.updateIndicator()
-                })
-            }
-
-            window.addEventListener('reset-schema-component-state', this.boundResetHandler)
-        },
-
-        destroy() {
-            this.unsubscribeLivewireHook?.()
-            this.resizeObserver?.disconnect()
-
-            if (this.boundResetHandler) {
-                window.removeEventListener('reset-schema-component-state', this.boundResetHandler)
-            }
-        },
-
-        getTabs() {
-            return this.$refs.tabsData
-                ? JSON.parse(this.$refs.tabsData.value)
-                : []
+        normalize(value) {
+            return value === null || value === undefined ? null : String(value)
         },
 
         isSelected(value) {
-            return String(this.tab) === String(value)
+            return this.normalize(this.tab) === this.normalize(value)
         },
 
         select(value) {
             this.tab = value
+            this.$nextTick(() => this.updateIndicator({ scrollIntoView: true, scrollSmooth: true }))
         },
 
         selectedIndex() {
-            return this.getTabs().findIndex((key) => String(key) === String(this.tab))
+            const current = this.normalize(this.tab)
+
+            return this.optionKeys.findIndex((key) => this.normalize(key) === current)
         },
 
-        showSeparator(separatorIndex, separators) {
-            if (! separators) {
+        showSeparator(separatorIndex) {
+            if (! this.separators) {
                 return false
             }
 
@@ -130,11 +65,11 @@ export default function segmentTabsSchemaComponent({
             return separatorIndex !== selectedIndex - 1 && separatorIndex !== selectedIndex
         },
 
-        separatorClass(separatorIndex, separators) {
-            return this.showSeparator(separatorIndex, separators) ? '' : 'is-hidden'
+        separatorClass(separatorIndex) {
+            return this.showSeparator(separatorIndex) ? '' : 'is-hidden'
         },
 
-        updateIndicator() {
+        updateIndicator(options = {}) {
             const track = this.$refs.track
 
             if (! track) {
@@ -156,6 +91,10 @@ export default function segmentTabsSchemaComponent({
                 'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
                 'opacity: 1;'
             this.indicatorHydrated = true
+
+            if (this.overflowShell && options.scrollIntoView) {
+                this.scrollSelectedSegmentTabIntoView(selected, options.scrollSmooth ?? false)
+            }
         },
 
         enableIndicatorAnimation() {
@@ -167,14 +106,92 @@ export default function segmentTabsSchemaComponent({
         },
 
         updateQueryString() {
-            if (! isTabPersistedInQueryString) {
+            if (! isTabPersistedInQueryString || ! tabQueryStringKey) {
                 return
             }
 
             const url = new URL(window.location.href)
             url.searchParams.set(tabQueryStringKey, this.tab)
-
             history.replaceState(null, document.title, url.toString())
+        },
+
+        init() {
+            if (isTabPersistedInQueryString && tabQueryStringKey) {
+                const queryString = new URLSearchParams(window.location.search)
+                const queryTab = queryString.get(tabQueryStringKey)
+
+                if (queryTab && this.optionKeys.includes(queryTab)) {
+                    this.tab = queryTab
+                }
+            }
+
+            if (! this.tab || ! this.optionKeys.includes(this.tab)) {
+                this.tab = this.optionKeys[activeTabIndex] ?? this.optionKeys[0] ?? null
+            }
+
+            this.$watch('tab', () => {
+                this.updateQueryString()
+                this.$nextTick(() => this.updateIndicator({ scrollIntoView: true, scrollSmooth: true }))
+            })
+
+            this.$nextTick(() => {
+                this.positionInitialOverflowScroll()
+                this.updateIndicator()
+                this.bindSegmentOverflowScrollShadow()
+                this.enableIndicatorAnimation()
+            })
+
+            if (typeof ResizeObserver !== 'undefined' && this.$refs.track) {
+                this.resizeObserver = new ResizeObserver(() => {
+                    this.updateIndicator()
+                    this.updateSegmentScrollShadow()
+                })
+                this.resizeObserver.observe(this.$refs.track)
+            }
+
+            this.unsubscribeLivewireHook = Livewire.interceptMessage(({ message, onSuccess }) => {
+                onSuccess(() => {
+                    this.$nextTick(() => {
+                        if (message.component.id !== livewireId) {
+                            return
+                        }
+
+                        if (! this.optionKeys.includes(this.tab)) {
+                            this.tab = this.optionKeys[activeTabIndex] ?? this.tab
+                        }
+
+                        this.updateIndicator()
+                    })
+                })
+            })
+
+            this.boundResetHandler = (event) => {
+                if (
+                    event.detail.livewireId !== livewireId ||
+                    event.detail.schemaKey !== schemaKey ||
+                    isTabPersistedFlag ||
+                    isTabPersistedInQueryString
+                ) {
+                    return
+                }
+
+                this.$nextTick(() => {
+                    this.tab = this.optionKeys[activeTabIndex] ?? this.tab
+                    this.updateIndicator()
+                })
+            }
+
+            window.addEventListener('reset-schema-component-state', this.boundResetHandler)
+        },
+
+        destroy() {
+            this.unbindSegmentOverflowScrollShadow()
+            this.unsubscribeLivewireHook?.()
+            this.resizeObserver?.disconnect()
+
+            if (this.boundResetHandler) {
+                window.removeEventListener('reset-schema-component-state', this.boundResetHandler)
+            }
         },
     }
 }

@@ -13,8 +13,9 @@ namespace Bjanczak\FilamentFlexFields\Concerns;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldSchema;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldValueChange;
-use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldEncryption;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
 
@@ -100,7 +101,9 @@ trait HasFlexFields
 
     public function getFlexFieldValue(string $slug, mixed $default = null): mixed
     {
-        return data_get($this->getFlexFieldValues(), $slug, $default);
+        $value = data_get($this->getFlexFieldValues(), $slug, $default);
+
+        return $this->maybeDecryptFlexFieldValue($slug, $value);
     }
 
     public function setFlexFieldValue(string $slug, mixed $value): static
@@ -108,7 +111,7 @@ trait HasFlexFields
         $this->rememberFlexFieldValuesBeforeChange();
 
         $values = $this->getFlexFieldValues();
-        data_set($values, $slug, $value);
+        data_set($values, $slug, $this->maybeEncryptFlexFieldValue($slug, $value));
         $this->setAttribute(static::flexFieldsColumn(), $values);
 
         return $this;
@@ -149,17 +152,31 @@ trait HasFlexFields
     /**
      * @return list<FlexFieldSchema>
      */
-    public function flexFieldSchemas(): array
+    public function flexFieldSchemas(?string $tenantId = null): array
     {
-        return app(FlexFieldSchemaRegistry::class)->forTarget(static::class);
+        return app(FlexFieldSchemaResolver::class)->schemasForTarget(
+            static::class,
+            $tenantId ?? $this->resolveFlexFieldTenantId(),
+        );
     }
 
     /**
      * @return list<FlexFieldDefinition>
      */
-    public function flexFieldDefinitions(): array
+    public function flexFieldDefinitions(?string $tenantId = null): array
     {
-        return app(FlexFieldSchemaRegistry::class)->fieldsForTarget(static::class);
+        $resolver = app(FlexFieldSchemaResolver::class);
+
+        return $resolver->definitionsForModel(
+            static::class,
+            $tenantId ?? $this->resolveFlexFieldTenantId(),
+            $resolver->resolveRbacUserKey($this),
+        );
+    }
+
+    public function resolveFlexFieldTenantId(): ?string
+    {
+        return app(FlexFieldSchemaResolver::class)->resolveTenantId($this);
     }
 
     /**
@@ -300,5 +317,38 @@ trait HasFlexFields
         }
 
         return null;
+    }
+
+    protected function maybeEncryptFlexFieldValue(string $slug, mixed $value): mixed
+    {
+        if (! $this->flexFieldDefinitionIsEncrypted($slug) || $value === null) {
+            return $value;
+        }
+
+        if (FlexFieldEncryption::isEncryptedPayload($value)) {
+            return $value;
+        }
+
+        return FlexFieldEncryption::encrypt($value);
+    }
+
+    protected function maybeDecryptFlexFieldValue(string $slug, mixed $value): mixed
+    {
+        if (! $this->flexFieldDefinitionIsEncrypted($slug) || ! is_string($value)) {
+            return $value;
+        }
+
+        return FlexFieldEncryption::decrypt($value);
+    }
+
+    protected function flexFieldDefinitionIsEncrypted(string $slug): bool
+    {
+        foreach ($this->flexFieldDefinitions() as $definition) {
+            if ($definition->slug === $slug) {
+                return $definition->isEncrypted;
+            }
+        }
+
+        return false;
     }
 }

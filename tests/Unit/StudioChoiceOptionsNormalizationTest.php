@@ -81,6 +81,38 @@ it('normalizes studio list option rows for segment control and choice cards', fu
         ->and($cards->getGridColumnConfig()['default'])->toBe(3);
 });
 
+it('preserves string label maps for choice cards form builder config', function (): void {
+    $cards = (new ChoiceCardsFieldConfigurator)->configureChoiceCardsField(
+        ChoiceCards::make('plan'),
+        [
+            'options' => [
+                'starter' => 'Starter',
+                'pro' => 'Pro',
+            ],
+        ],
+    );
+
+    expect($cards->getNormalizedOptions())->toHaveKeys(['starter', 'pro'])
+        ->and($cards->getNormalizedOptions()['starter']['label'])->toBe('Starter');
+});
+
+it('normalizes rich card option rows via RichOptionSchemaV2 profile', function (): void {
+    $cards = (new ChoiceCardsFieldConfigurator)->configureChoiceCardsField(
+        ChoiceCards::make('plan'),
+        [
+            'options' => [
+                ['value' => 'starter', 'label' => 'Starter'],
+                ['value' => 'pro', 'label' => 'Pro', 'description' => 'Teams', 'icon' => 'users', 'price' => '$20'],
+            ],
+        ],
+    );
+
+    expect($cards->getNormalizedOptions()['starter']['label'])->toBe('Starter')
+        ->and($cards->getNormalizedOptions()['pro']['description'])->toBe('Teams')
+        ->and($cards->getNormalizedOptions()['pro']['icon'])->toBe('users')
+        ->and($cards->getNormalizedOptions()['pro']['price'])->toBe('$20');
+});
+
 it('normalizes studio matrix row and column lists', function (): void {
     $field = (new MatrixChoiceFieldConfigurator)->configureMatrixChoiceField(
         MatrixChoiceField::make('scores'),

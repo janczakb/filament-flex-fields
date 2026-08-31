@@ -42,6 +42,7 @@
                 maxDuration: @js($getMaxDuration()),
                 uploadImmediately: @js($field->shouldUploadImmediately()),
                 readOnly: @js($isDisabled || $isReadOnly),
+                waveformMetadataPath: @js($field->getStoreWaveformInPath()),
                 labels: {
                     uploadingOnSubmit: @js(__('filament-flex-fields::default.audio.uploading_on_submit')),
                     deleteConfirm: @js(__('filament-flex-fields::default.audio.delete_confirm')),

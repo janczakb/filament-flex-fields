@@ -905,7 +905,7 @@ TitleSlugField::make(
 
 #### Full `TranslatableFields` passthrough
 
-When `translatableLocales` is set, title tabs are built with `TranslatableFields` internally. **By default** the factory enables `directionByLocale()` and `emptyBadgeWhenAllFieldsAreEmpty()` (warning `empty` badge on tabs where the title is blank). The active tab stays on `slugSourceLocale`, not `activeTabWithValue()`.
+When `translatableLocales` is set, title tabs are built with `TranslatableFields` internally. **By default** the factory enables `directionByLocale()` (RTL/LTR on the title **input**, not the label — see [TranslatableFields / directionByLocale](/docs/translatablefields#directionbylocaletranslatabledirectionscope-scope--translatabledirectionscopeauto)) and `emptyBadgeWhenAllFieldsAreEmpty()` (warning `empty` badge on tabs where the title is blank). The active tab stays on `slugSourceLocale`, not `activeTabWithValue()`.
 
 Use `translatableFieldsConfigurator` for further tweaks (`activeTabWithValue()`, bordered panels, custom tab icons, `localeFieldUsing()`, `storageAttributeUsing()`, etc.):
 

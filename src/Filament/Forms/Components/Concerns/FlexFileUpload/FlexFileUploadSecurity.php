@@ -29,6 +29,8 @@ trait FlexFileUploadSecurity
 
     protected bool|Closure $flexOptimizeImagesToWebp = false;
 
+    protected bool|Closure $flexOptimizeImagesToAvif = false;
+
     protected bool|Closure $flexStripExif = true;
 
     protected bool|Closure $flexRejectExecutableFiles = false;
@@ -169,6 +171,13 @@ trait FlexFileUploadSecurity
         return $this;
     }
 
+    public function optimizeImagesToAvif(bool|Closure $condition = true): static
+    {
+        $this->flexOptimizeImagesToAvif = $condition;
+
+        return $this;
+    }
+
     public function maxImageWidth(int|Closure $width): static
     {
         $this->flexMaxImageWidth = $width;
@@ -241,6 +250,11 @@ trait FlexFileUploadSecurity
     public function shouldOptimizeImagesToWebp(): bool
     {
         return (bool) $this->evaluate($this->flexOptimizeImagesToWebp);
+    }
+
+    public function shouldOptimizeImagesToAvif(): bool
+    {
+        return (bool) $this->evaluate($this->flexOptimizeImagesToAvif);
     }
 
     public function shouldStripExif(): bool

@@ -64,6 +64,6 @@ final class FieldTypeHandlerRegistry
 
         $field = $this->resolve($definition->type)->make($definition, $statePath);
 
-        return $this->applyDefinitionMeta($field, $definition);
+        return $this->applyDefinitionMeta($field, $definition, $statePathPrefix);
     }
 }

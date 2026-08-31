@@ -6,18 +6,21 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundComponentPage;
 use Bjanczak\FilamentFlexFields\Support\Playground\AddressAutocompletePlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\AdminColumnsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\AudioFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\BarcodeScannerFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\CalculatorFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCheckboxCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ColorSwatchPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\CompositionRecipesPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\CountryFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\CoverCardPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\CreditCardPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\CurrencyFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\DateTimeFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\DualListboxPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\FieldIntelligencePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexChecklistPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexColorPickerPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexFileUploadPlayground;
@@ -30,8 +33,10 @@ use Bjanczak\FilamentFlexFields\Support\Playground\FlexTextInputPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexVerificationCodePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FocusOutlinePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\FormLayoutPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\HoldConfirmPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\IconColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\IconPickerFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\ImageChoiceCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ItemCardGroupPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\LinkPreviewFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\MapPickerPlayground;
@@ -45,6 +50,7 @@ use Bjanczak\FilamentFlexFields\Support\Playground\ProgressCirclePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingColumnPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\RatingPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ScheduleFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\SchemaConditionsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SegmentControlPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SegmentTabsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\SelectPlayground;
@@ -83,6 +89,9 @@ class FlexFieldsPlaygroundRegistry
         if (self::$definitionsCache === null) {
             self::$definitionsCache = [
                 'focus-outline' => ['label' => 'Focus outline', 'playground' => FocusOutlinePlayground::class, 'sort' => 10, 'icon' => GravityIcon::Eye],
+                'schema-conditions' => ['label' => 'Schema conditions', 'playground' => SchemaConditionsPlayground::class, 'sort' => 12, 'icon' => GravityIcon::FileText, 'badge' => 'NEW', 'badgeColor' => 'success'],
+                'field-intelligence' => ['label' => 'Calculated formulas', 'playground' => FieldIntelligencePlayground::class, 'sort' => 14, 'icon' => GravityIcon::Thunderbolt, 'badge' => 'NEW', 'badgeColor' => 'success'],
+                'composition-recipes' => ['label' => 'Composition recipes', 'playground' => CompositionRecipesPlayground::class, 'sort' => 17, 'icon' => GravityIcon::LayoutCells, 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'phone-field' => ['label' => 'Phone field', 'playground' => PhoneFieldPlayground::class, 'sort' => 20, 'icon' => GravityIcon::Handset],
                 'country-field' => ['label' => 'Country field', 'playground' => CountryFieldPlayground::class, 'sort' => 30, 'icon' => GravityIcon::Globe],
                 'timezone-field' => ['label' => 'Timezone field', 'playground' => TimezoneFieldPlayground::class, 'sort' => 40, 'icon' => GravityIcon::Clock],
@@ -90,6 +99,7 @@ class FlexFieldsPlaygroundRegistry
                 'calculator-field' => ['label' => 'Calculator field', 'playground' => CalculatorFieldPlayground::class, 'sort' => 55, 'icon' => GravityIcon::make('calculator'), 'badge' => 'NEW'],
                 'number-stepper' => ['label' => 'Number Stepper', 'playground' => NumberStepperPlayground::class, 'sort' => 60, 'icon' => GravityIcon::Plus],
                 'choice-cards' => ['label' => 'Choice Cards', 'playground' => ChoiceCardsPlayground::class, 'sort' => 70, 'icon' => GravityIcon::LayoutCells],
+                'image-choice-cards' => ['label' => 'Image Choice Cards', 'playground' => ImageChoiceCardsPlayground::class, 'sort' => 75, 'icon' => GravityIcon::Camera, 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'choice-checkbox-cards' => ['label' => 'Choice Checkbox Cards', 'playground' => ChoiceCheckboxCardsPlayground::class, 'sort' => 80, 'icon' => GravityIcon::Check],
                 'segment-control' => ['label' => 'Segment Control', 'playground' => SegmentControlPlayground::class, 'sort' => 90, 'icon' => GravityIcon::ChartColumn],
                 'nps-field' => ['label' => 'NPS Field', 'playground' => NpsFieldPlayground::class, 'sort' => 95, 'icon' => GravityIcon::ChartColumn, 'badge' => 'NEW'],
@@ -102,6 +112,8 @@ class FlexFieldsPlaygroundRegistry
                 'select-field' => ['label' => 'SelectField', 'playground' => SelectPlayground::class, 'sort' => 160, 'icon' => GravityIcon::CircleChevronDown],
                 'user-select' => ['label' => 'UserSelect', 'playground' => UserSelectPlayground::class, 'sort' => 170, 'icon' => GravityIcon::Person],
                 'user-column' => ['label' => 'UserColumn', 'playground' => UserColumnPlayground::class, 'sort' => 180, 'icon' => GravityIcon::Persons],
+                'admin-columns' => ['label' => 'Admin columns', 'playground' => AdminColumnsPlayground::class, 'sort' => 182, 'icon' => GravityIcon::ChartColumn, 'badge' => 'NEW', 'badgeColor' => 'success'],
+                'hold-confirm' => ['label' => 'Hold confirm', 'playground' => HoldConfirmPlayground::class, 'sort' => 185, 'icon' => GravityIcon::ShieldCheck, 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'rating' => ['label' => 'Rating', 'playground' => RatingPlayground::class, 'sort' => 190, 'icon' => GravityIcon::Star],
                 'rating-column' => ['label' => 'RatingColumn', 'playground' => RatingColumnPlayground::class, 'sort' => 200, 'icon' => GravityIcon::Star],
                 'dual-listbox' => ['label' => 'Dual Listbox', 'playground' => DualListboxPlayground::class, 'sort' => 210, 'icon' => GravityIcon::ArrowRightArrowLeft],
@@ -123,9 +135,9 @@ class FlexFieldsPlaygroundRegistry
                 'voice-note-recorder-field' => ['label' => 'Voice note recorder', 'playground' => VoiceNoteRecorderFieldPlayground::class, 'sort' => 331, 'icon' => GravityIcon::Microphone],
                 'map-picker' => ['label' => 'Map picker', 'playground' => MapPickerPlayground::class, 'sort' => 340, 'icon' => GravityIcon::MapPin],
                 'link-preview-field' => ['label' => 'Link preview', 'playground' => LinkPreviewFieldPlayground::class, 'sort' => 345, 'icon' => GravityIcon::Link],
-                'barcode-scanner-field' => ['label' => 'Barcode scanner', 'playground' => BarcodeScannerFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::make('qr-code')],
+                'barcode-scanner-field' => ['label' => 'Barcode scanner', 'playground' => BarcodeScannerFieldPlayground::class, 'sort' => 346, 'icon' => GravityIcon::make('qr-code'), 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'social-links-field' => ['label' => 'Social links', 'playground' => SocialLinksFieldPlayground::class, 'sort' => 347, 'icon' => GravityIcon::Persons],
-                'schedule-field' => ['label' => 'Schedule field', 'playground' => ScheduleFieldPlayground::class, 'sort' => 348, 'icon' => GravityIcon::Calendar],
+                'schedule-field' => ['label' => 'Schedule field', 'playground' => ScheduleFieldPlayground::class, 'sort' => 348, 'icon' => GravityIcon::Calendar, 'badge' => 'NEW', 'badgeColor' => 'success'],
                 'address-autocomplete' => ['label' => 'Address autocomplete', 'playground' => AddressAutocompletePlayground::class, 'sort' => 350, 'icon' => GravityIcon::MapPin],
                 'signature-field' => ['label' => 'Signature', 'playground' => SignatureFieldPlayground::class, 'sort' => 360, 'icon' => GravityIcon::Pencil],
                 'verification-code' => ['label' => 'Verification Code', 'playground' => FlexVerificationCodePlayground::class, 'sort' => 370, 'icon' => GravityIcon::ShieldCheck],

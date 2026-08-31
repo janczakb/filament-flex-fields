@@ -10,7 +10,9 @@ use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeFieldMode;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
 use Bjanczak\FilamentFlexFields\Enums\MonthDisplay;
+use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeCalendar;
 use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeFieldValue;
+use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeOs;
 use Carbon\CarbonInterface;
 use Closure;
 use InvalidArgumentException;
@@ -55,6 +57,8 @@ trait InteractsWithDateTimeConfiguration
 
     protected bool|Closure $closeOnSelect = true;
 
+    protected bool $hasExplicitFirstDayOfWeek = false;
+
     protected int|Closure $firstDayOfWeek = 0;
 
     protected bool|Closure $hideTimeZone = false;
@@ -66,6 +70,12 @@ trait InteractsWithDateTimeConfiguration
     protected bool|Closure $showYearSegment = true;
 
     protected MonthDisplay|string|Closure $monthDisplay = MonthDisplay::Numeric;
+
+    protected string|Closure|null $segmentInvalidMessage = null;
+
+    protected string|Closure|null $calendarSystem = null;
+
+    protected bool|Closure|null $isInvalid = null;
 
     abstract public function getMode(): DateTimeFieldMode;
 
@@ -193,6 +203,7 @@ trait InteractsWithDateTimeConfiguration
 
     public function firstDayOfWeek(int|Closure $day): static
     {
+        $this->hasExplicitFirstDayOfWeek = true;
         $this->firstDayOfWeek = $day;
 
         return $this;
@@ -231,6 +242,49 @@ trait InteractsWithDateTimeConfiguration
         $this->monthDisplay = $display;
 
         return $this;
+    }
+
+    public function segmentInvalidMessage(string|Closure|null $message): static
+    {
+        $this->segmentInvalidMessage = $message;
+
+        return $this;
+    }
+
+    public function getSegmentInvalidMessage(): ?string
+    {
+        $message = $this->evaluate($this->segmentInvalidMessage);
+
+        return filled($message) ? (string) $message : null;
+    }
+
+    public function calendarSystem(string|Closure|null $system): static
+    {
+        $this->calendarSystem = $system;
+
+        return $this;
+    }
+
+    public function getCalendarIdentifier(): ?string
+    {
+        $explicit = $this->evaluate($this->calendarSystem);
+
+        return DateTimeCalendar::resolveIdentifier(
+            $this->getLocale(),
+            filled($explicit) ? (string) $explicit : null,
+        );
+    }
+
+    public function isInvalid(bool|Closure|null $invalid): static
+    {
+        $this->isInvalid = $invalid;
+
+        return $this;
+    }
+
+    public function getIsInvalid(): bool
+    {
+        return (bool) $this->evaluate($this->isInvalid);
     }
 
     public function withRecommendedDefaults(): static
@@ -396,6 +450,10 @@ trait InteractsWithDateTimeConfiguration
 
     public function getFirstDayOfWeek(): int
     {
+        if (! $this->hasExplicitFirstDayOfWeek) {
+            return DateTimeOs::firstDayOfWeekForLocale($this->getLocale());
+        }
+
         $day = (int) $this->evaluate($this->firstDayOfWeek);
 
         return max(0, min(6, $day));

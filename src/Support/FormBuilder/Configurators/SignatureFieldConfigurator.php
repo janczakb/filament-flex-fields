@@ -65,6 +65,48 @@ final class SignatureFieldConfigurator implements FieldConfigurator
             $field->webpQuality((float) $config['webp_quality']);
         }
 
+        if (array_key_exists('view_box_width', $config) && array_key_exists('view_box_height', $config)) {
+            if (is_numeric($config['view_box_width']) && is_numeric($config['view_box_height'])) {
+                $field->viewBox((int) $config['view_box_width'], (int) $config['view_box_height']);
+            }
+        }
+
+        if (array_key_exists('trackpad_glide', $config)) {
+            $field->trackpadGlide((bool) $config['trackpad_glide']);
+        }
+
+        if (array_key_exists('trackpad_glide_key', $config) && filled($config['trackpad_glide_key'])) {
+            $field->trackpadGlideKey((string) $config['trackpad_glide_key']);
+        }
+
+        if (array_key_exists('guidelines', $config)) {
+            $field->guidelines((bool) $config['guidelines']);
+        }
+
+        if (array_key_exists('read_only', $config) && (bool) $config['read_only']) {
+            $field->readOnly();
+        }
+
+        if (array_key_exists('undo_icon', $config)) {
+            $field->undoIcon($config['undo_icon']);
+        }
+
+        if (array_key_exists('clear_icon', $config)) {
+            $field->clearIcon($config['clear_icon']);
+        }
+
+        if (array_key_exists('download_icon', $config)) {
+            $field->downloadIcon($config['download_icon']);
+        }
+
+        if (array_key_exists('fullscreen_icon', $config)) {
+            $field->fullscreenIcon($config['fullscreen_icon']);
+        }
+
+        if (array_key_exists('close_icon', $config)) {
+            $field->closeIcon($config['close_icon']);
+        }
+
         return $field;
     }
 }

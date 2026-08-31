@@ -1,0 +1,41 @@
+{
+    "timezone": "Europe/Warsaw",
+    "cases": [
+        {
+            "name": "spring_forward_gap",
+            "local": "2026-03-29 02:30:00",
+            "expected_normalized": "2026-03-29T02:30:00",
+            "note": "Storage layer keeps wall-clock minute; TZ/DST resolution happens at display layer."
+        },
+        {
+            "name": "fall_back_ambiguous_early",
+            "local": "2026-10-25 02:30:00",
+            "expected_normalized": "2026-10-25T02:30:00",
+            "note": "Ambiguous fall-back hour still stores canonical minute value."
+        },
+        {
+            "name": "standard_winter",
+            "local": "2026-01-15 14:30:00",
+            "expected_normalized": "2026-01-15T14:30:00"
+        },
+        {
+            "name": "standard_summer",
+            "local": "2026-07-15 14:30:00",
+            "expected_normalized": "2026-07-15T14:30:00"
+        }
+    ],
+    "schedule_overnight": [
+        {
+            "name": "night_club_hours",
+            "slots": [
+                { "from": "22:00", "to": "06:00", "overnight": true }
+            ],
+            "overlap_allowed_with": [
+                { "from": "07:00", "to": "08:00" }
+            ],
+            "overlap_blocked_with": [
+                { "from": "23:30", "to": "23:45" }
+            ]
+        }
+    ]
+}

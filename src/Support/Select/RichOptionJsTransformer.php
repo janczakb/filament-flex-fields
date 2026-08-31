@@ -61,7 +61,7 @@ class RichOptionJsTransformer
                 'isDisabled' => $normalized['disabled'],
             ];
 
-            if ($triggerLabel !== $dropdownLabel) {
+            if (filled($normalized['chip_label'] ?? null) || $triggerLabel !== $dropdownLabel) {
                 $option['triggerLabel'] = $triggerLabel;
             }
 

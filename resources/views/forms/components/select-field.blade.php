@@ -51,17 +51,10 @@
     $initialTriggerBadges = $field->getInitialTriggerBadges();
     $isInitialTriggerPlaceholder = blank($state);
     $isUserSelectField = method_exists($field, 'renderUserOption');
+    $chipRemoveIconHtml = view('filament-flex-fields::forms.components.partials.tag-pill-remove-icon')->render();
     $tagRemoveIconHtml = $isUserSelectField
-        ? view('filament-flex-fields::forms.components.partials.tag-pill-remove-icon')->render()
+        ? $chipRemoveIconHtml
         : $clearIconHtml;
-    $shouldPatchUserSelectClient = $isUserSelectField;
-    $shouldPatchUserSelectMultiple = $isUserSelectField && $isMultiple;
-    $userSelectMinSearchLength = ($isUserSelectField && method_exists($field, 'getMinSearchLength'))
-        ? $field->getMinSearchLength()
-        : 0;
-    $initialOptionsForJs = ($isUserSelectField && method_exists($field, 'getInitialOptionsForJs'))
-        ? $field->getInitialOptionsForJs()
-        : $getOptionsForJs();
     $skipInitialOptionLabels = $isUserSelectField
         && $isMultiple
         && filled($initialSelectedUserEntriesForJs ?? []);
@@ -73,23 +66,9 @@
             || ($initialMultipleTriggerHtml ?? null) !== null
             || ($isMultiple && filled($getPlaceholder()))
         );
-    $selectFieldPatchConfig = [
-        'statePath' => $statePath,
-        'isInlineSearch' => $isInlineSearch,
-        'isGridLayout' => $isGridLayout,
-        'useRichListTriggerDisplay' => $useRichListTriggerDisplay,
-        'useRichListDropdownLayout' => $useRichListDropdownLayout,
-        'keepSelectedOptionsInDropdown' => $field->shouldKeepSelectedOptionsInDropdown(),
-        'dropdownAlign' => $getDropdownAlign(),
-        'fieldLabel' => $showInlineFieldLabel ? (string) $fieldLabel : null,
-        'clearIconHtml' => $clearIconHtml,
-        'selectedOptionCheckIconHtml' => $selectedOptionCheckIconHtml,
-        'shouldPatchUserSelectClient' => $shouldPatchUserSelectClient,
-        'shouldPatchUserSelectMultiple' => $shouldPatchUserSelectMultiple,
-        'isUserSelectField' => $isUserSelectField,
-        'initialSelectedUserEntries' => $initialSelectedUserEntriesForJs ?? [],
-        'userSelectMinSearchLength' => $userSelectMinSearchLength,
-    ];
+    $showItemCardTriggerSsr = ! $isNative
+        && $isItemCardVariant
+        && $itemCardInitialTriggerLabel !== null;
 @endphp
 
 <x-dynamic-component
@@ -182,239 +161,15 @@
                 @endforeach
             </select>
         @else
-            @once
-                <link
-                    rel="modulepreload"
-                    href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select', 'filament/forms') }}"
-                    as="script"
-                    crossorigin
-                />
-                <link
-                    rel="modulepreload"
-                    href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
-                    as="script"
-                    crossorigin
-                />
-            @endonce
-            @if ($shouldPatchUserSelectClient)
-                @include('filament-flex-fields::forms.components.partials.user-select-scripts')
-            @endif
-            <x-filament-flex-fields::lazy-alpine-mount
-                :eager="$showInitialTriggerSsr"
-                :mount-immediately="$isDisabled || $showInitialTriggerSsr"
-            >
-            <div
-                x-load
-                x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
-                x-data="fffSelectFieldCoordinator({ patchConfig: @js($selectFieldPatchConfig) })"
-                x-init="init()"
-                class="fff-select-field__shell"
-            >
-                <div
-                    class="fi-hidden"
-                    x-data="{
-                        isDisabled: @js($isDisabled),
-                        init() {
-                            const container = $el.nextElementSibling
-                            container.dispatchEvent(
-                                new CustomEvent('set-select-property', {
-                                    detail: { isDisabled: this.isDisabled },
-                                }),
-                            )
-                        },
-                    }"
-                ></div>
-                <div
-                    data-fff-select-root
-                    x-load
-                    x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select', 'filament/forms') }}"
-                    x-data="selectFormComponent({
-                            canOptionLabelsWrap: @js($canOptionLabelsWrap),
-                            canSelectPlaceholder: @js($canSelectPlaceholder),
-                            getOptionLabelUsing: @if ($hasClientSideOptionList)
-                                null
-                            @else
-                                async () => {
-                                    return await Livewire.fireAction(
-                                        $wire.__instance,
-                                        'callSchemaComponentMethod',
-                                        [@js($key), 'getOptionLabel'],
-                                        { async: true },
-                                    )
-                                }
-                            @endif,
-                            getOptionLabelsUsing: @if ($hasClientSideOptionList)
-                                null
-                            @else
-                                async () => {
-                                    return await Livewire.fireAction(
-                                        $wire.__instance,
-                                        'callSchemaComponentMethod',
-                                        [@js($key), 'getOptionLabelsForJs'],
-                                        { async: true },
-                                    )
-                                }
-                            @endif,
-                            getOptionsUsing: @if ($hasDynamicOptions)
-                                async () => {
-                                    return await Livewire.fireAction(
-                                        $wire.__instance,
-                                        'callSchemaComponentMethod',
-                                        [@js($key), 'getOptionsForJs'],
-                                        { async: true },
-                                    )
-                                }
-                            @else
-                                null
-                            @endif,
-                            getSearchResultsUsing: @if ($hasDynamicSearchResults)
-                                async (search) => {
-                                    return await Livewire.fireAction(
-                                        $wire.__instance,
-                                        'callSchemaComponentMethod',
-                                        [@js($key), 'getSearchResultsForJs', { search }],
-                                        { async: true },
-                                    )
-                                }
-                            @else
-                                null
-                            @endif,
-                            hasDynamicOptions: @js($hasDynamicOptions),
-                            hasDynamicSearchResults: @js($hasDynamicSearchResults),
-                            hasInitialNoOptionsMessage: @js($hasInitialNoOptionsMessage),
-                            initialOptionLabel: @js((blank($state) || $isMultiple) ? null : $getOptionLabel()),
-                            initialOptionLabels: @js($skipInitialOptionLabels ? [] : ((filled($state) && $isMultiple) ? $getOptionLabelsForJs() : [])),
-                            initialSelectedUserEntries: @js($initialSelectedUserEntriesForJs ?? []),
-                            initialState: @js($state),
-                            isAutofocused: @js($isAutofocused),
-                            isDisabled: @js($isDisabled),
-                            isHtmlAllowed: @js($isHtmlAllowed),
-                            isMultiple: @js($isMultiple),
-                            isReorderable: @js($isReorderable),
-                            isSearchable: @js($isSearchable),
-                            livewireId: @js($this->getId()),
-                            loadingMessage: @js($getLoadingMessage()),
-                            maxItems: @js($getMaxItems()),
-                            maxItemsMessage: @js($getMaxItemsMessage()),
-                            noOptionsMessage: @js($getNoOptionsMessage()),
-                            noSearchResultsMessage: @js($getNoSearchResultsMessage()),
-                            options: @js($initialOptionsForJs),
-                            optionsLimit: @js($getOptionsLimit()),
-                            placeholder: @js($getPlaceholder()),
-                            position: @js($getPosition()),
-                            searchDebounce: @js($getSearchDebounce()),
-                            searchingMessage: @js($getSearchingMessage()),
-                            searchPrompt: @js($getSearchPrompt()),
-                            searchableOptionFields: @js($getSearchableOptionFields()),
-                            state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
-                            statePath: @js($statePath),
-                        })"
-                wire:ignore
-                wire:key="{{ $livewireKey }}.{{
-                    substr(md5(serialize([
-                        $isDisabled,
-                        $isReorderable,
-                        $getSize(),
-                        $getVariant(),
-                        $optionLayout,
-                        $usesRichOptionHtml,
-                    ])), 0, 64)
-                }}"
-                x-on:keydown.esc="select.dropdown.isActive && $event.stopPropagation()"
-                x-on:set-select-property="$event.detail.isDisabled ? select.disable() : select.enable()"
-                {{
-                    $attributes
-                        ->merge($getExtraAlpineAttributes(), escape: false)
-                        ->class(['fi-select-input'])
-                }}
-            >
-                @if ($isItemCardVariant && ! $isNative && $itemCardInitialTriggerLabel !== null)
-                    <div class="fff-select-item-card-ssr" aria-hidden="true">
-                        <span @class([
-                            'fff-select-item-card-ssr__value',
-                            'is-placeholder' => blank($state),
-                        ])>{{ $itemCardInitialTriggerLabel }}</span>
-                        <span class="fff-select-item-card-ssr__chevron" aria-hidden="true"></span>
-                    </div>
-                @endif
-
-                @if ($showInitialTriggerSsr)
-                    <div
-                        @class([
-                            'fff-select-trigger-ssr',
-                            'fi-select-input-ctn' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
-                            'fi-select-input-ctn-clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
-                            'fff-select-trigger-ssr--multiple' => $isMultiple,
-                            'fff-select-trigger-ssr--layout-grid' => $isGridLayout,
-                            'fff-select-trigger-ssr--clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
-                            'fff-select-trigger-ssr--inline-field-label' => $showInlineFieldLabel,
-                            'fff-select-trigger-ssr--rich-list-trigger' => $useRichListTriggerDisplay,
-                            'fff-user-select-trigger-ssr' => $isUserSelectField,
-                        ])
-                        aria-hidden="true"
-                    >
-                        <span class="fff-select-trigger-ssr__btn">
-                            @if ($showInlineFieldLabel)
-                                <span class="fff-select-inline-field-label">{{ $fieldLabel }}</span>
-                            @endif
-
-                            <span class="fff-select-trigger-ssr__value-ctn fi-select-input-value-ctn">
-                                @if ($isMultiple)
-                                    @if (($initialMultipleTriggerHtml ?? null) !== null)
-                                        <span class="fi-select-input-value-label">{!! $initialMultipleTriggerHtml !!}</span>
-                                    @elseif ($initialTriggerBadges !== [])
-                                        <span class="fi-select-input-value-badges-ctn">
-                                            @foreach ($initialTriggerBadges as $badge)
-                                                {{-- Match Filament select.js (`fi-size-md`); visual size comes from field chip tokens. --}}
-                                                <span class="fi-badge fi-size-md">
-                                                    <span class="fi-badge-label-ctn">
-                                                        <span class="fi-badge-label">{{ $badge['label'] }}</span>
-                                                    </span>
-                                                    <span class="fi-badge-delete-btn" aria-hidden="true">
-                                                        <svg class="fi-icon fi-size-xs" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" data-slot="icon"><path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z"></path></svg>
-                                                    </span>
-                                                </span>
-                                            @endforeach
-                                        </span>
-                                    @else
-                                        <span class="fi-select-input-placeholder">{{ $getPlaceholder() }}</span>
-                                    @endif
-                                @else
-                                    <span @class([
-                                        'fi-select-input-value-label',
-                                        'fi-select-input-placeholder' => $isInitialTriggerPlaceholder,
-                                    ])>
-                                        @if ($isHtmlAllowed)
-                                            {!! $initialTriggerLabel !!}
-                                        @else
-                                            {{ $initialTriggerLabel }}
-                                        @endif
-                                    </span>
-                                @endif
-                            </span>
-                        </span>
-
-                        @if ($field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled)
-                            <button
-                                type="button"
-                                class="fi-select-input-value-remove-btn"
-                                aria-hidden="true"
-                                tabindex="-1"
-                            >
-                                {!! $clearIconHtml !!}
-                            </button>
-                        @endif
-                    </div>
-                @endif
-
-                <div x-ref="select"></div>
-                </div>
-            </div>
-            </x-filament-flex-fields::lazy-alpine-mount>
+            @include('filament-flex-fields::forms.components.partials.select-field-headless')
         @endif
     </x-filament::input.wrapper>
 
-    @if (($userSelectTagsHtml ?? null) !== null)
-        {!! $userSelectTagsHtml !!}
+    @if ($isUserSelectField && $isMultiple && $field->shouldRenderMultipleUserTags())
+        @if (($userSelectTagsHtml ?? null) !== null)
+            {!! $userSelectTagsHtml !!}
+        @else
+            <div class="fff-user-select__selected-tags" data-fff-user-select-tags hidden></div>
+        @endif
     @endif
 </x-dynamic-component>

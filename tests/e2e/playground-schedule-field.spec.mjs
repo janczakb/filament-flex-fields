@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test'
 import { trackConsoleErrors } from './helpers/console-errors.mjs'
 
 test.describe('Flex Fields playground schedule field', () => {
-    test.skip(! process.env.FLEX_FIELDS_PLAYGROUND_URL, 'Set FLEX_FIELDS_PLAYGROUND_URL to run playground E2E')
 
     test('schedule-field loads without JS errors', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)

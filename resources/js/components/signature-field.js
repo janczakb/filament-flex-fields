@@ -1,4 +1,9 @@
+import { resolveIsDark } from '../core/theme-utils.js'
+
 const COORD_PRECISION = 1
+const DEFAULT_SIGNATURE_BACKGROUND = '#ffffff'
+const DEFAULT_SIGNATURE_PEN = '#18181b'
+const DARK_SIGNATURE_PEN = '#f4f4f5'
 
 function roundCoord(value) {
     const factor = 10 ** COORD_PRECISION
@@ -325,6 +330,46 @@ function drawStrokeOnContext(context, stroke, penWidth) {
     context.stroke()
 }
 
+function countSvgPaths(svg) {
+    if (! svg || typeof svg !== 'string') {
+        return 0
+    }
+
+    return (svg.match(/<path\b/gi) ?? []).length
+}
+
+function byteSize(value) {
+    return new Blob([value]).size
+}
+
+function isDefaultSignatureBackground(color) {
+    return color === null || color === undefined || color === DEFAULT_SIGNATURE_BACKGROUND
+}
+
+function isDefaultSignaturePen(color) {
+    return color === DEFAULT_SIGNATURE_PEN
+}
+
+function resolveDisplayBackgroundColor(backgroundColor) {
+    if (! isDefaultSignatureBackground(backgroundColor)) {
+        return backgroundColor
+    }
+
+    if (resolveIsDark()) {
+        return null
+    }
+
+    return backgroundColor
+}
+
+function resolveDisplayPenColor(penColor) {
+    if (! isDefaultSignaturePen(penColor)) {
+        return penColor
+    }
+
+    return resolveIsDark() ? DARK_SIGNATURE_PEN : penColor
+}
+
 export default function signatureFieldFormComponent({
     state,
     penColor,
@@ -343,7 +388,14 @@ export default function signatureFieldFormComponent({
     downloadFilename,
     webpQuality,
     storedSvg = null,
+    minStrokes = 1,
+    maxSizeKb = 48,
+    required = false,
+    validationMessages = {},
     labels,
+    inkTrailEnabled = false,
+    pdfPreviewEnabled = false,
+    legalAcknowledgment = null,
 }) {
     return {
         state,
@@ -363,8 +415,17 @@ export default function signatureFieldFormComponent({
         downloadFilename,
         webpQuality,
         storedSvg,
+        minStrokes,
+        maxSizeKb,
+        required,
+        validationMessages,
         labels,
+        inkTrailEnabled,
+        pdfPreviewEnabled,
+        legalAcknowledgment,
         strokes: [],
+        inkTrail: [],
+        isPdfPreviewOpen: false,
         currentStroke: null,
         isDrawing: false,
         isFullscreen: false,
@@ -377,9 +438,13 @@ export default function signatureFieldFormComponent({
         lastGlidePause: null,
         redrawFrame: null,
         resizeObserver: null,
+        clientValidationError: null,
+        displayReady: false,
+        themeObserver: null,
 
         init() {
             this.hydrateFromState()
+            this.setupThemeObserver()
             this.setupTrackpadGlideEngagement()
             this.$watch('state', (value) => {
                 if (value === this.exportSvg()) {
@@ -394,11 +459,13 @@ export default function signatureFieldFormComponent({
                 this.setupCanvasObservers()
                 this.resizeCanvas()
                 this.scheduleRedraw()
+                this.displayReady = true
             })
         },
 
         destroy() {
             this.resizeObserver?.disconnect()
+            this.themeObserver?.disconnect()
             window.cancelAnimationFrame(this.redrawFrame)
             this.clearGlideIdleTimer()
 
@@ -406,6 +473,17 @@ export default function signatureFieldFormComponent({
                 document.removeEventListener('pointerdown', this.glideOutsideClickHandler, true)
                 this.glideOutsideClickHandler = null
             }
+        },
+
+        setupThemeObserver() {
+            this.themeObserver = new MutationObserver(() => {
+                this.scheduleRedraw()
+            })
+
+            this.themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+            })
         },
 
         hydrateFromState() {
@@ -463,6 +541,14 @@ export default function signatureFieldFormComponent({
 
         get canDownload() {
             return this.downloadFormat !== null && this.hasSignature
+        },
+
+        get padInlineBackgroundStyle() {
+            if (isDefaultSignatureBackground(this.backgroundColor)) {
+                return null
+            }
+
+            return this.backgroundColor ? { backgroundColor: this.backgroundColor } : null
         },
 
         get aspectRatio() {
@@ -581,6 +667,22 @@ export default function signatureFieldFormComponent({
             this.finishGlideStroke()
         },
 
+        resolvePointerPressure(event) {
+            if (event.pointerType === 'touch') {
+                return 0.55
+            }
+
+            if (event.pointerType === 'pen' && Number.isFinite(event.pressure) && event.pressure > 0) {
+                return Math.max(0.05, Math.min(1, event.pressure))
+            }
+
+            if (Number.isFinite(event.pressure) && event.pressure > 0) {
+                return event.pressure
+            }
+
+            return event.pointerType === 'pen' ? 0.65 : 0.5
+        },
+
         normalizePoint(event, canvas) {
             const rect = canvas.getBoundingClientRect()
 
@@ -593,7 +695,7 @@ export default function signatureFieldFormComponent({
             const offsetY = (rect.height - this.viewBoxHeight * scale) / 2
             const x = (event.clientX - rect.left - offsetX) / scale
             const y = (event.clientY - rect.top - offsetY) / scale
-            const pressure = Number.isFinite(event.pressure) && event.pressure > 0 ? event.pressure : 0.5
+            const pressure = this.resolvePointerPressure(event)
             const width = this.penWidth * (0.35 + pressure * 0.65)
 
             return {
@@ -651,14 +753,19 @@ export default function signatureFieldFormComponent({
             context.setTransform(1, 0, 0, 1, 0, 0)
             context.clearRect(0, 0, width, height)
 
-            if (this.backgroundColor && ! this.guidelinesEnabled) {
-                context.fillStyle = this.backgroundColor
+            const displayBackgroundColor = resolveDisplayBackgroundColor(this.backgroundColor)
+            const displayPenColor = resolveDisplayPenColor(this.penColor)
+
+            if (displayBackgroundColor && ! this.guidelinesEnabled) {
+                context.fillStyle = displayBackgroundColor
                 context.fillRect(0, 0, width, height)
             }
 
             context.setTransform(scale, 0, 0, scale, offsetX, offsetY)
-            context.strokeStyle = this.penColor
-            context.fillStyle = this.penColor
+            context.strokeStyle = displayPenColor
+            context.fillStyle = displayPenColor
+
+            this.drawInkTrail(context)
 
             this.strokes.forEach((stroke) => {
                 drawStrokeOnContext(context, stroke, this.penWidth)
@@ -667,6 +774,52 @@ export default function signatureFieldFormComponent({
             if (this.currentStroke) {
                 drawStrokeOnContext(context, this.currentStroke, this.penWidth)
             }
+        },
+
+        drawInkTrail(context) {
+            if (! this.inkTrailEnabled || this.inkTrail.length === 0) {
+                return
+            }
+
+            const now = Date.now()
+            const maxAge = 900
+
+            this.inkTrail = this.inkTrail.filter((dot) => now - dot.at <= maxAge)
+
+            this.inkTrail.forEach((dot, index) => {
+                const age = now - dot.at
+                const fade = Math.max(0, 1 - age / maxAge)
+                const trailAlpha = fade * (0.15 + (index / Math.max(1, this.inkTrail.length)) * 0.35)
+
+                context.save()
+                context.globalAlpha = trailAlpha
+                context.beginPath()
+                context.arc(dot.x, dot.y, (dot.width ?? this.penWidth) * 0.35, 0, Math.PI * 2)
+                context.fill()
+                context.restore()
+            })
+        },
+
+        get previewSvgMarkup() {
+            const svg = this.exportSvg()
+
+            if (! svg) {
+                return '<p class="fff-signature__pdf-empty">—</p>'
+            }
+
+            return svg.replace('<svg', '<svg class="fff-signature__pdf-svg"')
+        },
+
+        openPdfPreview() {
+            if (! this.pdfPreviewEnabled) {
+                return
+            }
+
+            this.isPdfPreviewOpen = true
+        },
+
+        closePdfPreview() {
+            this.isPdfPreviewOpen = false
         },
 
         renderToExportCanvas(pixelRatio = 2) {
@@ -753,6 +906,19 @@ export default function signatureFieldFormComponent({
                 }
             } else {
                 this.currentStroke.points.push(point)
+            }
+
+            if (this.inkTrailEnabled) {
+                this.inkTrail.push({
+                    x: point.x,
+                    y: point.y,
+                    width: point.width ?? this.penWidth,
+                    at: Date.now(),
+                })
+
+                if (this.inkTrail.length > 140) {
+                    this.inkTrail.shift()
+                }
             }
 
             this.scheduleRedraw()
@@ -1018,6 +1184,8 @@ export default function signatureFieldFormComponent({
 
             this.strokes = []
             this.currentStroke = null
+            this.inkTrail = []
+            this.clientValidationError = null
             this.commitState()
             this.scheduleRedraw()
         },
@@ -1032,7 +1200,28 @@ export default function signatureFieldFormComponent({
             })
         },
 
+        validateClient() {
+            const svg = this.exportSvg()
+
+            if (! svg) {
+                return this.required
+                    ? (this.validationMessages?.required ?? null)
+                    : null
+            }
+
+            if (countSvgPaths(svg) < this.minStrokes) {
+                return this.validationMessages?.too_few_strokes ?? null
+            }
+
+            if (byteSize(svg) > this.maxSizeKb * 1024) {
+                return this.validationMessages?.too_large ?? null
+            }
+
+            return null
+        },
+
         commitState() {
+            this.clientValidationError = this.validateClient()
             this.state = this.exportSvg()
         },
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Schedule;
 
+use Bjanczak\FilamentFlexFields\Support\DateTime\ScheduleV2;
 use Closure;
 
 final class ScheduleValidator
@@ -98,7 +99,9 @@ final class ScheduleValidator
                 return;
             }
 
-            if ($this->timeToMinutes($from) >= $this->timeToMinutes($to)) {
+            $overnight = ScheduleV2::slotIsOvernight($slot);
+
+            if (! $overnight && $this->timeToMinutes($from) >= $this->timeToMinutes($to)) {
                 $fail(__('filament-flex-fields::default.schedule.validation.from_before_to', [
                     'day' => $dayLabel,
                     'slot' => $index + 1,
@@ -110,6 +113,7 @@ final class ScheduleValidator
             $normalizedSlots[] = [
                 'from' => $from,
                 'to' => $to,
+                'overnight' => $overnight,
             ];
         }
 
@@ -139,23 +143,11 @@ final class ScheduleValidator
     }
 
     /**
-     * @param  list<array{from: string, to: string}>  $slots
+     * @param  list<array{from: string, to: string, overnight?: bool}>  $slots
      */
     public function slotsOverlap(array $slots): bool
     {
-        if (count($slots) < 2) {
-            return false;
-        }
-
-        usort($slots, fn (array $left, array $right): int => $this->timeToMinutes($left['from']) <=> $this->timeToMinutes($right['from']));
-
-        for ($index = 1; $index < count($slots); $index++) {
-            if ($this->timeToMinutes($slots[$index]['from']) < $this->timeToMinutes($slots[$index - 1]['to'])) {
-                return true;
-            }
-        }
-
-        return false;
+        return ! ScheduleV2::validateNoOverlap($slots);
     }
 
     public function timeToMinutes(string $time): int

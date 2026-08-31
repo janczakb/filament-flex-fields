@@ -48,6 +48,7 @@ enum FieldType: string
     case SegmentControl = 'segment_control';
     case ChoiceCards = 'choice_cards';
     case ChoiceCheckboxCards = 'choice_checkbox_cards';
+    case ImageChoiceCards = 'image_choice_cards';
     case FlexChecklist = 'flex_checklist';
     case FlexRadiolist = 'flex_radiolist';
     case MatrixChoice = 'matrix_choice';
@@ -65,6 +66,7 @@ enum FieldType: string
     case TimeRange = 'time_range';
     case Month = 'month';
     case Year = 'year';
+    case Schedule = 'schedule';
 
     // Media & visual
     case Color = 'color';
@@ -79,6 +81,7 @@ enum FieldType: string
     case SocialLinks = 'social_links';
     case Signature = 'signature';
     case CreditCard = 'credit_card';
+    case Barcode = 'barcode';
 
     // Advanced
     case Rating = 'rating';
@@ -129,6 +132,7 @@ enum FieldType: string
             self::SegmentControl,
             self::ChoiceCards,
             self::ChoiceCheckboxCards,
+            self::ImageChoiceCards,
             self::FlexChecklist,
             self::FlexRadiolist,
             self::MatrixChoice,
@@ -144,7 +148,8 @@ enum FieldType: string
             self::Duration,
             self::TimeRange,
             self::Month,
-            self::Year => FieldCategory::DateTime,
+            self::Year,
+            self::Schedule => FieldCategory::DateTime,
 
             self::Color,
             self::ColorPresets,
@@ -157,7 +162,8 @@ enum FieldType: string
             self::MapPicker,
             self::SocialLinks,
             self::Signature,
-            self::CreditCard => FieldCategory::Media,
+            self::CreditCard,
+            self::Barcode => FieldCategory::Media,
 
             self::Rating,
             self::Nps,
@@ -214,6 +220,7 @@ enum FieldType: string
             self::SegmentControl => 'heroicon-o-view-columns',
             self::ChoiceCards => 'heroicon-o-rectangle-stack',
             self::ChoiceCheckboxCards => 'heroicon-o-squares-plus',
+            self::ImageChoiceCards => 'heroicon-o-photo',
             self::FlexChecklist => 'heroicon-o-clipboard-document-check',
             self::FlexRadiolist => 'heroicon-o-list-bullet',
             self::MatrixChoice => 'heroicon-o-table-cells',
@@ -230,6 +237,7 @@ enum FieldType: string
             self::TimeRange => 'heroicon-o-arrows-right-left',
             self::Month => 'heroicon-o-calendar-days',
             self::Year => 'heroicon-o-calendar',
+            self::Schedule => 'heroicon-o-calendar-days',
 
             self::Color => 'heroicon-o-swatch',
             self::ColorPresets => 'heroicon-o-paint-brush',
@@ -243,6 +251,7 @@ enum FieldType: string
             self::SocialLinks => 'heroicon-o-share',
             self::Signature => 'heroicon-o-pencil-square',
             self::CreditCard => 'heroicon-o-credit-card',
+            self::Barcode => 'heroicon-o-qr-code',
 
             self::Rating => 'heroicon-o-star',
             self::Nps => 'heroicon-o-chart-bar',
@@ -262,6 +271,7 @@ enum FieldType: string
             self::SegmentControl,
             self::ChoiceCards,
             self::ChoiceCheckboxCards,
+            self::ImageChoiceCards,
             self::FlexChecklist,
             self::FlexRadiolist,
             self::MatrixChoice,
@@ -280,6 +290,7 @@ enum FieldType: string
             self::VerificationCode,
             self::IconPicker,
             self::CreditCard,
+            self::Barcode,
             self::Phone,
             self::Country,
             self::Timezone,
@@ -300,6 +311,7 @@ enum FieldType: string
             self::TimeRange,
             self::Month,
             self::Year,
+            self::Schedule,
             self::Nps,
             self::Rating,
         ], true);
@@ -332,6 +344,7 @@ enum FieldType: string
             self::FlexTextarea => ['flex-textarea'],
             self::RichText => ['rich-editor-field'],
             self::CreditCard => ['credit-card'],
+            self::Barcode => ['barcode-scanner-field'],
             self::Currency => ['currency-field'],
             self::NumberStepper => ['number-stepper'],
             self::Percentage,
@@ -344,6 +357,7 @@ enum FieldType: string
             self::SegmentControl => ['segment-control'],
             self::ChoiceCards,
             self::ChoiceCheckboxCards => ['choice-cards'],
+            self::ImageChoiceCards => ['image-choice-cards'],
             self::FlexChecklist => ['flex-checklist'],
             self::FlexRadiolist => ['flex-radiolist'],
             self::MatrixChoice => ['matrix-choice-field'],
@@ -359,6 +373,7 @@ enum FieldType: string
             self::Duration,
             self::TimeRange => ['flex-date-time-field'],
             self::Time => ['flex-date-time-field', 'flex-time-segments'],
+            self::Schedule => ['schedule-field'],
             self::Color,
             self::ColorPresets => ['color-swatch'],
             self::FlexColorPicker => ['flex-color-picker'],
@@ -382,6 +397,47 @@ enum FieldType: string
     public function defaultConfig(): array
     {
         return FieldTypeDefaultConfigRegistry::for($this);
+    }
+
+    public function supportsUserDefinedOptions(): bool
+    {
+        return match ($this) {
+            self::Select,
+            self::Radio,
+            self::CheckboxList,
+            self::SegmentControl,
+            self::ChoiceCards,
+            self::ChoiceCheckboxCards,
+            self::ImageChoiceCards,
+            self::FlexChecklist,
+            self::FlexRadiolist,
+            self::DualListbox,
+            self::Tags => true,
+            default => false,
+        };
+    }
+
+    public function requiresConfiguredOptions(): bool
+    {
+        return $this->supportsUserDefinedOptions() && ! $this->usesSuggestionsInsteadOfOptions();
+    }
+
+    public function usesSuggestionsInsteadOfOptions(): bool
+    {
+        return $this === self::Tags;
+    }
+
+    public function supportsRichFieldOptions(): bool
+    {
+        return match ($this) {
+            self::SegmentControl,
+            self::ChoiceCards,
+            self::ChoiceCheckboxCards,
+            self::ImageChoiceCards,
+            self::FlexChecklist,
+            self::FlexRadiolist => true,
+            default => false,
+        };
     }
 
     /**

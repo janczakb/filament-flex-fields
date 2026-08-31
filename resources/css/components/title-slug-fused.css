@@ -79,6 +79,9 @@
     @apply border-0 bg-transparent p-0 shadow-none;
 }
 
-.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-tabs__control {
-    @apply mb-3;
+/* Spacing between locale tabs and title input comes from
+   `.fff-translatable-fields .fff-segment-overflow-shell { mb-3 }` only —
+   do not add margin on `.fff-segment-tabs__control` (double gap with overflow shell). */
+.fi-sc-fused-group.fff-title-slug-fused-group .fff-title-slug-field__translatable-tabs .fff-segment-overflow-shell .fff-segment-tabs__control {
+    @apply mb-0;
 }

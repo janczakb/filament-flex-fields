@@ -1,0 +1,50 @@
+/* StatusChipColumn (tables) */
+.fff-status-chip-column {
+    @apply inline-flex max-w-full items-center;
+    min-height: auto;
+}
+
+.fff-status-chip-column__chip {
+    @apply inline-flex max-w-full items-center truncate rounded-full border px-2.5 py-0.5 text-xs font-semibold;
+    border-color: color-mix(in srgb, var(--primary-500, rgb(99 102 241)) 32%, rgb(212 212 216));
+    background: color-mix(in srgb, var(--primary-500, rgb(99 102 241)) 8%, rgb(255 255 255));
+    color: color-mix(in srgb, var(--primary-500, rgb(99 102 241)) 78%, rgb(24 24 27));
+}
+
+.fff-status-chip-column.fi-color-success .fff-status-chip-column__chip {
+    border-color: rgb(134 239 172);
+    background: rgb(240 253 244);
+    color: rgb(21 128 61);
+}
+
+.fff-status-chip-column.fi-color-warning .fff-status-chip-column__chip {
+    border-color: rgb(253 230 138);
+    background: rgb(255 251 235);
+    color: rgb(180 83 9);
+}
+
+.fff-status-chip-column.fi-color-danger .fff-status-chip-column__chip {
+    border-color: rgb(254 202 202);
+    background: rgb(254 242 242);
+    color: rgb(185 28 28);
+}
+
+.fff-status-chip-column.fi-color-info .fff-status-chip-column__chip {
+    border-color: rgb(186 230 253);
+    background: rgb(240 249 255);
+    color: rgb(3 105 161);
+}
+
+.fff-status-chip-column--sm .fff-status-chip-column__chip {
+    @apply px-2 py-0 text-[0.6875rem];
+}
+
+.fff-status-chip-column--lg .fff-status-chip-column__chip {
+    @apply px-3 py-1 text-sm;
+}
+
+.dark .fff-status-chip-column__chip {
+    border-color: rgb(82 82 91);
+    background: rgb(39 39 42);
+    color: rgb(244 244 245);
+}

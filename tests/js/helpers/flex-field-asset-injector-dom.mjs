@@ -101,6 +101,9 @@ export function createElement(tagName) {
 
             return this.parentElement?.closest?.(selector) ?? null
         },
+        querySelector(selector) {
+            return this.querySelectorAll(selector)[0] ?? null
+        },
         querySelectorAll(selector) {
             const matches = []
 
@@ -137,6 +140,22 @@ export function createElement(tagName) {
         matches(selector) {
             if (selector === '[data-fff-asset-batch]') {
                 return this.hasAttribute?.('data-fff-asset-batch') ?? false
+            }
+
+            if (selector === '[data-fff-segment-overflow]' || selector.startsWith('[data-fff-segment-overflow]:not(')) {
+                if (! this.hasAttribute('data-fff-segment-overflow')) {
+                    return false
+                }
+
+                if (selector.includes('data-ssr-scroll-positioned')) {
+                    return this.dataset.ssrScrollPositioned !== 'true'
+                }
+
+                return true
+            }
+
+            if (selector === '[data-segment-selected="true"]') {
+                return this.getAttribute('data-segment-selected') === 'true'
             }
 
             if (selector === '.fi-modal') {

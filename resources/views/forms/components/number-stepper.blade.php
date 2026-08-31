@@ -100,11 +100,8 @@
                     x-bind:class="{ 'is-replaced': flowReady }"
                 >
                     @if ($hasInitialDisplayValue)
-                        <span class="fff-number-stepper__ssr-main">{{ $initialDisplayMain }}</span>
-
-                        @if (filled($displaySuffix))
-                            <span class="fff-number-stepper__ssr-suffix">{!! '&nbsp;' !!}{{ $displaySuffix }}</span>
-                        @endif
+                        {{-- Keep main+suffix adjacent: HTML whitespace between inline spans adds a full-size gap that vanishes when NumberFlow hydrates (visible jump before '%'). --}}
+                        <span class="fff-number-stepper__ssr-main">{{ $initialDisplayMain }}</span>@if (filled($displaySuffix))<span class="fff-number-stepper__ssr-suffix">&nbsp;{{ $displaySuffix }}</span>@endif
                     @else
                         {{ $nullLabel }}
                     @endif

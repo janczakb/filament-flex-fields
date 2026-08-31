@@ -15,8 +15,10 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeRangeField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTimeSegmentsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexYearPicker;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\DateTimeFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexTimeSegmentsFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\ScheduleFieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class DateTimeFieldTypeHandler extends AbstractFieldTypeHandler
@@ -24,6 +26,7 @@ final class DateTimeFieldTypeHandler extends AbstractFieldTypeHandler
     public function __construct(
         private readonly DateTimeFieldConfigurator $dateTime = new DateTimeFieldConfigurator,
         private readonly FlexTimeSegmentsFieldConfigurator $timeSegments = new FlexTimeSegmentsFieldConfigurator,
+        private readonly ScheduleFieldConfigurator $schedule = new ScheduleFieldConfigurator,
     ) {}
 
     protected function supportedTypesList(): array
@@ -37,6 +40,7 @@ final class DateTimeFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::TimeRange,
             FieldType::Month,
             FieldType::Year,
+            FieldType::Schedule,
         ];
     }
 
@@ -53,6 +57,7 @@ final class DateTimeFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::TimeRange => $this->dateTime->configure(FlexTimeRangeField::make($statePath)->withRecommendedDefaults(), $config),
             FieldType::Month => $this->dateTime->configure(FlexMonthPicker::make($statePath)->withRecommendedDefaults(), $config),
             FieldType::Year => $this->dateTime->configure(FlexYearPicker::make($statePath)->withRecommendedDefaults(), $config),
+            FieldType::Schedule => $this->schedule->configure(ScheduleField::make($statePath), $config),
             default => throw new \InvalidArgumentException("Unsupported field type [{$definition->type->value}] for date-time handler."),
         };
     }

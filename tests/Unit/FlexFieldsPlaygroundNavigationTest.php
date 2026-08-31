@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 it('exposes one registry entry per playground component', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(56)
-        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(56);
+    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(61)
+        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(61);
 });
 
 it('orders playground definitions by sort', function () {
@@ -71,7 +71,7 @@ it('uses registry labels for sub-navigation entries', function () {
     $labels = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'label');
 
     expect($labels)->toContain('RatingColumn', 'IconColumn', 'UserColumn', 'Phone field')
-        ->and(count($labels))->toBe(56);
+        ->and(count($labels))->toBe(61);
 });
 
 it('assigns a gravity icon to every playground sub-navigation entry', function () {
@@ -100,6 +100,44 @@ it('renders playground icons in cluster sub-navigation', function () {
     expect($cluster)->toContain("->icon(\$definition['icon'])");
 });
 
+it('registers interactive v3 hubs with NEW success badges', function () {
+    $removedDumpSlugs = [
+        'compliance-pack',
+        'enterprise-control',
+    ];
+
+    foreach ($removedDumpSlugs as $slug) {
+        expect(FlexFieldsPlaygroundRegistry::find($slug))->toBeNull("Docs-dump hub [{$slug}] must stay out of playground nav.");
+    }
+
+    foreach ([
+        'schema-conditions',
+        'field-intelligence',
+        'composition-recipes',
+        'hold-confirm',
+        'admin-columns',
+        'schedule-field',
+        'barcode-scanner-field',
+    ] as $slug) {
+        $definition = FlexFieldsPlaygroundRegistry::find($slug);
+
+        expect($definition)->not->toBeNull("Playground slug [{$slug}] must exist.")
+            ->and($definition['badge'] ?? null)->toBe('NEW')
+            ->and($definition['badgeColor'] ?? null)->toBe('success');
+    }
+
+    expect(FlexFieldsPlaygroundRegistry::find('select-field')['badge'] ?? null)->toBeNull();
+});
+
 it('keeps component page class bound to the playground cluster', function () {
     expect(FlexFieldsPlaygroundComponentPage::getCluster())->toBe(FlexFieldsPlaygroundCluster::class);
+});
+
+it('builds command palette entries on the page class without Blade use statements', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/pages/flex-fields-playground-component.blade.php');
+
+    expect($blade)
+        ->toContain('commandPaletteEntries()')
+        ->not->toContain('@php')
+        ->not->toContain('use Bjanczak\\FilamentFlexFields\\');
 });

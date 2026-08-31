@@ -1,0 +1,109 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Filament Flex Fields — public design token contract (M1)",
+    "description": "Stable CSS custom properties and data attributes OEM themes may override. Values are documented in resources/css/base.css.",
+    "version": "1.0.0",
+    "dataAttributes": {
+        "data-fff-density": {
+            "values": ["compact", "comfortable", "spacious"],
+            "default": "comfortable",
+            "description": "Global density scale applied on documentElement; drives --fff-density-scale."
+        },
+        "data-fff-theme": {
+            "format": "json",
+            "optional": true,
+            "description": "Serialized runtime theme overrides when FlexFieldsTheme::theme() is non-empty."
+        }
+    },
+    "tokens": {
+        "density": {
+            "--fff-density-scale": {
+                "type": "number",
+                "default": "1",
+                "compact": "0.875",
+                "comfortable": "1",
+                "spacious": "1.125",
+                "description": "Multiplier for track/control spacing; set via data-fff-density."
+            }
+        },
+        "controlHeights": {
+            "--fff-track-h-sm": { "default": "2rem", "description": "Outer track height (sm)." },
+            "--fff-track-h-md": { "default": "2.5rem", "description": "Outer track height (md)." },
+            "--fff-track-h-lg": { "default": "3rem", "description": "Outer track height (lg)." },
+            "--fff-track-p-sm": { "default": "0.1875rem", "description": "Track padding (sm)." },
+            "--fff-track-p-md": { "default": "0.25rem", "description": "Track padding (md)." },
+            "--fff-track-p-lg": { "default": "0.3125rem", "description": "Track padding (lg)." },
+            "--fff-control-h-sm": { "default": "calc(var(--fff-track-h-sm) - (var(--fff-track-p-sm) * 2))" },
+            "--fff-control-h-md": { "default": "calc(var(--fff-track-h-md) - (var(--fff-track-p-md) * 2))" },
+            "--fff-control-h-lg": { "default": "calc(var(--fff-track-h-lg) - (var(--fff-track-p-lg) * 2))" },
+            "--fff-text-sm": { "default": "0.75rem" },
+            "--fff-text-md": { "default": "0.875rem" },
+            "--fff-text-lg": { "default": "0.9375rem" },
+            "--fff-icon-sm": { "default": "0.875rem" },
+            "--fff-icon-md": { "default": "1rem" },
+            "--fff-icon-lg": { "default": "1.125rem" },
+            "--fff-px-sm": { "default": "0.875rem" },
+            "--fff-px-md": { "default": "1.125rem" },
+            "--fff-px-lg": { "default": "1.375rem" }
+        },
+        "focus": {
+            "--fff-field-focus-border": {
+                "default": "var(--primary-500, rgb(59 130 246))",
+                "themeKey": "primary",
+                "description": "Focus border color for .has-focus-outline fields."
+            },
+            "--fff-field-focus-ring": {
+                "default": "color-mix(in srgb, var(--fff-field-focus-border) 28%, transparent)"
+            },
+            "--fff-field-focus-ring-width": { "default": "3px", "themeKey": "field_focus_ring_width" }
+        },
+        "fieldSurfaces": {
+            "--fff-field-bg": { "default": "#fff", "themeKey": "field_bg" },
+            "--fff-field-border": { "default": "#e5e7eb", "themeKey": "field_border" },
+            "--fff-field-border-width": { "default": "1px" },
+            "--fff-field-shadow": { "default": "none" },
+            "--fff-field-secondary-bg": { "default": "rgb(244 244 245)" },
+            "--fff-field-secondary-border": { "default": "#e4e4e7" },
+            "--fff-field-soft-bg": { "default": "rgb(242 242 242)" },
+            "--fff-global-radius": { "default": "0.75rem", "themeKey": "radius" },
+            "--fff-global-menu-radius": { "default": "0.75rem", "themeKey": "menu_radius" }
+        },
+        "zIndex": {
+            "--fff-z-dropdown": { "default": "20" },
+            "--fff-z-dropdown-modal": { "default": "60" },
+            "--fff-z-overlay": { "default": "30" },
+            "--fff-z-modal": { "default": "40" },
+            "--fff-z-calculator-panel": { "default": "100" }
+        },
+        "motion": {
+            "--fff-motion-duration-fast": {
+                "default": "150ms",
+                "reducedMotion": "0.01ms",
+                "description": "Micro-interactions: chip mount, icon fade."
+            },
+            "--fff-motion-duration-base": {
+                "default": "250ms",
+                "reducedMotion": "0.01ms",
+                "description": "Default enter/exit for menus and checks."
+            },
+            "--fff-motion-duration-slow": {
+                "default": "400ms",
+                "reducedMotion": "0.01ms",
+                "description": "Sheet snap and hold-pulse sweeps."
+            },
+            "--fff-motion-ease-standard": {
+                "default": "cubic-bezier(0.16, 1, 0.3, 1)",
+                "description": "Shared easing for Wow Product Layer transitions."
+            }
+        }
+    },
+    "cssClasses": {
+        "has-focus-outline": "Apply on field root to enable universal focus ring via .fff-focus-target or native controls.",
+        "fff-focus-target": "Inner element receiving focus ring when parent has .has-focus-outline.",
+        "fff-rounding-md": "Sets --fff-global-radius and --fff-global-menu-radius to 0.75rem.",
+        "fff-rounding-lg": "Sets --fff-global-radius and --fff-global-menu-radius to 1rem.",
+        "fff-rounding-xl": "Sets --fff-global-radius and --fff-global-menu-radius to 1.25rem.",
+        "fff-rounding-native": "Sets --fff-global-radius and --fff-global-menu-radius to 0.5rem.",
+        "fff-rounding-full": "Pill rounding; menu radius 1.5rem."
+    }
+}

@@ -52,8 +52,10 @@
                     loadFailed: @js(__('filament-flex-fields::default.map_picker.load_failed')),
                     loadingMap: @js(__('filament-flex-fields::default.map_picker.loading_map')),
                     searchLoading: @js(__('filament-flex-fields::default.map_picker.search_loading')),
+                    searchRefreshing: @js(__('filament-flex-fields::default.map_picker.search_refreshing')),
                     searchMinChars: @js(__('filament-flex-fields::default.map_picker.search_min_chars')),
                     searchNoResults: @js(__('filament-flex-fields::default.map_picker.search_no_results')),
+                    searchRecent: @js(__('filament-flex-fields::default.map_picker.search_recent')),
                     streetAddressRequired: @js(__('filament-flex-fields::default.map_picker.street_address_required')),
                     geocodeFailed: @js(__('filament-flex-fields::default.geocoding.failed')),
                 },
@@ -63,90 +65,47 @@
         >
             <div class="fff-map-picker__box">
                 @if ($field->isSearchable() && ! $isDisabled && ! $isReadOnly)
-                    <div class="fff-map-picker__search-wrap">
-                        <label class="sr-only" for="{{ $statePath }}__search">{{ __('filament-flex-fields::default.map_picker.search_placeholder') }}</label>
-                        <input
-                            id="{{ $statePath }}__search"
-                            type="text"
-                            role="combobox"
-                            x-ref="searchInput"
-                            class="fff-map-picker__search-input"
-                            x-model="searchQuery"
-                            x-on:input="onSearchInput()"
-                            x-on:focus="onSearchFocus()"
-                            x-on:blur="onSearchBlur()"
-                            x-on:keydown="onSearchKeydown($event)"
-                            x-bind:placeholder="labels.search"
-                            x-bind:aria-expanded="searchOpen"
-                            x-bind:aria-activedescendant="highlightedIndex >= 0 ? geocodingOptionId(highlightedIndex) : null"
-                            aria-autocomplete="list"
-                            aria-controls="{{ $statePath }}__search-listbox"
-                            autocomplete="off"
-                        />
-
-                        <template x-teleport="body">
-                            <div
-                                id="{{ $statePath }}__search-listbox"
-                                role="listbox"
-                                class="fff-map-picker__dropdown-panel fff-map-picker__dropdown-panel--map-context fff-select-dropdown-panel fff-teleported-menu"
-                                x-ref="searchDropdown"
-                                x-show="searchable && searchOpen && ! readOnly"
-                                x-cloak
-                                x-bind:class="{ 'is-positioned': searchDropdownReady }"
-                                x-on:mousedown.stop
-                            >
-                                <div class="fff-map-picker__dropdown-options">
-                                <p
-                                    class="fff-map-picker__dropdown-hint"
-                                    x-show="! searchHasMinQuery && ! searchLoading"
-                                    x-text="labels.searchMinChars"
-                                ></p>
-
-                                <div
-                                    class="fff-map-picker__dropdown-skeleton"
-                                    x-show="searchLoading && searchHasMinQuery"
-                                    aria-busy="true"
-                                >
-                                    <span class="sr-only" x-text="labels.searchLoading"></span>
-
-                                    @foreach (range(0, 4) as $skeletonIndex)
-                                        <div
-                                            class="fff-map-picker__dropdown-skeleton-option"
-                                            style="--fff-map-picker-skeleton-i: {{ $skeletonIndex }}"
-                                            aria-hidden="true"
-                                        >
-                                            <span class="fff-map-picker__dropdown-skeleton-icon"></span>
-                                            <span class="fff-map-picker__dropdown-skeleton-body">
-                                                <span class="fff-map-picker__dropdown-skeleton-line is-primary"></span>
-                                                <span class="fff-map-picker__dropdown-skeleton-line is-secondary"></span>
-                                            </span>
-                                        </div>
-                                    @endforeach
-                                </div>
-
-                                <p
-                                    class="fff-map-picker__dropdown-hint"
-                                    x-show="searchHasMinQuery && ! searchLoading && searchResults.length === 0"
-                                    x-text="labels.searchNoResults"
-                                ></p>
-
-                                <div x-show="! searchLoading">
-                                    <template x-for="(result, index) in searchResults" :key="result.id">
-                                        <button
-                                            type="button"
-                                            role="option"
-                                            class="fff-map-picker__dropdown-option"
-                                            x-bind:id="geocodingOptionId(index)"
-                                            x-bind:class="{ 'is-active': highlightedIndex === index }"
-                                            x-bind:aria-selected="highlightedIndex === index"
-                                            x-on:mousedown.prevent="selectSearchResult(result)"
-                                        >
-                                            <span x-text="result.label"></span>
-                                        </button>
-                                    </template>
-                                </div>
+                    <div class="fff-map-picker__search-wrap" x-ref="searchWrap">
+                        <div
+                            @class([
+                                'fff-flex-text-input',
+                                'fff-map-picker__search',
+                                'fff-flex-text-input--'.$field->getSize(),
+                                'has-focus-outline' => $field->shouldShowFocusOutline(),
+                            ])
+                        >
+                            <div x-ref="searchShell" class="fff-flex-text-input__shell">
+                                <div class="fff-flex-text-input__row">
+                                    <div class="fff-flex-text-input__control">
+                                        <label class="sr-only" for="{{ $statePath }}__search">{{ __('filament-flex-fields::default.map_picker.search_placeholder') }}</label>
+                                        <input
+                                            id="{{ $statePath }}__search"
+                                            type="text"
+                                            role="combobox"
+                                            x-ref="searchInput"
+                                            class="fff-flex-text-input__input"
+                                            x-model="searchQuery"
+                                            x-on:input="onSearchInput()"
+                                            x-on:focus="onSearchFocus()"
+                                            x-on:blur="onSearchBlur()"
+                                            x-on:keydown="onSearchKeydown($event)"
+                                            x-bind:placeholder="labels.search"
+                                            x-bind:aria-expanded="searchOpen"
+                                            x-bind:aria-activedescendant="highlightedIndex >= 0 ? geocodingOptionId(highlightedIndex) : null"
+                                            aria-autocomplete="list"
+                                            aria-controls="{{ $statePath }}__search-listbox"
+                                            autocomplete="off"
+                                        />
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <template x-teleport="body">
+                            @include('filament-flex-fields::forms.components.partials.geocoding-search-dropdown-panel', [
+                                'listboxId' => $statePath.'__search-listbox',
+                                'mapContext' => true,
+                            ])
                         </template>
 
                         <p

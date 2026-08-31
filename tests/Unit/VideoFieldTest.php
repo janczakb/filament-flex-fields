@@ -326,3 +326,61 @@ it('can disable vimeo detection', function () {
 
     expect($field->usesVimeoEmbed('https://vimeo.com/123456789'))->toBeFalse();
 });
+
+it('exposes playback speed quality cast and settings configuration', function () {
+    $mp4 = 'https://example.com/video.mp4';
+    $youtube = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ';
+
+    $field = VideoField::make('clip')
+        ->src($mp4)
+        ->playbackRates([0.5, 1, 1.5])
+        ->qualityOptions([
+            ['key' => 'auto', 'label' => 'Auto (1080p)', 'src' => $mp4, 'default' => true],
+            ['key' => '720', 'label' => '720p', 'src' => 'https://example.com/720.mp4', 'height' => 720],
+        ])
+        ->castable()
+        ->airPlayable()
+        ->settingsMenu()
+        ->tooltips(false);
+
+    expect($field->getPlaybackRates())->toBe([0.5, 1.0, 1.5])
+        ->and($field->hasPlaybackRateControl())->toBeTrue()
+        ->and($field->getQualityOptions())->toHaveCount(2)
+        ->and($field->getQualityOptions()[0]['key'])->toBe('auto')
+        ->and($field->hasQualityControl())->toBeTrue()
+        ->and($field->showsSettingsMenu())->toBeTrue()
+        ->and($field->showsTooltips())->toBeFalse()
+        ->and($field->isCastable())->toBeTrue()
+        ->and($field->isAirPlayable())->toBeTrue();
+
+    $youtubeField = VideoField::make('clip')
+        ->playbackRates(true);
+
+    expect($youtubeField->hasPlaybackRateControl())->toBeTrue()
+        ->and($youtubeField->hasQualityControl())->toBeFalse()
+        ->and(VideoField::make('clip')->playbackRates(true)->hasPlaybackRateControl())->toBeTrue()
+        ->and(VideoField::make('clip')->resolveProvider($youtube))->toBe(VideoSources::PROVIDER_YOUTUBE)
+        ->and(VideoField::make('clip')->isCastable())->toBeFalse();
+});
+
+it('uses default playback rates when enabled with true', function () {
+    $field = VideoField::make('clip')->playbackRates(true);
+
+    expect($field->getPlaybackRates())->toBe([0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0])
+        ->and($field->hasPlaybackRateControl())->toBeTrue();
+});
+
+it('disables playback rate control for youtube facade embeds', function () {
+    $youtube = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ';
+
+    expect(VideoField::make('clip')
+        ->playbackRates(true)
+        ->hasPlaybackRateControl('https://example.com/video.mp4'))->toBeTrue()
+        ->and(VideoField::make('clip')
+            ->playbackRates(true)
+            ->controls(false)
+            ->hasPlaybackRateControl($youtube))->toBeFalse()
+        ->and(VideoField::make('clip')
+            ->playbackRates(true)
+            ->hasPlaybackRateControl($youtube))->toBeTrue();
+});

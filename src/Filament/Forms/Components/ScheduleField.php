@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
+use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeOs;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleDays;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleNormalizer;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleValidator;
@@ -320,27 +321,7 @@ class ScheduleField extends Field
      */
     public static function defaultSchedule(?string $timezone = null, ?array $days = null): array
     {
-        $days = ScheduleDays::normalize($days ?? ScheduleDays::ALL);
-        $schedule = [
-            'days' => [],
-        ];
-
-        if ($timezone !== null) {
-            $schedule['timezone'] = $timezone;
-        }
-
-        foreach ($days as $day) {
-            $isWeekday = ScheduleDays::isWeekday($day);
-
-            $schedule['days'][$day] = [
-                'enabled' => $isWeekday,
-                'slots' => $isWeekday
-                    ? [['from' => '09:00', 'to' => '17:00']]
-                    : [],
-            ];
-        }
-
-        return $schedule;
+        return DateTimeOs::businessHoursDefaults($timezone, $days);
     }
 
     /**
@@ -439,10 +420,10 @@ class ScheduleField extends Field
             'lockedDays' => $this->getLockedDays(),
             'requireSlotsForEnabledDays' => $this->shouldRequireSlotsForEnabledDays(),
             'validationMessages' => [
-                'from_before_to' => __('filament-flex-fields::default.schedule.validation.ui.from_before_to'),
-                'min_slots' => __('filament-flex-fields::default.schedule.validation.ui.min_slots'),
-                'max_slots' => __('filament-flex-fields::default.schedule.validation.ui.max_slots'),
-                'overlap' => __('filament-flex-fields::default.schedule.validation.ui.overlap'),
+                'from_before_to' => __('filament-flex-fields::default.schedule.ui.from_before_to'),
+                'min_slots' => __('filament-flex-fields::default.schedule.ui.min_slots'),
+                'max_slots' => __('filament-flex-fields::default.schedule.ui.max_slots'),
+                'overlap' => __('filament-flex-fields::default.schedule.ui.overlap'),
             ],
             'allowCopyToWeekdays' => $this->shouldAllowCopyToWeekdays(),
             'copySourceDay' => $this->getCopySourceDay(),
@@ -467,6 +448,9 @@ class ScheduleField extends Field
                 'copyConfirm' => __('filament-flex-fields::default.schedule.copy_confirm'),
                 'slot' => __('filament-flex-fields::default.schedule.slot'),
                 'break' => __('filament-flex-fields::default.schedule.break'),
+                'overnight' => __('filament-flex-fields::default.schedule.overnight'),
+                'moveSlotUp' => __('filament-flex-fields::default.schedule.move_slot_up'),
+                'moveSlotDown' => __('filament-flex-fields::default.schedule.move_slot_down'),
             ],
             'flexTimeSegmentsSrc' => FilamentAsset::getAlpineComponentSrc(
                 'flex-time-segments',

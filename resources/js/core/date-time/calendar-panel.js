@@ -3,26 +3,35 @@ import {
     CalendarDateTime,
     Time,
     getLocalTimeZone,
-    normalizeIntlLocale,
-    toCalendarDate,
-} from './format-parse.js'
+    isSameMonth,
+} from '@internationalized/date'
 
-export function buildCalendarWeeks(monthDate, firstDayOfWeek) {
-    const year = monthDate.year
-    const month = monthDate.month
-    const firstOfMonth = new CalendarDate(year, month, 1)
-    const daysInMonth = daysInCalendarMonth(year, month)
+import { normalizeIntlLocale, toCalendarDate } from './format-parse.js'
+
+export function startOfVisibleMonth(date) {
+    return date.set({ day: 1 })
+}
+
+export function buildCalendarWeeks(monthDate, firstDayOfWeek, direction = 'ltr') {
+    const anchor = startOfVisibleMonth(monthDate)
+    const year = anchor.year
+    const month = anchor.month
+    const firstOfMonth = anchor
+    const daysInMonth = daysInCalendarMonth(year, month, anchor.calendar)
     const startOffset = (firstOfMonth.toDate(getLocalTimeZone()).getDay() - firstDayOfWeek + 7) % 7
 
     const weeks = []
     let currentWeek = []
 
-    for (let i = 0; i < startOffset; i++) {
-        currentWeek.push(null)
+    let cursor = firstOfMonth
+
+    for (let index = 0; index < startOffset; index++) {
+        cursor = cursor.subtract({ days: 1 })
+        currentWeek.push(wrapCalendarCell(cursor, anchor))
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-        currentWeek.push(new CalendarDate(year, month, day))
+        currentWeek.push(wrapCalendarCell(firstOfMonth.set({ day }), anchor))
 
         if (currentWeek.length === 7) {
             weeks.push(currentWeek)
@@ -31,41 +40,62 @@ export function buildCalendarWeeks(monthDate, firstDayOfWeek) {
     }
 
     if (currentWeek.length > 0) {
+        let trailingCursor = firstOfMonth.set({ day: daysInMonth })
+
         while (currentWeek.length < 7) {
-            currentWeek.push(null)
+            trailingCursor = trailingCursor.add({ days: 1 })
+            currentWeek.push(wrapCalendarCell(trailingCursor, anchor))
         }
 
         weeks.push(currentWeek)
     }
 
+    if (direction === 'rtl') {
+        return weeks.map((week) => [...week].reverse())
+    }
+
     return weeks
 }
 
-export function daysInCalendarMonth(year, month) {
-    return new CalendarDate(year, month + 1 > 12 ? 1 : month + 1, 1)
-        .subtract({ days: 1 }).day
+function wrapCalendarCell(date, anchor) {
+    return {
+        date,
+        isOutsideMonth: ! isSameMonth(date, anchor),
+    }
+}
+
+export function daysInCalendarMonth(year, month, calendar = null) {
+    const anchor = calendar
+        ? new CalendarDate(calendar, year, month, 1)
+        : new CalendarDate(year, month, 1)
+
+    return anchor.add({ months: 1 }).subtract({ days: 1 }).day
 }
 
 export function addMonths(date, count) {
-    let month = date.month + count
-    let year = date.year
-
-    while (month > 12) {
-        month -= 12
-        year += 1
-    }
-
-    while (month < 1) {
-        month += 12
-        year -= 1
-    }
-
-    const maxDay = daysInCalendarMonth(year, month)
-
-    return new CalendarDate(year, month, Math.min(date.day, maxDay))
+    return startOfVisibleMonth(date).add({ months: count })
 }
 
 export const YEARS_PER_PAGE = 12
+export const SCROLLABLE_YEAR_SPAN = 100
+/** Matches the six-week day grid viewport (6 × 2.25rem rows + gaps). */
+export const YEAR_GRID_VIEWPORT_HEIGHT_PX = 236
+
+export function buildScrollableYearRange({
+    centerYear,
+    minYear = null,
+    maxYear = null,
+    span = SCROLLABLE_YEAR_SPAN,
+}) {
+    const start = minYear ?? (centerYear - span)
+    const end = maxYear ?? (centerYear + span)
+
+    if (start > end) {
+        return [centerYear]
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index)
+}
 
 export function getMonthLabel(date, locale) {
     const jsDate = date.toDate(getLocalTimeZone())
@@ -88,9 +118,7 @@ export function getCalendarHeaderLabel(viewMode, date, locale) {
         return new Intl.DateTimeFormat(normalizeIntlLocale(locale), { year: 'numeric' }).format(jsDate)
     }
 
-    const years = buildYearRange(date.year)
-
-    return `${years[0]} – ${years[years.length - 1]}`
+    return new Intl.DateTimeFormat(normalizeIntlLocale(locale), { year: 'numeric' }).format(jsDate)
 }
 
 export function getShortMonthLabels(locale) {
@@ -105,23 +133,57 @@ export function buildYearRange(centerYear, count = YEARS_PER_PAGE) {
     return Array.from({ length: count }, (_, index) => centerYear - half + index)
 }
 
-export function setCalendarMonth(date, month) {
-    const maxDay = daysInCalendarMonth(date.year, month)
+export function scrollYearCellIntoView(container, year) {
+    if (! container || year == null) {
+        return
+    }
 
-    return new CalendarDate(date.year, month, Math.min(date.day, maxDay))
+    const cell = container.querySelector(`[data-year="${year}"]`)
+
+    if (! cell) {
+        return
+    }
+
+    const containerRect = container.getBoundingClientRect()
+    const cellRect = cell.getBoundingClientRect()
+    const target = container.scrollTop
+        + (cellRect.top - containerRect.top)
+        - ((container.clientHeight - cellRect.height) / 2)
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+
+    container.scrollTop = Math.max(0, Math.min(target, maxScroll))
+}
+
+export function handleYearGridWheel(container, deltaY) {
+    if (! container || container.scrollHeight <= container.clientHeight + 1) {
+        return false
+    }
+
+    const maxScroll = Math.max(0, container.scrollHeight - container.clientHeight)
+    const next = Math.max(0, Math.min(container.scrollTop + deltaY, maxScroll))
+
+    container.scrollTop = next
+
+    return true
+}
+
+export function setCalendarMonth(date, month) {
+    const maxDay = daysInCalendarMonth(date.year, month, date.calendar)
+
+    return date.set({ month, day: Math.min(date.day, maxDay) })
 }
 
 export function setCalendarYear(date, year) {
-    const maxDay = daysInCalendarMonth(year, date.month)
+    const maxDay = daysInCalendarMonth(year, date.month, date.calendar)
 
-    return new CalendarDate(year, date.month, Math.min(date.day, maxDay))
+    return date.set({ year, day: Math.min(date.day, maxDay) })
 }
 
 export function shiftCalendarYear(date, count) {
-    return setCalendarYear(date, date.year + count)
+    return startOfVisibleMonth(date).add({ years: count })
 }
 
-export function getWeekdayLabels(firstDayOfWeek, locale) {
+export function getWeekdayLabels(firstDayOfWeek, locale, direction = 'ltr') {
     const formatter = new Intl.DateTimeFormat(normalizeIntlLocale(locale), { weekday: 'short' })
     const labels = []
 
@@ -130,6 +192,10 @@ export function getWeekdayLabels(firstDayOfWeek, locale) {
         const date = new Date(2024, 0, 7 + day)
 
         labels.push(formatter.format(date))
+    }
+
+    if (direction === 'rtl') {
+        labels.reverse()
     }
 
     return labels

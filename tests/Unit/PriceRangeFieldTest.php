@@ -89,3 +89,23 @@ it('uses translated default input labels', function () {
     expect($field->getMinInputLabel())->toBe(__('filament-flex-fields::default.price_range.min'))
         ->and($field->getMaxInputLabel())->toBe(__('filament-flex-fields::default.price_range.max'));
 });
+
+it('styles inputs and histogram caps from global rounding tokens', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/price-range.css');
+
+    expect($css)
+        ->toContain('--fff-price-range-radius: var(--fff-global-radius, 0.75rem)')
+        ->toContain('border-radius: var(--fff-price-range-radius)')
+        ->toContain('--fff-price-range-text-size: var(--fff-text-lg)')
+        ->toContain('--fff-price-range-input-p: 0.75rem')
+        ->toContain('transition-[border-color,box-shadow]')
+        ->toContain('outline: var(--fff-field-focus-ring-width) solid transparent')
+        ->not->toContain('transition-[border-color,box-shadow,outline-color]');
+});
+
+it('supports explicit rounding api values', function () {
+    expect(PriceRangeField::make('budget')->rounding('full')->getWrapperClasses())
+        ->toContain('fff-rounding-full')
+        ->and(PriceRangeField::make('budget')->rounding('native')->getWrapperClasses())
+        ->toContain('fff-rounding-native');
+});

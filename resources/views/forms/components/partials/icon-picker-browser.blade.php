@@ -1,23 +1,17 @@
-<div class="fff-icon-picker__toolbar">
-    <div class="fi-select-input-search-ctn fff-teleported-menu__search-wrap">
-        <label class="sr-only" x-text="labels.search"></label>
-        <input
-            type="search"
-            x-ref="iconSearch"
-            class="fi-input fff-teleported-menu__search"
-            x-model="searchQuery"
-            x-on:input.debounce.300ms="onSearchInput()"
-            x-on:keydown="onIconSearchKeydown($event)"
-            x-bind:disabled="readOnly"
-            x-bind:placeholder="labels.search"
-            autocomplete="off"
-            role="combobox"
-            aria-autocomplete="list"
-            x-bind:aria-expanded="panelOpen"
-            x-bind:aria-controls="componentKey + '-listbox'"
-            x-bind:aria-activedescendant="activeIconIndex >= 0 ? componentKey + '-option-' + activeIconIndex : null"
-        />
-    </div>
+<div class="fff-icon-picker__toolbar" x-bind:class="{ 'has-set-tabs': availableSets.length > 1 }">
+    @include('filament-flex-fields::forms.components.partials.headless-overlay-search', [
+        'queryModel' => 'searchQuery',
+        'searchRef' => 'iconSearch',
+        'openKey' => 'panelOpen',
+        'listboxId' => 'componentKey + \'-listbox\'',
+        'keydownHandler' => 'onIconSearchKeydown',
+        'inputHandler' => 'onSearchInput',
+        'disabledBinding' => 'readOnly',
+        'placeholderBinding' => 'labels.search',
+        'searchLabel' => 'Icon search',
+        'activeIndexKey' => 'activeIconIndex',
+        'optionIdPrefix' => 'componentKey + \'-option-\'',
+    ])
 
     <div
         class="fff-icon-picker__set-tabs"
@@ -51,96 +45,106 @@
 
 <div
     x-ref="iconResults"
-    class="fff-icon-picker__results fi-select-input-options-ctn"
+    class="fff-headless-overlay__list fff-icon-picker__results fi-select-input-options-ctn"
     x-bind:class="{
         'fff-icon-picker__results--grid': layout === 'grid' || layout === 'icons',
         'fff-icon-picker__results--list': layout === 'list',
         'fff-icon-picker__results--icons-only': layout === 'icons',
-        'is-loading': searchPending || initialLoadPending,
+        'is-loading': showInitialSkeleton || showScrollLoadSkeleton,
     }"
-    x-bind:style="layout === 'grid' || layout === 'icons'
-        ? { '--fff-icon-picker-grid-columns': gridColumns }
-        : null"
     x-on:scroll.passive="onIconResultsScroll($event)"
     x-on:keydown="onIconResultsKeydown($event)"
     tabindex="-1"
     role="listbox"
     x-bind:id="componentKey + '-listbox'"
+    x-bind:aria-hidden="! panelOpen"
+    x-bind:aria-busy="showInitialSkeleton || loadingMore"
 >
-    <template x-if="(searchPending || initialLoadPending) && loadedIconItems.length === 0">
-        <div class="fff-icon-picker__skeleton-grid" aria-hidden="true">
-            <template x-for="slot in skeletonSlots" x-bind:key="slot">
-                <div class="fff-icon-picker__skeleton"></div>
+    <div
+        class="fff-icon-picker__status"
+        x-show="! showInitialSkeleton && ! searchPending && ! initialLoadPending && loadedIconItems.length === 0"
+        x-cloak
+        x-text="labels.noResults"
+    ></div>
+
+    <div
+        class="fff-icon-picker__initial-skeleton"
+        x-show="showInitialSkeleton"
+        x-cloak
+        x-bind:class="{ 'is-fading': iconSkeletonFading }"
+        role="status"
+        aria-live="polite"
+    >
+        <div
+            class="fff-icon-picker__grid fff-icon-picker__skeleton-grid"
+            x-bind:style="iconResultsGridStyle"
+        >
+            <template x-for="slot in initialSkeletonSlots" x-bind:key="'initial-skeleton-' + slot">
+                @include('filament-flex-fields::forms.components.partials.icon-picker-skeleton-cell')
             </template>
         </div>
-    </template>
+    </div>
 
-    <template x-if="! searchPending && ! initialLoadPending && loadedIconItems.length === 0">
-        <div class="fff-icon-picker__status" x-text="labels.noResults"></div>
-    </template>
-
-    <template x-if="loadedIconItems.length > 0">
+    <div
+        class="fff-icon-picker__track"
+        x-show="loadedIconItems.length > 0 && ! showInitialSkeleton && resultsGeometryReady"
+        x-cloak
+        x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
+        x-bind:style="iconTrackStyle"
+    >
         <div
-            class="fff-icon-picker__track"
-            x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
-            x-bind:style="usesIconVirtualScroll ? { height: `${iconTrackHeight}px` } : null"
+            class="fff-icon-picker__virtual-spacer-top"
+            x-show="usesIconVirtualScroll && iconVirtualWindow.paddingTop > 0"
+            x-bind:style="virtualTopSpacerStyle"
+            aria-hidden="true"
+        ></div>
+
+        <div
+            x-ref="iconGrid"
+            class="fff-icon-picker__grid"
+            x-bind:style="iconResultsGridStyle"
+        >
+            <template x-for="entry in visibleIconEntries" x-bind:key="'icon-option-' + entry.item.name + '-' + entry.index">
+                @include('filament-flex-fields::forms.components.partials.icon-picker-option')
+            </template>
+        </div>
+
+        <div
+            class="fff-icon-picker__virtual-spacer-bottom"
+            x-show="usesIconVirtualScroll && iconVirtualWindow.paddingBottom > 0"
+            x-bind:style="virtualBottomSpacerStyle"
+            aria-hidden="true"
+        ></div>
+
+        <div
+            x-ref="iconLoadMoreSentinel"
+            class="fff-icon-picker__load-more-sentinel"
+            x-show="hasMore && ! loadingMore"
+            x-cloak
+            aria-hidden="true"
+        ></div>
+
+        <div
+            class="fff-icon-picker__load-more-tail"
+            x-show="showLoadMoreTailSkeleton"
+            x-cloak
+            role="status"
+            aria-live="polite"
+            x-bind:aria-busy="true"
+            x-bind:style="loadMoreTailStyle"
         >
             <div
-                class="fff-icon-picker__grid"
-                x-bind:class="{ 'fff-icon-picker__grid--virtual': usesIconVirtualScroll }"
-                x-bind:style="usesIconVirtualScroll
-                    ? {
-                        top: `${iconWindowOffsetTop}px`,
-                        '--fff-icon-picker-grid-columns': gridColumns,
-                    }
-                    : (layout === 'grid' || layout === 'icons'
-                        ? { '--fff-icon-picker-grid-columns': gridColumns }
-                        : null)"
+                class="fff-icon-picker__grid fff-icon-picker__load-more-tail-grid"
+                x-bind:style="iconResultsGridStyle"
             >
-                <template x-for="entry in visibleIconEntries" x-bind:key="entry.item.name">
-                    <button
-                        type="button"
-                        class="fff-icon-picker__option"
-                        x-bind:class="iconOptionClasses(entry.index)"
-                        x-bind:data-icon-index="entry.index"
-                        x-on:click="selectIcon(entry.item.name)"
-                        x-on:mouseenter="activeIconIndex = entry.index"
-                        x-bind:disabled="readOnly"
-                        x-bind:aria-label="entry.item.name"
-                        x-bind:title="layout === 'icons' ? entry.item.name : null"
-                        role="option"
-                        x-bind:id="componentKey + '-option-' + entry.index"
-                        x-bind:aria-selected="activeIconIndex === entry.index"
-                    >
-                    <span class="fff-icon-picker__option-icon" x-bind:data-icon-name="entry.item.name">
-                        <span x-show="svgFor(entry.item.name)" x-html="svgFor(entry.item.name)"></span>
-                        <span
-                            class="fff-icon-picker__option-icon-skeleton"
-                            x-show="! svgFor(entry.item.name)"
-                            aria-hidden="true"
-                        ></span>
-                    </span>
-                        <span
-                            class="fff-icon-picker__option-label"
-                            x-show="layout !== 'icons'"
-                            x-html="highlightedLabel(entry.item.label)"
-                        ></span>
-                    </button>
+                <template x-for="slot in loadMoreSkeletonSlots" x-bind:key="'load-more-tail-' + slot">
+                    @include('filament-flex-fields::forms.components.partials.icon-picker-skeleton-cell')
                 </template>
             </div>
-
-            <div
-                x-ref="iconScrollSentinel"
-                class="fff-icon-picker__scroll-sentinel"
-                x-show="hasMore && ! loadingMore"
-                x-cloak
-                x-bind:style="usesIconVirtualScroll ? { top: `${Math.max(iconTrackHeight - 1, 0)}px` } : null"
-                aria-hidden="true"
-            ></div>
         </div>
-    </template>
+    </div>
 </div>
 
-<div class="fff-icon-picker__footer" x-show="(searchPending || loadingMore) && loadedIconItems.length > 0" x-cloak>
-    <span class="fff-icon-picker__status" x-text="labels.search + '…'"></span>
+<div class="fff-icon-picker__footer" x-show="showLoadMoreListHint" x-cloak>
+    <span class="fff-icon-picker__status" x-text="labels.loadMore + '…'"></span>
 </div>

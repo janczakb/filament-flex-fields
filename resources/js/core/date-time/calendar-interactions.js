@@ -1,16 +1,16 @@
 import {
-    CalendarDate,
     Time,
     compareDateTimeValues,
     getToday,
     parseRangeStoredValue,
-    parseStoredValue,
     toCalendarDate,
-    toStoredValue,
 } from './format-parse.js'
+import { isSameCalendarMonth, toGregorianDateString } from './calendar-system.js'
 import { extractDateValue, extractTimeValue, mergeDateAndTime } from './calendar-grid.js'
 import { segmentsToTime } from './segmented-input.js'
 import { getCachedCalendarPanelModule, loadCalendarPanelModule } from './calendar-panel-loader.js'
+import { scrollYearCellIntoView, YEAR_GRID_VIEWPORT_HEIGHT_PX } from './calendar-panel.js'
+import { bindYearGridWheel, isYearGridScrollTarget } from './year-grid-scroll.js'
 
 export function createCalendarInteractionsBehavior() {
     return {
@@ -42,12 +42,18 @@ export function createCalendarInteractionsBehavior() {
             this.calendarOpen = opening
             this.visibleMonth = this.resolveVisibleMonth()
             this.calendarViewMode = this.resolveCalendarViewMode()
+
+            if (opening) {
+                this.scheduleScrollActiveYearIntoView()
+            }
         },
 
         closeCalendar() {
             this.calendarOpen = false
             this.hoveredDate = null
+            this.yearPickerOpen = false
             this.calendarViewMode = this.resolveCalendarViewMode()
+            this.unbindYearGridWheelListeners()
         },
 
         resolveCalendarViewMode() {
@@ -63,20 +69,26 @@ export function createCalendarInteractionsBehavior() {
         },
 
         selectDate(date) {
-            if (this.isLocked || ! date || this.isDateDisabled(date)) {
+            const resolvedDate = date?.date ?? date
+
+            if (this.isLocked || ! resolvedDate || this.isDateDisabled(resolvedDate)) {
                 return
             }
 
+            if (date?.isOutsideMonth) {
+                this.visibleMonth = resolvedDate.set({ day: 1 })
+            }
+
             if (this.isRange) {
-                this.selectRangeDate(date)
+                this.selectRangeDate(resolvedDate)
 
                 return
             }
 
             const merged = this.config.granularity === 'day'
-                ? date
+                ? resolvedDate
                 : mergeDateAndTime(
-                    date,
+                    resolvedDate,
                     this.showTimeUnderCalendar
                         ? (segmentsToTime(this.segments, this.config.hourCycle, this.config.showSeconds) || new Time(0, 0, 0))
                         : (extractTimeValue(this.parsedValue) || new Time(0, 0, 0)),
@@ -84,7 +96,7 @@ export function createCalendarInteractionsBehavior() {
                     this.config.showSeconds,
                 )
 
-            this.setStateValue(toStoredValue(merged, this.mode, this.config.granularity, this.config.showSeconds, this.config.storageFormat))
+            this.setStateValue(this.toConfigStoredValue(merged, this.mode))
             this.bootstrapFromState()
             this.visibleMonth = toCalendarDate(merged)
 
@@ -93,10 +105,18 @@ export function createCalendarInteractionsBehavior() {
             }
         },
 
+        isOutsideVisibleMonth(date) {
+            if (! date || ! this.visibleMonth) {
+                return false
+            }
+
+            return ! isSameCalendarMonth(date, this.visibleMonth)
+        },
+
         selectRangeDate(date) {
             const raw = parseRangeStoredValue(this.state)
-            let start = raw.start ? parseStoredValue(raw.start, 'dateTime', this.config.granularity, this.config.timeZone) : null
-            let end = raw.end ? parseStoredValue(raw.end, 'dateTime', this.config.granularity, this.config.timeZone) : null
+            let start = raw.start ? this.parseConfigStoredValue(raw.start, 'dateTime') : null
+            let end = raw.end ? this.parseConfigStoredValue(raw.end, 'dateTime') : null
 
             if (! start || (start && end)) {
                 start = mergeDateAndTime(date, extractTimeValue(start) || new Time(0, 0, 0), this.config.granularity, this.config.showSeconds)
@@ -118,9 +138,9 @@ export function createCalendarInteractionsBehavior() {
             }
 
             this.setStateValue({
-                start: toStoredValue(start, 'dateTime', this.config.granularity, this.config.showSeconds, this.config.storageFormat),
+                start: this.toConfigStoredValue(start, 'dateTime'),
                 end: end
-                    ? toStoredValue(end, 'dateTime', this.config.granularity, this.config.showSeconds, this.config.storageFormat)
+                    ? this.toConfigStoredValue(end, 'dateTime')
                     : null,
             })
 
@@ -133,10 +153,10 @@ export function createCalendarInteractionsBehavior() {
             }
 
             const min = this.config.minValue
-                ? parseStoredValue(this.config.minValue, 'date', 'day', this.config.timeZone)
+                ? this.parseConfigStoredValue(this.config.minValue, 'date', 'day')
                 : null
             const max = this.config.maxValue
-                ? parseStoredValue(this.config.maxValue, 'date', 'day', this.config.timeZone)
+                ? this.parseConfigStoredValue(this.config.maxValue, 'date', 'day')
                 : null
 
             if (min && compareDateTimeValues(toCalendarDate(date), min) < 0) {
@@ -147,9 +167,9 @@ export function createCalendarInteractionsBehavior() {
                 return true
             }
 
-            const iso = `${String(date.year).padStart(4, '0')}-${String(date.month).padStart(2, '0')}-${String(date.day).padStart(2, '0')}`
+            const iso = toGregorianDateString(date)
 
-            if (Array.isArray(this.config.unavailableDates) && this.config.unavailableDates.includes(iso)) {
+            if (iso && Array.isArray(this.config.unavailableDates) && this.config.unavailableDates.includes(iso)) {
                 return true
             }
 
@@ -161,12 +181,21 @@ export function createCalendarInteractionsBehavior() {
                 return false
             }
 
-            return this.calendarPanel.sameCalendarDate(date, getToday(this.config.timeZone))
+            return this.calendarPanel.sameCalendarDate(date, getToday(this.config.timeZone, this.config.calendarIdentifier ?? null))
         },
 
-        getDayCellClass(date) {
+        resolveCalendarCell(cell) {
+            return cell?.date ?? cell
+        },
+
+        getDayCellClass(cell) {
+            const date = this.resolveCalendarCell(cell)
+            const isOutsideMonth = typeof cell?.isOutsideMonth === 'boolean'
+                ? cell.isOutsideMonth
+                : this.isOutsideVisibleMonth(date)
+
             if (! date) {
-                return 'is-outside'
+                return {}
             }
 
             const selected = this.isRange && this.calendarPanel
@@ -177,6 +206,7 @@ export function createCalendarInteractionsBehavior() {
 
             return {
                 ...selected,
+                'is-outside-month': isOutsideMonth,
                 'is-today': this.isToday(date),
                 'is-disabled': this.isDateDisabled(date),
             }
@@ -227,6 +257,26 @@ export function createCalendarInteractionsBehavior() {
         },
 
         onCalendarHeaderClick() {
+            if (this.usesYearPickerOverlay) {
+                this.yearPickerOpen = ! this.yearPickerOpen
+
+                this.$nextTick(() => {
+                    requestAnimationFrame(() => {
+                        this.updateYearPickerOverlay()
+                        this.bindYearGridWheelListeners()
+                        this.scheduleScrollActiveYearIntoView()
+                    })
+                })
+
+                return
+            }
+
+            if (this.calendarViewMode === 'years' && this.mode !== 'year') {
+                this.calendarViewMode = 'months'
+
+                return
+            }
+
             if (this.mode === 'month') {
                 if (! this.hasYearSegment || this.calendarViewMode !== 'months') {
                     return
@@ -258,7 +308,7 @@ export function createCalendarInteractionsBehavior() {
             this.visibleMonth = panel.setCalendarMonth(this.visibleMonth, month)
 
             if (this.mode === 'month') {
-                this.setStateValue(toStoredValue(this.visibleMonth, 'month', this.config.granularity, false, this.config.storageFormat))
+                this.setStateValue(this.toConfigStoredValue(this.visibleMonth, 'month'))
                 this.bootstrapFromState()
 
                 if (this.config.closeOnSelect) {
@@ -281,12 +331,24 @@ export function createCalendarInteractionsBehavior() {
             this.visibleMonth = panel.setCalendarYear(this.visibleMonth, year)
 
             if (this.mode === 'year') {
-                this.setStateValue(toStoredValue(this.visibleMonth, 'year', this.config.granularity, false, this.config.storageFormat))
+                this.setStateValue(this.toConfigStoredValue(this.visibleMonth, 'year'))
                 this.bootstrapFromState()
 
                 if (this.config.closeOnSelect) {
                     this.closeCalendar()
                 }
+
+                return
+            }
+
+            if (this.usesYearPickerOverlay) {
+                this.yearPickerOpen = false
+
+                return
+            }
+
+            if (this.mode === 'month') {
+                this.calendarViewMode = 'months'
 
                 return
             }
@@ -350,6 +412,10 @@ export function createCalendarInteractionsBehavior() {
             })
         },
 
+        isYearGridScrollEvent(event) {
+            return isYearGridScrollTarget(event?.target)
+        },
+
         updateCalendarPosition() {
             const trigger = this.$refs.calendarTrigger || this.$refs.fieldShell
             const menu = this.$refs.calendarMenu
@@ -364,15 +430,17 @@ export function createCalendarInteractionsBehavior() {
             const gap = 6
             const viewportPadding = 16
             const menuWidth = Math.min(Math.max(rect.width, 320), window.innerWidth - (viewportPadding * 2))
+            const isRtl = this.calendarDirection === 'rtl'
 
             let top = rect.bottom + gap
-            let left = rect.left
+            let left = isRtl ? rect.right - menuWidth : rect.left
 
             menu.style.position = 'fixed'
             menu.style.width = `${Math.round(menuWidth)}px`
-            menu.style.zIndex = '80'
+            menu.style.zIndex = '200'
             menu.style.top = `${Math.round(top)}px`
             menu.style.left = `${Math.round(left)}px`
+            menu.style.right = 'auto'
 
             const menuRect = menu.getBoundingClientRect()
 
@@ -394,22 +462,163 @@ export function createCalendarInteractionsBehavior() {
 
             menu.style.top = `${Math.round(top)}px`
             menu.style.left = `${Math.round(left)}px`
+            this.updateYearPickerOverlay()
+            this.syncStandaloneYearGridHeight()
             this.calendarReady = true
+        },
+
+        scheduleScrollActiveYearIntoView() {
+            if (! this.calendarOpen) {
+                return
+            }
+
+            const shouldScroll = this.usesScrollableYearGrid
+                || (this.yearPickerOpen && this.usesYearPickerOverlay)
+
+            if (! shouldScroll) {
+                return
+            }
+
+            this.$nextTick(() => {
+                requestAnimationFrame(() => {
+                    this.scrollActiveYearIntoView()
+                })
+            })
+        },
+
+        scrollActiveYearIntoView() {
+            const targets = []
+
+            const standalone = this.$refs.calendarYearGrid
+
+            if (standalone?.offsetParent) {
+                targets.push(standalone)
+            }
+
+            const overlay = this.$refs.calendarYearOverlay
+
+            if (overlay?.getAttribute('data-open') === 'true') {
+                targets.push(overlay)
+            }
+
+            for (const container of targets) {
+                const selectedYear = this.parsedValue
+                    ? (extractDateValue(this.parsedValue)?.year ?? this.visibleMonth?.year)
+                    : this.visibleMonth?.year
+
+                if (selectedYear != null) {
+                    scrollYearCellIntoView(container, selectedYear)
+
+                    return
+                }
+            }
+        },
+
+        updateYearPickerOverlay() {
+            const dayGrid = this.$refs.calendarDayGrid
+            const yearOverlay = this.$refs.calendarYearOverlay
+
+            if (! dayGrid || ! yearOverlay) {
+                this.yearPickerOverlayStyle = ''
+                this.syncStandaloneYearGridHeight()
+
+                return
+            }
+
+            const top = dayGrid.offsetTop
+            const height = Math.max(dayGrid.offsetHeight, YEAR_GRID_VIEWPORT_HEIGHT_PX)
+
+            this.yearPickerOverlayStyle = `top: ${top}px; height: ${height}px;`
+            this.syncStandaloneYearGridHeight()
+        },
+
+        syncStandaloneYearGridHeight() {
+            const yearGrid = this.$refs.calendarYearGrid
+
+            if (! yearGrid) {
+                return
+            }
+
+            const usesStandaloneYearGrid = this.calendarViewMode === 'years' && ! this.usesYearPickerOverlay
+
+            if (! usesStandaloneYearGrid) {
+                return
+            }
+
+            const dayGrid = this.$refs.calendarDayGrid
+            const height = dayGrid?.offsetHeight > 0 ? dayGrid.offsetHeight : YEAR_GRID_VIEWPORT_HEIGHT_PX
+
+            yearGrid.style.setProperty('--fff-date-time-year-grid-height', `${height}px`)
+            yearGrid.style.height = `${height}px`
+            yearGrid.style.maxHeight = `${height}px`
+        },
+
+        isYearGridWheelContainerVisible(element) {
+            if (! element) {
+                return false
+            }
+
+            const style = window.getComputedStyle(element)
+
+            return style.display !== 'none'
+                && style.visibility !== 'hidden'
+                && element.clientHeight > 0
+        },
+
+        bindYearGridWheelListeners() {
+            this.unbindYearGridWheelListeners()
+
+            const elements = []
+
+            const standalone = this.$refs.calendarYearGrid
+
+            if (
+                standalone
+                && this.calendarViewMode === 'years'
+                && ! this.usesYearPickerOverlay
+                && this.isYearGridWheelContainerVisible(standalone)
+            ) {
+                elements.push(standalone)
+            }
+
+            const overlay = this.$refs.calendarYearOverlay
+
+            if (
+                overlay?.getAttribute('data-open') === 'true'
+                && this.isYearGridWheelContainerVisible(overlay)
+            ) {
+                elements.push(overlay)
+            }
+
+            this.yearGridWheelCleanups = elements.map((element) => bindYearGridWheel(element))
+        },
+
+        unbindYearGridWheelListeners() {
+            if (! Array.isArray(this.yearGridWheelCleanups)) {
+                this.yearGridWheelCleanups = []
+
+                return
+            }
+
+            for (const cleanup of this.yearGridWheelCleanups) {
+                cleanup()
+            }
+
+            this.yearGridWheelCleanups = []
         },
 
         applyCalendarTheme(menu) {
             const isDark = document.documentElement.classList.contains('dark')
-            const blur = 'blur(16px) saturate(180%)'
 
             if (isDark) {
-                menu.style.setProperty('--fff-date-time-menu-bg', '#27272a3d')
+                menu.style.setProperty('--fff-date-time-menu-bg', 'rgb(39 39 42)')
                 menu.style.setProperty('--fff-date-time-menu-border', 'rgb(255 255 255 / 0.12)')
                 menu.style.setProperty('--fff-date-time-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.28), 0 12px 28px -6px rgb(0 0 0 / 0.5)')
                 menu.style.setProperty('--fff-date-time-time-track-bg', 'rgb(63 63 70 / 0.5)')
                 menu.style.setProperty('--fff-date-time-time-text', 'rgb(244 244 245)')
                 menu.style.setProperty('--fff-date-time-muted', 'rgb(161 161 170)')
             } else {
-                menu.style.setProperty('--fff-date-time-menu-bg', '#ffffffa3')
+                menu.style.setProperty('--fff-date-time-menu-bg', 'rgb(255 255 255)')
                 menu.style.setProperty('--fff-date-time-menu-border', 'rgb(228 228 231 / 0.65)')
                 menu.style.setProperty('--fff-date-time-menu-shadow', '0 4px 6px -1px rgb(0 0 0 / 0.06), 0 12px 28px -6px rgb(0 0 0 / 0.12)')
                 menu.style.setProperty('--fff-date-time-time-track-bg', 'rgb(244 244 245 / 0.8)')
@@ -417,9 +626,7 @@ export function createCalendarInteractionsBehavior() {
                 menu.style.setProperty('--fff-date-time-muted', 'rgb(113 113 122)')
             }
 
-            menu.style.backgroundColor = isDark ? '#27272a3d' : '#ffffffa3'
-            menu.style.setProperty('backdrop-filter', blur)
-            menu.style.setProperty('-webkit-backdrop-filter', blur)
+            menu.style.backgroundColor = isDark ? 'rgb(39 39 42)' : 'rgb(255 255 255)'
         },
 
         bindCalendarListeners() {
@@ -427,7 +634,13 @@ export function createCalendarInteractionsBehavior() {
                 return
             }
 
-            this.menuScrollHandler = () => this.updateCalendarPosition()
+            this.menuScrollHandler = (event) => {
+                if (this.isYearGridScrollEvent(event)) {
+                    return
+                }
+
+                this.updateCalendarPosition()
+            }
             this.menuResizeHandler = () => this.updateCalendarPosition()
 
             window.addEventListener('scroll', this.menuScrollHandler, true)
@@ -435,6 +648,8 @@ export function createCalendarInteractionsBehavior() {
         },
 
         unbindCalendarListeners() {
+            this.unbindYearGridWheelListeners()
+
             if (! this.menuScrollHandler) {
                 return
             }

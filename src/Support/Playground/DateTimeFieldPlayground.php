@@ -62,6 +62,14 @@ class DateTimeFieldPlayground
             'date_time__date_short_month' => '2026-03-15',
             'date_time__datetime_long_month' => '2026-06-15T14:30:00',
             'date_time__year' => '2026',
+            'date_time__picker_validation' => null,
+            'date_time__range_validation' => null,
+            'date_time__picker_format_options' => '2026-02-03T08:45:00',
+            'date_time__range_format_options' => [
+                'start' => '2026-02-03T08:45:00',
+                'end' => '2026-02-10T18:45:00',
+            ],
+            'date_time__indian_calendar' => null,
         ];
     }
 
@@ -215,6 +223,49 @@ class DateTimeFieldPlayground
                         ->hourCycle(24)
                         ->granularity(DateTimeGranularity::Minute)
                         ->helperText('Timezone label is visible by default; use hideTimeZone() to hide it.'),
+                ]),
+            Section::make('Validation & format demos')
+                ->description('Segment validation, minValue, format options, international calendar, and calendar popover UX.')
+                ->extraAttributes(['class' => 'fff-playground-section'])
+                ->schema([
+                    FlexDatePicker::make('date_time__picker_validation')
+                        ->label('Appointment date')
+                        ->required()
+                        ->minValue(Carbon::today())
+                        ->segmentInvalidMessage('Date must be today or in the future.')
+                        ->withRecommendedDefaults()
+                        ->helperText('minValue = today with a custom segment error on blur when the value is in the past.'),
+                    FlexDateRangeField::make('date_time__range_validation')
+                        ->label('Booking period')
+                        ->required()
+                        ->minValue(Carbon::today())
+                        ->segmentInvalidMessage('Select a valid range starting today or later.')
+                        ->withRecommendedDefaults()
+                        ->helperText('minValue on both ends; end must be after start.'),
+                    FlexDateTimePicker::make('date_time__picker_format_options')
+                        ->label('Date and time')
+                        ->granularity(DateTimeGranularity::Minute)
+                        ->hourCycle(12)
+                        ->forceLeadingZeros()
+                        ->withRecommendedDefaults()
+                        ->default('2026-02-03T08:45:00')
+                        ->helperText('Minute granularity, 12-hour cycle, forced leading zeros, time row under the calendar.'),
+                    FlexDateRangeField::make('date_time__range_format_options')
+                        ->label('Date range with time')
+                        ->granularity(DateTimeGranularity::Minute)
+                        ->hourCycle(12)
+                        ->forceLeadingZeros()
+                        ->withRecommendedDefaults()
+                        ->default([
+                            'start' => '2026-02-03T08:45:00',
+                            'end' => '2026-02-10T18:45:00',
+                        ])
+                        ->helperText('Separate start/end time rows under the range calendar.'),
+                    FlexDatePicker::make('date_time__indian_calendar')
+                        ->label('Event date (Indian calendar)')
+                        ->locale('hi-IN-u-ca-indian')
+                        ->withRecommendedDefaults()
+                        ->helperText('BCP 47 locale with -u-ca-indian uses the Indian national calendar in segments and the popover grid.'),
                 ]),
             Section::make('Date & time bounds and formats')
                 ->description('minValue(), maxValue(), default(), displayFormat(), storageFormat().')

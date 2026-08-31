@@ -39,6 +39,7 @@ export default function numberStepperFormComponent({
         widthAnchor,
         flowReady: false,
         flow: null,
+        lastFlowValue: undefined,
 
         pickWidest(...texts) {
             return texts.reduce(
@@ -203,10 +204,24 @@ export default function numberStepperFormComponent({
             this.flow.numberPrefix = this.prefix || ''
             this.flow.numberSuffix = this.suffix ? `\u00a0${this.suffix}` : ''
             this.flow.animated = this.wheelAnimated
+
+            // number-flow defaults to ~900ms with a long linear() settle tail.
+            // That overlaps Livewire debounce/sync and reads as end-of-spin lag.
+            this.flow.transformTiming = { duration: 380, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+            this.flow.spinTiming = { duration: 420, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+            this.flow.opacityTiming = { duration: 220, easing: 'ease-out' }
         },
 
         updateFlow(animate = true) {
             if (! this.flow || ! this.hasValue) {
+                this.lastFlowValue = null
+
+                return
+            }
+
+            const next = this.numericState
+
+            if (animate && Object.is(next, this.lastFlowValue)) {
                 return
             }
 
@@ -216,7 +231,8 @@ export default function numberStepperFormComponent({
                 this.flow.animated = false
             }
 
-            this.flow.update(this.numericState)
+            this.flow.update(next)
+            this.lastFlowValue = next
 
             if (! animate) {
                 this.flow.animated = this.wheelAnimated
@@ -225,11 +241,8 @@ export default function numberStepperFormComponent({
 
         applyState(nextValue) {
             this.state = nextValue
-
-            this.$nextTick(() => {
-                this.updateFlow()
-            })
-
+            // `$watch('state')` drives NumberFlow — avoid a second updateFlow()
+            // in $nextTick that restarts the spin and feels like end lag.
             this.commitDebounced()
         },
 

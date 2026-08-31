@@ -272,6 +272,8 @@ it('renders user column playground demo rows with rich and stacked layouts', fun
     expect($rows)->toHaveCount(2)
         ->and($rows[0]['author'])->toContain('fff-user-column--rich')
         ->and($rows[0]['author'])->toContain('Jane Cooper')
+        ->and($rows[0]['author'])->toContain('ui-avatars.com')
+        ->and($rows[1]['author'])->toContain('Alex Rivera')
         ->and($rows[1]['members'])->toContain('fff-user-column--stacked')
         ->and($rows[1]['members'])->toContain('+4');
 });

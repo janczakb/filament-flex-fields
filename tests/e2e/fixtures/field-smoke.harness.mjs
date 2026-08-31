@@ -2,7 +2,7 @@ import Alpine from 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.9/dist/module.esm
 
 globalThis.__fffSelectFieldPatchApplicator = () => () => {}
 
-import fffSelectFieldCoordinator from '../../../resources/dist/components/select-field.js'
+import fffSelectFieldCoordinator from '../../../tests/fixtures/js/select-field-legacy.js'
 import flexFileUploadFormComponent from '../../../resources/dist/components/flex-file-upload.js'
 import scheduleFieldFormComponent from '../../../resources/dist/components/schedule-field.js'
 

@@ -1,6 +1,4 @@
 .fff-tags-field {
-    --fff-tags-field-suggestion-bg: rgb(250 250 250);
-    --fff-tags-field-suggestion-hover: rgb(244 244 245);
     --fff-tags-field-meta: rgb(113 113 122);
     --fff-tags-field-tags-gap: 0.625rem;
 
@@ -8,9 +6,53 @@
     gap: 0.5rem;
 }
 
+.fff-tags-field-input-mount {
+    position: relative;
+    width: 100%;
+    min-height: var(--fff-flex-text-input-h, var(--fff-track-h-md));
+}
+
+.fff-tags-field-input-mount:has(.fff-tags-field__input-live.is-hydrated) .fff-tags-field-input-ssr {
+    display: none;
+}
+
+.fff-tags-field-input-mount .fff-tags-field__input-live:not(.is-hydrated) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fff-tags-field-input-mount .fff-tags-field__input-live.is-hydrated {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fff-tags-field-input-ssr {
+    width: 100%;
+}
+
+.fff-tags-field__input-live,
+.fff-tags-field__shell {
+    width: 100%;
+}
+
+.fff-tags-field.is-hydrated .fff-tags-field__tags-ssr,
+.fff-tags-field.is-hydrated .fff-tags-field__meta-ssr {
+    display: none;
+}
+
+.fff-tags-field:not(.is-hydrated) .fff-tags-field__tags:not(.fff-tags-field__tags-ssr) {
+    display: none;
+}
+
+.fff-tags-field:not(.is-hydrated) .fff-tags-field__meta:not(.fff-tags-field__meta-ssr) {
+    display: none;
+}
+
 .dark .fff-tags-field {
-    --fff-tags-field-suggestion-bg: rgb(24 24 27);
-    --fff-tags-field-suggestion-hover: rgb(39 39 42);
     --fff-tags-field-meta: rgb(161 161 170);
 }
 
@@ -50,42 +92,12 @@
     display: none !important;
 }
 
-.fff-tags-field__suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.375rem;
-}
-
-.fff-tags-field__suggestion {
-    display: inline-flex;
-    align-items: center;
-    border-radius: var(--fff-global-radius, 0.75rem);
-    border: 1px solid rgb(228 228 231);
-    background: var(--fff-tags-field-suggestion-bg);
-    padding: 0.25rem 0.625rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: rgb(63 63 70);
-    cursor: pointer;
-    transition: background-color 150ms ease;
-}
-
-.dark .fff-tags-field__suggestion {
-    border-color: rgb(63 63 70);
-    color: rgb(212 212 216);
-}
-
-.fff-tags-field__suggestion:hover {
-    background: var(--fff-tags-field-suggestion-hover);
-}
-
 .fff-tags-field__meta {
     font-size: 0.75rem;
     color: var(--fff-tags-field-meta);
 }
 
-.fff-tags-field.is-disabled .fff-tags-field__tag-remove,
-.fff-tags-field.is-disabled .fff-tags-field__suggestion {
+.fff-tags-field.is-disabled .fff-tags-field__tag-remove {
     pointer-events: none;
     opacity: 0.55;
 }

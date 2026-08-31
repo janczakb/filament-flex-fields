@@ -17,6 +17,9 @@
     $modalId = 'fff-barcode-scanner-'.$getId();
     $modalWindowAttributes = (new ComponentAttributeBag())->class(['fff-barcode-scanner-modal__window']);
     $modalOverlayAttributes = (new ComponentAttributeBag())->class(['fff-barcode-scanner-modal__overlay']);
+    $placeholder = filled($getPlaceholder())
+        ? $getPlaceholder()
+        : __('filament-flex-fields::default.barcode_scanner.placeholder');
 @endphp
 
 <x-dynamic-component
@@ -29,10 +32,36 @@
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'barcode-scanner-field'])
 
-    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly">
+    @once
+        <link
+            rel="modulepreload"
+            href="{{ FilamentAsset::getAlpineComponentSrc('barcode-scanner-field', FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+            as="script"
+            crossorigin
+        />
+    @endonce
+
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getVariant(), $getSupportedFormats(), $getCameraFacing(), $getScanInterval(), $allowsCameraSwitch(), $getPreferredDeviceId(), $shouldStoreDetectedFormat(), $shouldPauseWhenHidden()])), 0, 64) }}"
+        class="fff-barcode-scanner-mount"
+    >
+        @include('filament-flex-fields::forms.components.partials.barcode-scanner-input-ssr', [
+            'initialValue' => $initialValue,
+            'placeholder' => $placeholder,
+            'size' => $getSize(),
+            'variant' => $getVariant(),
+            'hasFocusOutline' => $shouldShowFocusOutline(),
+            'allowsManualInput' => $allowsManualInput(),
+            'disabled' => $isDisabled,
+            'scanIcon' => $scanIcon,
+        ])
+
+        <x-filament-flex-fields::lazy-alpine-mount
+            :eager="true"
+            :wrap-slot="false"
+        >
+        <div
         x-load
         x-load-src="{{ FilamentAsset::getAlpineComponentSrc('barcode-scanner-field', FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
         x-data="barcodeScannerFieldFormComponent({
@@ -48,6 +77,10 @@
         x-on:close-modal.window="onScannerModalClosed($event)"
         x-on:modal-closed.window="onScannerModalClosed($event)"
         x-on:x-modal-opened.window="onScannerModalOpened($event)"
+        class="fff-barcode-scanner-root"
+    >
+        <div
+        x-ref="fieldShell"
         @class([
             'fff-barcode-scanner',
             'fff-flex-text-input',
@@ -55,6 +88,7 @@
             'fff-flex-text-input--'.$getSize(),
             'fff-barcode-scanner--'.$getVariant(),
             'fff-flex-text-input--'.$getVariant(),
+            'has-actions' => true,
             'is-disabled' => $isDisabled,
             'is-read-only' => $isReadOnly,
             'has-focus-outline' => $shouldShowFocusOutline(),
@@ -71,8 +105,8 @@
                 <div class="fff-flex-text-input__control">
                     <x-filament::input.wrapper
                         :disabled="$isDisabled"
-                        :inline-suffix="true"
                         :valid="! $hasError"
+                        x-on:focus-input.stop="$refs.input?.focus()"
                         :attributes="
                             \Filament\Support\prepare_inherited_attributes(new \Illuminate\View\ComponentAttributeBag())
                                 ->class(['fff-flex-text-input__wrapper'])
@@ -84,8 +118,9 @@
                             autocomplete="off"
                             autocapitalize="off"
                             spellcheck="false"
-                            class="fff-flex-text-input__input fi-input fi-input-has-inline-suffix"
-                            placeholder="{{ $getPlaceholder() }}"
+                            class="fff-flex-text-input__input fi-input"
+                            placeholder="{{ $placeholder }}"
+                            value="{{ $initialValue }}"
                             x-ref="input"
                             x-model="inputValue"
                             x-on:input="onManualInput()"
@@ -94,22 +129,24 @@
                             @readonly($isReadOnly || ! $allowsManualInput())
                             aria-describedby="{{ $allowsManualInput() ? null : $getId().'-manual-hint' }}"
                         />
-
-                        <x-slot name="suffix">
-                            <button
-                                type="button"
-                                class="fff-barcode-scanner__scan-btn"
-                                x-on:click="openScanner()"
-                                x-bind:disabled="disabled || readOnly"
-                                x-bind:aria-label="labels.scan"
-                                aria-haspopup="dialog"
-                                x-bind:aria-controls="@js($modalId)"
-                            >
-                                {{ \Filament\Support\generate_icon_html($scanIcon, size: IconSize::Small) }}
-                                <span class="sr-only" x-text="labels.scan"></span>
-                            </button>
-                        </x-slot>
                     </x-filament::input.wrapper>
+                </div>
+
+                <div class="fff-flex-text-input__action-group">
+                    <div class="fff-flex-text-input__action-item fff-flex-text-input__scan">
+                        <button
+                            type="button"
+                            class="fff-flex-text-input__action-btn fff-flex-text-input__action-btn--scan"
+                            x-on:click.prevent="openScanner($event)"
+                            x-bind:disabled="disabled || readOnly"
+                            x-bind:aria-label="labels.scan"
+                            x-bind:title="labels.scan"
+                            aria-haspopup="dialog"
+                            x-bind:aria-controls="@js($modalId)"
+                        >
+                            {{ \Filament\Support\generate_icon_html($scanIcon, size: IconSize::Small, attributes: new \Illuminate\View\ComponentAttributeBag(['class' => 'fff-flex-text-input__action-icon'])) }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -119,6 +156,7 @@
                 {{ __('filament-flex-fields::default.barcode_scanner.manual_only') }}
             </p>
         @endunless
+        </div>
 
         <x-filament::modal
             :id="$modalId"
@@ -128,6 +166,7 @@
             icon-color="primary"
             width="lg"
             teleport="body"
+            :autofocus="false"
             :close-button="true"
             :close-by-clicking-away="true"
             :close-by-escaping="true"
@@ -254,5 +293,6 @@
             </div>
         </x-filament::modal>
     </div>
-    </x-filament-flex-fields::lazy-alpine-mount>
+        </x-filament-flex-fields::lazy-alpine-mount>
+    </div>
 </x-dynamic-component>

@@ -1,0 +1,200 @@
+{
+    "lazy_stylesheets": [
+        "cover-card",
+        "emoji-picker",
+        "number-stepper",
+        "traffic-split",
+        "dual-listbox",
+        "price-range",
+        "flex-textarea",
+        "rich-editor-field",
+        "flex-text-input",
+        "link-preview-field",
+        "barcode-scanner-field",
+        "social-links-field",
+        "schedule-field",
+        "credit-card",
+        "phone-field",
+        "country-field",
+        "timezone-field",
+        "flex-date-time-field",
+        "flex-time-segments",
+        "flex-file-upload",
+        "currency-field",
+        "calculator-field",
+        "calculator-panel",
+        "slug-field",
+        "video-field",
+        "audio-field",
+        "flex-slider",
+        "flex-verification-code",
+        "map-picker-dropdown",
+        "map-picker",
+        "address-autocomplete",
+        "signature-field",
+        "flex-color-picker",
+        "flex-checklist",
+        "progress-bar",
+        "progress-circle",
+        "matrix-choice-field",
+        "tags-field",
+        "tag-chips",
+        "voice-note-recorder-field",
+        "switch",
+        "item-card",
+        "choice-cards",
+        "image-choice-cards",
+        "rating-field",
+        "color-swatch",
+        "select-field",
+        "icon-picker-field",
+        "user-select",
+        "user-display",
+        "user-column",
+        "rating-column",
+        "icon-column",
+        "progress-column",
+        "status-chip-column",
+        "signature-preview-column",
+        "map-pin-column",
+        "hold-confirm-action",
+        "track-slider",
+        "segment-control",
+        "segment-tabs",
+        "nps-field",
+        "overlay-runtime",
+        "teleported-menu"
+    ],
+    "stylesheet_dependencies": {
+        "flex-text-input": [
+            "emoji-picker"
+        ],
+        "flex-textarea": [
+            "emoji-picker"
+        ],
+        "phone-field": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "country-field": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "timezone-field": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "currency-field": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "calculator-field": [
+            "flex-text-input"
+        ],
+        "calculator-panel": [],
+        "address-autocomplete": [
+            "flex-text-input",
+            "teleported-menu",
+            "map-picker-dropdown"
+        ],
+        "flex-color-picker": [
+            "flex-text-input"
+        ],
+        "icon-picker-field": [
+            "teleported-menu",
+            "select-field"
+        ],
+        "slug-field": [
+            "flex-text-input"
+        ],
+        "link-preview-field": [
+            "flex-text-input"
+        ],
+        "barcode-scanner-field": [
+            "flex-text-input"
+        ],
+        "social-links-field": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "schedule-field": [
+            "flex-text-input",
+            "switch",
+            "teleported-menu",
+            "timezone-field",
+            "flex-time-segments"
+        ],
+        "tags-field": [
+            "flex-text-input",
+            "tag-chips"
+        ],
+        "flex-date-time-field": [
+            "flex-text-input"
+        ],
+        "flex-time-segments": [
+            "flex-text-input",
+            "teleported-menu"
+        ],
+        "map-picker-dropdown": [
+            "teleported-menu"
+        ],
+        "map-picker": [
+            "teleported-menu",
+            "map-picker-dropdown"
+        ],
+        "select-field": [
+            "teleported-menu"
+        ],
+        "nps-field": [
+            "segment-control"
+        ],
+        "user-select": [
+            "teleported-menu",
+            "select-field",
+            "tag-chips",
+            "user-display"
+        ],
+        "user-column": [
+            "user-display"
+        ],
+        "voice-note-recorder-field": [
+            "emoji-picker"
+        ],
+        "segment-tabs": [
+            "segment-control"
+        ],
+        "teleported-menu": [
+            "overlay-runtime"
+        ]
+    },
+    "playground_aliases": {
+        "admin-columns": "progress-column",
+        "hold-confirm": "hold-confirm-action",
+        "schema-conditions": "flex-text-input",
+        "field-intelligence": "flex-text-input",
+        "date-time-fields": "flex-date-time-field",
+        "file-upload": "flex-file-upload",
+        "verification-code": "flex-verification-code",
+        "flex-radiolist": "flex-checklist",
+        "matrix-choice": "matrix-choice-field",
+        "rating": "rating-field",
+        "flex-rich-editor": "rich-editor-field"
+    },
+    "playground_extras": {
+        "calculator-field": [
+            "calculator-panel"
+        ],
+        "date-time-fields": [
+            "flex-time-segments"
+        ],
+        "field-intelligence": [
+            "number-stepper",
+            "select-field",
+            "flex-textarea",
+            "currency-field"
+        ]
+    },
+    "critical_preload": [
+        "teleported-menu"
+    ]
+}

@@ -41,6 +41,7 @@ This document covers **custom UI components** (form fields, table columns, and l
 20. [AddressAutocompleteField](/docs/addressautocompletefield)
 21. [ChoiceCards](/docs/choicecards)
 22. [ChoiceCheckboxCards](/docs/choicecheckboxcards)
+22.1. [ImageChoiceCards](/docs/imagechoicecards)
 23. [FlexChecklist](/docs/flexchecklist)
 24. [FlexRadiolist](/docs/flexradiolist)
 25. [MatrixChoiceField](/docs/matrixchoicefield)

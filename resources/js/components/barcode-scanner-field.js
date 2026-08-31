@@ -79,8 +79,10 @@ export default function barcodeScannerFieldFormComponent({
         mobilePortalOverlayHost: null,
         mobilePortalControlsHost: null,
         mobilePortalMovedNodes: [],
+        pendingScrollSnapshot: null,
 
         init() {
+            this.$refs.fieldShell?.classList.add('is-hydrated')
             this.hydrateFromState()
 
             this.$watch('state', () => {
@@ -437,10 +439,14 @@ export default function barcodeScannerFieldFormComponent({
                 || ! transform.includes('0.95')
         },
 
-        openScanner() {
+        openScanner(event) {
             if (this.disabled || this.readOnly) {
                 return
             }
+
+            event?.preventDefault?.()
+
+            this.pendingScrollSnapshot = this.captureScrollSnapshot()
 
             this.scannerError = null
             this.scanSuccess = false
@@ -456,12 +462,82 @@ export default function barcodeScannerFieldFormComponent({
             }
 
             this.$dispatch('open-modal', { id: this.modalId })
+
+            this.restoreScrollSnapshot(this.pendingScrollSnapshot)
+        },
+
+        captureScrollSnapshot() {
+            return {
+                windowX: window.scrollX,
+                windowY: window.scrollY,
+                containers: this.resolveScrollContainers().map((element) => ({
+                    element,
+                    top: element.scrollTop,
+                    left: element.scrollLeft,
+                })),
+            }
+        },
+
+        restoreScrollSnapshot(snapshot) {
+            if (! snapshot) {
+                return
+            }
+
+            const apply = () => {
+                window.scrollTo({
+                    left: snapshot.windowX,
+                    top: snapshot.windowY,
+                    behavior: 'instant',
+                })
+
+                snapshot.containers.forEach(({ element, top, left }) => {
+                    element.scrollTop = top
+                    element.scrollLeft = left
+                })
+            }
+
+            this.$nextTick(() => {
+                apply()
+                window.requestAnimationFrame(apply)
+            })
+        },
+
+        resolveScrollContainers() {
+            const containers = []
+            let node = this.$el?.parentElement ?? null
+
+            while (node && node !== document.documentElement) {
+                const style = window.getComputedStyle(node)
+
+                if (
+                    /(auto|scroll|overlay)/.test(style.overflowY)
+                    && node.scrollHeight > node.clientHeight + 1
+                ) {
+                    containers.push(node)
+                }
+
+                node = node.parentElement
+            }
+
+            return containers
+        },
+
+        focusModalCloseButton() {
+            this.$nextTick(() => {
+                const closeButton = document.getElementById(this.modalId)
+                    ?.querySelector('.fi-modal-window .fi-icon-btn, .fi-modal-close-btn')
+
+                closeButton?.focus({ preventScroll: true })
+            })
         },
 
         onScannerModalOpened(event) {
             if (event.detail?.id !== this.modalId) {
                 return
             }
+
+            this.restoreScrollSnapshot(this.pendingScrollSnapshot)
+            this.focusModalCloseButton()
 
             this.beginScannerSession().catch((error) => {
                 this.scannerError = this.resolveScannerError(error)
@@ -473,6 +549,7 @@ export default function barcodeScannerFieldFormComponent({
                 return
             }
 
+            this.pendingScrollSnapshot = null
             this.stopScanner()
             this.scanSuccess = false
             this.scannerError = null

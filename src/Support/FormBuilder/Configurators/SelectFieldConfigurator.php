@@ -45,6 +45,20 @@ final class SelectFieldConfigurator implements FieldConfigurator
             $field->richOptions((bool) $config['rich_options']);
         }
 
+        if (isset($config['option_view'])) {
+            $field->optionView((string) $config['option_view']);
+        }
+
+        if (array_key_exists('option_trigger_view', $config)) {
+            $triggerView = $config['option_trigger_view'];
+
+            $field->optionTriggerView(is_string($triggerView) ? $triggerView : null);
+        }
+
+        if (array_key_exists('rich_list_trigger_display', $config)) {
+            $field->richListTriggerDisplay((bool) $config['rich_list_trigger_display']);
+        }
+
         if (isset($config['option_layout'])) {
             $field->optionLayout((string) $config['option_layout']);
         }

@@ -6,6 +6,8 @@
 
 This document is the public commercial pricing and plan guide for Flex Fields. It is written for founders, legal, and procurement teams evaluating whether your product needs a commercial license—and which plan fits.
 
+**Form OS positioning (v3):** see the brief [Form OS one-pager](docs/form-os-one-pager.md) for why Unlimited fits multi-product SaaS teams.
+
 The free license text in [LICENSE](LICENSE) remains authoritative for Permitted Free Use. A commercial license is a separate written grant for use that the free license does not allow.
 
 ---

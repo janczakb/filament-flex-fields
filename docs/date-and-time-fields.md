@@ -391,7 +391,7 @@ FlexDateRangeField::make('leave')
     ->maxValue('2026-12-31');
 ```
 
-**Client-side:** calendar days outside `minValue` / `maxValue` are disabled. `isDateUnavailable()` is validated on submit but unavailable days are **not** yet disabled in the calendar UI.
+**Client-side:** calendar days outside `minValue` / `maxValue` are disabled. Days matched by `isDateUnavailable()` are also disabled in the calendar grid (precomputed for the field’s min/max window, or ±5 years around the current value when no bounds are set). Submit-time validation still applies for dates outside that precomputed window.
 
 On segment **blur**, client-side validation sets `segmentInvalid` when segments are incomplete or out of bounds. The message appears **below** the input shell (`.fff-date-time-field__segment-error`, `role="alert"`), not inside individual segments. Text comes from `config.segmentInvalidMessage` / translation key `date_time.validation.invalid`. Server-side validation (form submit) is unchanged.
 
@@ -460,11 +460,12 @@ use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
 #### `locale(string|Closure|null $locale)`
 
 
-BCP 47 locale for segment order, placeholders, separators, and calendar labels. Default: `app()-&gt;getLocale()`. Laravel-style tags (`pl_PL`) are normalized to BCP 47 (`pl-PL`) for JS `Intl` APIs. Segment order follows locale via `DateTimeLocaleOrder` — see [Display format vs storage format](#display-format-vs-storage-format).
+BCP 47 locale for segment order, placeholders, separators, and calendar labels. Default: `app()-&gt;getLocale()`. Laravel-style tags (`pl_PL`) are normalized to BCP 47 (`pl-PL`) for JS `Intl` APIs. Segment order follows locale via `DateTimeLocaleOrder` — see [Display format vs storage format](#display-format-vs-storage-format). RTL locales (`ar`, `he`, `fa`, `ur`, and entries in `config('filament-flex-fields.translatable.rtl_locales')`) set `dir="rtl"` on the field shell and calendar popover (mirrored navigation, weekday columns, and range highlights).
 
 ```php
 ->locale('en_US')
 ->locale('pl_PL')
+->locale('ar')
 ```
 
 #### `timeZone(string|Closure|null $timeZone)`
@@ -884,7 +885,7 @@ Components with `showCalendar()` expose a teleported popover calendar:
 - **FlexMonthPicker (with year segment)** — opens on the **years** grid; pick a year → **months** grid.
 - **FlexMonthPicker with `showYearSegment(false)`** — opens directly on the **months** grid (no year selection step).
 - **FlexYearPicker** — year grid only.
-- **Locale** — calendar labels use the configured locale; month names in the grid are always short form.
+- **Locale** — calendar labels use the configured locale; month names in the grid are always short form. RTL locales mirror the calendar UI (`dir`, nav chevrons, weekday order, range bar edges).
 - **Range selection** — continuous pill highlight between start and end; hover preview while selecting end.
 - **Today** — optional dot via `highlightToday()`.
 - **Primary color** — selected day uses theme `--primary-500`.

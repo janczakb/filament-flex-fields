@@ -17,9 +17,13 @@
  * today only select-field uses it as a narrowed entry experiment.
  */
 @theme {
-    --fff-track-h-sm: 2rem;
-    --fff-track-h-md: 2.5rem;
-    --fff-track-h-lg: 3rem;
+    --fff-density-scale: 1;
+    --fff-track-h-sm-base: 2rem;
+    --fff-track-h-md-base: 2.5rem;
+    --fff-track-h-lg-base: 3rem;
+    --fff-track-h-sm: calc(var(--fff-track-h-sm-base) * var(--fff-density-scale));
+    --fff-track-h-md: calc(var(--fff-track-h-md-base) * var(--fff-density-scale));
+    --fff-track-h-lg: calc(var(--fff-track-h-lg-base) * var(--fff-density-scale));
 
     --fff-text-sm: 0.75rem;
     --fff-text-md: 0.875rem;

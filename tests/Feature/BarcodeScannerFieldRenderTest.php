@@ -22,8 +22,14 @@ it('renders barcode scanner field shell and alpine configuration', function (): 
 
     expect($html)
         ->toContain('fff-barcode-scanner')
+        ->toContain('fff-barcode-scanner-input-ssr')
+        ->toContain('fff-barcode-scanner-mount')
         ->toContain('barcodeScannerFieldFormComponent({')
-        ->toContain('fff-barcode-scanner__scan-btn')
+        ->toContain('fff-flex-text-input__action-group')
+        ->toContain('fff-flex-text-input__action-btn--scan')
+        ->toContain('x-trap.noreturn.noautofocus')
+        ->toContain('fff-flex-text-input__shell')
+        ->toContain('modulepreload')
         ->toContain('fff-barcode-scanner__scan-line')
         ->toContain('fi-modal')
         ->toContain('beepUrl');

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
+use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
+use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\InteractsWithGeocodedAddress;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -12,6 +14,8 @@ use Filament\Forms\Components\Field;
 class MapPickerField extends Field
 {
     use CanBeReadOnly;
+    use HasControlSize;
+    use HasFieldFocusOutline;
     use InteractsWithGeocodedAddress;
 
     /**
@@ -111,6 +115,11 @@ class MapPickerField extends Field
     }
 
     protected function shouldInferPlaceNameFromCoordinates(): bool
+    {
+        return true;
+    }
+
+    protected function defaultFocusOutline(): bool
     {
         return true;
     }

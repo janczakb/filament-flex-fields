@@ -50,6 +50,8 @@ it('registers signature playground defaults', function () {
 
     expect($state)->toHaveKeys([
         'signature__contract',
+        'signature__enterprise',
+        'signature__validation',
         'signature__webp',
         'signature__readonly',
     ]);
@@ -90,6 +92,7 @@ it('exposes gravity control icons', function () {
         ->and($field->getClearIcon())->toBe(GravityIcon::ArrowsRotateRight)
         ->and($field->getDownloadIcon())->toBe(GravityIcon::ArrowDownToSquare)
         ->and($field->getFullscreenIcon())->toBe(GravityIcon::ChevronsExpandUpRight)
+        ->and($field->getPdfPreviewIcon())->toBe(GravityIcon::FileText)
         ->and($field->getCloseIcon())->toBe(GravityIcon::Xmark);
 });
 

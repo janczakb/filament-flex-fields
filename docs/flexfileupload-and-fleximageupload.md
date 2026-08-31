@@ -417,6 +417,12 @@ FlexImageUpload::make('photo')
 | `max_image_width` / `max_image_height` | `maxImageWidth()` / `maxImageHeight()` |
 | `allow_webcam_upload` | `allowWebcamUpload()` |
 | `allow_url_upload` | `allowUrlUpload()` |
+| `use_spatie_media_library` | Switches to `FlexSpatieMediaLibraryFileUpload` |
+| `media_collection` | Spatie `collection()` |
+| `conversion` | Spatie `conversion()` |
+| `conversions_disk` | Spatie `conversionsDisk()` |
+| `responsive_images` | Spatie `responsiveImages()` |
+| `custom_properties` | Spatie `customProperties()` |
 
 ### Security
 
@@ -440,7 +446,7 @@ FlexImageUpload::make('photo')
 - Requires Livewire temporary uploads; configure `FILESYSTEM_DISK` and disk credentials.
 - Webcam capture requires HTTPS. URL import rejects unsafe remote URLs before server fetch.
 - Playground examples under **File upload** in Flex Fields Playground (File / Camera / URL tabs).
-- For Spatie Media Library integration, see package `FlexSpatieMediaLibraryFileUpload` (if installed in app).
+- **Spatie Media Library** — use `FlexSpatieMediaLibraryFileUpload` with native Spatie persistence plus enterprise virus scan, signed URLs, and retention. See [Media & Capture OS](/docs/media-capture-os).
 
 ---
 

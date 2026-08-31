@@ -26,6 +26,8 @@ it('renders schedule field shell and alpine configuration', function (): void {
         ->toContain('scheduleFieldFormComponent({')
         ->toContain('flexTimeSegmentsSrc')
         ->toContain('dayValidationErrorMessage')
+        ->toContain('fff-schedule-field__overnight-btn')
+        ->toContain('modulepreload')
         ->toContain('aria-label')
         ->toContain('role="option"');
 });

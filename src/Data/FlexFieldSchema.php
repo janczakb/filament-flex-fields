@@ -11,6 +11,9 @@ class FlexFieldSchema
     /** @var list<FlexFieldDefinition> */
     protected array $fields = [];
 
+    /** @var list<FlexFieldSection> */
+    protected array $sections = [];
+
     public function __construct(
         public string $key,
         public string $targetType,
@@ -54,6 +57,33 @@ class FlexFieldSchema
     }
 
     /**
+     * @param  list<FlexFieldSection|array<string, mixed>>  $sections
+     */
+    public function sections(array $sections): static
+    {
+        $this->sections = array_map(
+            fn (FlexFieldSection|array $section): FlexFieldSection => $section instanceof FlexFieldSection
+                ? $section
+                : FlexFieldSection::fromArray($section),
+            $sections,
+        );
+
+        return $this;
+    }
+
+    /**
+     * @return list<FlexFieldSection>
+     */
+    public function getSections(): array
+    {
+        return collect($this->sections)
+            ->filter(fn (FlexFieldSection $section): bool => $section->isActive)
+            ->sortBy('sort')
+            ->values()
+            ->all();
+    }
+
+    /**
      * @param  list<FlexFieldDefinition|array<string, mixed>>  $fields
      */
     public function fields(array $fields): static
@@ -87,7 +117,7 @@ class FlexFieldSchema
     {
         /** @var list<FlexFieldDefinition> $fields */
         $fields = collect($this->fields)
-            ->filter(fn (FlexFieldDefinition $field): bool => $field->isActive && $field->isVisible)
+            ->filter(fn (FlexFieldDefinition $field): bool => $field->isActive && ($field->hasDynamicVisibility() || $field->isVisible))
             ->sortBy('sort')
             ->values()
             ->all();

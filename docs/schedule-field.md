@@ -16,7 +16,7 @@ Weekly **availability / opening-hours editor** with per-day toggles, **from/to t
 | **Class** | `Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField` |
 | **State type** | `array&lt;timezone?: string, days: array&lt;string, array{enabled: bool, slots: list&lt;array{from: string, to: string, type?: string&gt;&gt;}&gt;}` |
 | **Model cast** | `'opening_hours' =&gt; 'array'` or `'json'` |
-| **FieldType** | *(no dedicated FieldType mapping yet — use the class directly)* |
+| **FieldType** | `FieldType::Schedule` via Form Builder (`schedule` key) |
 | **Playground** | `schedule-field` slug in Flex Fields playground |
 
 ---
@@ -103,7 +103,41 @@ Times are **`HH:MM`** strings in 24-hour format (`09:00`, `17:30`). On save, inv
 | `slot` (default) | Work slot row with briefcase icon | Counted toward min/max slot limits |
 | `break` | Dashed break row with clock icon | Also validated for time order and overlap |
 
+#### Overnight slots
+
+Add `"overnight": true` when a work slot crosses midnight (e.g. `22:00` → `06:00`). The UI exposes an **Overnight** toggle on work slots; overlap validation uses the same `ScheduleV2` / `interval-engine` rules as PHP.
+
+```json
+{
+  "from": "22:00",
+  "to": "06:00",
+  "type": "slot",
+  "overnight": true
+}
+```
+
 When `timezone(null)` hides the selector, omit the `timezone` key from state — it is not required or validated.
+
+---
+
+### Export & audit helpers
+
+| Class | Purpose |
+|-------|---------|
+| `ScheduleExporter` | `toApi()` JSON payload + `toOpeningHoursSummary()` localized day periods |
+| `ScheduleIcalGenerator` | Weekly `VEVENT` blocks with `RRULE:FREQ=WEEKLY;BYDAY=…` |
+| `ScheduleChangeAuditor` | `diff()` + `describe()` human-readable schedule change trail |
+
+```php
+use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleExporter;
+use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleIcalGenerator;
+use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleChangeAuditor;
+
+$api = (new ScheduleExporter)->toApi($openingHours);
+$ical = (new ScheduleIcalGenerator)->generate($openingHours, 'Store hours');
+$changes = (new ScheduleChangeAuditor)->diff($before, $after);
+$messages = (new ScheduleChangeAuditor)->describe($changes);
+```
 
 ---
 

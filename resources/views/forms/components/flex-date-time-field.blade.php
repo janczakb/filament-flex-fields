@@ -18,7 +18,7 @@
     $showTimeUnderCalendar = ! $field->shouldHideTimeSection()
         && $field->getGranularity()->value !== 'day'
         && ($isRange || $isDateTime);
-    $calendarTimeParts = $showTimeUnderCalendar && $isDateTime
+    $calendarTimeParts = $showTimeUnderCalendar
         ? DateTimeSegmentHydrator::segmentParts(
             DateTimeFieldMode::Time,
             $field->getGranularity(),
@@ -30,6 +30,7 @@
     $segmentParts = $viewSegments['parts'];
     $locale = $field->getLocale();
     $monthDisplay = $field->getMonthDisplay();
+    $showTimezoneInSegments = $field->getMode() === DateTimeFieldMode::Time && ! $field->shouldHideTimeZone();
 @endphp
 
 <x-dynamic-component
@@ -41,7 +42,7 @@
     "
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-date-time-field'])
-    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly">
+    <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly" :wrap-slot="false">
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $showCalendar, $field->getMode()->value])), 0, 64) }}"
@@ -78,6 +79,8 @@
             'is-read-only' => $isReadOnly,
             'has-focus-outline' => $shouldShowFocusOutline(),
         ])
+        x-bind:class="{ 'is-display-ready': displayReady }"
+        x-bind:dir="calendarDirection"
         @if ($monthDisplay->isTextual())
             style="--fff-date-time-month-ch: {{ DateTimeSegmentHydrator::segmentMaxLength('month', $monthDisplay, $locale) }}"
         @endif
@@ -90,7 +93,7 @@
                 'is-invalid' => $hasError,
                 'is-segment-invalid' => false,
             ])
-            x-bind:class="{ 'is-segment-invalid': segmentInvalid }"
+            x-bind:class="{ 'is-segment-invalid': segmentInvalid || config.isInvalid }"
             x-ref="fieldShell"
         >
             <div class="fff-date-time-field__input-row">
@@ -171,11 +174,9 @@
                         @endforeach
                     @endif
 
-                    <span
-                        class="fff-date-time-field__timezone"
-                        x-show="mode === 'time' && ! config.hideTimeZone"
-                        x-text="config.timeZone"
-                    ></span>
+                    @if ($showTimezoneInSegments)
+                        <span class="fff-date-time-field__timezone">{{ $field->getTimeZone() }}</span>
+                    @endif
                 </div>
 
                 @if ($showCalendarButton)
@@ -202,10 +203,10 @@
 
         <p
             class="fff-date-time-field__segment-error"
-            x-show="segmentInvalid"
+            x-show="segmentInvalid || config.isInvalid"
             x-cloak
             role="alert"
-            x-text="config.segmentInvalidMessage"
+            x-text="segmentValidationMessage()"
         ></p>
 
         @if ($showCalendar)
@@ -220,58 +221,98 @@
                         x-cloak
                         x-transition.opacity.duration.150ms
                         x-bind:class="{ 'is-positioned': calendarReady }"
+                        x-bind:dir="calendarDirection"
                         x-on:click.stop
                         role="dialog"
                         x-bind:aria-label="config.labels.calendar"
                     >
-                        <div class="fff-date-time-field__calendar-header">
-                            <button type="button" class="fff-date-time-field__nav-button" x-on:click="previousMonth()" x-bind:aria-label="calendarViewMode === 'days' ? 'Previous month' : (calendarViewMode === 'months' ? 'Previous year' : 'Previous years')">
-                                <x-filament::icon
-                                    :icon="GravityIcon::ChevronLeft"
-                                    class="fff-date-time-field__nav-icon"
-                                />
-                            </button>
+                        <div
+                            class="fff-date-time-field__calendar-header"
+                            x-bind:class="{ 'is-year-picker-open': yearPickerOpen || calendarViewMode === 'years' }"
+                        >
                             <button
                                 type="button"
-                                class="fff-date-time-field__month-label"
+                                class="fff-date-time-field__year-trigger"
                                 x-on:click="onCalendarHeaderClick()"
                                 x-bind:disabled="isCalendarHeaderDisabled"
-                                x-text="calendarHeaderLabel"
-                            ></button>
-                            <button type="button" class="fff-date-time-field__nav-button" x-on:click="nextMonth()" x-bind:aria-label="calendarViewMode === 'days' ? 'Next month' : (calendarViewMode === 'months' ? 'Next year' : 'Next years')">
+                                x-bind:aria-expanded="(yearPickerOpen || calendarViewMode === 'years') ? 'true' : 'false'"
+                            >
+                                <span class="fff-date-time-field__year-trigger-heading" x-text="calendarHeaderLabel"></span>
                                 <x-filament::icon
                                     :icon="GravityIcon::ChevronRight"
-                                    class="fff-date-time-field__nav-icon"
+                                    class="fff-date-time-field__year-trigger-indicator"
+                                    x-bind:class="{ 'is-open': yearPickerOpen || calendarViewMode === 'years' }"
                                 />
                             </button>
+                            <div class="fff-date-time-field__calendar-nav" x-show="showsCalendarNavigation">
+                                <button type="button" class="fff-date-time-field__nav-button" x-on:click="previousMonth()" x-bind:aria-label="calendarViewMode === 'days' ? 'Previous month' : (calendarViewMode === 'months' ? 'Previous year' : 'Previous years')">
+                                    <x-filament::icon
+                                        :icon="GravityIcon::ChevronLeft"
+                                        class="fff-date-time-field__nav-icon"
+                                    />
+                                </button>
+                                <button type="button" class="fff-date-time-field__nav-button" x-on:click="nextMonth()" x-bind:aria-label="calendarViewMode === 'days' ? 'Next month' : (calendarViewMode === 'months' ? 'Next year' : 'Next years')">
+                                    <x-filament::icon
+                                        :icon="GravityIcon::ChevronRight"
+                                        class="fff-date-time-field__nav-icon"
+                                    />
+                                </button>
+                            </div>
                         </div>
 
-                        <div x-show="calendarViewMode === 'days'">
+                        <div class="fff-date-time-field__calendar-body" x-show="showsDayCalendarGrid">
                             <div class="fff-date-time-field__weekdays">
                                 <template x-for="label in weekdayLabels" :key="label">
                                     <span class="fff-date-time-field__weekday" x-text="label"></span>
                                 </template>
                             </div>
 
-                            <div class="fff-date-time-field__grid">
-                                <template x-for="(week, weekIndex) in calendarWeeks" :key="'week-' + weekIndex">
-                                    <div class="fff-date-time-field__week">
-                                        <template x-for="(day, dayIndex) in week" :key="'day-' + weekIndex + '-' + dayIndex">
+                            <div
+                                class="fff-date-time-field__day-grid-wrap"
+                                x-ref="calendarDayGrid"
+                                x-bind:class="{ 'is-year-picker-open': yearPickerOpen }"
+                            >
+                                <div class="fff-date-time-field__grid">
+                                    <template x-for="(week, weekIndex) in calendarWeeks" :key="'week-' + weekIndex">
+                                        <div class="fff-date-time-field__week">
+                                        <template x-for="(cell, dayIndex) in week" :key="'day-' + weekIndex + '-' + dayIndex">
                                             <button
                                                 type="button"
                                                 class="fff-date-time-field__day"
-                                                x-bind:class="getDayCellClass(day)"
-                                                x-bind:disabled="! day || isDateDisabled(day)"
-                                                x-on:mouseenter="if (isRange && rangeValue.start && ! rangeValue.end) { hoveredDate = day }"
+                                                x-bind:class="getDayCellClass(cell)"
+                                                x-bind:disabled="isDateDisabled(resolveCalendarCell(cell))"
+                                                x-on:mouseenter="if (isRange && rangeValue.start && ! rangeValue.end) { hoveredDate = resolveCalendarCell(cell) }"
                                                 x-on:mouseleave="hoveredDate = null"
-                                                x-on:click="selectDate(day)"
+                                                x-on:click="selectDate(cell)"
                                             >
-                                                <span class="fff-date-time-field__day-label" x-text="day ? day.day : ''"></span>
-                                                <span class="fff-date-time-field__today-dot" x-show="day && isToday(day)"></span>
+                                                <span class="fff-date-time-field__day-label" x-text="resolveCalendarCell(cell).day"></span>
+                                                <span class="fff-date-time-field__today-dot" x-show="isToday(resolveCalendarCell(cell))"></span>
                                             </button>
                                         </template>
-                                    </div>
-                                </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div
+                                class="fff-date-time-field__year-overlay"
+                                x-ref="calendarYearOverlay"
+                                x-bind:data-open="yearPickerOpen && usesYearPickerOverlay ? 'true' : 'false'"
+                                x-bind:style="yearPickerOverlayStyle"
+                                tabindex="-1"
+                            >
+                                <div class="fff-date-time-field__year-scroll-inner">
+                                    <template x-for="year in yearOptions" :key="'overlay-year-' + year">
+                                        <button
+                                            type="button"
+                                            class="fff-date-time-field__picker-cell"
+                                            x-bind:class="{ 'is-selected': isSelectedCalendarYear(year) }"
+                                            x-bind:data-year="year"
+                                            x-on:click="selectCalendarYear(year)"
+                                            x-text="year"
+                                        ></button>
+                                    </template>
+                                </div>
                             </div>
                         </div>
 
@@ -287,111 +328,103 @@
                             </template>
                         </div>
 
-                        <div class="fff-date-time-field__picker-grid" x-show="calendarViewMode === 'years'">
-                            <template x-for="year in yearOptions" :key="'year-' + year">
-                                <button
-                                    type="button"
-                                    class="fff-date-time-field__picker-cell"
-                                    x-bind:class="{ 'is-selected': isSelectedCalendarYear(year) }"
-                                    x-on:click="selectCalendarYear(year)"
-                                    x-text="year"
-                                ></button>
-                            </template>
+                        <div
+                            class="fff-date-time-field__year-scroll"
+                            x-ref="calendarYearGrid"
+                            x-show="calendarViewMode === 'years' && ! usesYearPickerOverlay"
+                            tabindex="-1"
+                        >
+                            <div class="fff-date-time-field__year-scroll-inner">
+                                <template x-for="year in yearOptions" :key="'year-' + year">
+                                    <button
+                                        type="button"
+                                        class="fff-date-time-field__picker-cell"
+                                        x-bind:class="{ 'is-selected': isSelectedCalendarYear(year) }"
+                                        x-bind:data-year="year"
+                                        x-on:click="selectCalendarYear(year)"
+                                        x-text="year"
+                                    ></button>
+                                </template>
+                            </div>
                         </div>
 
-                        @if ($showTimeUnderCalendar)
+                        @if (filled($calendarTimeParts))
                             <div class="fff-date-time-field__time-rows">
                                 @if ($isRange)
-                                    <div class="fff-date-time-field__time-row">
-                                        <span class="fff-date-time-field__time-label" x-text="config.labels.range_start"></span>
-                                        <div class="fff-date-time-field__time-segments" data-time-target="start">
-                                            <template x-for="(part, index) in timeSegmentParts" :key="'start-time-' + part">
-                                                <span class="fff-date-time-field__time-segment-wrap inline-flex items-center">
+                                    @foreach (['start', 'end'] as $timeTarget)
+                                        <div class="fff-date-time-field__time-row">
+                                            <span
+                                                class="fff-date-time-field__time-label"
+                                                x-text="config.labels.{{ $timeTarget === 'start' ? 'range_start' : 'range_end' }}"
+                                            ></span>
+                                            <div class="fff-date-time-field__time-segments" data-time-target="{{ $timeTarget }}">
+                                                @foreach ($calendarTimeParts as $part)
+                                                    @php
+                                                        $timeSeparator = DateTimeSegmentHydrator::separatorAfter($part, $calendarTimeParts, $locale);
+                                                    @endphp
+
                                                     <input
                                                         type="text"
-                                                        class="fff-date-time-field__time-segment"
-                                                        x-bind:data-segment-part="part"
-                                                        x-bind:placeholder="segmentPlaceholder(part)"
-                                                        x-bind:maxlength="part === 'year' ? 4 : 2"
-                                                        x-bind:value="timeSegments.start[part] ?? ''"
-                                                        x-on:focus="onTimeSegmentFocus('start', part, $event)"
-                                                        x-on:blur="onTimeSegmentBlur('start', part, $event)"
-                                                        x-on:input="onTimeSegmentInput('start', part, $event)"
-                                                        x-on:keydown="onTimeSegmentKeydown('start', part, $event)"
-                                                        inputmode="numeric"
+                                                        class="fff-date-time-field__segment"
+                                                        data-segment-part="{{ $part }}"
+                                                        placeholder="{{ DateTimeSegmentHydrator::segmentPlaceholder($part, $locale) }}"
+                                                        maxlength="{{ DateTimeSegmentHydrator::segmentMaxLength($part) }}"
+                                                        x-bind:value="timeSegments.{{ $timeTarget }}['{{ $part }}'] ?? ''"
+                                                        x-on:focus="onTimeSegmentFocus('{{ $timeTarget }}', '{{ $part }}', $event)"
+                                                        x-on:blur="onTimeSegmentBlur('{{ $timeTarget }}', '{{ $part }}', $event)"
+                                                        x-on:input="onTimeSegmentInput('{{ $timeTarget }}', '{{ $part }}', $event)"
+                                                        x-on:keydown="onTimeSegmentKeydown('{{ $timeTarget }}', '{{ $part }}', $event)"
+                                                        x-bind:inputmode="segmentInputMode('{{ $part }}')"
                                                         autocomplete="off"
                                                         @disabled($isDisabled || $isReadOnly)
                                                     />
-                                                    <span
-                                                        class="fff-date-time-field__time-separator"
-                                                        x-show="segmentSeparatorAfter(part, timeSegmentParts) !== ''"
-                                                        x-text="segmentSeparatorAfter(part, timeSegmentParts)"
-                                                    ></span>
-                                                </span>
-                                            </template>
+
+                                                    @if ($timeSeparator !== '')
+                                                        <span class="fff-date-time-field__separator">{{ $timeSeparator }}</span>
+                                                    @endif
+                                                @endforeach
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="fff-date-time-field__time-row">
-                                        <span class="fff-date-time-field__time-label" x-text="config.labels.range_end"></span>
-                                        <div class="fff-date-time-field__time-segments" data-time-target="end">
-                                            <template x-for="(part, index) in timeSegmentParts" :key="'end-time-' + part">
-                                                <span class="fff-date-time-field__time-segment-wrap inline-flex items-center">
-                                                    <input
-                                                        type="text"
-                                                        class="fff-date-time-field__time-segment"
-                                                        x-bind:data-segment-part="part"
-                                                        x-bind:placeholder="segmentPlaceholder(part)"
-                                                        x-bind:maxlength="part === 'year' ? 4 : 2"
-                                                        x-bind:value="timeSegments.end[part] ?? ''"
-                                                        x-on:focus="onTimeSegmentFocus('end', part, $event)"
-                                                        x-on:blur="onTimeSegmentBlur('end', part, $event)"
-                                                        x-on:input="onTimeSegmentInput('end', part, $event)"
-                                                        x-on:keydown="onTimeSegmentKeydown('end', part, $event)"
-                                                        inputmode="numeric"
-                                                        autocomplete="off"
-                                                        @disabled($isDisabled || $isReadOnly)
-                                                    />
-                                                    <span
-                                                        class="fff-date-time-field__time-separator"
-                                                        x-show="segmentSeparatorAfter(part, timeSegmentParts) !== ''"
-                                                        x-text="segmentSeparatorAfter(part, timeSegmentParts)"
-                                                    ></span>
-                                                </span>
-                                            </template>
-                                        </div>
-                                    </div>
+                                    @endforeach
                                 @else
                                     <div class="fff-date-time-field__time-row">
-                                        <span class="fff-date-time-field__time-label">{{ __('filament-flex-fields::default.date_time.time') }}</span>
-                                        <div class="fff-date-time-field__time-segments">
+                                        <span class="fff-date-time-field__time-label" x-text="config.labels.time"></span>
+                                        <div class="fff-date-time-field__time-segments" data-time-target="single">
                                             @foreach ($calendarTimeParts as $part)
                                                 @php
-                                                    $segmentIndex = array_search($part, $segmentParts, true);
-                                                    $timeSeparator = DateTimeSegmentHydrator::separatorAfter($part, $calendarTimeParts);
+                                                    $timeSeparator = DateTimeSegmentHydrator::separatorAfter($part, $calendarTimeParts, $locale);
                                                 @endphp
 
                                                 <input
                                                     type="text"
-                                                    class="fff-date-time-field__time-segment"
+                                                    class="fff-date-time-field__segment"
                                                     data-segment-part="{{ $part }}"
                                                     placeholder="{{ DateTimeSegmentHydrator::segmentPlaceholder($part, $locale) }}"
                                                     maxlength="{{ DateTimeSegmentHydrator::segmentMaxLength($part) }}"
-                                                    x-bind:value="segments['{{ $part }}'] ?? ''"
-                                                    x-on:focus="onSegmentFocus({{ $segmentIndex }}, null, $event)"
-                                                    x-on:blur="onSegmentBlur($event)"
-                                                    x-on:input="onSegmentInput('{{ $part }}', $event)"
-                                                    x-on:keydown="onSegmentKeydown('{{ $part }}', $event)"
-                                                    inputmode="{{ $part === 'dayPeriod' ? 'text' : 'numeric' }}"
+                                                    x-bind:value="timeSegments.single['{{ $part }}'] ?? ''"
+                                                    x-on:focus="onTimeSegmentFocus('single', '{{ $part }}', $event)"
+                                                    x-on:blur="onTimeSegmentBlur('single', '{{ $part }}', $event)"
+                                                    x-on:input="onTimeSegmentInput('single', '{{ $part }}', $event)"
+                                                    x-on:keydown="onTimeSegmentKeydown('single', '{{ $part }}', $event)"
+                                                    x-bind:inputmode="segmentInputMode('{{ $part }}')"
                                                     autocomplete="off"
                                                     @disabled($isDisabled || $isReadOnly)
                                                 />
 
                                                 @if ($timeSeparator !== '')
-                                                    <span class="fff-date-time-field__time-separator">{{ $timeSeparator }}</span>
+                                                    <span class="fff-date-time-field__separator">{{ $timeSeparator }}</span>
                                                 @endif
                                             @endforeach
                                         </div>
                                     </div>
+                                @endif
+
+                                @if ($isRange)
+                                    <p
+                                        class="fff-date-time-field__range-summary"
+                                        x-show="calendarRangeSummary !== ''"
+                                        x-text="calendarRangeSummary"
+                                    ></p>
                                 @endif
                             </div>
                         @endif

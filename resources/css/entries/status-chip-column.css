@@ -1,0 +1,7 @@
+@import "../utilities-baseline.css";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/StatusChipColumn.php";
+@source "../views/tables/columns/status-chip-column.blade.php";
+
+@import "../core/tables/status-chip-column.css";

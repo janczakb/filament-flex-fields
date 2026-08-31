@@ -16,6 +16,14 @@ const components = [
         sources: [
             '../../src/Filament/Forms/Components/SegmentControl.php',
             '../views/forms/components/segment-control.blade.php',
+        ],
+    },
+    {
+        name: 'segment-tabs',
+        imports: ['../components/segment-tabs.css'],
+        sources: [
+            '../../src/Filament/Schemas/Components/SegmentTabs.php',
+            '../../src/Filament/Schemas/Components/SegmentTabs/SegmentTab.php',
             '../views/schemas/components/segment-tabs.blade.php',
             '../views/schemas/components/segment-tabs/segment-tab.blade.php',
         ],

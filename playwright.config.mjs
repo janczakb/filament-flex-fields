@@ -2,17 +2,19 @@ import { defineConfig, devices } from '@playwright/test'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { DEFAULT_PLAYGROUND_BASE_URL, PLAYGROUND_AUTH_FILE, resolvePlaygroundBaseUrl } from './tests/e2e/global-setup.mjs'
+
 const packageRoot = path.dirname(fileURLToPath(import.meta.url))
-const playgroundBaseURL = process.env.FLEX_FIELDS_PLAYGROUND_URL
 
 export default defineConfig({
     testDir: './tests/e2e',
     timeout: 60_000,
     retries: process.env.CI ? 1 : 0,
+    globalSetup: './tests/e2e/global-setup.mjs',
     projects: [
         {
             name: 'coordinator-fixture',
-            testMatch: /field-smoke\.spec\.mjs/,
+            testMatch: /field-smoke|year-scroll|icon-picker-field\.spec\.mjs|overlay-matrix\.spec\.mjs/,
             use: {
                 ...devices['Desktop Chrome'],
                 baseURL: 'http://127.0.0.1:3456',
@@ -23,7 +25,8 @@ export default defineConfig({
             testMatch: /playground-.*\.spec\.mjs/,
             use: {
                 ...devices['Desktop Chrome'],
-                baseURL: playgroundBaseURL ?? 'http://127.0.0.1:8000/admin/flex-fields-playground',
+                baseURL: resolvePlaygroundBaseUrl(),
+                storageState: PLAYGROUND_AUTH_FILE,
             },
         },
     ],
@@ -34,3 +37,5 @@ export default defineConfig({
         timeout: 120_000,
     },
 })
+
+export { DEFAULT_PLAYGROUND_BASE_URL }

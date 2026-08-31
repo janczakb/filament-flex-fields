@@ -430,11 +430,11 @@ const buildUserSelectEmptyState = (select, type) => {
     hint.className = 'fff-user-select__dropdown-empty-hint';
 
     if (isSearch) {
-        hint.textContent = 'Try a different name or email address.';
+        hint.textContent = select.userSelectEmptyStateHints?.tryDifferentSearch ?? '';
     } else if (select.isSearchable && Number(select.__fffMinSearchLength ?? 0) > 0) {
-        hint.textContent = `Type at least ${select.__fffMinSearchLength} characters to search for users.`;
+        hint.textContent = select.userSelectEmptyStateHints?.minSearchLength ?? '';
     } else {
-        hint.textContent = 'No users are available right now.';
+        hint.textContent = select.userSelectEmptyStateHints?.noUsersAvailable ?? '';
     }
 
     empty.appendChild(icon);

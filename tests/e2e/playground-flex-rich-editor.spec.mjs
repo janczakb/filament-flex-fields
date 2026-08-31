@@ -3,7 +3,6 @@ import { test, expect } from '@playwright/test'
 import { trackConsoleErrors } from './helpers/console-errors.mjs'
 
 test.describe('Flex Fields playground flex rich editor', () => {
-    test.skip(! process.env.FLEX_FIELDS_PLAYGROUND_URL, 'Set FLEX_FIELDS_PLAYGROUND_URL to run playground E2E')
 
     test('flex-rich-editor loads toolbar, editor shell, and footer without JS errors', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)

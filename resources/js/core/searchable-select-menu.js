@@ -1,7 +1,24 @@
 /**
  * Shared glass theme tokens for teleported searchable dropdown menus.
+ *
+ * M2: exclusive lock, panel positioning, and scroll/resize listeners go through
+ * createOverlayRuntime.open({ manageVisibility: false }). Glass theme + reveal
+ * animation stay here. flex-dropdown-coordinator still closes sibling Alpine
+ * dropdowns (emoji / color / date / etc.) that are not overlay claims.
  */
 import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
+import { createOverlayBackdrop, removeOverlayBackdrop } from './overlay-backdrop.js'
+import { resolveOverlayMode } from './overlay-mode.js'
+import { bindOverlaySheetDismiss } from './overlay-sheet-dismiss.js'
+import { resolveTeleportedMenuHorizontalLeft } from './teleported-menu-position.js'
+import {
+    claimOverlayExclusive,
+    closeOverlayPanel,
+    emitOverlayOpenLatency,
+    openOverlayPanel,
+    releaseOverlayExclusive,
+    updateOverlayPanelPosition,
+} from './overlay-runtime-bridge.js'
 import {
     prefersReducedMotion,
     resolveIsDark,
@@ -9,6 +26,30 @@ import {
 } from './theme-utils.js'
 
 const OVERFLOW_SCROLL_RE = /(auto|scroll|overlay)/
+
+function isDomNode(value) {
+    return value != null && typeof value === 'object' && typeof value.nodeType === 'number'
+}
+
+function isInternalMultiSelectChipScroll(event, trigger) {
+    if (! trigger || ! isDomNode(event?.target) || ! trigger.contains(event.target)) {
+        return false
+    }
+
+    return Boolean(event.target.closest('.fi-select-input-value-badges-ctn'))
+}
+
+export function shouldSkipMenuScrollReposition(event, menu, trigger) {
+    if (
+        menu
+        && isDomNode(event?.target)
+        && menu.contains(event.target)
+    ) {
+        return true
+    }
+
+    return isInternalMultiSelectChipScroll(event, trigger)
+}
 
 export function resolveScrollableParents(element) {
     const parents = []
@@ -168,6 +209,36 @@ function hideTeleportedMenuPanel(menu, onHidden) {
     menu.__fffMenuCloseTimeout = window.setTimeout(complete, 220)
 }
 
+function ensureSheetChrome(menu) {
+    if (! menu || menu.querySelector('[data-fff-overlay-handle]')) {
+        return
+    }
+
+    const handle = document.createElement('div')
+
+    handle.className = 'fff-overlay-sheet__handle'
+    handle.dataset.fffOverlayHandle = 'true'
+    handle.setAttribute('aria-hidden', 'true')
+    menu.insertBefore(handle, menu.firstChild)
+}
+
+function applyOverlayPresentation(menu, mode) {
+    if (! menu) {
+        return
+    }
+
+    menu.classList.toggle('fff-teleported-menu--sheet', mode === 'sheet')
+    menu.classList.toggle('fff-teleported-menu--panel', mode !== 'sheet')
+
+    if (menu.dataset) {
+        menu.dataset.fffOverlayPresentation = mode
+    }
+
+    if (mode === 'sheet') {
+        ensureSheetChrome(menu)
+    }
+}
+
 /**
  * Floating searchable select menu used by country, timezone, and currency fields.
  */
@@ -188,28 +259,66 @@ export function createSearchableSelectMenuMixin({
     onMenuClose = null,
 } = {}) {
     return {
-        scheduleMenuPosition() {
+        resolveMenuOverlayId() {
+            return this.__fffMenuOverlayId ?? `${ownerIdPrefix}-menu`
+        },
+
+        resolveDropdownAlign() {
+            return 'start'
+        },
+
+        resolveMenuTriggerRef() {
+            if (typeof this.resolveMenuTriggerElement === 'function') {
+                return this.resolveMenuTriggerElement()
+            }
+
+            return this.$refs[triggerRef] ?? null
+        },
+
+        scheduleMenuPosition({ onAnchored = null } = {}) {
             this[readyKey] = false
 
-            this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    // Open animation only once — never on follow-up layout/scroll passes.
-                    this.updateMenuPosition({ reveal: true })
-
+            const attempt = (pass = 0) => {
+                this.$nextTick(() => {
                     requestAnimationFrame(() => {
-                        this.updateMenuPosition({ reveal: false })
+                        const trigger = this.resolveMenuTriggerRef()
+                        const menu = this.$refs[menuRef]
 
-                        if (typeof this.measureVirtualListViewport === 'function') {
-                            this.measureVirtualListViewport()
+                        if ((! trigger || ! menu) && pass < 12) {
+                            attempt(pass + 1)
+
+                            return
                         }
+
+                        if (! trigger || ! menu) {
+                            onAnchored?.()
+
+                            return
+                        }
+
+                        // Open animation only once — never on follow-up layout/scroll passes.
+                        this.updateMenuPosition({ reveal: true })
+
+                        requestAnimationFrame(() => {
+                            this.updateMenuPosition({ reveal: false })
+
+                            if (typeof this.measureVirtualListViewport === 'function') {
+                                this.measureVirtualListViewport()
+                            }
+
+                            onAnchored?.()
+                        })
                     })
                 })
-            })
+            }
+
+            attempt()
         },
 
         updateMenuPosition({ reveal = false } = {}) {
-            const trigger = this.$refs[triggerRef]
+            const trigger = this.resolveMenuTriggerRef()
             const menu = this.$refs[menuRef]
+            const overlayId = this.resolveMenuOverlayId()
 
             if (! trigger || ! menu) {
                 return
@@ -217,25 +326,83 @@ export function createSearchableSelectMenuMixin({
 
             applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
 
+            if (this.__fffOverlayManaged) {
+                updateOverlayPanelPosition(overlayId)
+                this[readyKey] = true
+
+                if (reveal) {
+                    revealTeleportedMenuPanel(menu, this[openKey])
+                } else if (this[openKey]) {
+                    menu.classList.remove('is-closing')
+                    menu.classList.add('is-open')
+                }
+
+                return
+            }
+
+            const overlayMode = resolveOverlayMode(window)
+
+            applyOverlayPresentation(menu, overlayMode)
+
+            if (overlayMode === 'sheet') {
+                menu.style.position = 'fixed'
+                menu.style.zIndex = resolveTeleportedMenuZIndex()
+                menu.style.insetInline = '0'
+                menu.style.bottom = '0'
+                menu.style.width = '100%'
+                menu.style.removeProperty('top')
+                menu.style.removeProperty('left')
+                menu.style.marginTop = '0'
+                menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
+                this[readyKey] = true
+
+                if (reveal) {
+                    revealTeleportedMenuPanel(menu, this[openKey])
+                } else if (this[openKey]) {
+                    menu.classList.remove('is-closing')
+                    menu.classList.add('is-open')
+                }
+
+                return
+            }
+
             const rect = trigger.getBoundingClientRect()
             const gap = menuGap
             const viewportPadding = 16
-            const menuWidth = matchTriggerWidth
+            const align = this.resolveDropdownAlign?.() === 'end' ? 'end' : 'start'
+            const shouldMatchTriggerWidth = typeof this.resolveMatchTriggerWidth === 'function'
+                ? this.resolveMatchTriggerWidth()
+                : matchTriggerWidth
+            const menuWidth = shouldMatchTriggerWidth
                 ? Math.min(Math.max(rect.width, minMenuWidth), window.innerWidth - (viewportPadding * 2))
                 : Math.min(minMenuWidth, window.innerWidth - (viewportPadding * 2))
 
             let top = rect.bottom + gap
-            let left = rect.left
             let opensAbove = false
+            const direction = typeof window.getComputedStyle === 'function'
+                ? window.getComputedStyle(trigger).direction || 'ltr'
+                : 'ltr'
 
             menu.style.position = 'fixed'
-            menu.style.width = `${Math.round(menuWidth)}px`
+            if (shouldMatchTriggerWidth) {
+                menu.style.width = `${Math.round(menuWidth)}px`
+            } else {
+                menu.style.removeProperty('width')
+            }
             menu.style.zIndex = resolveTeleportedMenuZIndex()
             menu.style.top = `${Math.round(top)}px`
-            menu.style.left = `${Math.round(left)}px`
+            menu.style.left = `${Math.round(rect.left)}px`
             menu.style.marginTop = '0'
 
             const menuRect = menu.getBoundingClientRect()
+            let left = resolveTeleportedMenuHorizontalLeft({
+                triggerRect: rect,
+                menuWidth: menuRect.width,
+                align,
+                direction,
+                viewportPadding,
+                windowWidth: window.innerWidth,
+            })
 
             if (menuRect.bottom > window.innerHeight - viewportPadding) {
                 const aboveTop = rect.top - menuRect.height - gap
@@ -246,16 +413,12 @@ export function createSearchableSelectMenuMixin({
                 }
             }
 
-            if (left + menuRect.width > window.innerWidth - viewportPadding) {
-                left = window.innerWidth - menuRect.width - viewportPadding
-            }
-
-            if (left < viewportPadding) {
-                left = viewportPadding
-            }
-
             menu.style.top = `${Math.round(top)}px`
             menu.style.left = `${Math.round(left)}px`
+            menu.style.right = 'auto'
+
+            menu.dir = direction
+
             menu.classList.toggle('fff-teleported-menu--above', opensAbove)
             menu.classList.toggle('fff-teleported-menu--below', ! opensAbove)
             this[readyKey] = true
@@ -285,20 +448,17 @@ export function createSearchableSelectMenuMixin({
         },
 
         bindMenuListeners() {
-            if (this[scrollHandlerKey]) {
+            if (this.__fffOverlayManaged) {
                 return
             }
 
+            this.unbindMenuListeners()
+
             this[scrollHandlerKey] = (event) => {
                 const menu = this.$refs[menuRef]
+                const trigger = this.resolveMenuTriggerRef()
 
-                // Capture-phase window scroll also sees scrolls inside the menu list.
-                // Repositioning (and especially re-revealing) on those events causes flicker.
-                if (
-                    menu
-                    && event?.target instanceof Node
-                    && menu.contains(event.target)
-                ) {
+                if (shouldSkipMenuScrollReposition(event, menu, trigger)) {
                     return
                 }
 
@@ -328,8 +488,13 @@ export function createSearchableSelectMenuMixin({
                 })
             }
 
-            const trigger = this.$refs[triggerRef]
+            const trigger = this.resolveMenuTriggerRef()
             const scrollParents = resolveScrollableParents(trigger)
+            const scrollingElement = document.scrollingElement
+
+            if (scrollingElement && ! scrollParents.includes(scrollingElement)) {
+                scrollParents.push(scrollingElement)
+            }
 
             this[scrollParentsKey] = scrollParents
 
@@ -364,6 +529,22 @@ export function createSearchableSelectMenuMixin({
         },
 
         bindSelectMenuLifecycle({ wireExclusive = true } = {}) {
+            const overlayExclusiveId = this.resolveMenuOverlayId()
+
+            const displaceThisMenu = () => {
+                if (! this[openKey]) {
+                    return
+                }
+
+                if (closeMethod && typeof this[closeMethod] === 'function') {
+                    this[closeMethod]()
+
+                    return
+                }
+
+                this[openKey] = false
+            }
+
             if (wireExclusive) {
                 wireExclusiveFlexDropdown(this, {
                     openKey,
@@ -374,8 +555,73 @@ export function createSearchableSelectMenuMixin({
 
             this.$watch(openKey, (open) => {
                 if (open) {
-                    this.scheduleMenuPosition()
-                    this.bindMenuListeners()
+                    this.__fffMenuOpenStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now()
+
+                    // Lock immediately so exclusive displace works before the
+                    // teleported panel is measured/anchored; upgrade to open().
+                    claimOverlayExclusive(overlayExclusiveId, {
+                        onDisplace: displaceThisMenu,
+                    })
+                    this.scheduleMenuPosition({
+                        onAnchored: () => {
+                            const trigger = this.resolveMenuTriggerRef()
+                            const menu = this.$refs[menuRef]
+
+                            if (! trigger || ! menu) {
+                                this.bindMenuListeners()
+
+                                return
+                            }
+
+                            const overlayMode = resolveOverlayMode(window)
+
+                            applyOverlayPresentation(menu, overlayMode)
+
+                            if (overlayMode === 'sheet') {
+                                const zIndex = parseInt(window.getComputedStyle(menu).zIndex, 10) || 50
+
+                                createOverlayBackdrop(document, overlayExclusiveId, {
+                                    zIndex: zIndex - 1,
+                                    onDismiss: displaceThisMenu,
+                                })
+
+                                if (this.__fffSheetDismissCleanup) {
+                                    this.__fffSheetDismissCleanup()
+                                }
+
+                                this.__fffSheetDismissCleanup = bindOverlaySheetDismiss({
+                                    panel: menu,
+                                    onDismiss: displaceThisMenu,
+                                })
+                            }
+
+                            openOverlayPanel({
+                                id: overlayExclusiveId,
+                                panel: menu,
+                                anchor: trigger,
+                                mode: overlayMode,
+                                exclusive: wireExclusive,
+                                manageVisibility: false,
+                                onDisplace: displaceThisMenu,
+                                minWidth: minMenuWidth,
+                                matchTriggerWidth: typeof this.resolveMatchTriggerWidth === 'function'
+                                    ? this.resolveMatchTriggerWidth()
+                                    : matchTriggerWidth,
+                                align: this.resolveDropdownAlign?.() === 'end' ? 'end' : 'start',
+                                gap: menuGap,
+                            })
+                            this.__fffOverlayManaged = true
+                            this.__fffOverlayMode = overlayMode
+                            this[readyKey] = true
+
+                            if (typeof this.__fffMenuOpenStartedAt === 'number') {
+                                const latency = (typeof performance !== 'undefined' ? performance.now() : Date.now())
+                                    - this.__fffMenuOpenStartedAt
+
+                                emitOverlayOpenLatency(overlayExclusiveId, latency)
+                            }
+                        },
+                    })
 
                     return
                 }
@@ -384,9 +630,27 @@ export function createSearchableSelectMenuMixin({
 
                 if (menu) {
                     cancelMenuCloseAnimation(menu)
-                    menu.classList.remove('is-open', 'is-closing')
+                    menu.classList.remove('is-open', 'is-closing', 'fff-teleported-menu--sheet', 'fff-teleported-menu--panel')
+                    delete menu.dataset.fffOverlayPresentation
                 }
 
+                removeOverlayBackdrop(document, overlayExclusiveId)
+
+                if (this.__fffSheetDismissCleanup) {
+                    this.__fffSheetDismissCleanup()
+                    this.__fffSheetDismissCleanup = null
+                }
+
+                if (this.__fffOverlayManaged) {
+                    closeOverlayPanel(overlayExclusiveId)
+                    this.__fffOverlayManaged = false
+                } else {
+                    // Still lock-only (anchoring never completed).
+                    releaseOverlayExclusive(overlayExclusiveId)
+                }
+
+                this.__fffOverlayMode = null
+                this.__fffMenuOpenStartedAt = null
                 this[readyKey] = false
 
                 if (typeof onMenuClose === 'function') {

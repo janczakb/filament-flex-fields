@@ -9,6 +9,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexSlider;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextareaField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexVerificationCode;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ImageChoiceCards;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SegmentControl;
@@ -292,6 +293,37 @@ it('normalizes studio list options for choice cards', function () {
         ->and($field->getOptionKeys())->toBe(['male', 'female'])
         ->and($field->getNormalizedOptions()['male']['label'])->toBe('Male')
         ->and($field->getNormalizedOptions()['female']['description'])->toBe('Woman');
+});
+
+it('builds image choice cards from definitions', function () {
+    $builder = new FlexFieldFormBuilder;
+
+    $field = $builder->makeComponent(
+        FlexFieldDefinition::fromArray([
+            'slug' => 'body_type',
+            'label' => 'Body type',
+            'type' => FieldType::ImageChoiceCards->value,
+            'config' => [
+                'multiple' => true,
+                'columns' => 3,
+                'image_aspect_ratio' => '1/1',
+                'image_fit' => 'contain',
+                'max_selections' => 2,
+                'options' => [
+                    ['value' => 'slim', 'label' => 'Slim', 'image' => 'https://example.com/slim.jpg'],
+                    ['value' => 'athletic', 'label' => 'Athletic', 'image' => 'https://example.com/athletic.jpg', 'alt' => 'Athletic'],
+                ],
+            ],
+        ]),
+    );
+
+    expect($field)->toBeInstanceOf(ImageChoiceCards::class)
+        ->and($field->isMultiple())->toBeTrue()
+        ->and($field->getMaxSelections())->toBe(2)
+        ->and($field->getImageAspectRatio())->toBe('1/1')
+        ->and($field->getImageFit())->toBe('contain')
+        ->and($field->getNormalizedOptions()['athletic']['alt'])->toBe('Athletic')
+        ->and($field->getNormalizedOptions()['slim']['image'])->toBe('https://example.com/slim.jpg');
 });
 
 it('builds nps field components from definitions', function () {

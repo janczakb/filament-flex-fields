@@ -1,0 +1,7 @@
+@import "../utilities-baseline.css";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/SignaturePreviewColumn.php";
+@source "../views/tables/columns/signature-preview-column.blade.php";
+
+@import "../core/tables/signature-preview-column.css";

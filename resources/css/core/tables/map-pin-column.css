@@ -1,0 +1,41 @@
+/* MapPinColumn (tables) */
+.fff-map-pin-column {
+    @apply inline-flex max-w-full items-center gap-1.5;
+    min-height: auto;
+}
+
+.fff-map-pin-column__icon {
+    @apply inline-flex shrink-0 items-center justify-center;
+    color: var(--primary-500, rgb(99 102 241));
+}
+
+.fff-map-pin-column__icon svg {
+    @apply block;
+}
+
+.fff-map-pin-column--sm .fff-map-pin-column__icon svg {
+    width: var(--fff-map-pin-column-size-sm, 1rem);
+    height: var(--fff-map-pin-column-size-sm, 1rem);
+}
+
+.fff-map-pin-column--md .fff-map-pin-column__icon svg {
+    width: var(--fff-map-pin-column-size-md, 1.125rem);
+    height: var(--fff-map-pin-column-size-md, 1.125rem);
+}
+
+.fff-map-pin-column--lg .fff-map-pin-column__icon svg {
+    width: var(--fff-map-pin-column-size-lg, 1.375rem);
+    height: var(--fff-map-pin-column-size-lg, 1.375rem);
+}
+
+.fff-map-pin-column__label {
+    @apply truncate text-sm text-gray-700 dark:text-gray-200;
+}
+
+.fff-map-pin-column--sm .fff-map-pin-column__label {
+    @apply text-xs;
+}
+
+.fff-map-pin-column--lg .fff-map-pin-column__label {
+    @apply text-base;
+}

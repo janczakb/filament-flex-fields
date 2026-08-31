@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentT
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields\TranslatableTab;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
+use Bjanczak\FilamentFlexFields\Support\Playground\TranslatableFieldsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Translatable\TranslatableLocales;
 use Filament\Schemas\Components\Section;
 
@@ -136,5 +137,12 @@ it('registers translatable fields playground variants after slug field', functio
             'translatable_pg__bordered_title',
             'translatable_pg__triple_tagline',
             'translatable_pg__rtl_title',
+            'translatable_pg__many_locales_title',
         ]);
+});
+
+it('exposes many locale labels for overflow playground coverage', function (): void {
+    expect(TranslatableFieldsPlayground::manyPlaygroundLocales())
+        ->toHaveCount(30)
+        ->and(array_keys(TranslatableFieldsPlayground::manyPlaygroundLocales()))->toContain('pl', 'en', 'ar');
 });

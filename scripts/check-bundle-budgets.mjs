@@ -13,13 +13,14 @@ if (! metrics) {
 /** @type {Record<string, { rawKb?: number, gzipKb?: number }>} */
 const CSS_BUDGETS = {
     'core.css': { rawKb: 80, gzipKb: 50 },
-    'phone-field.css': { rawKb: 35, gzipKb: 12 },
-    'country-field.css': { rawKb: 31, gzipKb: 10 },
-    'select-field.css': { rawKb: 120, gzipKb: 14 },
-    'user-display.css': { rawKb: 27, gzipKb: 6 },
-    'tag-chips.css': { rawKb: 28, gzipKb: 6 },
+    // v3 headless Select + teleported menu chrome grew picker CSS; budgets track current dist + ~10% headroom.
+    'phone-field.css': { rawKb: 40, gzipKb: 12 },
+    'country-field.css': { rawKb: 36, gzipKb: 10 },
+    'select-field.css': { rawKb: 125, gzipKb: 18 },
+    'user-display.css': { rawKb: 32, gzipKb: 7 },
+    'tag-chips.css': { rawKb: 33, gzipKb: 7 },
     'user-select.css': { rawKb: 130, gzipKb: 28 },
-    'flex-text-input.css': { rawKb: 43, gzipKb: 12 },
+    'flex-text-input.css': { rawKb: 48, gzipKb: 12 },
     'playground.css': { rawKb: 60, gzipKb: 20 },
     'rich-editor-field.css': { rawKb: 45, gzipKb: 12 },
 };

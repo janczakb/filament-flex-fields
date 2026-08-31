@@ -1,16 +1,21 @@
+import { createSegmentOverflowMixin } from './segment-scroll-shadow.js'
+
 export default function segmentControlFormComponent({
     state,
     optionKeys,
     disabledOptions,
     separators,
     disabled,
+    overflowShell = true,
 }) {
     return {
+        ...createSegmentOverflowMixin(),
         state,
         optionKeys,
         disabledOptions,
         separators,
         disabled,
+        overflowShell,
         indicatorStyle: '',
         indicatorAnimated: false,
         indicatorHydrated: false,
@@ -38,7 +43,7 @@ export default function segmentControlFormComponent({
             }
 
             this.state = value
-            this.$nextTick(() => this.updateIndicator())
+            this.$nextTick(() => this.updateIndicator({ scrollIntoView: true, scrollSmooth: true }))
         },
 
         selectedIndex() {
@@ -65,7 +70,7 @@ export default function segmentControlFormComponent({
             return this.showSeparator(separatorIndex) ? '' : 'is-hidden'
         },
 
-        updateIndicator() {
+        updateIndicator(options = {}) {
             const track = this.$refs.track
 
             if (! track) {
@@ -87,6 +92,10 @@ export default function segmentControlFormComponent({
                 'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
                 'opacity: 1;'
             this.indicatorHydrated = true
+
+            if (this.overflowShell && options.scrollIntoView) {
+                this.scrollSelectedSegmentTabIntoView(selected, options.scrollSmooth ?? false)
+            }
         },
 
         enableIndicatorAnimation() {
@@ -98,9 +107,11 @@ export default function segmentControlFormComponent({
         },
 
         init() {
-            this.$watch('state', () => this.$nextTick(() => this.updateIndicator()))
+            this.$watch('state', () => this.$nextTick(() => this.updateIndicator({ scrollIntoView: true })))
             this.$nextTick(() => {
+                this.positionInitialOverflowScroll()
                 this.updateIndicator()
+                this.bindSegmentOverflowScrollShadow()
                 this.enableIndicatorAnimation()
             })
 
@@ -108,8 +119,16 @@ export default function segmentControlFormComponent({
                 return
             }
 
-            this.resizeObserver = new ResizeObserver(() => this.updateIndicator())
+            this.resizeObserver = new ResizeObserver(() => {
+                this.updateIndicator()
+                this.updateSegmentScrollShadow()
+            })
             this.resizeObserver.observe(this.$refs.track)
+        },
+
+        destroy() {
+            this.unbindSegmentOverflowScrollShadow()
+            this.resizeObserver?.disconnect()
         },
     }
 }

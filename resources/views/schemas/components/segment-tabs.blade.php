@@ -3,6 +3,7 @@
     use Illuminate\Support\Js;
 
     $id = $getId();
+    $tabPersistKey = $getTabPersistKey();
     $label = $getLabel();
     $size = $getSize();
     $variant = $getVariant();
@@ -30,156 +31,22 @@
 @endphp
 
 <div
-    x-data="{
-        tab: @if ($isTabPersisted() && filled($id)) $persist(@js($activeTabKey)).as(@js($id)) @else @js($activeTabKey) @endif,
+    x-load
+    x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('segment-tabs', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+    x-data="segmentTabsSchemaComponent({
+        activeTabIndex: @js(max(0, $activeTabIndex - 1)),
+        activeTabKey: @js($activeTabKey),
         optionKeys: {{ Js::from($tabKeys) }},
         separators: @js($hasSeparators),
-        indicatorStyle: '',
-        indicatorAnimated: false,
-        indicatorHydrated: false,
-        resizeObserver: null,
-        boundResetHandler: null,
-        unsubscribeLivewireHook: null,
-        normalize(value) {
-            return value === null || value === undefined ? null : String(value);
-        },
-        isSelected(value) {
-            return this.normalize(this.tab) === this.normalize(value);
-        },
-        select(value) {
-            this.tab = value;
-            this.$nextTick(() => this.updateIndicator());
-        },
-        selectedIndex() {
-            const current = this.normalize(this.tab);
-
-            return this.optionKeys.findIndex((key) => this.normalize(key) === current);
-        },
-        showSeparator(separatorIndex) {
-            if (! this.separators) {
-                return false;
-            }
-
-            const selectedIndex = this.selectedIndex();
-
-            if (selectedIndex === -1) {
-                return true;
-            }
-
-            return separatorIndex !== selectedIndex - 1 && separatorIndex !== selectedIndex;
-        },
-        separatorClass(separatorIndex) {
-            return this.showSeparator(separatorIndex) ? '' : 'is-hidden';
-        },
-        updateIndicator() {
-            const track = this.$refs.track;
-
-            if (! track) {
-                return;
-            }
-
-            const selected = track.querySelector('[data-segment-selected=true]');
-
-            if (! selected) {
-                this.indicatorStyle = 'opacity: 0;';
-                this.indicatorHydrated = false;
-
-                return;
-            }
-
-            this.indicatorStyle =
-                'width: ' + selected.offsetWidth + 'px;' +
-                'height: ' + selected.offsetHeight + 'px;' +
-                'transform: translate3d(' + selected.offsetLeft + 'px, ' + selected.offsetTop + 'px, 0);' +
-                'opacity: 1;';
-            this.indicatorHydrated = true;
-        },
-        enableIndicatorAnimation() {
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    this.indicatorAnimated = true;
-                });
-            });
-        },
-        updateQueryString() {
-            @if ($isTabPersistedInQueryString())
-                const url = new URL(window.location.href);
-                url.searchParams.set(@js($getTabQueryStringKey()), this.tab);
-                history.replaceState(null, document.title, url.toString());
-            @endif
-        },
-        init() {
-            @if ($isTabPersistedInQueryString())
-                const queryString = new URLSearchParams(window.location.search);
-                const queryTab = queryString.get(@js($getTabQueryStringKey()));
-
-                if (queryTab && this.optionKeys.includes(queryTab)) {
-                    this.tab = queryTab;
-                }
-            @endif
-
-            if (! this.tab || ! this.optionKeys.includes(this.tab)) {
-                this.tab = this.optionKeys[@js(max(0, $activeTabIndex - 1))] ?? this.optionKeys[0] ?? null;
-            }
-
-            this.$watch('tab', () => {
-                this.updateQueryString();
-                this.$nextTick(() => this.updateIndicator());
-            });
-
-            this.$nextTick(() => {
-                this.updateIndicator();
-                this.enableIndicatorAnimation();
-            });
-
-            if (typeof ResizeObserver !== 'undefined' && this.$refs.track) {
-                this.resizeObserver = new ResizeObserver(() => this.updateIndicator());
-                this.resizeObserver.observe(this.$refs.track);
-            }
-
-            this.unsubscribeLivewireHook = Livewire.interceptMessage(({ message, onSuccess }) => {
-                onSuccess(() => {
-                    this.$nextTick(() => {
-                        if (message.component.id !== @js($this->getId())) {
-                            return;
-                        }
-
-                        if (! this.optionKeys.includes(this.tab)) {
-                            this.tab = this.optionKeys[@js(max(0, $activeTabIndex - 1))] ?? this.tab;
-                        }
-
-                        this.updateIndicator();
-                    });
-                });
-            });
-
-            this.boundResetHandler = (event) => {
-                if (
-                    event.detail.livewireId !== @js($this->getId()) ||
-                    event.detail.schemaKey !== @js($getRootContainer()->getKey()) ||
-                    @js($isTabPersisted()) ||
-                    @js($isTabPersistedInQueryString())
-                ) {
-                    return;
-                }
-
-                this.$nextTick(() => {
-                    this.tab = this.optionKeys[@js(max(0, $activeTabIndex - 1))] ?? this.tab;
-                    this.updateIndicator();
-                });
-            };
-
-            window.addEventListener('reset-schema-component-state', this.boundResetHandler);
-        },
-        destroy() {
-            this.unsubscribeLivewireHook?.();
-            this.resizeObserver?.disconnect();
-
-            if (this.boundResetHandler) {
-                window.removeEventListener('reset-schema-component-state', this.boundResetHandler);
-            }
-        },
-    }"
+        isTabPersisted: @js($isTabPersisted() && filled($id)),
+        tabPersistKey: @js($tabPersistKey),
+        isTabPersistedInQueryString: @js($isTabPersistedInQueryString()),
+        isTabPersistedFlag: @js($isTabPersisted()),
+        tabQueryStringKey: @js($getTabQueryStringKey()),
+        livewireId: @js($this->getId()),
+        schemaKey: @js($getRootContainer()->getKey()),
+        overflowShell: @js(! $isFullWidth),
+    })"
     x-init="init()"
     wire:ignore.self
     {{
@@ -196,113 +63,59 @@
     }}
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-tabs'])
-    <div
-        @class([
-            'fff-segment-control',
-            'fff-segment-tabs__control',
-            'w-full' => $isFullWidth,
-            'fi-color-'.$color => filled($color),
-        ])
-        role="tablist"
-        @if (filled($label))
-            aria-label="{{ $label }}"
-        @endif
-    >
+
+    @if ($isFullWidth)
         <div
-            x-ref="track"
             @class([
-                'fff-segment-track',
-                'fff-segment-track--'.$size,
-                'fff-segment-track--ghost' => $variant === 'ghost',
+                'fff-segment-control',
+                'fff-segment-tabs__control',
+                'w-full',
+                'fi-color-'.$color => filled($color),
             ])
-            x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
+            role="tablist"
+            @if (filled($label))
+                aria-label="{{ $label }}"
+            @endif
+        >
+            @include('filament-flex-fields::forms.components.partials.segment-tabs-track', [
+                'tabs' => $tabs,
+                'size' => $size,
+                'variant' => $variant,
+                'hasSeparators' => $hasSeparators,
+                'isIconOnly' => $isIconOnly,
+                'expandSelectedLabel' => $expandSelectedLabel,
+                'getTabVisibilityJs' => $getTabVisibilityJs,
+                'isTabActive' => $isTabActive,
+                'inShell' => false,
+            ])
+        </div>
+    @else
+        <x-filament-flex-fields::segment-overflow-shell
+            :variant="$variant"
+            :tablist-label="$label"
+            tablist-role="tablist"
         >
             <div
-                x-ref="indicator"
-                aria-hidden="true"
                 @class([
-                    'fff-segment-indicator',
-                    'fff-segment-indicator--ghost' => $variant === 'ghost',
+                    'fff-segment-control',
+                    'fff-segment-tabs__control',
+                    'fi-color-'.$color => filled($color),
                 ])
-                x-bind:class="{ 'is-animated': indicatorAnimated }"
-                x-bind:style="indicatorStyle"
-            ></div>
-
-            @foreach ($tabs as $tab)
-                @php
-                    $tabKey = $tab->getKey(isAbsolute: false);
-                    $tabLabel = $tab->getLabel();
-                    $tabIcon = $tab->getIcon();
-                    $tabTooltip = $tab->getTooltip();
-                    $tabBadge = $tab->getBadge();
-                    $tabBadgeColor = filled($tabBadge) ? $tab->getBadgeColor($tabBadge) : null;
-                    $tabBadgeTooltip = filled($tabBadge) ? $tab->getBadgeTooltip($tabBadge) : null;
-                    $tabVisibilityJs = $getTabVisibilityJs($tab);
-                    $isActiveTab = $isTabActive($tab);
-                @endphp
-
-                @if (! $loop->first && $hasSeparators)
-                    <span
-                        class="fff-segment-separator"
-                        x-bind:class="separatorClass({{ $loop->index - 1 }})"
-                        aria-hidden="true"
-                    ></span>
-                @endif
-
-                <button
-                    type="button"
-                    role="tab"
-                    @class([
-                        'fff-segment-item',
-                        'fff-segment-item--'.$size,
-                    ])
-                    data-segment-value="{{ $tabKey }}"
-                    data-segment-selected="{{ $isActiveTab ? 'true' : 'false' }}"
-                    aria-selected="{{ $isActiveTab ? 'true' : 'false' }}"
-                    x-bind:data-segment-selected="isSelected(@js($tabKey)) ? 'true' : 'false'"
-                    x-bind:aria-selected="isSelected(@js($tabKey)) ? 'true' : 'false'"
-                    aria-controls="{{ $tab->getId() }}"
-                    id="{{ $tab->getId() }}-trigger"
-                    x-on:click="select(@js($tabKey))"
-                    @if ($tabVisibilityJs)
-                        x-cloak
-                        x-show="{!! $tabVisibilityJs !!}"
-                    @endif
-                    @if (filled($tabTooltip))
-                        x-tooltip="{ content: @js($tabTooltip), theme: $store.theme }"
-                    @endif
-                >
-                    @if (filled($tabIcon))
-                        <x-filament::icon :icon="$tabIcon" />
-                    @endif
-
-                    @if ($isIconOnly)
-                        <span class="sr-only">{{ $tabLabel }}</span>
-                    @elseif ($expandSelectedLabel)
-                        <span
-                            @unless ($isActiveTab)
-                                x-show="isSelected(@js($tabKey))"
-                                x-cloak
-                            @endunless
-                        >{{ $tabLabel }}</span>
-                    @else
-                        <span class="fff-segment-item__label">{{ $tabLabel }}</span>
-                    @endif
-
-                    @if (filled($tabBadge))
-                        <x-filament::badge
-                            :color="$tabBadgeColor"
-                            size="xs"
-                            :tooltip="$tabBadgeTooltip"
-                            class="fff-segment-item__badge"
-                        >
-                            {{ $tabBadge }}
-                        </x-filament::badge>
-                    @endif
-                </button>
-            @endforeach
-        </div>
-    </div>
+            >
+                @include('filament-flex-fields::forms.components.partials.segment-tabs-track', [
+                    'tabs' => $tabs,
+                    'size' => $size,
+                    'variant' => $variant,
+                    'hasSeparators' => $hasSeparators,
+                    'isIconOnly' => $isIconOnly,
+                    'expandSelectedLabel' => $expandSelectedLabel,
+                    'getTabVisibilityJs' => $getTabVisibilityJs,
+                    'isTabActive' => $isTabActive,
+                    'inShell' => true,
+                ])
+            </div>
+        </x-filament-flex-fields::segment-overflow-shell>
+    @endif
 
     @foreach ($tabs as $tab)
         @php

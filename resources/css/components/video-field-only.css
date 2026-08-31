@@ -419,6 +419,11 @@
     margin-bottom: 0;
 }
 
+.fff-video-field__progress-block--default .fff-video-field__progress-wrap,
+.fff-video-field__progress-block--compact .fff-video-field__progress-wrap {
+    min-height: 1.125rem;
+}
+
 .fff-video-field__toolbar--default {
     gap: 0.5rem;
 }
@@ -617,25 +622,23 @@
         0 2px 6px rgb(0 0 0 / 0.28);
 }
 
-.fff-video-field__dock--compact {
-    gap: 0.5rem;
+.fff-video-field__toolbar--compact {
+    @apply relative box-border flex w-full min-w-0 flex-nowrap items-center;
+    gap: 0.375rem;
+    padding: 0.125rem 0.375rem;
+    border-radius: var(--fff-global-radius, 0.75rem);
+    background-color: var(--fff-video-field-glass-bg);
+    box-shadow: var(--fff-video-field-glass-shadow);
 }
 
 .fff-video-field__progress-block--compact {
-    margin-bottom: 0;
-}
-
-.fff-video-field__toolbar--compact {
-    gap: 0.5rem;
-}
-
-.fff-video-field__toolbar--compact .fff-video-field__toolbar-start {
     @apply min-w-0 flex-1;
-    gap: 0.375rem;
+    margin: 0;
 }
 
-.fff-video-field__toolbar--compact .fff-video-field__toolbar-end {
-    @apply shrink-0;
+.fff-video-field__toolbar-end--compact {
+    @apply flex shrink-0 items-center;
+    gap: 0.125rem;
 }
 
 .fff-video-field__duration-pill {

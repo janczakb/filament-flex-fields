@@ -1,4 +1,5 @@
 import { normalizeSearchQuery } from '../core/search-normalize.js'
+import { createTagsSuggestionsOverlayMixin } from '../core/tags-suggestions-overlay.js'
 
 export default function tagsFieldFormComponent({
     state,
@@ -13,8 +14,13 @@ export default function tagsFieldFormComponent({
     searchSuggestions = false,
     minSearchLength = 2,
     componentKey = null,
+    suggestionLabels = {},
 }) {
+    const overlayMixin = createTagsSuggestionsOverlayMixin()
+
     return {
+        ...overlayMixin,
+
         newTag: '',
         state,
         splitKeys,
@@ -28,18 +34,24 @@ export default function tagsFieldFormComponent({
         searchSuggestions,
         minSearchLength,
         componentKey,
+        suggestionLabels,
         searchResults: [],
         searchPending: false,
         searchDebounceTimer: null,
+        suggestionsEngaged: false,
 
         init() {
-            if (! this.searchSuggestions) {
-                return;
-            }
+            this.$refs.fieldShell?.classList.add('is-hydrated')
+            this.$el.classList.add('is-hydrated')
+            this.initTagsSuggestionsOverlay()
 
             this.$watch('newTag', (value) => {
-                this.scheduleSuggestionSearch(value);
-            });
+                this.suggestionsSuppressed = false
+
+                if (this.searchSuggestions) {
+                    this.scheduleSuggestionSearch(value)
+                }
+            })
         },
 
         scheduleSuggestionSearch(value) {
@@ -146,6 +158,7 @@ export default function tagsFieldFormComponent({
             this.state.push(tag);
             this.newTag = '';
             this.searchResults = [];
+            this.closeSuggestionsMenu();
         },
 
         deleteTag(tagToDelete) {
@@ -193,14 +206,45 @@ export default function tagsFieldFormComponent({
         },
 
         shouldShowSuggestions() {
-            if (this.searchSuggestions) {
-                const query = this.newTag.trim();
-
-                return query.length >= this.minSearchLength
-                    && (this.filteredSuggestions().length > 0 || this.searchPending);
+            if (this.suggestionsSuppressed) {
+                return false
             }
 
-            return this.suggestions.length > 0;
+            if (this.searchSuggestions) {
+                const query = this.newTag.trim()
+
+                // Keep the teleported panel open for min-chars, loading, results, and empty states.
+                return query !== ''
+            }
+
+            if (! this.suggestionsEngaged) {
+                return false
+            }
+
+            return this.suggestions.length > 0
+        },
+
+        onTagsInputFocus() {
+            this.suggestionsEngaged = true
+            this.suggestionsSuppressed = false
+
+            if (this.shouldShowSuggestions()) {
+                this.openSuggestionsMenu()
+            }
+        },
+
+        onTagsInputBlur() {
+            window.setTimeout(() => {
+                if (this.$refs.suggestionsMenu?.contains(document.activeElement)) {
+                    return
+                }
+
+                this.suggestionsEngaged = false
+
+                if (this.suggestionsMenuOpen) {
+                    this.dismissSuggestions()
+                }
+            }, 150)
         },
 
         tagCountLabel() {
@@ -214,9 +258,23 @@ export default function tagsFieldFormComponent({
         },
 
         input: {
-            ['x-on:blur']: 'createTag()',
+            ['x-on:focus']() {
+                this.onTagsInputFocus()
+            },
+            ['x-on:blur']() {
+                this.onTagsInputBlur()
+                this.createTag()
+            },
             ['x-model']: 'newTag',
             ['x-on:keydown'](event) {
+                if (['ArrowDown', 'ArrowUp', 'Enter', 'Home', 'End', 'Escape'].includes(event.key)) {
+                    this.onOverlayMenuSearchKeydown(event)
+
+                    if (event.defaultPrevented) {
+                        return
+                    }
+                }
+
                 if (['Enter', ...this.splitKeys].includes(event.key)) {
                     event.preventDefault();
                     event.stopPropagation();

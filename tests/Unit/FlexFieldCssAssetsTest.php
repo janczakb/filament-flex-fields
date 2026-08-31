@@ -75,6 +75,42 @@ it('declares filament\'s class-based dark variant on every tailwind css entry po
     }
 });
 
+it('keeps video field glass controls on a single border with circular buttons', function () {
+    $sourceCss = file_get_contents(__DIR__.'/../../resources/css/components/video-field.css');
+
+    expect($sourceCss)
+        ->toContain('--fff-video-field-control-btn-radius: 100%')
+        ->toContain('--fff-video-field-control-pill-radius: 9999px')
+        ->toContain('--fff-video-field-glass-blur: blur(16px)')
+        ->toContain('--fff-video-field-glass-saturate: saturate(1.5)')
+        ->toContain('oklch(100% 0 0 / 0.1)')
+        ->toContain('.fff-video-field__glass-btn {')
+        ->toContain('border-radius: var(--fff-video-field-control-btn-radius)')
+        ->toContain('--fff-video-field-glass-inset')
+        ->toContain('.fff-video-field__glass-btn::after')
+        ->toContain('box-shadow: var(--fff-video-field-glass-inset)')
+        ->toContain('--fff-video-slider-pointer')
+        ->toContain('.fff-video-field__progress-wrap.is-pointing .fff-video-field__progress-thumb')
+        ->toContain('.fff-video-field__progress-wrap.is-pointing:not(.is-disabled) .fff-video-field__progress-thumbnail')
+        ->toContain('.fff-video-field__settings-item')
+        ->toContain('.fff-video-field__settings-separator')
+        ->toContain('.fff-video-field__settings-viewport')
+        ->toContain('.fff-video-field__control-tip.has-tooltips.is-tooltip-visible')
+        ->toContain('.fff-video-field__tooltip-label')
+        ->toContain('--fff-video-field-radius: 1.5rem')
+        ->toContain('--fff-video-field-controls-inset: 0.75rem')
+        ->toContain('.fff-video-field__progress-block--default .fff-video-field__progress-wrap')
+        ->toContain('.fff-video-field__volume-input--vertical')
+        ->toContain('transform-origin: bottom')
+        ->not->toContain('.fff-video-field__volume--expand')
+        ->not->toContain('.dark .fff-video-field__frame')
+        ->toContain('[data-menu-root-view][data-menu-view-state="inactive"]')
+        ->toContain('[data-submenu][data-starting-style][data-direction="forward"]')
+        ->toContain('--fff-video-field-menu-transition-duration: 250ms')
+        ->toContain('.fff-video-field__tooltip')
+        ->not->toContain('border: 1px solid var(--fff-video-field-glass-border)');
+});
+
 it('compiles dark utilities to a class selector instead of a media query', function () {
     $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
     $playgroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground.css');
@@ -154,7 +190,8 @@ it('keeps playground-only demo styles out of the core bundle', function () {
 
     expect($coreCss)->not->toContain('.fff-playground-toolbar')
         ->and($playgroundCss)->toContain('.fff-playground-toolbar')
-        ->and($playgroundCss)->toContain('.fff-user-column-playground__table');
+        ->and($playgroundCss)->toContain('.fff-user-column-playground__table')
+        ->and($playgroundCss)->toContain('.fff-code-snippet');
 });
 
 it('registers asset injector script alongside lazy css assets', function () {
@@ -162,7 +199,14 @@ it('registers asset injector script alongside lazy css assets', function () {
         ->map(fn ($asset) => $asset->getId())
         ->all();
 
-    expect($registered)->toContain(FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID);
+    expect($registered)->toContain(FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID)
+        ->and($registered)->toContain(FlexFieldAssets::SEGMENT_OVERFLOW_SSR_SCRIPT_ID);
+});
+
+it('provides built segment overflow ssr bundle for inline shell boot', function () {
+    expect(FlexFieldAssets::segmentOverflowSsrInlineContents())
+        ->toContain('data-fff-segment-overflow')
+        ->toContain('ssrScrollPositioned');
 });
 
 it('registers lazy stylesheets for every lazy component asset id', function () {

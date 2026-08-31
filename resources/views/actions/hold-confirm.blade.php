@@ -1,5 +1,6 @@
 @php
     use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
+    use Bjanczak\FilamentFlexFields\Support\Admin\HoldConfirmEnterprise;
     use Filament\Support\Facades\FilamentAsset;
 
     $alpineSrc = FilamentAsset::getAlpineComponentSrc('hold-confirm-action', FilamentFlexFieldsPlugin::PACKAGE_NAME);
@@ -8,6 +9,8 @@
     $sweep = $action->getHoldConfirmSweep();
     $mountHandler = $action->getHoldConfirmMountHandler();
     $url = $action->getUrl();
+    $auditReasonRequired = $action->isHoldConfirmAuditReasonRequired();
+    $bulkHoldMs = HoldConfirmEnterprise::bulkHoldMs();
 @endphp
 
 @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'hold-confirm-action'])
@@ -23,6 +26,10 @@
 <span
     class="fff-hold-confirm-action-host"
     data-sweep="{{ $sweep }}"
+    @if ($auditReasonRequired)
+        data-fff-audit-reason-required="true"
+    @endif
+    data-fff-bulk-hold-ms="{{ $bulkHoldMs }}"
     x-load
     x-load-src="{{ $alpineSrc }}"
     x-data="holdConfirmActionFormComponent({

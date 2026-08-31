@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Support\FileUpload\ExecutableExtensionGuard;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadMimePresets;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\ScopedDirectoryResolver;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Bjanczak\FilamentFlexFields\Tests\Support\TestableTranslatableForm;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
@@ -182,4 +183,42 @@ it('registers flex file upload playground section', function () {
         'file_upload__metadata',
         'file_upload__metadata_meta',
     ]);
+});
+
+it('invokes MediaCaptureOs virus-scan callback from FlexFileUpload', function () {
+    $scanned = [];
+
+    MediaCaptureOs::registerVirusScanCallback(function (string $path) use (&$scanned): bool {
+        $scanned[] = $path;
+
+        return true;
+    });
+
+    $field = FlexFileUpload::make('attachment')->disk('public');
+
+    expect($field->passesMediaCaptureVirusScan('uploads/invoice.pdf'))->toBeTrue()
+        ->and($scanned)->toBe(['uploads/invoice.pdf']);
+
+    MediaCaptureOs::registerVirusScanCallback(fn (string $path): bool => false);
+
+    expect($field->passesMediaCaptureVirusScan('uploads/malware.exe'))->toBeFalse();
+
+    MediaCaptureOs::registerVirusScanCallback(null);
+
+    expect($field->passesMediaCaptureVirusScan('uploads/safe.pdf'))->toBeTrue();
+});
+
+it('resolves signed upload urls via MediaCaptureOs when registered', function () {
+    MediaCaptureOs::registerSignedUploadUrlResolver(
+        fn (string $disk, string $path, array $context): string => "https://signed.test/{$disk}/{$path}",
+    );
+
+    $field = FlexFileUpload::make('attachment')->disk('public');
+
+    expect($field->resolveMediaCaptureSignedUrl('uploads/a.pdf'))
+        ->toBe('https://signed.test/public/uploads/a.pdf');
+
+    MediaCaptureOs::registerSignedUploadUrlResolver(null);
+
+    expect($field->resolveMediaCaptureSignedUrl('uploads/a.pdf'))->toBeNull();
 });

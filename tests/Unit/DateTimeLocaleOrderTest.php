@@ -83,6 +83,29 @@ it('precomputes unavailable dates for alpine config window', function () {
         ->and($unavailable)->not->toContain('2026-06-09');
 });
 
+it('precomputes unavailable dates around an anchor when min and max are missing', function () {
+    $normalizer = new DateTimeFieldValue(
+        DateTimeFieldMode::Date,
+        DateTimeGranularity::Day,
+        false,
+        'Y-m-d',
+    );
+
+    $weekend = static fn (Carbon $date): bool => $date->isWeekend();
+
+    $resolver = new DateTimeConstraintResolver(
+        $normalizer,
+        null,
+        null,
+        $weekend,
+    );
+
+    $unavailable = $resolver->unavailableDatesBetween(null, null, 2190, '2026-06-10');
+
+    expect($unavailable)->toContain('2026-06-06', '2026-06-07', '2026-06-13', '2026-06-14')
+        ->and($unavailable)->not->toContain('2026-06-10');
+});
+
 it('normalizes duration values as time strings', function () {
     $normalizer = new DateTimeFieldValue(
         DateTimeFieldMode::Duration,

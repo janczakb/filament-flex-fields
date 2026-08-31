@@ -1,5 +1,6 @@
 import {
     canRemoveDaySlot,
+    copyDay,
     createBreakSlot,
     createDefaultSlot,
     createEmptyDay,
@@ -8,8 +9,10 @@ import {
     normalizeScheduleState,
     normalizeTime,
     slotHasInvalidRange,
+    slotIsOvernight,
     slotOverlapsAtIndex,
     slotsOverlap,
+    timeToMinutes,
     validateDaySlots,
     WEEKDAYS,
 } from '../support/schedule-validation.js'
@@ -166,10 +169,10 @@ export default function scheduleFieldFormComponent({
                 }
 
                 for (let slotIndex = 0; slotIndex < this.daySlots(day).length; slotIndex += 1) {
-                    if (this.slotIsInvalid(day, slotIndex)) {
-                        return this.validationMessages?.from_before_to
-                            ?? this.validationMessages?.overlap
-                            ?? 'Schedule validation failed.'
+                    const message = this.slotValidationErrorMessage(day, slotIndex)
+
+                    if (message) {
+                        return message
                     }
                 }
             }
@@ -400,9 +403,57 @@ export default function scheduleFieldFormComponent({
                     return slot
                 }
 
-                return {
+                const nextSlot = {
                     ...slot,
                     [field]: value,
+                }
+
+                if (field === 'from' || field === 'to') {
+                    const from = normalizeTime(nextSlot.from)
+                    const to = normalizeTime(nextSlot.to)
+
+                    if (from && to && ! slotIsOvernight(nextSlot)) {
+                        if (timeToMinutes(from) >= timeToMinutes(to)) {
+                            delete nextSlot.overnight
+                        }
+                    }
+                }
+
+                return nextSlot
+            })
+
+            this.updateDay(day, {
+                ...current,
+                slots,
+            })
+        },
+
+        toggleSlotOvernight(day, slotIndex) {
+            if (! this.isInteractive) {
+                return
+            }
+
+            const current = this.dayState(day)
+            const slot = current.slots[slotIndex]
+
+            if (! slot || this.isBreakSlot(slot)) {
+                return
+            }
+
+            const slots = current.slots.map((entry, index) => {
+                if (index !== slotIndex) {
+                    return entry
+                }
+
+                if (slotIsOvernight(entry)) {
+                    const { overnight, ...rest } = entry
+
+                    return rest
+                }
+
+                return {
+                    ...entry,
+                    overnight: true,
                 }
             })
 
@@ -410,6 +461,51 @@ export default function scheduleFieldFormComponent({
                 ...current,
                 slots,
             })
+        },
+
+        moveSlot(day, fromIndex, toIndex) {
+            if (! this.isInteractive) {
+                return
+            }
+
+            const current = this.dayState(day)
+            const slots = [...current.slots]
+
+            if (fromIndex < 0 || toIndex < 0 || fromIndex >= slots.length || toIndex >= slots.length) {
+                return
+            }
+
+            const [moved] = slots.splice(fromIndex, 1)
+            slots.splice(toIndex, 0, moved)
+
+            this.updateDay(day, {
+                ...current,
+                slots,
+            })
+        },
+
+        moveSlotUp(day, slotIndex) {
+            this.moveSlot(day, slotIndex, slotIndex - 1)
+        },
+
+        moveSlotDown(day, slotIndex) {
+            this.moveSlot(day, slotIndex, slotIndex + 1)
+        },
+
+        canMoveSlotUp(day, slotIndex) {
+            return this.isInteractive && slotIndex > 0
+        },
+
+        canMoveSlotDown(day, slotIndex) {
+            return this.isInteractive && slotIndex < this.daySlots(day).length - 1
+        },
+
+        slotShowsOvernightToggle(slot) {
+            return ! this.isBreakSlot(slot)
+        },
+
+        isSlotOvernight(slot) {
+            return slotIsOvernight(slot)
         },
 
         normalizeSlotTime(day, slotIndex, field) {
@@ -462,8 +558,10 @@ export default function scheduleFieldFormComponent({
                 return
             }
 
-            const source = this.dayState(this.copySourceDay)
-            const nextDays = { ...this.state.days }
+            let nextState = {
+                ...this.state,
+                days: { ...this.state.days },
+            }
 
             for (const day of this.weekdays) {
                 if (day === this.copySourceDay) {
@@ -474,16 +572,10 @@ export default function scheduleFieldFormComponent({
                     continue
                 }
 
-                nextDays[day] = {
-                    enabled: source.enabled,
-                    slots: source.slots.map((slot) => ({ ...slot })),
-                }
+                nextState = copyDay(nextState, this.copySourceDay, day)
             }
 
-            this.state = {
-                ...this.state,
-                days: nextDays,
-            }
+            this.state = nextState
         },
 
         shouldShowCopyButton(day) {
@@ -508,6 +600,24 @@ export default function scheduleFieldFormComponent({
             }
 
             return slotHasInvalidRange(slot) || this.slotHasOverlap(day, slotIndex)
+        },
+
+        slotValidationErrorMessage(day, slotIndex) {
+            const slot = this.daySlots(day)[slotIndex]
+
+            if (! slot || ! this.slotIsInvalid(day, slotIndex)) {
+                return null
+            }
+
+            if (slotHasInvalidRange(slot)) {
+                return this.validationMessages?.from_before_to ?? null
+            }
+
+            if (this.slotHasOverlap(day, slotIndex)) {
+                return this.validationMessages?.overlap ?? null
+            }
+
+            return null
         },
 
         dayValidationError(day) {

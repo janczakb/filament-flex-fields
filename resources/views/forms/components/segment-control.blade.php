@@ -32,6 +32,7 @@
             disabledOptions: {{ Js::from(collect($options)->mapWithKeys(fn (array $option, string | int $key): array => [(string) $key => $option['disabled']])->all()) }},
             separators: @js($hasSeparators),
             disabled: @js($isDisabled),
+            overflowShell: @js(! $isFullWidth),
         })"
         x-init="init()"
         @class([
@@ -43,75 +44,52 @@
         role="radiogroup"
         aria-label="{{ $getLabel() }}"
     >
-        <div
-            x-ref="track"
-            @class([
-                'fff-segment-track',
-                'fff-segment-track--'.$size,
-                'fff-segment-track--ghost' => $variant === 'ghost',
-            ])
-            x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
-        >
+        @if ($isFullWidth)
             <div
-                x-ref="indicator"
-                aria-hidden="true"
+                x-ref="track"
                 @class([
-                    'fff-segment-indicator',
-                    'fff-segment-indicator--ghost' => $variant === 'ghost',
+                    'fff-segment-track',
+                    'fff-segment-track--'.$size,
+                    'fff-segment-track--ghost' => $variant === 'ghost',
                 ])
-                x-bind:class="{ 'is-animated': indicatorAnimated }"
-                :style="indicatorStyle"
-            ></div>
-
-            @foreach ($options as $value => $option)
-                @php
-                    $isSelected = $normalizedCurrentState !== null && (string) $value === $normalizedCurrentState;
-                @endphp
-
-                @if (! $loop->first && $hasSeparators)
-                    <span
-                        class="fff-segment-separator"
-                        x-bind:class="separatorClass({{ $loop->index - 1 }})"
-                        aria-hidden="true"
-                    ></span>
-                @endif
-
-                <button
-                    type="button"
-                    role="radio"
+                x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
+            >
+                @include('filament-flex-fields::forms.components.partials.segment-control-track-items', [
+                    'options' => $options,
+                    'size' => $size,
+                    'hasSeparators' => $hasSeparators,
+                    'isIconOnly' => $isIconOnly,
+                    'expandSelectedLabel' => $expandSelectedLabel,
+                    'normalizedCurrentState' => $normalizedCurrentState,
+                    'variant' => $variant,
+                ])
+            </div>
+        @else
+            <x-filament-flex-fields::segment-overflow-shell
+                :variant="$variant"
+                :tablist-role="null"
+            >
+                <div
+                    x-ref="track"
                     @class([
-                        'fff-segment-item',
-                        'fff-segment-item--'.$size,
+                        'fff-segment-track',
+                        'fff-segment-track--'.$size,
+                        'fff-segment-track--ghost' => $variant === 'ghost',
+                        'fff-segment-track--in-shell' => true,
                     ])
-                    data-segment-value="{{ $value }}"
-                    data-segment-selected="{{ $isSelected ? 'true' : 'false' }}"
-                    aria-checked="{{ $isSelected ? 'true' : 'false' }}"
-                    x-bind:data-segment-selected="isSelected(@js($value)) ? 'true' : 'false'"
-                    x-bind:aria-checked="isSelected(@js($value)) ? 'true' : 'false'"
-                    x-bind:disabled="disabled || isOptionDisabled(@js($value))"
-                    x-on:click="select(@js($value))"
-                    @if (filled($option['tooltip'] ?? null))
-                        x-tooltip="{ content: @js($option['tooltip']), theme: $store.theme }"
-                    @endif
+                    x-bind:class="{ 'is-animated': indicatorAnimated, 'is-hydrated': indicatorHydrated }"
                 >
-                    @if ($option['icon'])
-                        <x-filament::icon :icon="$option['icon']" />
-                    @endif
-
-                    @if ($isIconOnly)
-                        <span class="sr-only">{{ $option['label'] }}</span>
-                    @elseif ($expandSelectedLabel)
-                        <span
-                            @unless ($isSelected)
-                                x-show="isSelected(@js($value))"
-                                x-cloak
-                            @endunless
-                        >{{ $option['label'] }}</span>
-                    @else
-                        <span>{{ $option['label'] }}</span>
-                    @endif
-                </button>
-            @endforeach
-        </div>
+                    @include('filament-flex-fields::forms.components.partials.segment-control-track-items', [
+                        'options' => $options,
+                        'size' => $size,
+                        'hasSeparators' => $hasSeparators,
+                        'isIconOnly' => $isIconOnly,
+                        'expandSelectedLabel' => $expandSelectedLabel,
+                        'normalizedCurrentState' => $normalizedCurrentState,
+                        'variant' => $variant,
+                    ])
+                </div>
+            </x-filament-flex-fields::segment-overflow-shell>
+        @endif
     </div>
 </x-dynamic-component>

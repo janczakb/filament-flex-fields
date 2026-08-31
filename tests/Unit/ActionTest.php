@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Actions\Action;
 use Bjanczak\FilamentFlexFields\Filament\Actions\ActionGroup;
+use Bjanczak\FilamentFlexFields\Support\Admin\HoldConfirmEnterprise;
 use Filament\Support\Enums\Size;
 use Filament\Support\Icons\Heroicon;
 
@@ -155,4 +156,30 @@ it('can disable hold confirm theming to keep filament colors', function () {
 
     expect($action->getHoldConfirmPalette())->toBeNull()
         ->and($action->getHoldConfirmTriggerClasses())->not->toContain('fff-hold-confirm-action--palette-danger');
+});
+
+it('supports optional audit reason requirement on hold confirm actions', function () {
+    HoldConfirmEnterprise::requiresAuditReason(false);
+
+    $action = Action::make('purge')
+        ->holdConfirm()
+        ->action(fn () => null);
+
+    expect($action->isHoldConfirmAuditReasonRequired())->toBeFalse();
+
+    $action->auditReasonRequired();
+
+    expect($action->isHoldConfirmAuditReasonRequired())->toBeTrue();
+});
+
+it('inherits global audit reason requirement from hold confirm enterprise', function () {
+    HoldConfirmEnterprise::requiresAuditReason(true);
+
+    $action = Action::make('purge')
+        ->holdConfirm()
+        ->action(fn () => null);
+
+    expect($action->isHoldConfirmAuditReasonRequired())->toBeTrue();
+
+    HoldConfirmEnterprise::requiresAuditReason(false);
 });

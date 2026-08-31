@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Http\Controllers;
 
-use Bjanczak\FilamentFlexFields\Support\Mapbox\MapboxGeocodingClient;
+use Bjanczak\FilamentFlexFields\Support\Geocoding\GeocodingOs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class MapboxGeocodingProxyController extends Controller
 {
-    public function search(Request $request, MapboxGeocodingClient $client): JsonResponse
+    public function search(Request $request): JsonResponse
     {
         $this->ensureWithinRateLimit($request);
 
@@ -29,11 +29,11 @@ class MapboxGeocodingProxyController extends Controller
         ]);
 
         return response()->json(
-            $client->search($validated),
+            GeocodingOs::provider()->search($validated),
         );
     }
 
-    public function reverse(Request $request, MapboxGeocodingClient $client): JsonResponse
+    public function reverse(Request $request): JsonResponse
     {
         $this->ensureWithinRateLimit($request);
 
@@ -48,14 +48,17 @@ class MapboxGeocodingProxyController extends Controller
         ]);
 
         return response()->json(
-            $client->reverse($validated),
+            GeocodingOs::provider()->reverse($validated),
         );
     }
 
     protected function ensureWithinRateLimit(Request $request): void
     {
         $key = 'fff-geocode:'.($request->user()?->getAuthIdentifier() ?? $request->ip());
-        $maxAttempts = (int) config('filament-flex-fields.mapbox.rate_limit_per_minute', 60);
+        $maxAttempts = (int) config(
+            'filament-flex-fields.geocoding.rate_limit_per_minute',
+            config('filament-flex-fields.mapbox.rate_limit_per_minute', 60),
+        );
 
         if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
             throw ValidationException::withMessages([

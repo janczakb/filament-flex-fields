@@ -110,28 +110,49 @@
                                             x-ref="currencySearch"
                                             x-model="currencySearch"
                                             x-bind:placeholder="searchPlaceholder"
-                                            x-on:keydown.stop
+                                            x-on:keydown.stop="onOverlayMenuSearchKeydown($event)"
                                         />
                                     </div>
                                 @endif
 
-                                <ul class="fff-currency-field__currency-list">
-                                    <template x-for="currency in filteredCurrencies" x-bind:key="currency.code">
+                                <ul
+                                    class="fff-currency-field__currency-list"
+                                    x-ref="currencyListScroll"
+                                    x-on:scroll.passive="onVirtualListScroll($event)"
+                                    x-on:keydown="onOverlayMenuKeydown($event)"
+                                >
+                                    <li
+                                        x-show="usesVirtualList()"
+                                        class="fff-currency-field__virtual-spacer"
+                                        x-bind:style="`height: ${virtualSpacerTop()}px`"
+                                        aria-hidden="true"
+                                    ></li>
+                                    <template x-for="entry in countryListEntries()" x-bind:key="entry.item.code">
                                         <li>
                                             <button
                                                 type="button"
                                                 class="fff-currency-field__currency-option"
-                                                x-on:click="selectCurrency(currency.code)"
-                                                x-bind:class="{ 'is-selected': activeCurrency?.code === currency.code }"
+                                                x-bind:id="overlayMenuOptionId(entry.index)"
+                                                x-on:click="selectCurrency(entry.item.code)"
+                                                x-bind:class="{
+                                                    'is-selected': activeCurrency?.code === entry.item.code,
+                                                    'is-active': entry.index === overlayMenuActiveIndex,
+                                                }"
                                                 role="option"
-                                                x-bind:aria-selected="activeCurrency?.code === currency.code"
+                                                x-bind:aria-selected="activeCurrency?.code === entry.item.code"
                                             >
-                                                <span class="fff-currency-field__currency-option-code" x-text="currency.code"></span>
-                                                <span class="fff-currency-field__currency-option-name" x-text="currency.name"></span>
-                                                <span class="fff-currency-field__currency-option-symbol" x-text="currency.symbol"></span>
+                                                <span class="fff-currency-field__currency-option-code" x-text="entry.item.code"></span>
+                                                <span class="fff-currency-field__currency-option-name" x-text="entry.item.name"></span>
+                                                <span class="fff-currency-field__currency-option-symbol" x-text="entry.item.symbol"></span>
                                             </button>
                                         </li>
                                     </template>
+                                    <li
+                                        x-show="usesVirtualList()"
+                                        class="fff-currency-field__virtual-spacer"
+                                        x-bind:style="`height: ${virtualSpacerBottom()}px`"
+                                        aria-hidden="true"
+                                    ></li>
                                 </ul>
                             </div>
                         </template>
@@ -205,8 +226,8 @@
                                                 'fff-currency-field__digit': item.type === 'digit',
                                                 'is-animating': item.type === 'digit' && shouldAnimateDigit(item),
                                             }"
-                                            x-bind:data-fff-cursor-before="item.cursorBefore ?? null"
-                                            x-bind:data-fff-cursor-after="item.cursorAfter ?? null"
+                                            x-bind:data-fff-cursor-before="item.type !== 'caret' && item.cursorBefore !== undefined ? item.cursorBefore : null"
+                                            x-bind:data-fff-cursor-after="item.type !== 'caret' && item.cursorAfter !== undefined ? item.cursorAfter : null"
                                         >
                                             <span
                                                 x-bind:class="item.type === 'digit' ? 'fff-currency-field__digit-inner' : ''"

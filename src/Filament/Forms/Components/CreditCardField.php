@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Closure;
 use Filament\Forms\Components\Field;
 use InvalidArgumentException;
@@ -107,9 +108,49 @@ class CreditCardField extends Field
 
                 if ($normalized['cvv'] !== '' && ! preg_match('/^\d{3,4}$/', $normalized['cvv'])) {
                     $fail(__('filament-flex-fields::default.validation.credit_card.invalid_cvv'));
+
+                    return;
+                }
+
+                if (! $component->passesPciTokenizationRules($normalized, $fail)) {
+                    return;
                 }
             };
         });
+    }
+
+    /**
+     * @param  array{number: string, name: string, expiry: string, cvv: string}  $normalized
+     */
+    public function passesPciTokenizationRules(array $normalized, Closure $fail): bool
+    {
+        $number = $normalized['number'];
+
+        if ($number === '') {
+            return true;
+        }
+
+        $requiresToken = MediaCaptureOs::shouldRequireCreditCardTokenization();
+        $neverStorePan = MediaCaptureOs::shouldNeverStorePan();
+        $hasTokenizer = MediaCaptureOs::tokenizeCreditCardCallback() !== null;
+
+        if (($requiresToken || $neverStorePan) && ! $hasTokenizer) {
+            $fail(__('filament-flex-fields::default.validation.credit_card.tokenization_required'));
+
+            return false;
+        }
+
+        if (($requiresToken || $neverStorePan) && $hasTokenizer) {
+            if (MediaCaptureOs::tokenizePrimaryAccountNumber($number) !== null) {
+                return true;
+            }
+
+            $fail(__('filament-flex-fields::default.validation.credit_card.tokenization_failed'));
+
+            return false;
+        }
+
+        return true;
     }
 
     public function getRequiredValidationRule(): string|Closure
@@ -252,14 +293,36 @@ class CreditCardField extends Field
 
     /**
      * @param  array<string, mixed>  $state
-     * @return array{number: string, name: string, expiry: string}
+     * @return array<string, mixed>
      */
     public function dehydrateStateForStorage(array $state): array
     {
         $normalized = $this->normalizeState($state);
+        $number = $normalized['number'];
+
+        if ($number !== '') {
+            $token = MediaCaptureOs::tokenizePrimaryAccountNumber($number);
+
+            if ($token !== null) {
+                return [
+                    'token' => $token,
+                    'last4' => substr($number, -4),
+                    'name' => $normalized['name'],
+                    'expiry' => $normalized['expiry'],
+                ];
+            }
+
+            if (MediaCaptureOs::shouldNeverStorePan() || MediaCaptureOs::shouldRequireCreditCardTokenization()) {
+                return [
+                    'last4' => substr($number, -4),
+                    'name' => $normalized['name'],
+                    'expiry' => $normalized['expiry'],
+                ];
+            }
+        }
 
         return [
-            'number' => $normalized['number'],
+            'number' => $number,
             'name' => $normalized['name'],
             'expiry' => $normalized['expiry'],
         ];

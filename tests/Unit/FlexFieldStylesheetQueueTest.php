@@ -307,16 +307,16 @@ it('emits blocking head assets as inline links and keeps asset batches for injec
 
 it('loads flex text input and map picker dropdown before address autocomplete stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('address-autocomplete'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'select-field', 'map-picker-dropdown', 'address-autocomplete'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('address-autocomplete'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'map-picker-dropdown', 'address-autocomplete']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'select-field', 'map-picker-dropdown', 'address-autocomplete']);
 });
 
 it('loads map picker dropdown before map picker stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('map-picker'))
-        ->toBe(['teleported-menu', 'map-picker-dropdown', 'map-picker'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'select-field', 'map-picker-dropdown', 'map-picker'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('map-picker'))
-        ->toBe(['teleported-menu', 'map-picker-dropdown', 'map-picker']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'select-field', 'map-picker-dropdown', 'map-picker']);
 });
 
 it('loads select field, tag chips, and user display stylesheets before user select stylesheet', function () {
@@ -373,9 +373,9 @@ it('keeps shared user display primitives in source bundles', function () {
 
 it('loads tag chips stylesheet before tags field stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('tags-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'tags-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'overlay-runtime', 'teleported-menu', 'select-field', 'tags-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('tags-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'tags-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'tag-chips', 'overlay-runtime', 'teleported-menu', 'select-field', 'tags-field']);
 });
 
 it('keeps shared tag chip styles in a separate bundle', function () {
@@ -388,7 +388,7 @@ it('keeps shared tag chip styles in a separate bundle', function () {
         ->toContain('.fff-tags-field__tag-remove');
 
     expect($tagsFieldCss)
-        ->toContain('.fff-tags-field__suggestion')
+        ->toContain('.fff-tags-field__meta')
         ->not->toContain('.fff-tags-field__tag-remove:hover');
 
     expect($userSelectCss)
@@ -413,14 +413,21 @@ it('keeps shared map picker dropdown styles in a separate bundle', function () {
     $teleportedMenuCss = file_get_contents(__DIR__.'/../../resources/dist/css/teleported-menu.css');
 
     expect($dropdownCss)
-        ->toContain('.fff-map-picker__dropdown-panel')
-        ->toContain('.fff-map-picker__dropdown-hint')
+        ->toContain('.fff-geocoding-dropdown-panel')
+        ->toContain('.fff-geocoding-dropdown-panel--map-context')
+        ->not->toContain('.fff-map-picker__dropdown-hint')
         ->not->toContain('#40404573');
 
     expect($teleportedMenuCss)->toContain('.fff-teleported-menu');
 
     expect($mapPickerCss)
-        ->not->toContain('.fff-map-picker__dropdown-hint');
+        ->not->toContain('.fff-map-picker__dropdown-hint')
+        ->toContain('.fff-map-picker__gradient')
+        ->toContain('.fff-map-picker__search.has-focus-outline')
+        ->toContain('.fff-map-picker__search .fff-flex-text-input__input')
+        ->toContain('-webkit-backdrop-filter:blur(8px)saturate(1.5)')
+        ->toContain('-webkit-mask-image:linear-gradient(#000 70%,#0000)')
+        ->not->toContain('.dark .fff-map-picker__gradient');
 
     expect($addressAutocompleteCss)
         ->not->toContain('.fff-map-picker__dropdown-hint');

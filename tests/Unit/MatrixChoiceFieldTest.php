@@ -217,10 +217,11 @@ it('validates conditionally disabled cells on submit', function () {
 
 it('serializes conditional disable rules to alpine', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/matrix-choice-field.blade.php');
+    $js = file_get_contents(__DIR__.'/../../resources/js/components/matrix-choice-field.js');
 
     expect($blade)->toContain('conditionalDisableRules')
-        ->and($blade)->toContain('matchesConditionalRule')
-        ->and($blade)->toContain('pruneDisabledSelections');
+        ->and($js)->toContain('matchesConditionalRule')
+        ->and($js)->toContain('pruneDisabledSelections');
 });
 
 it('routes checkbox and radio clicks through the cell handler only', function () {
@@ -229,6 +230,18 @@ it('routes checkbox and radio clicks through the cell handler only', function ()
     expect($blade)->toContain('x-on:click="interact(@js($rowKey), @js($columnKey))"')
         ->and($blade)->not->toContain('x-on:click.stop="toggleCheckbox')
         ->and($blade)->not->toContain('x-on:click.stop="selectRadio');
+});
+
+it('imports shared matrix keyboard into the alpine entry', function () {
+    $entry = file_get_contents(__DIR__.'/../../resources/js/components/matrix-choice-field.js');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/matrix-choice-field.blade.php');
+
+    expect($entry)
+        ->toContain("from '../core/matrix-keyboard.js'")
+        ->toContain('createMatrixKeyboardController')
+        ->and($blade)
+        ->toContain('matrix-choice-field')
+        ->toContain('onMatrixKeydown');
 });
 
 it('rejects unsupported matrix choice modes', function () {

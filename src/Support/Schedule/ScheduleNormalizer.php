@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Schedule;
 
+use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeOs;
+
 final class ScheduleNormalizer
 {
     /**
@@ -65,11 +67,17 @@ final class ScheduleNormalizer
                     continue;
                 }
 
-                $slots[] = [
+                $normalizedSlot = [
                     'from' => $from,
                     'to' => $to,
                     'type' => ($slot['type'] ?? 'slot') === 'break' ? 'break' : 'slot',
                 ];
+
+                if ((bool) ($slot['overnight'] ?? false)) {
+                    $normalizedSlot['overnight'] = true;
+                }
+
+                $slots[] = $normalizedSlot;
             }
         }
 
@@ -102,17 +110,15 @@ final class ScheduleNormalizer
             return null;
         }
 
-        if (preg_match('/^(\d{1,2}):(\d{2})$/', $time, $matches) !== 1) {
-            return null;
+        if (preg_match('/^(\d{1,2}):(\d{2})$/', $time, $matches) === 1) {
+            $hours = (int) $matches[1];
+            $minutes = (int) $matches[2];
+
+            if ($hours < 0 || $hours > 23 || $minutes < 0 || $minutes > 59) {
+                return null;
+            }
         }
 
-        $hours = (int) $matches[1];
-        $minutes = (int) $matches[2];
-
-        if ($hours < 0 || $hours > 23 || $minutes < 0 || $minutes > 59) {
-            return null;
-        }
-
-        return sprintf('%02d:%02d', $hours, $minutes);
+        return DateTimeOs::normalizeTime($time);
     }
 }

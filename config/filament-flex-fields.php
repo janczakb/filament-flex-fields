@@ -20,6 +20,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | AudioField — client-side Whisper transcription (optional)
+    |--------------------------------------------------------------------------
+    |
+    | Powers AudioField::transcription() using @xenova/transformers in-browser.
+    | Models download from Hugging Face on first "Transcribe Audio" click.
+    |
+    */
+    'audio' => [
+        'transcription' => [
+            'default_model' => env('FLEX_FIELDS_WHISPER_MODEL', 'Xenova/whisper-tiny'),
+            'default_quantized' => env('FLEX_FIELDS_WHISPER_QUANTIZED', true),
+            'default_multilingual' => env('FLEX_FIELDS_WHISPER_MULTILINGUAL', true),
+            'default_language' => env('FLEX_FIELDS_WHISPER_LANGUAGE'),
+            'default_task' => env('FLEX_FIELDS_WHISPER_TASK', 'transcribe'),
+            'languages' => [],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | JSON Storage Column
     |--------------------------------------------------------------------------
     | Column on your Eloquent model where all flex field values are stored.
@@ -67,6 +87,77 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Schema product (M8)
+    |--------------------------------------------------------------------------
+    | Import/export, blueprint packs, and optional Filament admin CRUD for
+    | FlexFieldGroup (name, slug, fields JSON, order, tenant_id).
+    | Default false — enable explicitly so hosts do not get surprise admin pages.
+    |
+    | Enable:
+    |   FLEX_FIELDS_SCHEMA_RESOURCE_ENABLED=true
+    |   php artisan vendor:publish --tag=filament-flex-fields-migrations
+    |   php artisan migrate
+    |
+    | See docs/flex-field-groups.md
+    */
+    'schema' => [
+        'resource_enabled' => env('FLEX_FIELDS_SCHEMA_RESOURCE_ENABLED', false),
+        'navigation_group' => env('FLEX_FIELDS_SCHEMA_NAV_GROUP', 'Flex Fields'),
+        'navigation_sort' => (int) env('FLEX_FIELDS_SCHEMA_NAV_SORT', 90),
+        /*
+         * Persist SchemaRegistry publish/rollback history in
+         * `flex_field_schema_versions` when the table exists. Falls back to
+         * in-memory storage when the migration has not been run or this is false.
+         */
+        'registry_persistence' => env('FLEX_FIELDS_SCHEMA_REGISTRY_DB', true),
+        /*
+         * Keep FlexFieldSchemaRegistry aligned with flex_field_groups rows.
+         * sync_from_database: hydrate registry on app boot (after config schemas).
+         * sync_on_save: update registry when groups are saved/deleted in admin or code.
+         */
+        'sync_from_database' => env('FLEX_FIELDS_SCHEMA_SYNC_FROM_DB', true),
+        'sync_on_save' => env('FLEX_FIELDS_SCHEMA_SYNC_ON_SAVE', true),
+        'default_target_type' => env('FLEX_FIELDS_SCHEMA_DEFAULT_TARGET', 'App\\Models\\Model'),
+        /*
+         * Gate ability required for FlexFieldGroupResource CRUD + publish/rollback.
+         * Define in AppServiceProvider: Gate::define('manageFlexFieldSchemas', ...).
+         */
+        'policy_ability' => env('FLEX_FIELDS_SCHEMA_POLICY_ABILITY', 'manageFlexFieldSchemas'),
+        /*
+         * Optional callable (class@method or closure) registered in AppServiceProvider
+         * to resolve the active tenant id for schema filtering and admin scoping.
+         * Signature: fn (?object $context): ?string
+         */
+        'tenant_resolver' => null,
+        /*
+         * Optional callable to resolve RBAC user key for FieldRbacMatrix checks.
+         * Signature: fn (?object $context): ?string
+         */
+        'rbac_user_key_resolver' => null,
+        /*
+         * When true, FlexFieldGroupResource list query is filtered to the resolved tenant.
+         */
+        'scope_resource_by_tenant' => env('FLEX_FIELDS_SCHEMA_SCOPE_BY_TENANT', false),
+        /*
+         * Hub page with entity tabs listing field groups (Flex Field Studio).
+         */
+        'management_page_enabled' => env('FLEX_FIELDS_SCHEMA_MANAGEMENT_PAGE', true),
+        'management_navigation_sort' => (int) env('FLEX_FIELDS_SCHEMA_MANAGEMENT_NAV_SORT', 89),
+        /*
+         * Entity discovery for the management hub and target_type pickers.
+         */
+        'entity_discovery' => [
+            'from_filament_resources' => env('FLEX_FIELDS_ENTITY_DISCOVERY_RESOURCES', true),
+            'paths' => [],
+            'namespace' => null,
+        ],
+        'entities' => [
+            // 'App\\Models\\Lead' => ['label' => 'Leads', 'icon' => 'heroicon-o-user', 'sort' => 0],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Playground (dev UI for previewing all field types)
     |--------------------------------------------------------------------------
     */
@@ -89,6 +180,21 @@ return [
         'rate_limit_per_minute' => (int) env('FLEX_FIELDS_MAPBOX_RATE_LIMIT', 60),
         'proxy_prefix' => 'flex-fields',
         'proxy_middleware' => ['web', 'auth'],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Geocoding provider OS (AddressAutocomplete / MapPicker proxy)
+    |--------------------------------------------------------------------------
+    */
+    'geocoding' => [
+        'driver' => env('FLEX_FIELDS_GEOCODING_DRIVER', 'mapbox'),
+        'circuit_breaker' => [
+            'enabled' => env('FLEX_FIELDS_GEOCODING_CIRCUIT_BREAKER', true),
+            'failure_threshold' => (int) env('FLEX_FIELDS_GEOCODING_CB_THRESHOLD', 5),
+            'open_seconds' => (int) env('FLEX_FIELDS_GEOCODING_CB_OPEN_SECONDS', 60),
+        ],
+        'rate_limit_per_minute' => (int) env('FLEX_FIELDS_GEOCODING_RATE_LIMIT', env('FLEX_FIELDS_MAPBOX_RATE_LIMIT', 60)),
     ],
 
     /*
@@ -180,7 +286,8 @@ return [
         */
         'empty_badge_label' => 'empty',
         /*
-        | Locales that should render fields right-to-left in directionByLocale().
+        | Locales that should render right-to-left in directionByLocale().
+        | Primary subtags match (e.g. ar-SA → ar). Default applies dir to inputs when supported.
         */
         'rtl_locales' => ['ar', 'he', 'fa', 'ur'],
     ],
@@ -193,6 +300,16 @@ return [
     | Track heights: 32px · 40px · 48px — see --fff-track-* in base.css.
     */
     'ui' => [
+        /*
+        | Global density scale for all Flex Fields (compact / comfortable / spacious).
+        | Maps to --fff-density-scale on the document root via data-fff-density.
+        */
+        'density' => 'comfortable',
+        /*
+        | Optional theme overrides (primary color, radius, etc.) merged into CSS variables.
+        | Keys: primary, radius, menu_radius, field_bg, field_border — or --fff-* names.
+        */
+        'theme' => [],
         /*
         | Defines the rounding of the fields.
         | Options:
@@ -321,6 +438,7 @@ return [
         'signature_clear_icon' => 'gravityui-arrows-rotate-right',
         'signature_download_icon' => 'gravityui-arrow-down-to-square',
         'signature_fullscreen_icon' => 'gravityui-chevrons-expand-up-right',
+        'signature_pdf_preview_icon' => 'gravityui-file-text',
         'signature_close_icon' => 'gravityui-xmark',
         'video_size' => 'md',
         'audio_size' => 'md',
@@ -385,6 +503,132 @@ return [
         'max',
         'regex',
         'unique',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | v3 platform upgrade
+    |--------------------------------------------------------------------------
+    */
+    'v3' => [
+        'auto_upgrade' => env('FLEX_FIELDS_V3_AUTO_UPGRADE', true),
+        'migrated' => false,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SelectField engine (v3 headless combobox migration)
+    |--------------------------------------------------------------------------
+    */
+    'select' => [
+        // Runtime always uses headless for eligible fields; keys kept for upgrade tooling/tests.
+        // Headless combobox is the default runtime for eligible SelectField instances.
+        'use_headless_engine' => env('FLEX_FIELDS_SELECT_USE_HEADLESS_ENGINE', true),
+        'auto_migrate' => env('FLEX_FIELDS_SELECT_AUTO_MIGRATE', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Media & Capture OS (M5 enterprise)
+    |--------------------------------------------------------------------------
+    | Virus scan, signed URLs, PCI tokenization, voice-note transcription,
+    | retention policies, and Spatie Media Library enterprise adapter hooks.
+    |
+    | Wire callbacks in a service provider:
+    |   MediaCaptureOs::registerVirusScanCallback(fn ($path) => ...);
+    |   MediaCaptureOs::registerSignedUploadUrlResolver(fn ($disk, $path, $ctx) => ...);
+    |   MediaCaptureOs::registerTokenizeCreditCardCallback(fn ($pan) => ...);
+    |
+    | Or bind transcription:
+    |   'transcription' => App\Media\VoiceNoteTranscriber::class,
+    */
+    'media_capture' => [
+        'disk' => env('FLEX_FIELDS_MEDIA_DISK', env('FILESYSTEM_DISK', 'local')),
+        'require_virus_scan' => env('FLEX_FIELDS_REQUIRE_VIRUS_SCAN', false),
+        'scan_before_persist' => env('FLEX_FIELDS_SCAN_BEFORE_PERSIST', true),
+        'quarantine_disk' => env('FLEX_FIELDS_QUARANTINE_DISK'),
+        'auto_signed_urls' => env('FLEX_FIELDS_MEDIA_AUTO_SIGNED_URLS', true),
+        'signed_url_minutes' => (int) env('FLEX_FIELDS_MEDIA_SIGNED_URL_MINUTES', 15),
+        'transcription' => env('FLEX_FIELDS_MEDIA_TRANSCRIPTION'),
+        'transcription_circuit_breaker' => [
+            'enabled' => env('FLEX_FIELDS_TRANSCRIPTION_CIRCUIT_BREAKER', true),
+            'failure_threshold' => (int) env('FLEX_FIELDS_TRANSCRIPTION_CB_THRESHOLD', 3),
+            'open_seconds' => (int) env('FLEX_FIELDS_TRANSCRIPTION_CB_OPEN_SECONDS', 30),
+        ],
+        'pci' => [
+            'never_store_pan' => env('FLEX_FIELDS_PCI_NEVER_STORE_PAN', true),
+            'require_tokenization' => env('FLEX_FIELDS_PCI_REQUIRE_TOKENIZATION', false),
+        ],
+        'tenant' => [
+            'disk' => env('FLEX_FIELDS_MEDIA_TENANT_DISK'),
+            'directory_prefix' => env('FLEX_FIELDS_MEDIA_TENANT_DIRECTORY_PREFIX'),
+            'auto_disk' => env('FLEX_FIELDS_MEDIA_TENANT_AUTO_DISK', false),
+        ],
+        'spatie' => [
+            'prune_collections' => [],
+        ],
+        'directories' => [
+            'temp_captures' => ['livewire-tmp'],
+            'voice_notes' => ['voice-notes'],
+            'uploads' => ['uploads'],
+            'signatures' => ['signatures'],
+        ],
+        'retention' => [
+            'schedule_enabled' => env('FLEX_FIELDS_RETENTION_SCHEDULE', true),
+            'schedule' => env('FLEX_FIELDS_RETENTION_SCHEDULE_EXPRESSION', 'daily'),
+            'uploads' => [
+                'enabled' => env('FLEX_FIELDS_RETENTION_UPLOADS', false),
+                'days' => env('FLEX_FIELDS_RETENTION_UPLOADS_DAYS'),
+            ],
+            'voice_notes' => [
+                'enabled' => env('FLEX_FIELDS_RETENTION_VOICE_NOTES', false),
+                'days' => (int) env('FLEX_FIELDS_RETENTION_VOICE_NOTES_DAYS', 365),
+            ],
+            'signatures' => [
+                'enabled' => env('FLEX_FIELDS_RETENTION_SIGNATURES', false),
+                'days' => env('FLEX_FIELDS_RETENTION_SIGNATURES_DAYS'),
+            ],
+            'temp_captures' => [
+                'enabled' => env('FLEX_FIELDS_RETENTION_TEMP_CAPTURES', true),
+                'days' => (int) env('FLEX_FIELDS_RETENTION_TEMP_CAPTURES_DAYS', 7),
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enterprise control plane (M13 foundations)
+    |--------------------------------------------------------------------------
+    | Optional kill-switch for tenant packs / RBAC / SchemaRegistry /
+    | ObservabilityHooks product wiring. Default true — first install gets
+    | full v3. Set false only for a slim install without TenantFieldPacks,
+    | FieldRbacMatrix, SchemaRegistry, or ObservabilityHooks.
+    */
+    'enterprise' => [
+        'enabled' => env('FLEX_FIELDS_ENTERPRISE_ENABLED', true),
+        /*
+         * SIEM / log forwarding for ObservabilityHooks events.
+         * driver: null (off) | log (Laravel Log::channel)
+         * Host apps can also call SiemBridge::registerSink(fn ($event, $envelope) => ...).
+         */
+        'siem' => [
+            'driver' => env('FLEX_FIELDS_SIEM_DRIVER', 'null'),
+            'channel' => env('FLEX_FIELDS_SIEM_CHANNEL', 'stack'),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Field Intelligence (formulas)
+    |--------------------------------------------------------------------------
+    |
+    | FormulaEngine is always available for FormBuilder `formula` /
+    | `config.calculated` fields. The legacy `formulas` flag is ignored and
+    | kept only so existing .env / config publishes do not break.
+    |
+    */
+    'intelligence' => [
+        'formulas' => true,
     ],
 
 ];

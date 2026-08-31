@@ -44,9 +44,11 @@
             labels: {
                 search: @js($placeholder),
                 missingToken: @js(__('filament-flex-fields::default.address_autocomplete.missing_token')),
-                searchLoading: @js(__('filament-flex-fields::default.address_autocomplete.search_loading')),
-                searchMinChars: @js(__('filament-flex-fields::default.address_autocomplete.search_min_chars')),
-                searchNoResults: @js(__('filament-flex-fields::default.address_autocomplete.search_no_results')),
+                    searchLoading: @js(__('filament-flex-fields::default.address_autocomplete.search_loading')),
+                    searchRefreshing: @js(__('filament-flex-fields::default.address_autocomplete.search_refreshing')),
+                    searchMinChars: @js(__('filament-flex-fields::default.address_autocomplete.search_min_chars')),
+                    searchNoResults: @js(__('filament-flex-fields::default.address_autocomplete.search_no_results')),
+                    searchRecent: @js(__('filament-flex-fields::default.address_autocomplete.search_recent')),
                 clear: @js(__('filament-flex-fields::default.address_autocomplete.clear')),
                 streetAddressRequired: @js(__('filament-flex-fields::default.address_autocomplete.street_address_required')),
                 geocodeFailed: @js(__('filament-flex-fields::default.geocoding.failed')),
@@ -134,68 +136,10 @@
             </div>
 
             <template x-teleport="body">
-                <div
-                    id="{{ $statePath }}__search-listbox"
-                    role="listbox"
-                    class="fff-map-picker__dropdown-panel fff-select-dropdown-panel fff-teleported-menu"
-                    x-ref="searchDropdown"
-                    x-show="searchable && searchOpen && ! readOnly"
-                    x-cloak
-                    x-bind:class="{ 'is-positioned': searchDropdownReady }"
-                    x-on:mousedown.stop
-                >
-                    <div class="fff-map-picker__dropdown-options">
-                    <p
-                        class="fff-map-picker__dropdown-hint"
-                        x-show="! searchHasMinQuery && ! searchLoading"
-                        x-text="labels.searchMinChars"
-                    ></p>
-
-                    <div
-                        class="fff-map-picker__dropdown-skeleton"
-                        x-show="searchLoading && searchHasMinQuery"
-                        aria-busy="true"
-                    >
-                        <span class="sr-only" x-text="labels.searchLoading"></span>
-
-                        @foreach (range(0, 4) as $skeletonIndex)
-                            <div
-                                class="fff-map-picker__dropdown-skeleton-option"
-                                style="--fff-map-picker-skeleton-i: {{ $skeletonIndex }}"
-                                aria-hidden="true"
-                            >
-                                <span class="fff-map-picker__dropdown-skeleton-icon"></span>
-                                <span class="fff-map-picker__dropdown-skeleton-body">
-                                    <span class="fff-map-picker__dropdown-skeleton-line is-primary"></span>
-                                    <span class="fff-map-picker__dropdown-skeleton-line is-secondary"></span>
-                                </span>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <p
-                        class="fff-map-picker__dropdown-hint"
-                        x-show="searchHasMinQuery && ! searchLoading && searchResults.length === 0"
-                        x-text="labels.searchNoResults"
-                    ></p>
-
-                    <div x-show="! searchLoading">
-                        <template x-for="(result, index) in searchResults" :key="result.id">
-                            <button
-                                type="button"
-                                role="option"
-                                class="fff-map-picker__dropdown-option"
-                                x-bind:id="geocodingOptionId(index)"
-                                x-bind:class="{ 'is-active': highlightedIndex === index }"
-                                x-bind:aria-selected="highlightedIndex === index"
-                                x-on:mousedown.prevent="selectSearchResult(result)"
-                            >
-                                <span x-text="result.label"></span>
-                            </button>
-                        </template>
-                    </div>
-                    </div>
-                </div>
+                @include('filament-flex-fields::forms.components.partials.geocoding-search-dropdown-panel', [
+                    'listboxId' => $statePath.'__search-listbox',
+                    'mapContext' => false,
+                ])
             </template>
         </div>
 

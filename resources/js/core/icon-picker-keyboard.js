@@ -143,6 +143,13 @@ export function createIconPickerKeyboardMixin({
 
             if (event.key === 'ArrowDown') {
                 event.preventDefault()
+
+                if (this.layout === 'list' && typeof this.iconComboboxMoveHighlight === 'function') {
+                    this.iconComboboxMoveHighlight(1)
+
+                    return
+                }
+
                 const next = Math.min(this.activeIconIndex + columns, maxIndex)
                 this.activeIconIndex = next < 0 ? 0 : next
                 this.scrollActiveIconIntoView()
@@ -152,6 +159,13 @@ export function createIconPickerKeyboardMixin({
 
             if (event.key === 'ArrowUp') {
                 event.preventDefault()
+
+                if (this.layout === 'list' && typeof this.iconComboboxMoveHighlight === 'function') {
+                    this.iconComboboxMoveHighlight(-1)
+
+                    return
+                }
+
                 this.activeIconIndex = Math.max(this.activeIconIndex - columns, 0)
                 this.scrollActiveIconIntoView()
 
@@ -192,6 +206,13 @@ export function createIconPickerKeyboardMixin({
 
             if (event.key === 'Enter' && this.activeIconIndex >= 0) {
                 event.preventDefault()
+
+                if (this.layout === 'list' && typeof this.iconComboboxSelectHighlighted === 'function') {
+                    this.iconComboboxSelectHighlighted()
+
+                    return
+                }
+
                 const item = items[this.activeIconIndex]
 
                 if (item?.name && typeof this[selectMethod] === 'function') {

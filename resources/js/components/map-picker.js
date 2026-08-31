@@ -9,8 +9,9 @@ import {
     searchMapboxPlaces,
 } from '../support/mapbox-geocoding.js'
 import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+import { createGeocodingComboboxMixin } from '../core/geocoding-combobox-alpine.js'
+import { createGeocodingDropdownMenuMixin } from '../core/geocoding-dropdown-menu.js'
 import { createGeocodingListKeyboardMixin } from '../core/geocoding-list-keyboard.js'
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
 
 const exclusiveDropdown = createExclusiveDropdownMixin({
     openKey: 'searchOpen',
@@ -18,14 +19,15 @@ const exclusiveDropdown = createExclusiveDropdownMixin({
     ownerIdPrefix: 'fff-map-picker',
 })
 
-const geocodingDropdown = createSearchableSelectMenuMixin({
+const geocodingDropdown = createGeocodingDropdownMenuMixin({
     openKey: 'searchOpen',
     readyKey: 'searchDropdownReady',
-    triggerRef: 'searchInput',
+    triggerRef: 'searchWrap',
+    widthRef: 'searchShell',
     menuRef: 'searchDropdown',
     closeMethod: 'closeSearchDropdown',
-    ownerIdPrefix: 'fff-map-picker',
     menuThemeVariant: 'map',
+    menuGap: 8,
 })
 
 const geocodingKeyboard = createGeocodingListKeyboardMixin({
@@ -88,8 +90,14 @@ export default function mapPickerFormComponent({
     labels,
     readOnly,
 }) {
+    const geocodingCombobox = createGeocodingComboboxMixin({
+        minSearchLength,
+        searchDebounce,
+    })
+
     return {
         ...exclusiveDropdown,
+        ...geocodingCombobox,
         ...geocodingDropdown,
         ...geocodingKeyboard,
         state,
@@ -114,23 +122,13 @@ export default function mapPickerFormComponent({
         mapReady: false,
         mapLoading: true,
         mapError: null,
-        searchQuery: '',
-        selectedLabel: '',
-        searchResults: [],
-        searchOpen: false,
-        searchDropdownReady: false,
-        searchLoading: false,
-        searchHasMinQuery: false,
-        searchFocused: false,
-        highlightedIndex: -1,
         summaryLabel: null,
-        searchDebounceTimer: null,
 
         init() {
+            this.initGeocodingComboboxState()
             this.wireExclusiveFlexDropdown()
-            this.bindSelectMenuLifecycle({ wireExclusive: false })
+            this.bindGeocodingDropdownMenu()
             this.initGeocodingListKeyboard()
-            this.searchRequestId = 0
 
             this.syncSummary()
             this.syncSearchInputFromState()
@@ -153,6 +151,7 @@ export default function mapPickerFormComponent({
         },
 
         destroy() {
+            this.teardownGeocodingDropdownMenu()
             this.map?.remove()
             this.map = null
             this.marker = null
@@ -232,6 +231,7 @@ export default function mapPickerFormComponent({
 
                 if (! this.readOnly) {
                     this.map.on('click', (event) => {
+                        this.dismissSearchDropdown()
                         this.selectCoordinates(event.lngLat.lng, event.lngLat.lat)
                     })
                 }
@@ -435,143 +435,37 @@ export default function mapPickerFormComponent({
             return Boolean(this.geocodeSearchUrl || this.accessToken)
         },
 
-        scheduleSearch() {
-            window.clearTimeout(this.searchDebounceTimer)
-
-            if (! this.searchHasMinQuery) {
-                this.searchLoading = false
-                this.searchResults = []
-
-                return
-            }
-
-            this.searchLoading = true
-            this.searchResults = []
-
-            this.searchDebounceTimer = window.setTimeout(() => {
-                this.performSearch()
-            }, this.searchDebounce)
+        dismissSearchDropdown(options = {}) {
+            this.dismissGeocodingDropdown(options)
         },
 
         onSearchInput() {
-            this.highlightedIndex = -1
-            this.searchOpen = true
-            this.updateSearchHasMinQuery()
-            this.scheduleSearch()
+            this.onGeocodingSearchInput()
         },
 
         onSearchFocus() {
-            this.searchFocused = true
-            this.searchOpen = true
-
-            this.$nextTick(() => {
-                this.$refs.searchInput?.select?.()
-            })
+            this.onGeocodingSearchFocus()
         },
 
         onSearchBlur() {
-            this.searchFocused = false
-            window.clearTimeout(this.searchDebounceTimer)
-
-            window.setTimeout(() => {
-                this.searchOpen = false
-                this.searchLoading = false
-                this.highlightedIndex = -1
-                this.searchQuery = this.selectedLabel
-                this.searchResults = []
-                this.updateSearchHasMinQuery()
-            }, 150)
+            this.onGeocodingSearchBlur()
         },
 
         onSearchKeydown(event) {
-            if (! this.searchOpen) {
-                if (event.key === 'ArrowDown' || event.key === 'Enter') {
-                    this.searchOpen = true
-                    this.scheduleSearch()
-                }
+            this.onGeocodingComboboxKeydown(event)
+        },
 
-                return
-            }
-
-            if (['ArrowDown', 'ArrowUp', 'Home', 'End', 'Enter', 'Escape'].includes(event.key)) {
-                this.onGeocodingSearchKeydown(event)
-
-                if (event.key === 'Escape') {
-                    this.highlightedIndex = -1
-                    this.searchQuery = this.selectedLabel
-                    this.searchResults = []
-                    event.target?.blur?.()
-                }
-
-                return
-            }
+        scheduleSearch() {
+            this.scheduleGeocodingSearch()
         },
 
         async performSearch() {
-            const query = this.searchQuery.trim()
-
-            if (! this.searchable || ! this.canGeocode()) {
-                this.searchResults = []
-                this.searchLoading = false
-
-                return
-            }
-
-            if (query.length < this.minSearchLength) {
-                this.searchResults = []
-                this.searchLoading = false
-
-                return
-            }
-
-            const requestId = ++this.searchRequestId
-            this.searchLoading = true
-            this.geocodeError = null
-
-            try {
-                const features = await searchMapboxPlaces({
-                    query,
-                    accessToken: this.accessToken,
-                    geocodeSearchUrl: this.geocodeSearchUrl,
-                    countries: this.countries,
-                    language: this.language,
-                    streetAddressesOnly: this.streetAddressesOnly,
-                    types: this.searchTypes,
-                })
-
-                if (requestId !== this.searchRequestId) {
-                    return
-                }
-
-                this.searchResults = features.map((feature) => ({
-                    id: feature.id,
-                    label: feature.place_name,
-                    feature,
-                }))
-                this.syncGeocodingHighlightedIndex()
-            } catch (error) {
-                if (requestId !== this.searchRequestId) {
-                    return
-                }
-
-                console.error(error)
-                this.searchResults = []
-                this.highlightedIndex = -1
-                this.geocodeError = error instanceof GeocodingApiError
-                    ? error.message
-                    : this.labels.geocodeFailed ?? 'Geocoding search failed.'
-            } finally {
-                if (requestId === this.searchRequestId) {
-                    this.searchLoading = false
-                }
-            }
+            await this.performGeocodingSearch()
         },
 
         closeSearchDropdown() {
-            this.searchOpen = false
-            this.searchLoading = false
-            this.highlightedIndex = -1
-            window.clearTimeout(this.searchDebounceTimer)
+            this.dismissSearchDropdown()
+            this.$refs.searchInput?.blur?.()
         },
 
         async selectSearchResult(result) {
@@ -589,19 +483,18 @@ export default function mapPickerFormComponent({
 
             this.selectionError = null
 
+            this.selectedLabel = parsed.place_name ?? result.label
+            this.searchQuery = this.selectedLabel
+            this.finalizeGeocodingSelection(result)
+
             this.state = {
                 ...emptyCanonical(),
                 ...parsed,
             }
 
-            this.selectedLabel = parsed.place_name ?? result.label
-            this.searchQuery = this.selectedLabel
-            this.searchOpen = false
-            this.searchLoading = false
-            this.searchResults = []
-            this.highlightedIndex = -1
-            this.updateSearchHasMinQuery()
+            this.dismissSearchDropdown({ restoreQuery: false })
             window.clearTimeout(this.searchDebounceTimer)
+            this.$refs.searchInput?.blur?.()
 
             this.placeMarker(parsed.lng, parsed.lat, true)
             this.flyToLocation(parsed.lng, parsed.lat)

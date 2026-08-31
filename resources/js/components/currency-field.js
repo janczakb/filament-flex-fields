@@ -1,4 +1,6 @@
+import { createOverlayMenuKeyboardMixin } from '../core/overlay-menu-keyboard.js'
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createVirtualizedListMixin } from '../core/virtualized-list.js'
 import { normalizeLocale } from '../core/number-format.js'
 import { normalizeSearchQuery } from '../core/search-normalize.js'
 
@@ -208,7 +210,7 @@ export function applyTypeDigitAtCursor(edit, digit, cursorPos, decimals) {
 
         return {
             edit: next,
-            cursorPos: pos + 1,
+            cursorPos: Math.min(pos + 1, next.wholeDigits.length),
             animatedDigitKey: animatedDigitKeyForWholeInsert(wholeBefore, next.wholeDigits, pos, digit),
         }
     }
@@ -224,7 +226,7 @@ export function applyTypeDigitAtCursor(edit, digit, cursorPos, decimals) {
 
         return {
             edit: next,
-            cursorPos: pos + 1,
+            cursorPos: Math.min(pos + 1, next.wholeDigits.length),
             animatedDigitKey: animatedDigitKeyForWholeInsert(wholeBefore, next.wholeDigits, pos, digit),
         }
     }
@@ -238,7 +240,7 @@ export function applyTypeDigitAtCursor(edit, digit, cursorPos, decimals) {
 
         return {
             edit: next,
-            cursorPos: pos + 1,
+            cursorPos: Math.min(pos + 1, next.wholeDigits.length),
             animatedDigitKey: animatedDigitKeyForWholeInsert(wholeBefore, next.wholeDigits, pos, digit),
         }
     }
@@ -540,23 +542,34 @@ export function cursorPosFromClientX(clientX, edit, decimals, liveDisplayElement
     liveDisplayElement.querySelectorAll('[data-fff-cursor-before], [data-fff-cursor-after]').forEach((element) => {
         const rect = element.getBoundingClientRect()
 
-        if (element.dataset.fffCursorBefore !== undefined) {
-            const position = Number.parseInt(element.dataset.fffCursorBefore, 10)
-            const distance = Math.abs(clientX - rect.left)
+        // Hidden Alpine x-show / caret siblings report empty boxes and poison hit-testing.
+        if (rect.width <= 0 && rect.height <= 0) {
+            return
+        }
 
-            if (distance < minDistance) {
-                minDistance = distance
-                closest = position
+        if (element.hasAttribute('data-fff-cursor-before')) {
+            const position = Number.parseInt(element.getAttribute('data-fff-cursor-before') ?? '', 10)
+
+            if (! Number.isNaN(position)) {
+                const distance = Math.abs(clientX - rect.left)
+
+                if (distance < minDistance) {
+                    minDistance = distance
+                    closest = position
+                }
             }
         }
 
-        if (element.dataset.fffCursorAfter !== undefined) {
-            const position = Number.parseInt(element.dataset.fffCursorAfter, 10)
-            const distance = Math.abs(clientX - rect.right)
+        if (element.hasAttribute('data-fff-cursor-after')) {
+            const position = Number.parseInt(element.getAttribute('data-fff-cursor-after') ?? '', 10)
 
-            if (distance < minDistance) {
-                minDistance = distance
-                closest = position
+            if (! Number.isNaN(position)) {
+                const distance = Math.abs(clientX - rect.right)
+
+                if (distance < minDistance) {
+                    minDistance = distance
+                    closest = position
+                }
             }
         }
     })
@@ -566,6 +579,23 @@ export function cursorPosFromClientX(clientX, edit, decimals, liveDisplayElement
     }
 
     return snapCursor(closest, edit, decimals)
+}
+
+/**
+ * Normalize fraction digits for blurred display (no visual ",50" pad — storage still pads in minorFromEditState).
+ *
+ * @param {{ wholeDigits: string, fracDigits: string, inDecimal: boolean, negative: boolean }} edit
+ */
+export function normalizeEditForBlur(edit) {
+    const next = { ...edit }
+    next.fracDigits = String(next.fracDigits ?? '').replace(/0+$/, '')
+    next.inDecimal = false
+
+    if (next.wholeDigits === '' && next.fracDigits !== '') {
+        next.wholeDigits = '0'
+    }
+
+    return next
 }
 
 const currencySelectMenu = createSearchableSelectMenuMixin({
@@ -580,7 +610,30 @@ const currencySelectMenu = createSearchableSelectMenuMixin({
     ownerIdPrefix: 'fff-currency',
     onMenuClose() {
         this.currencySearch = ''
+        this.resetVirtualListScroll?.()
     },
+})
+
+const currencyVirtualList = createVirtualizedListMixin({
+    itemsKey: 'filteredCurrencies',
+    scrollRef: 'currencyListScroll',
+    itemHeight: 40,
+    threshold: 50,
+})
+
+const currencyKeyboard = createOverlayMenuKeyboardMixin({
+    openKey: 'currencyOpen',
+    resultsKey: 'filteredCurrencies',
+    scrollRef: 'currencyListScroll',
+    menuRef: 'currencyMenu',
+    searchRef: 'currencySearch',
+    searchEnabledKey: 'searchable',
+    itemHeight: 40,
+    selectMethod: 'selectCurrency',
+    optionIdPrefix: 'fff-currency-option',
+    onEscape: 'closeCurrencyMenu',
+    getItemValue: (item) => item?.code ?? item,
+    isItemSelected: (component, item) => component.activeCurrency?.code === item?.code,
 })
 
 export default function currencyFieldFormComponent({
@@ -638,7 +691,10 @@ export default function currencyFieldFormComponent({
         pointerPositionedCursor: false,
         pendingPointerClientX: null,
         pendingCommit: null,
+        overlayMenuActiveIndex: -1,
         ...currencySelectMenu,
+        ...currencyVirtualList,
+        ...currencyKeyboard,
 
         get isLocked() {
             return this.disabled || this.readOnly
@@ -736,6 +792,7 @@ export default function currencyFieldFormComponent({
             })
 
             this.bindSelectMenuLifecycle()
+            this.initOverlayMenuKeyboard()
         },
 
         ensureState() {
@@ -996,9 +1053,8 @@ export default function currencyFieldFormComponent({
 
             const decimals = this.activeCurrency.decimals ?? 0
 
-            if (decimals > 0 && ! this.isEmpty) {
-                this.edit.inDecimal = true
-            }
+            // Do not force `inDecimal` on focus — that injected ",00" ghosts for integer
+            // amounts and shifted the caret/digits. Decimal mode starts via `,` / `.` / existing frac.
 
             const shouldPositionFromPointer = this.pointerPositionedCursor
             const pendingClientX = this.pendingPointerClientX
@@ -1026,6 +1082,12 @@ export default function currencyFieldFormComponent({
 
             this.pointerPositionedCursor = true
             this.pendingPointerClientX = event.clientX
+
+            // Already focused: focus will not re-fire — place caret immediately on click.
+            if (this.isFocused) {
+                this.setCursorFromClientX(event.clientX)
+                this.refreshDisplay(false)
+            }
         },
 
         setCursorFromClientX(clientX) {
@@ -1058,15 +1120,13 @@ export default function currencyFieldFormComponent({
 
             this.isFocused = false
 
-            if (this.commitDecimalsOnBlur && (this.edit.inDecimal || this.edit.fracDigits !== '')) {
-                const decimals = this.activeCurrency.decimals ?? 0
-                this.edit.fracDigits = String(this.edit.fracDigits ?? '').padEnd(decimals, '0').slice(0, decimals)
-                this.edit.inDecimal = false
-            }
+            // Storage still pads via minorFromEditState; display must not jump ",5" → ",50".
+            this.edit = normalizeEditForBlur(this.edit)
 
             const synced = this.syncAmountFromEdit()
 
             this.isEditing = false
+            this.pendingCommit = null
 
             if (! synced) {
                 this.pendingCommit = minorFromEditState({

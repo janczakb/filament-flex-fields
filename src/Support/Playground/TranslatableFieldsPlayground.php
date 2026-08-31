@@ -66,13 +66,57 @@ class TranslatableFieldsPlayground
                 'ar' => 'محتوى عربي مع kierunkiem RTL.',
                 'en' => 'English body with LTR direction.',
             ],
+            'translatable_pg__many_locales_title' => [
+                'en' => 'Product name',
+                'pl' => 'Nazwa produktu',
+                'de' => 'Produktname',
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function manyPlaygroundLocales(): array
+    {
+        return [
+            'ar' => 'Arabic',
+            'bg' => 'Bulgarian',
+            'cs' => 'Czech',
+            'da' => 'Danish',
+            'de' => 'German',
+            'el' => 'Greek',
+            'en' => 'English',
+            'es' => 'Spanish',
+            'et' => 'Estonian',
+            'fi' => 'Finnish',
+            'fr' => 'French',
+            'he' => 'Hebrew',
+            'hi' => 'Hindi',
+            'hr' => 'Croatian',
+            'hu' => 'Hungarian',
+            'it' => 'Italian',
+            'ja' => 'Japanese',
+            'ko' => 'Korean',
+            'lt' => 'Lithuanian',
+            'lv' => 'Latvian',
+            'nl' => 'Dutch',
+            'pl' => 'Polish',
+            'pt' => 'Portuguese',
+            'ro' => 'Romanian',
+            'sk' => 'Slovak',
+            'sl' => 'Slovenian',
+            'sv' => 'Swedish',
+            'tr' => 'Turkish',
+            'uk' => 'Ukrainian',
+            'zh' => 'Chinese',
         ];
     }
 
     public function section(): Section
     {
         return Section::make('Translatable Fields')
-            ->description('Locale tabs built on SegmentTabs — single inputs, multi-field groups per locale, bordered panels, RTL, and empty-tab badges.')
+            ->description('Locale tabs built on SegmentTabs — single inputs, multi-field groups per locale, bordered panels, RTL, empty-tab badges, and many-locale overflow.')
             ->extraAttributes(['class' => 'fff-playground-section'])
             ->schema([
                 Grid::make(['default' => 1, 'lg' => 2])
@@ -148,6 +192,16 @@ class TranslatableFieldsPlayground
                         FlexTextareaField::make('translatable_pg__rtl_body')
                             ->label('Body')
                             ->rows(3),
+                    ])
+                    ->columnSpanFull(),
+                TranslatableFields::make('Many locale tabs (30)')
+                    ->locales(self::manyPlaygroundLocales())
+                    ->withRecommendedDefaults()
+                    ->schema([
+                        FlexTextInput::make('translatable_pg__many_locales_title')
+                            ->label('Title')
+                            ->placeholder('Product or page title')
+                            ->helperText('Reproduces issue #49 — when locale tabs exceed the container width, the tab strip scrolls horizontally instead of overflowing the panel.'),
                     ])
                     ->columnSpanFull(),
             ]);

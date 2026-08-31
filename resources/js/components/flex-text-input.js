@@ -1,4 +1,9 @@
 import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
+import {
+    canSetInputSelection,
+    scheduleInputCaretToEnd,
+    setInputCaretToEnd,
+} from '../core/flex-text-input-caret.js'
 
 let sharedEmojiPickerModule = null
 let sharedEmojiPickerPromise = null
@@ -207,28 +212,24 @@ export default function flexTextInputFormComponent({
 
             input.focus()
 
-            this.setCaretToEnd(input)
+            this.scheduleCaretToEnd(input)
+        },
+
+        scheduleCaretToEnd(input = this.$refs.input) {
+            if (this.caretScheduleCancel) {
+                this.caretScheduleCancel()
+                this.caretScheduleCancel = null
+            }
+
+            this.caretScheduleCancel = scheduleInputCaretToEnd(input)
         },
 
         canSetSelection(input = this.$refs.input) {
-            if (! input || typeof input.setSelectionRange !== 'function') {
-                return false
-            }
-
-            // Native number inputs throw InvalidStateError for selection APIs in most browsers.
-            return input.type !== 'number'
+            return canSetInputSelection(input)
         },
 
         setCaretToEnd(input = this.$refs.input) {
-            if (! this.canSetSelection(input)) {
-                return
-            }
-
-            const length = input.value.length
-
-            if (length > 0) {
-                input.setSelectionRange(length, length)
-            }
+            setInputCaretToEnd(input)
         },
 
         onInput(event) {
@@ -270,7 +271,7 @@ export default function flexTextInputFormComponent({
                         return
                     }
 
-                    this.setCaretToEnd(input)
+                    this.scheduleCaretToEnd(input)
                 }
 
                 if (this.focusFromPointer) {
@@ -286,8 +287,28 @@ export default function flexTextInputFormComponent({
                 }
 
                 repositionCaretToEnd()
+            })
+        },
 
-                requestAnimationFrame(repositionCaretToEnd)
+        ensureInitialCaretPosition() {
+            const input = this.$refs.input
+
+            if (! input || input.value.length === 0) {
+                return
+            }
+
+            const reposition = () => {
+                if (document.activeElement !== input) {
+                    return
+                }
+
+                this.scheduleCaretToEnd(input)
+            }
+
+            this.$nextTick(() => {
+                reposition()
+                setTimeout(reposition, 0)
+                setTimeout(reposition, 100)
             })
         },
 
@@ -304,7 +325,7 @@ export default function flexTextInputFormComponent({
                 input.value = nextState
 
                 if (document.activeElement === input && nextState.length > 0) {
-                    this.setCaretToEnd(input)
+                    this.scheduleCaretToEnd(input)
                 }
             }
         },
@@ -377,16 +398,7 @@ export default function flexTextInputFormComponent({
 
             this.hydrateStateFromInput()
             this.bindInputFocusHandlers()
-
-            this.$nextTick(() => {
-                const input = this.$refs.input
-
-                if (! input || document.activeElement !== input) {
-                    return
-                }
-
-                this.setCaretToEnd(input)
-            })
+            this.ensureInitialCaretPosition()
 
             this.$watch('state', () => {
                 if (this.isInputUpdating) {
@@ -397,6 +409,8 @@ export default function flexTextInputFormComponent({
             })
 
             return async () => {
+                this.caretScheduleCancel?.()
+                this.caretScheduleCancel = null
                 this.loadingObserver?.disconnect()
                 this.clearInsertTimeout()
                 this.clearDictationStatusTimeout()

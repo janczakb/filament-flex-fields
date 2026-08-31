@@ -353,6 +353,32 @@
     color: var(--fff-select-placeholder);
 }
 
+.fff-select-dropdown-panel--user-select {
+    min-width: min(20rem, calc(100vw - 2rem));
+    --fff-user-select-avatar-size: 2.25rem;
+    --fff-select-rich-icon-size: 2.25rem;
+    --fff-select-rich-list-icon-size: 1.125rem;
+    --fff-select-rich-label-size: 0.875rem;
+    --fff-select-rich-desc-size: 0.75rem;
+    --fff-select-rich-gap: 0.5rem;
+    --fff-select-text-size: 0.875rem;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select-option__name {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select-option__email {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+}
+
+.fff-select-dropdown-panel--user-select .fff-user-select__dropdown-skeleton-avatar {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
 .fi-dropdown-panel.fff-select-dropdown-panel .fff-user-select-option--list {
     display: flex;
     align-items: center;
@@ -426,10 +452,19 @@
     overflow: visible;
 }
 
-.fff-user-select-option--trigger .fff-user-select__avatar,
 .fff-user-select-option--list .fff-user-select__avatar {
     margin-block-end: 0.125rem;
     margin-inline-end: 0.125rem;
+}
+
+.fff-user-select-option--trigger .fff-user-select__avatar {
+    margin: 0;
+}
+
+.fff-user-select--single .fi-select-input-value-label > .fff-user-select-option--trigger,
+.fff-user-select--single .fff-select-trigger-ssr__value-ctn .fi-select-input-value-label > .fff-user-select-option--trigger {
+    width: 100%;
+    min-width: 0;
 }
 
 .fff-user-select .fff-select-trigger-ssr:not(.is-replaced) {

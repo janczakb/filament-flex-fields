@@ -58,6 +58,7 @@ export default function voiceNoteRecorderFieldFormComponent({
     maxDuration = 120,
     uploadImmediately = false,
     readOnly = false,
+    waveformMetadataPath = null,
     labels = {},
 }) {
     const waveformBars = createWaveformBarsMixin()
@@ -70,6 +71,7 @@ export default function voiceNoteRecorderFieldFormComponent({
         maxDuration,
         uploadImmediately,
         readOnly,
+        waveformMetadataPath,
         labels,
 
         mode: 'idle', // idle, recording, uploading, playback
@@ -430,6 +432,7 @@ export default function voiceNoteRecorderFieldFormComponent({
             }
 
             this.waveformReady = true;
+            this.persistWaveformMetadata();
             this.mode = 'playback';
             this.syncPlaybackFromRecording();
 
@@ -791,6 +794,40 @@ export default function voiceNoteRecorderFieldFormComponent({
             );
         },
 
+        persistWaveformMetadata() {
+            const metadataPath = this.waveformMetadataPath;
+
+            if (! metadataPath || ! Array.isArray(this.sourceWaveform) || this.sourceWaveform.length === 0) {
+                return;
+            }
+
+            const peaks = this.sourceWaveform.map((value) => Math.round(Number(value) || 0));
+            const payload = {
+                peaks,
+                sample_count: peaks.length,
+                duration: this.playbackDuration || this.recordingDuration || 0,
+            };
+
+            try {
+                const existing = this.$wire.get(metadataPath);
+
+                if (existing && typeof existing === 'object' && ! Array.isArray(existing)) {
+                    this.$wire.set(metadataPath, {
+                        ...existing,
+                        waveform: payload,
+                    });
+
+                    return;
+                }
+
+                this.$wire.set(metadataPath, {
+                    waveform: payload,
+                });
+            } catch (error) {
+                console.warn('Could not persist voice note waveform metadata:', error);
+            }
+        },
+
         uploadRecording({ keepPlaybackVisible = false } = {}) {
             if (! this.recordedBlob) {
                 return Promise.resolve();
@@ -830,6 +867,7 @@ export default function voiceNoteRecorderFieldFormComponent({
                         this.$nextTick(() => {
                             this.updateWaveformBars();
                             this.preparePlayback();
+                            this.persistWaveformMetadata();
                         });
 
                         resolve();

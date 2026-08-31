@@ -92,6 +92,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 | Page | What you'll learn |
 | --- | --- |
 | [Shared concepts](/docs/shared-concepts) | Design system, `sm` / `md` / `lg` sizing, lazy assets, playground |
+| [Flex Field Groups](/docs/flex-field-groups) | Optional migrations (`flex_field_groups`, `flex_field_schema_versions`), DB admin CRUD, `SchemaRegistry` versioning — opt-in M8 |
 | [Form layout patterns](/docs/form-layout-patterns) | Combine layout primitives into rich admin UIs |
 | [Layout components — quick comparison](/docs/layout-components-quick-comparison) | Pick the right card or tab layout |
 | [Deprecated class aliases](/docs/deprecated-class-aliases) | Legacy class names and migration paths |
@@ -106,7 +107,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Choice & selection
 
-[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [FlexChecklist](/docs/flexchecklist) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield)
+[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [ImageChoiceCards](/docs/imagechoicecards) · [FlexChecklist](/docs/flexchecklist) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield)
 
 ### Date & time
 

@@ -1,0 +1,64 @@
+/**
+ * SegmentTabs schema composition styles.
+ *
+ * Track/pill UI lives in segment-control.css and is loaded first via
+ * STYLESHEET_DEPENDENCIES before this lazy bundle.
+ */
+
+.fff-segment-tabs.fi-color-primary .fff-segment-indicator--ghost {
+    background-color: var(--color-600);
+    box-shadow: none;
+}
+
+.dark .fff-segment-tabs.fi-color-primary .fff-segment-indicator--ghost {
+    background-color: var(--color-500);
+    box-shadow: none;
+}
+
+.fff-segment-tabs {
+    @apply relative flex w-full min-w-0 max-w-full flex-col;
+}
+
+.fi-sc-component:has(> .fff-segment-tabs),
+.fi-sc:has(> .fff-segment-tabs) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.fff-segment-tabs__panel {
+    display: none;
+    @apply outline-hidden;
+}
+
+.fff-segment-tabs__panel.is-active {
+    display: block;
+    @apply mt-4;
+}
+
+.fff-translatable-fields.fff-segment-tabs {
+    @apply min-w-0 max-w-full;
+}
+
+.fff-translatable-fields .fff-segment-overflow-shell {
+    @apply mb-3;
+}
+
+.fff-translatable-fields .fff-segment-tabs__panel.is-active {
+    @apply mt-0;
+}
+
+.fff-translatable-fields .fff-segment-tabs__panel.is-active .fi-fo-field-wrp {
+    @apply mb-0;
+}
+
+.fff-translatable-fields .fff-segment-tabs__panel.is-active .fi-fo-field-wrp + .fi-fo-field-wrp {
+    @apply mt-4;
+}
+
+.fff-translatable-fields--bordered .fff-segment-tabs__panel.is-active {
+    @apply rounded-xl border border-gray-200 bg-white p-4;
+}
+
+.dark .fff-translatable-fields--bordered .fff-segment-tabs__panel.is-active {
+    @apply border-zinc-700 bg-zinc-900;
+}

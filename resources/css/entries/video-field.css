@@ -4,5 +4,6 @@
 @source "../../src/Filament/Forms/Components/VideoField.php";
 @source "../views/forms/components/video-field.blade.php";
 @source "../views/forms/components/partials/video-field-controls.blade.php";
+@source "../views/forms/components/partials/video-field-controls-compact.blade.php";
 
 @import "../components/video-field.css";

@@ -22,6 +22,8 @@ class FlexFieldAssets
 
     public const ASSET_INJECTOR_SCRIPT_ID = 'flex-field-asset-injector';
 
+    public const ASSET_INSPECTOR_SCRIPT_ID = 'flex-field-asset-inspector';
+
     public const FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-paste-extension';
 
     public const FLEX_RICH_EDITOR_BLOCK_IMAGE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-block-image-extension';
@@ -30,7 +32,23 @@ class FlexFieldAssets
 
     public const PLAYGROUND_SKELETON_DEMO_SCRIPT_ID = 'playground-skeleton-demo';
 
+    public const SEGMENT_OVERFLOW_SSR_SCRIPT_ID = 'flex-fields-segment-overflow-ssr';
+
     public const STATIC_ASSETS_PUBLIC_DIRECTORY = 'filament-flex-fields-assets';
+
+    /**
+     * Blocking SSR scripts emitted by shared Blade shells when segment overflow CSS loads.
+     *
+     * @var array<string, list<string>>
+     */
+    public const STYLESHEET_SSR_SCRIPTS = [
+        'segment-control' => [
+            self::SEGMENT_OVERFLOW_SSR_SCRIPT_ID,
+        ],
+        'segment-tabs' => [
+            self::SEGMENT_OVERFLOW_SSR_SCRIPT_ID,
+        ],
+    ];
 
     /**
      * Most common lazy bundles preloaded in <head> to reduce modal and form FOUC.
@@ -86,6 +104,7 @@ class FlexFieldAssets
         'switch',
         'item-card',
         'choice-cards',
+        'image-choice-cards',
         'rating-field',
         'color-swatch',
         'select-field',
@@ -95,10 +114,16 @@ class FlexFieldAssets
         'user-column',
         'rating-column',
         'icon-column',
+        'progress-column',
+        'status-chip-column',
+        'signature-preview-column',
+        'map-pin-column',
         'hold-confirm-action',
         'track-slider',
         'segment-control',
+        'segment-tabs',
         'nps-field',
+        'overlay-runtime',
         'teleported-menu',
     ];
 
@@ -148,17 +173,19 @@ class FlexFieldAssets
         'barcode-scanner-field' => ['flex-text-input'],
         'social-links-field' => ['flex-text-input', 'teleported-menu'],
         'schedule-field' => ['flex-text-input', 'switch', 'teleported-menu', 'timezone-field', 'flex-time-segments'],
-        'tags-field' => ['flex-text-input', 'tag-chips'],
+        'tags-field' => ['flex-text-input', 'tag-chips', 'teleported-menu', 'select-field'],
         'flex-date-time-field' => ['flex-text-input'],
         'flex-time-segments' => ['flex-text-input', 'teleported-menu'],
-        'map-picker-dropdown' => ['teleported-menu'],
-        'map-picker' => ['teleported-menu', 'map-picker-dropdown'],
+        'map-picker-dropdown' => ['teleported-menu', 'select-field'],
+        'map-picker' => ['flex-text-input', 'teleported-menu', 'map-picker-dropdown'],
         'select-field' => ['teleported-menu'],
         'nps-field' => ['segment-control'],
         'user-select' => ['teleported-menu', 'select-field', 'tag-chips', 'user-display'],
         'user-column' => ['user-display'],
         'voice-note-recorder-field' => ['emoji-picker'],
         'segment-tabs' => ['segment-control'],
+        'teleported-menu' => ['overlay-runtime'],
+        'audio-field' => ['switch'],
     ];
 
     /**
@@ -167,6 +194,10 @@ class FlexFieldAssets
      * @var array<string, string>
      */
     public const PLAYGROUND_STYLESHEET_ALIASES = [
+        'admin-columns' => 'progress-column',
+        'hold-confirm' => 'hold-confirm-action',
+        'schema-conditions' => 'flex-text-input',
+        'field-intelligence' => 'flex-text-input',
         'date-time-fields' => 'flex-date-time-field',
         'file-upload' => 'flex-file-upload',
         'verification-code' => 'flex-verification-code',
@@ -184,6 +215,7 @@ class FlexFieldAssets
     public const PLAYGROUND_EXTRA_STYLESHEETS = [
         'calculator-field' => ['calculator-panel'],
         'date-time-fields' => ['flex-time-segments'],
+        'field-intelligence' => ['number-stepper', 'select-field', 'flex-textarea', 'currency-field'],
     ];
 
     /**
@@ -216,6 +248,40 @@ class FlexFieldAssets
         $resolve($component);
 
         return $stylesheets;
+    }
+
+    /**
+     * Blocking SSR scripts required by shared Blade shells for a component.
+     *
+     * @return list<string>
+     */
+    public static function ssrScriptsFor(string $component): array
+    {
+        $component = self::resolveStylesheetComponent($component);
+        $scripts = [];
+        $visited = [];
+
+        $resolve = function (string $comp) use (&$resolve, &$scripts, &$visited): void {
+            if (isset($visited[$comp])) {
+                return;
+            }
+
+            $visited[$comp] = true;
+
+            foreach (self::STYLESHEET_DEPENDENCIES[$comp] ?? [] as $dep) {
+                $resolve($dep);
+            }
+
+            foreach (self::STYLESHEET_SSR_SCRIPTS[$comp] ?? [] as $scriptId) {
+                if (! in_array($scriptId, $scripts, true)) {
+                    $scripts[] = $scriptId;
+                }
+            }
+        };
+
+        $resolve($component);
+
+        return $scripts;
     }
 
     /**
@@ -286,6 +352,22 @@ class FlexFieldAssets
             self::stylesheetId($component),
             FilamentFlexFieldsPlugin::PACKAGE_NAME,
         );
+    }
+
+    /**
+     * Minified blocking IIFE inlined next to each overflow shell (no network round-trip).
+     */
+    public static function segmentOverflowSsrInlineContents(): string
+    {
+        return once(function (): string {
+            $path = dirname(__DIR__, 2).'/resources/dist/core/segment-overflow-ssr.js';
+
+            if (! is_readable($path)) {
+                return '';
+            }
+
+            return (string) file_get_contents($path);
+        });
     }
 
     /**
@@ -410,6 +492,31 @@ class FlexFieldAssets
         return self::playgroundStylesheetHrefForSlug(self::resolvePlaygroundSlugFromRequest());
     }
 
+    /**
+     * @return array{
+     *     lazy_stylesheets: list<string>,
+     *     stylesheet_dependencies: array<string, list<string>>,
+     *     playground_aliases: array<string, string>,
+     *     playground_extras: array<string, list<string>>,
+     *     critical_preload: list<string>,
+     * }
+     */
+    public static function exportRegistry(): array
+    {
+        return [
+            'lazy_stylesheets' => self::LAZY_COMPONENT_STYLESHEETS,
+            'stylesheet_dependencies' => self::STYLESHEET_DEPENDENCIES,
+            'playground_aliases' => self::PLAYGROUND_STYLESHEET_ALIASES,
+            'playground_extras' => self::PLAYGROUND_EXTRA_STYLESHEETS,
+            'critical_preload' => self::CRITICAL_PRELOAD_STYLESHEETS,
+        ];
+    }
+
+    public static function assetRegistryPath(): string
+    {
+        return __DIR__.'/../../resources/dist/asset-registry.json';
+    }
+
     public static function alpineManifestPath(): string
     {
         return __DIR__.'/../../resources/dist/components/alpine-manifest.json';
@@ -489,13 +596,7 @@ class FlexFieldAssets
 
     public static function overlayCoordinatorChunk(?array $manifest = null): ?string
     {
-        if ($manifest === null) {
-            $path = self::alpineManifestPath();
-
-            $manifest = is_file($path)
-                ? (json_decode((string) file_get_contents($path), true) ?: [])
-                : [];
-        }
+        $manifest ??= self::alpineManifest();
 
         foreach ($manifest['__chunk_modules__'] ?? [] as $chunk => $modules) {
             if (! is_string($chunk) || ! is_array($modules)) {
@@ -524,6 +625,19 @@ class FlexFieldAssets
             $component,
             FilamentFlexFieldsPlugin::PACKAGE_NAME,
         );
+    }
+
+    public static function whisperRuntimeModuleSrc(): string
+    {
+        return self::assetUrl('whisper/transformers.min.js');
+    }
+
+    public static function whisperRuntimeWasmBaseSrc(): string
+    {
+        $moduleSrc = self::whisperRuntimeModuleSrc();
+        $base = preg_replace('#/[^/]+$#', '/', $moduleSrc) ?? $moduleSrc;
+
+        return str_ends_with($base, '/') ? $base : "{$base}/";
     }
 
     /**

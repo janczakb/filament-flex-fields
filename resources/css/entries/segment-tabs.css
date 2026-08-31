@@ -1,0 +1,10 @@
+@import "../utilities-baseline.css";
+@import "../base.css";
+
+@source "../../src/Filament/Schemas/Components/SegmentTabs.php";
+@source "../../src/Filament/Schemas/Components/SegmentTabs/SegmentTab.php";
+@source "../views/schemas/components/segment-tabs.blade.php";
+@source "../views/schemas/components/segment-tabs/segment-tab.blade.php";
+@source "../views/components/segment-overflow-shell.blade.php";
+
+@import "../components/segment-tabs.css";

@@ -25,7 +25,7 @@ use Livewire\Attributes\Renderless;
 
 class IconPickerField extends Field
 {
-    public const int MAX_SVG_PREVIEW_BATCH = 48;
+    public const int MAX_SVG_PREVIEW_BATCH = 64;
 
     use CanBeReadOnly;
     use HasAffixes;
@@ -539,7 +539,15 @@ class IconPickerField extends Field
     #[Renderless]
     public function getIconPickerSearchResults(string $query = '', ?string $set = null, int $page = 1): array
     {
-        return $this->searchIcons($query, $set, $page);
+        $results = $this->searchIcons($query, $set, $page);
+
+        if ($this->getSearchResultsLayout() !== 'list') {
+            $results['previews'] = $this->renderIconSvgs(
+                array_column($results['icons'], 'name'),
+            );
+        }
+
+        return $results;
     }
 
     /**

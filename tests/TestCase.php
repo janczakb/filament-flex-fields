@@ -23,6 +23,10 @@ abstract class TestCase extends Orchestra
 {
     protected function setUp(): void
     {
+        if (! class_exists(\Filament\Forms\Components\SpatieMediaLibraryFileUpload::class)) {
+            require_once __DIR__.'/phpstan-bootstrap.php';
+        }
+
         parent::setUp();
 
         config()->set('cache.default', 'array');

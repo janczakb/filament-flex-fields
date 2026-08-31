@@ -1,0 +1,8 @@
+@import "../utilities-baseline.css";
+@import "../base.css";
+
+@source "../../src/Filament/Tables/Columns/ProgressColumn.php";
+@source "../views/tables/columns/progress-column.blade.php";
+
+@import "../components/progress-bar.css";
+@import "../core/tables/progress-column.css";

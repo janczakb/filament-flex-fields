@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Overlay matrix fixture</title>
+        <script type="module" src="./overlay-matrix.harness.mjs"></script>
+        <style>
+            .fff-select-dropdown-panel {
+                position: fixed;
+                inset: auto;
+                top: 4rem;
+                left: 1rem;
+                z-index: 50;
+                min-width: 12rem;
+                background: white;
+                border: 1px solid #d4d4d8;
+                border-radius: 0.5rem;
+                padding: 0.5rem;
+            }
+
+            .fff-select-dropdown-panel.is-open {
+                display: block;
+            }
+
+            .fff-modal-backdrop {
+                position: fixed;
+                inset: 0;
+                background: rgb(0 0 0 / 40%);
+                z-index: 40;
+            }
+
+            .fff-modal-panel {
+                position: fixed;
+                top: 20%;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 60;
+                background: white;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                min-width: 16rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="overlay-close-reopen" x-data="overlayMatrixField()" x-on:keydown.escape.window="close()">
+            <button type="button" id="overlay-trigger" x-on:click="toggle()" x-bind:aria-expanded="open">Open menu</button>
+
+            <template x-teleport="body">
+                <div
+                    id="overlay-panel"
+                    class="fff-select-dropdown-panel fff-teleported-menu"
+                    x-show="open"
+                    x-bind:class="{ 'is-open': open && ready, 'is-positioned': ready }"
+                >
+                    <button type="button" id="overlay-option">Option A</button>
+                </div>
+            </template>
+
+            <button type="button" id="overlay-reopen" x-on:click="reopen()">Force reopen</button>
+            <span id="overlay-reopen-count" x-text="reopenCount"></span>
+        </div>
+
+        <div id="overlay-modal-host" x-data="overlayMatrixModal()">
+            <button type="button" id="modal-open" x-on:click="openModal()">Open modal</button>
+
+            <template x-teleport="body">
+                <div id="modal-backdrop" class="fff-modal-backdrop" x-show="modalOpen" x-on:click="closeModal()"></div>
+            </template>
+
+            <template x-teleport="body">
+                <div id="modal-panel" class="fff-modal-panel" x-show="modalOpen" role="dialog">
+                    <p>Modal portal content</p>
+                    <button type="button" id="modal-close" x-on:click="closeModal()">Close</button>
+                </div>
+            </template>
+        </div>
+    </body>
+</html>

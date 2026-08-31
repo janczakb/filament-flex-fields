@@ -19,7 +19,9 @@
 >
     @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'matrix-choice-field'])
     <div
-        x-data="{
+        x-load
+        x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('matrix-choice-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+        x-data="matrixChoiceFieldFormComponent({
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             mode: @js($getMode()),
             rowKeys: {{ Js::from(array_keys($rows)) }},
@@ -29,196 +31,9 @@
             conditionalDisableRules: {{ Js::from($conditionalDisableRules) }},
             disabledColumns: {{ Js::from(collect($columns)->mapWithKeys(fn (array $column, string $key): array => [$key => $column['disabled']])->all()) }},
             disabled: @js($isDisabled),
-            normalize(value) {
-                return String(value);
-            },
-            ensureState() {
-                const next = { ...(this.state ?? {}) };
-
-                this.rowKeys.forEach((rowKey) => {
-                    if (!(rowKey in next)) {
-                        next[rowKey] = this.mode === 'checkbox' ? [] : null;
-                    }
-                });
-
-                this.state = next;
-            },
-            rowSelection(rowKey) {
-                const value = (this.state ?? {})[this.normalize(rowKey)];
-
-                if (this.mode === 'checkbox') {
-                    return Array.isArray(value)
-                        ? value.map((item) => this.normalize(item))
-                        : [];
-                }
-
-                if (value === null || value === undefined || value === '') {
-                    return null;
-                }
-
-                return this.normalize(value);
-            },
-            matchesConditionalRule(rule) {
-                const whenSelection = this.rowSelection(rule.when_row);
-                const whenColumns = (rule.when_columns ?? []).map((column) => this.normalize(column));
-
-                if (whenColumns.length === 0) {
-                    return false;
-                }
-
-                if (this.mode === 'checkbox') {
-                    return Array.isArray(whenSelection)
-                        && whenColumns.some((column) => whenSelection.includes(column));
-                }
-
-                return whenSelection !== null && whenColumns.includes(whenSelection);
-            },
-            isRowConditionallyDisabled(rowKey) {
-                const row = this.normalize(rowKey);
-
-                return this.conditionalDisableRules.some((rule) => {
-                    return rule.type === 'row'
-                        && this.normalize(rule.row) === row
-                        && this.matchesConditionalRule(rule);
-                });
-            },
-            isCellConditionallyDisabled(rowKey, columnKey) {
-                const row = this.normalize(rowKey);
-                const column = this.normalize(columnKey);
-
-                return this.conditionalDisableRules.some((rule) => {
-                    return rule.type === 'cell'
-                        && this.normalize(rule.row) === row
-                        && this.normalize(rule.column) === column
-                        && this.matchesConditionalRule(rule);
-                });
-            },
-            isRowDisabled(rowKey) {
-                return this.disabled
-                    || (this.disabledRows[this.normalize(rowKey)] ?? false)
-                    || this.isRowConditionallyDisabled(rowKey);
-            },
-            isColumnDisabled(columnKey) {
-                return this.disabledColumns[this.normalize(columnKey)] ?? false;
-            },
-            isCellDisabled(rowKey, columnKey) {
-                if (this.isRowDisabled(rowKey) || this.isColumnDisabled(columnKey)) {
-                    return true;
-                }
-
-                const cells = this.disabledCells[this.normalize(rowKey)] ?? [];
-
-                if (cells.includes(this.normalize(columnKey))) {
-                    return true;
-                }
-
-                return this.isCellConditionallyDisabled(rowKey, columnKey);
-            },
-            pruneDisabledSelections() {
-                const next = { ...(this.state ?? {}) };
-                let changed = false;
-
-                this.rowKeys.forEach((rowKey) => {
-                    const row = this.normalize(rowKey);
-
-                    if (this.isRowDisabled(row)) {
-                        const current = next[row];
-
-                        if (this.mode === 'checkbox') {
-                            if (Array.isArray(current) && current.length > 0) {
-                                next[row] = [];
-                                changed = true;
-                            }
-
-                            return;
-                        }
-
-                        if (current !== null && current !== undefined && current !== '') {
-                            next[row] = null;
-                            changed = true;
-                        }
-
-                        return;
-                    }
-
-                    if (this.mode === 'checkbox') {
-                        const current = Array.isArray(next[row]) ? [...next[row]] : [];
-                        const filtered = current.filter((columnKey) => ! this.isCellDisabled(row, columnKey));
-
-                        if (filtered.length !== current.length) {
-                            next[row] = filtered;
-                            changed = true;
-                        }
-
-                        return;
-                    }
-
-                    if (this.isCellDisabled(row, next[row])) {
-                        next[row] = null;
-                        changed = true;
-                    }
-                });
-
-                if (changed) {
-                    this.state = next;
-                }
-            },
-            isSelected(rowKey, columnKey) {
-                const row = this.normalize(rowKey);
-                const column = this.normalize(columnKey);
-                const selection = this.rowSelection(row);
-
-                if (this.mode === 'checkbox') {
-                    return Array.isArray(selection) && selection.includes(column);
-                }
-
-                return selection === column;
-            },
-            selectRadio(rowKey, columnKey) {
-                if (this.isCellDisabled(rowKey, columnKey)) {
-                    return;
-                }
-
-                this.ensureState();
-                this.state = {
-                    ...this.state,
-                    [this.normalize(rowKey)]: this.normalize(columnKey),
-                };
-            },
-            toggleCheckbox(rowKey, columnKey) {
-                if (this.isCellDisabled(rowKey, columnKey)) {
-                    return;
-                }
-
-                this.ensureState();
-
-                const row = this.normalize(rowKey);
-                const column = this.normalize(columnKey);
-                const current = Array.isArray(this.state[row]) ? [...this.state[row]] : [];
-                const index = current.indexOf(column);
-
-                if (index >= 0) {
-                    current.splice(index, 1);
-                } else {
-                    current.push(column);
-                }
-
-                this.state = {
-                    ...this.state,
-                    [row]: current,
-                };
-            },
-            interact(rowKey, columnKey) {
-                if (this.mode === 'checkbox') {
-                    this.toggleCheckbox(rowKey, columnKey);
-                } else {
-                    this.selectRadio(rowKey, columnKey);
-                }
-
-                this.pruneDisabledSelections();
-            },
-        }"
-        x-init="ensureState(); pruneDisabledSelections(); $watch('state', () => pruneDisabledSelections())"
+        })"
+        x-init="init()"
+        x-on:keydown="onMatrixKeydown($event)"
         @class([
             ...$wrapperClasses,
             'is-disabled' => $isDisabled,
@@ -261,6 +76,7 @@
             <div class="fff-matrix-choice__body">
                 @foreach ($rows as $rowKey => $row)
                     @php
+                        $rowIndex = $loop->index;
                         $initialSelection = $initialState[$rowKey] ?? ($isCheckboxMode ? [] : null);
                         $isRowInitiallyDisabled = $isDisabled || $row['disabled'];
                     @endphp
@@ -287,6 +103,7 @@
 
                         @foreach ($columns as $columnKey => $column)
                             @php
+                                $columnIndex = $loop->index;
                                 $isInitiallySelected = $isCheckboxMode
                                     ? in_array((string) $columnKey, $initialSelection, true)
                                     : $initialSelection === (string) $columnKey;
@@ -298,6 +115,8 @@
                             <div
                                 class="fff-matrix-choice__cell"
                                 role="gridcell"
+                                data-matrix-row="{{ $rowIndex }}"
+                                data-matrix-col="{{ $columnIndex }}"
                                 wire:key="{{ $statePath }}-matrix-choice-cell-{{ $rowKey }}-{{ $columnKey }}"
                                 x-bind:class="{
                                     'is-selected': isSelected(@js($rowKey), @js($columnKey)),
@@ -309,7 +128,7 @@
                                 ])
                                 x-on:click="interact(@js($rowKey), @js($columnKey))"
                                 x-on:keydown.enter.prevent="interact(@js($rowKey), @js($columnKey))"
-                                x-on:keydown.space.prevent="interact(@js($rowKey), @js($columnKey))"
+                                x-on:keydown.space="onCellSpaceKeydown($event, @js($rowKey), @js($columnKey))"
                                 tabindex="0"
                                 x-bind:aria-selected="isSelected(@js($rowKey), @js($columnKey)) ? 'true' : 'false'"
                                 x-bind:aria-disabled="isCellDisabled(@js($rowKey), @js($columnKey)) ? 'true' : null"

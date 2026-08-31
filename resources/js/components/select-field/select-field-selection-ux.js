@@ -238,9 +238,12 @@ function runAfterSelectedCheckExit(check, callback) {
             svg.removeEventListener('transitionend', onTransitionEnd)
         }
 
+        check.removeAttribute('data-check-exiting')
+
         callback()
     }
 
+    check.setAttribute('data-check-exiting', 'true')
     check.setAttribute('data-visible', 'false')
 
     svg = check.querySelector('.fff-select-option-selected-check__svg')

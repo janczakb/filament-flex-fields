@@ -323,3 +323,512 @@
 .dark .fff-audio-field__time {
     color: rgb(161 161 170);
 }
+
+.fff-audio-field.has-transcription {
+    max-width: none;
+    --fff-audio-stt-control-h: 2rem;
+    --fff-audio-stt-glass-icon: 0.875rem;
+    --fff-audio-stt-glass-bg: rgb(244 244 245);
+    --fff-audio-stt-glass-bg-hover: rgb(228 228 231);
+    --fff-audio-stt-glass-ring: rgb(212 212 216);
+    --fff-audio-stt-glass-active-bg: rgb(239 246 255);
+    --fff-audio-stt-glass-active-ring: rgb(147 197 253);
+    --fff-audio-stt-glass-active-fg: rgb(29 78 216);
+    --fff-audio-stt-ui-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fff-audio-field__shell {
+    @apply flex w-full flex-col gap-3;
+}
+
+.fff-audio-field__stt-actions {
+    @apply flex w-full flex-col gap-3;
+}
+
+.fff-audio-field__stt-toolbar {
+    @apply flex w-full items-center gap-1.5;
+    min-height: var(--fff-audio-stt-control-h);
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__settings {
+    @apply relative ml-auto inline-flex shrink-0;
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn {
+    position: relative;
+    display: inline-flex;
+    width: var(--fff-audio-stt-control-h);
+    height: var(--fff-audio-stt-control-h);
+    min-width: var(--fff-audio-stt-control-h);
+    min-height: var(--fff-audio-stt-control-h);
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 100%;
+    background-color: var(--fff-audio-stt-glass-bg);
+    box-shadow: 0 0 0 1px var(--fff-audio-stt-glass-ring);
+    color: rgb(39 39 42);
+    outline: none;
+    transition:
+        background-color 220ms var(--fff-audio-stt-ui-ease),
+        transform 220ms var(--fff-audio-stt-ui-ease),
+        box-shadow 220ms var(--fff-audio-stt-ui-ease),
+        color 220ms var(--fff-audio-stt-ui-ease);
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn > * {
+    position: relative;
+    z-index: 1;
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn svg,
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn .fi-icon {
+    width: var(--fff-audio-stt-glass-icon);
+    height: var(--fff-audio-stt-glass-icon);
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn:hover {
+    background-color: var(--fff-audio-stt-glass-bg-hover);
+    color: rgb(24 24 27);
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn:active {
+    transform: scale(0.96);
+}
+
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn.is-active,
+.fff-audio-field__stt-toolbar .fff-video-field__glass-btn[aria-expanded='true'] {
+    background-color: var(--fff-audio-stt-glass-active-bg);
+    box-shadow: 0 0 0 1px var(--fff-audio-stt-glass-active-ring);
+    color: var(--fff-audio-stt-glass-active-fg);
+}
+
+@property --fff-video-field-menu-width {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 16rem;
+}
+
+@property --fff-video-field-menu-height {
+    syntax: '<length>';
+    inherits: false;
+    initial-value: 0px;
+}
+
+.fff-audio-field__settings-menu[hidden] {
+    display: none !important;
+}
+
+.fff-audio-field__settings-menu {
+    --fff-settings-menu-transition-duration: 250ms;
+    --fff-settings-menu-popup-transition-duration: 220ms;
+    --fff-settings-menu-popup-translate-distance: 0.375rem;
+    --fff-settings-menu-popup-transition:
+        opacity var(--fff-settings-menu-popup-transition-duration) ease-in-out,
+        filter var(--fff-settings-menu-popup-transition-duration) ease-in-out,
+        transform var(--fff-settings-menu-popup-transition-duration) ease-in-out;
+    --fff-settings-menu-radius: 0.75rem;
+    --fff-settings-menu-padding: 0.25rem;
+    --fff-settings-menu-item-radius: calc(var(--fff-settings-menu-radius) - var(--fff-settings-menu-padding));
+
+    @apply absolute z-50 min-w-[16rem] max-w-[20rem];
+    left: auto;
+    right: 0;
+    top: calc(100% + var(--fff-settings-menu-popup-translate-distance));
+    bottom: auto;
+    box-sizing: border-box;
+    margin: 0;
+    width: var(--fff-video-field-menu-width, 16rem);
+    height: var(--fff-video-field-menu-height, auto);
+    max-height: min(28rem, var(--fff-video-field-menu-max-height, 28rem));
+    padding: 0;
+    overflow: hidden;
+    overscroll-behavior: contain;
+    border: 1px solid rgb(228 228 231);
+    border-radius: var(--fff-settings-menu-radius);
+    background: rgb(255 255 255);
+    color: rgb(24 24 27);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.08),
+        0 4px 6px -4px rgb(0 0 0 / 0.08);
+    opacity: 1;
+    filter: none;
+    transform: translateY(0) scale(1);
+    translate: none;
+    scale: none;
+    transform-origin: top right;
+    transition:
+        var(--fff-settings-menu-popup-transition),
+        width var(--fff-settings-menu-transition-duration) ease,
+        height var(--fff-settings-menu-transition-duration) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-audio-field__settings-menu {
+        --fff-settings-menu-transition-duration: 0ms;
+        --fff-settings-menu-popup-transition-duration: 0ms;
+    }
+
+    .fff-audio-field__settings-panel {
+        transition-duration: 0ms;
+    }
+}
+
+.fff-audio-field__settings-menu[data-starting-style] {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(var(--fff-settings-menu-popup-translate-distance)) scale(0.98);
+    translate: none !important;
+    scale: none !important;
+    transition: var(--fff-settings-menu-popup-transition) !important;
+}
+
+.fff-audio-field__settings-menu[data-ending-style] {
+    opacity: 0;
+    filter: none;
+    transform: none !important;
+    translate: none !important;
+    scale: none !important;
+    pointer-events: none;
+    transition: opacity var(--fff-settings-menu-popup-transition-duration) ease-out !important;
+}
+
+.fff-audio-field__settings-menu[data-ending-style] .fff-audio-field__settings-panel {
+    transition: none !important;
+    translate: 0 0 !important;
+    filter: none !important;
+}
+
+.fff-audio-field__settings-panel--flat {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 1rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    max-height: min(26rem, var(--fff-video-field-menu-max-height, 26rem));
+    translate: none !important;
+    filter: none !important;
+    will-change: auto;
+}
+
+.fff-audio-field__settings-title {
+    @apply m-0 text-base font-semibold;
+    color: rgb(24 24 27);
+}
+
+.fff-audio-field__settings-field {
+    @apply flex w-full flex-col gap-1.5;
+}
+
+.fff-audio-field__settings-field-label {
+    @apply text-sm;
+    color: rgb(113 113 122);
+}
+
+.fff-audio-field__settings-select {
+    @apply w-full rounded-lg border px-3 py-2 text-sm outline-none transition;
+    border-color: rgb(212 212 216);
+    background: rgb(249 250 251);
+    color: rgb(24 24 27);
+}
+
+.fff-audio-field__settings-select:focus {
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+}
+
+.fff-audio-field__settings-toggle-row {
+    @apply grid grid-cols-2 gap-3;
+}
+
+.fff-audio-field__settings-multilingual {
+    @apply flex flex-col gap-3;
+}
+
+.fff-audio-field__settings-footer {
+    @apply flex justify-end pt-1;
+}
+
+.fff-audio-field__settings-close {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium outline-none transition;
+    border: 0;
+    background: rgb(239 246 255);
+    color: rgb(29 78 216);
+}
+
+.fff-audio-field__settings-close:hover {
+    background: rgb(219 234 254);
+}
+
+.fff-audio-field__settings-viewport {
+    @apply absolute inset-0 z-[1] overflow-hidden;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    contain: layout style paint;
+}
+
+.fff-audio-field__settings-panel {
+    position: absolute;
+    inset: 0;
+    padding: var(--fff-settings-menu-padding);
+    overscroll-behavior: none;
+    outline: none;
+    translate: 0 0;
+    transition-timing-function: ease-in-out;
+    transition-duration: var(--fff-settings-menu-transition-duration);
+    transition-property: translate, filter;
+    will-change: translate, filter;
+}
+
+.fff-audio-field__settings-panel[data-menu-root-view] {
+    overflow: hidden;
+}
+
+.fff-audio-field__settings-panel[data-submenu] {
+    z-index: 10;
+    overflow: hidden;
+    overscroll-behavior: none;
+}
+
+.fff-audio-field__settings-menu[data-scrollable] .fff-audio-field__settings-panel[data-submenu][data-open] {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.fff-audio-field__settings-panel[data-starting-style],
+.fff-audio-field__settings-panel[data-ending-style] {
+    overflow: hidden;
+}
+
+.fff-audio-field__settings-panel[data-menu-root-view][data-menu-view-state="inactive"] {
+    filter: blur(4px);
+    translate: -100% 0;
+    pointer-events: none;
+}
+
+.fff-audio-field__settings-panel[data-submenu]:not([data-open], [data-ending-style]) {
+    translate: -100% 0;
+    transition-property: none;
+}
+
+.fff-audio-field__settings-panel[data-submenu][data-open] {
+    visibility: visible;
+}
+
+.fff-audio-field__settings-panel[data-submenu][data-starting-style],
+.fff-audio-field__settings-panel[data-submenu][data-ending-style] {
+    pointer-events: none;
+    filter: blur(4px);
+}
+
+.fff-audio-field__settings-panel[data-submenu][data-starting-style][data-direction="forward"],
+.fff-audio-field__settings-panel[data-submenu][data-ending-style][data-direction="back"] {
+    translate: 100% 0;
+}
+
+.fff-audio-field__settings-panel[data-submenu][data-ending-style][data-direction="forward"],
+.fff-audio-field__settings-panel[data-submenu][data-starting-style][data-direction="back"] {
+    translate: -100% 0;
+}
+
+.fff-audio-field__settings-group {
+    @apply relative flex flex-col;
+    gap: 0.125rem;
+}
+
+.fff-audio-field__settings-item,
+.fff-audio-field__settings-back {
+    @apply relative z-[1] flex w-full items-center gap-1.5 rounded-lg px-2 py-1.5 text-left text-sm outline-none transition;
+    color: rgb(39 39 42);
+    user-select: none;
+}
+
+.fff-audio-field__settings-item:hover:not(:disabled),
+.fff-audio-field__settings-back:hover {
+    background: rgb(244 244 245);
+}
+
+.fff-audio-field__settings-item:disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.fff-audio-field__settings-item--submenu {
+    @apply justify-between;
+}
+
+.fff-audio-field__settings-item--switch {
+    @apply justify-between gap-3;
+}
+
+.fff-audio-field__settings-item-label {
+    @apply min-w-0 flex-1;
+}
+
+.fff-audio-field__settings-item-hint {
+    @apply ml-auto inline-flex min-w-0 items-center gap-1 pl-1 text-xs;
+    color: rgb(113 113 122);
+}
+
+.fff-audio-field__settings-item-hint-label {
+    @apply truncate;
+    max-width: 7rem;
+}
+
+.fff-audio-field__settings-item-chevron {
+    @apply inline-flex shrink-0 opacity-70;
+}
+
+.fff-audio-field__settings-item-chevron--back {
+    @apply -ml-0.5;
+}
+
+.fff-audio-field__settings-item-indicator {
+    @apply ml-auto inline-flex shrink-0;
+    color: rgb(37 99 235);
+}
+
+.fff-audio-field__settings-back {
+    @apply font-medium;
+    color: rgb(63 63 70);
+}
+
+.fff-audio-field__settings-separator {
+    @apply my-1 h-px;
+    background: rgb(228 228 231);
+}
+
+.fff-audio-field__stt-button {
+    @apply inline-flex shrink-0 items-center justify-center rounded-full px-3 text-xs font-medium outline-none transition;
+    height: var(--fff-audio-stt-control-h);
+    min-height: var(--fff-audio-stt-control-h);
+    border: 1px solid rgb(191 219 254);
+    background: rgb(239 246 255);
+    color: rgb(29 78 216);
+}
+
+.fff-audio-field__stt-button:hover:not(:disabled) {
+    background: rgb(219 234 254);
+}
+
+.fff-audio-field__stt-button:disabled {
+    @apply cursor-not-allowed opacity-50;
+}
+
+.fff-audio-field__stt-status {
+    @apply m-0 text-sm;
+    color: rgb(82 82 91);
+}
+
+.fff-audio-field__stt-status.is-error {
+    color: rgb(185 28 28);
+}
+
+.fff-audio-field__transcript {
+    @apply rounded-xl border p-3;
+    border-color: rgb(228 228 231);
+    background: rgb(250 250 250);
+}
+
+.fff-audio-field__transcript-text {
+    @apply m-0 whitespace-pre-wrap break-words text-sm leading-relaxed;
+    color: rgb(24 24 27);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+.dark .fff-audio-field.has-transcription {
+    --fff-audio-stt-glass-bg: rgb(39 39 42);
+    --fff-audio-stt-glass-bg-hover: rgb(63 63 70);
+    --fff-audio-stt-glass-ring: rgb(82 82 91);
+    --fff-audio-stt-glass-active-bg: rgb(30 58 138 / 0.35);
+    --fff-audio-stt-glass-active-ring: rgb(59 130 246 / 0.45);
+    --fff-audio-stt-glass-active-fg: rgb(191 219 254);
+}
+
+.dark .fff-audio-field__stt-toolbar .fff-video-field__glass-btn {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-audio-field__stt-toolbar .fff-video-field__glass-btn:hover {
+    color: rgb(250 250 250);
+}
+
+.dark .fff-audio-field__settings-menu {
+    border-color: rgb(63 63 70);
+    background: rgb(24 24 27);
+    color: rgb(244 244 245);
+    box-shadow:
+        0 10px 15px -3px rgb(0 0 0 / 0.35),
+        0 4px 6px -4px rgb(0 0 0 / 0.35);
+}
+
+.dark .fff-audio-field__settings-title {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-audio-field__settings-field-label {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-audio-field__settings-select {
+    border-color: rgb(63 63 70);
+    background: rgb(39 39 42);
+    color: rgb(244 244 245);
+}
+
+.dark .fff-audio-field__settings-close {
+    background: rgb(30 58 138 / 0.35);
+    color: rgb(191 219 254);
+}
+
+.dark .fff-audio-field__settings-close:hover {
+    background: rgb(30 58 138 / 0.5);
+}
+
+.dark .fff-audio-field__settings-item,
+.dark .fff-audio-field__settings-back {
+    color: rgb(244 244 245);
+}
+
+.dark .fff-audio-field__settings-item:hover:not(:disabled),
+.dark .fff-audio-field__settings-back:hover {
+    background: rgb(39 39 42);
+}
+
+.dark .fff-audio-field__settings-item-hint {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-audio-field__settings-separator {
+    background: rgb(63 63 70);
+}
+
+.dark .fff-audio-field__stt-button {
+    border-color: rgb(59 130 246 / 0.35);
+    background: rgb(30 58 138 / 0.35);
+    color: rgb(191 219 254);
+}
+
+.dark .fff-audio-field__stt-button:hover:not(:disabled) {
+    background: rgb(30 58 138 / 0.5);
+}
+
+.dark .fff-audio-field__stt-status {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-audio-field__transcript {
+    border-color: rgb(63 63 70);
+    background: rgb(39 39 42);
+}
+
+.dark .fff-audio-field__transcript-text {
+    color: rgb(244 244 245);
+}

@@ -5,3 +5,4 @@
 @source "../views/forms/components/audio-field.blade.php";
 
 @import "../components/audio-field.css";
+@import "../core/switch.css";

@@ -1,0 +1,29 @@
+/* ProgressColumn (tables) */
+.fff-progress-column {
+    @apply inline-grid w-full max-w-xs gap-1;
+    min-height: auto;
+}
+
+.fff-progress-column__header {
+    @apply flex items-baseline justify-between gap-2;
+}
+
+.fff-progress-column__label {
+    @apply truncate text-xs font-medium text-gray-600 dark:text-gray-300;
+}
+
+.fff-progress-column__value {
+    @apply shrink-0 text-xs font-semibold tabular-nums text-gray-500 dark:text-gray-400;
+}
+
+.fff-progress-column .fff-progress-bar__track {
+    @apply w-full;
+}
+
+.fff-progress-column--sm {
+    @apply max-w-[8rem];
+}
+
+.fff-progress-column--lg {
+    @apply max-w-sm;
+}

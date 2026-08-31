@@ -5,7 +5,43 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.0.0] - 2026-09-01
+
+Flex Fields **3.0** is a major release: manage custom fields from the admin panel, a faster form experience, and enterprise-ready uploads and signatures.
+
+### New
+
+- **Field groups in Filament** — create and edit dynamic field sets for your models without hand-editing JSON. Pick the target model, field type, labels, visibility rules, and per-type options from visual controls. Optional database storage and version history when migrations are enabled ([Flex Field Groups](docs/flex-field-groups.md)).
+- **Complete per-type settings** — every supported field type exposes its options in the field-group editor (toggles, selects, option lists, matrix rows and columns). No raw config JSON for everyday setup.
+- **Calculated fields** — formulas that update other fields automatically (totals, margins, progress, currency-aware math). Invalid or circular formulas are blocked before save.
+- **Conditional fields** — show, hide, or require fields based on values elsewhere in the form.
+- **Ready-made schema blueprints** — starter packs for CRM, HR, booking, inventory, support, and onboarding.
+- **Image choice cards** — users pick from image cards (single or multiple choice) with layout, sizing, and selection limits.
+- **Redesigned SelectField** — built for large lists and daily use: instant search, inline typing in the trigger, grouped options, disabled choices, paginated remote results, custom option layouts, recent and suggested values, inline create-new-option, and @-mentions for linked records. Multi-select chips wrap cleanly on small screens.
+- **Mobile-friendly pickers** — country, phone, timezone, currency, address, tags, and similar fields open as bottom sheets on phones and tablets, with consistent keyboard support.
+- **Schedule and date/time** — weekly schedules with overnight slots, copy-to-weekdays, overlap validation, locale-aware calendars, and blocked dates.
+- **Secure media and signatures** — optional virus scanning and quarantine for uploads; Spatie Media Library integration; voice-note and barcode capture metadata; credit-card fields that never store full card numbers when tokenization is required; signature fields with legal timestamp seals, audit metadata, ink validation, and optional download (SVG or WebP).
+- **Translatable fields** — improved locale tabs for many languages, correct text direction per locale on the input, and smoother RTL behaviour.
+- **Rich admin columns** — table columns for progress, status chips, signature previews, and map pins, sized to match your panel density.
+- **Upgrade guide** — [v2 to v3 migration notes](docs/upgrade-v2-to-v3.md) for teams moving from Flex Fields 2.x.
+
+### Improved
+
+- **CurrencyField** — clearer amount display, stable caret while typing, and more natural decimal entry.
+- **NumberStepper and PriceRangeField** — snappier number animations; price range sliders and inputs respect your chosen corner radius and large size tokens.
+- **Formula-driven forms** — calculated values refresh reliably across related fields in the same form.
+- **Global density** — compact, comfortable, and spacious panel density scales control heights consistently across fields.
+- **Fresh installs** — v3 behaviour (modern select engine, formulas, enterprise media defaults) is enabled out of the box; run `php artisan fff:v3:upgrade` when upgrading an existing app.
+
+### Fixed
+
+- **SignatureField** — legal signature packs save correctly with timestamp metadata; validation requires visible ink before accepting a seal.
+- **SelectField** — large option lists load quickly; clearing a selection no longer restores the old value; inline search and RTL layouts behave predictably on first load and after Livewire updates.
+- **Date and time fields** — no flash of empty segments while the form loads; timezone labels appear immediately.
+- **Translatable and slug fields** — long locale tab bars scroll smoothly without breaking layout; fused title/slug locale tabs align correctly.
+- **Text inputs** — caret stays at the end of prefilled values after autofocus.
+- **PriceRangeField** — focus ring and sizing match other large inputs; histogram and inputs follow your rounding settings.
+- **Segment controls** — overflow tabs position correctly on first paint and inside modals.
 
 ## [2.9.9] - 2026-08-26
 

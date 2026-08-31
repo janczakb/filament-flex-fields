@@ -1,4 +1,12 @@
 import {
+    copyDay,
+    expandIntervals,
+    segmentsOverlap,
+    slotIsOvernight,
+    slotsOverlap as engineSlotsOverlap,
+    validateNoOverlap,
+} from '../core/date-time/interval-engine.js'
+import {
     isValidTime as coreIsValidTime,
     normalizeTime as coreNormalizeTime,
     timeToMinutes as coreTimeToMinutes,
@@ -11,6 +19,8 @@ export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri']
 export const SLOT_TYPE_SLOT = 'slot'
 
 export const SLOT_TYPE_BREAK = 'break'
+
+export { copyDay, validateNoOverlap, slotIsOvernight }
 
 export function normalizeTime(value) {
     return coreNormalizeTime(value)
@@ -34,32 +44,22 @@ export function isValidSlot(slot) {
         return false
     }
 
+    if (slotIsOvernight(slot)) {
+        return true
+    }
+
     return timeToMinutes(from) < timeToMinutes(to)
 }
 
 /**
- * @param {Array<{from: string, to: string}>} slots
+ * @param {Array<{from: string, to: string, overnight?: boolean}>} slots
  */
 export function slotsOverlap(slots) {
-    const normalized = slots
-        .map((slot) => ({
-            from: normalizeTime(slot.from),
-            to: normalizeTime(slot.to),
-        }))
-        .filter((slot) => slot.from && slot.to)
-        .sort((left, right) => timeToMinutes(left.from) - timeToMinutes(right.from))
-
-    for (let index = 1; index < normalized.length; index += 1) {
-        if (timeToMinutes(normalized[index].from) < timeToMinutes(normalized[index - 1].to)) {
-            return true
-        }
-    }
-
-    return false
+    return engineSlotsOverlap(slots)
 }
 
 /**
- * @param {Array<{from: string, to: string}>} slots
+ * @param {Array<{from: string, to: string, overnight?: boolean}>} slots
  */
 export function validateDaySlots(slots, {
     minSlots = 1,
@@ -70,11 +70,12 @@ export function validateDaySlots(slots, {
         .map((slot) => ({
             from: normalizeTime(slot?.from),
             to: normalizeTime(slot?.to),
+            overnight: Boolean(slot?.overnight),
         }))
         .filter((slot) => slot.from && slot.to)
 
     for (const slot of normalized) {
-        if (timeToMinutes(slot.from) >= timeToMinutes(slot.to)) {
+        if (! slotIsOvernight(slot) && timeToMinutes(slot.from) >= timeToMinutes(slot.to)) {
             return 'from_before_to'
         }
     }
@@ -95,13 +96,14 @@ export function validateDaySlots(slots, {
 }
 
 /**
- * @param {Array<{from: string, to: string}>} slots
+ * @param {Array<{from: string, to: string, overnight?: boolean}>} slots
  */
 export function slotOverlapsAtIndex(slots, slotIndex) {
     const normalized = slots
         .map((slot) => ({
             from: normalizeTime(slot?.from),
             to: normalizeTime(slot?.to),
+            overnight: Boolean(slot?.overnight),
         }))
         .filter((slot) => slot.from && slot.to)
 
@@ -111,19 +113,14 @@ export function slotOverlapsAtIndex(slots, slotIndex) {
         return false
     }
 
-    const targetFrom = timeToMinutes(target.from)
-    const targetTo = timeToMinutes(target.to)
+    const targetSegments = expandIntervals([target])
 
     for (let index = 0; index < normalized.length; index += 1) {
         if (index === slotIndex) {
             continue
         }
 
-        const other = normalized[index]
-        const otherFrom = timeToMinutes(other.from)
-        const otherTo = timeToMinutes(other.to)
-
-        if (otherFrom < targetTo && targetFrom < otherTo) {
+        if (segmentsOverlap(targetSegments, expandIntervals([normalized[index]]))) {
             return true
         }
     }
@@ -137,6 +134,10 @@ export function slotHasInvalidRange(slot) {
 
     if (! from || ! to) {
         return true
+    }
+
+    if (slotIsOvernight(slot)) {
+        return false
     }
 
     return timeToMinutes(from) >= timeToMinutes(to)
@@ -242,6 +243,7 @@ export function normalizeScheduleState(state, days = ALL_DAYS, defaultTimezone =
                     from: normalizeTime(slot?.from) ?? '',
                     to: normalizeTime(slot?.to) ?? '',
                     type: resolveSlotType(slot),
+                    ...(Boolean(slot?.overnight) ? { overnight: true } : {}),
                 }))
                 .filter((slot) => slot.from !== '' && slot.to !== '')
             : []

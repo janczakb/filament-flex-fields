@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie;
 
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexSpatieMediaLibraryEnterpriseHooks;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithFlexFileUpload;
 use Closure;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -17,6 +18,7 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
  */
 class FlexSpatieMediaLibraryFileUpload extends SpatieMediaLibraryFileUpload
 {
+    use FlexSpatieMediaLibraryEnterpriseHooks;
     use HasControlSize;
     use HasFieldFocusOutline;
     use InteractsWithFlexFileUpload;
@@ -27,7 +29,7 @@ class FlexSpatieMediaLibraryFileUpload extends SpatieMediaLibraryFileUpload
     {
         parent::setUp();
 
-        $this->registerFlexFileUploadHooks();
+        $this->registerFlexSpatieMediaLibraryEnterpriseHooks();
     }
 
     public function withRecommendedDefaults(): static

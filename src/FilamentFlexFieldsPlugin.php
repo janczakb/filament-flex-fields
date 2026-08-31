@@ -10,10 +10,15 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields;
 
+use Bjanczak\FilamentFlexFields\Enums\Density;
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundCluster;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupResourceRegistrar;
+use Bjanczak\FilamentFlexFields\Support\Theme\FlexFieldsTheme;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Filament\Support\Facades\FilamentView;
+use Filament\View\PanelsRenderHook;
 
 class FilamentFlexFieldsPlugin implements Plugin
 {
@@ -28,6 +33,15 @@ class FilamentFlexFieldsPlugin implements Plugin
     protected ?string $navigationLabel = null;
 
     protected ?string $navigationIcon = null;
+
+    protected Density|string|null $density = null;
+
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $theme = null;
+
+    protected static bool $themeRenderHookRegistered = false;
 
     public static function make(): static
     {
@@ -59,11 +73,51 @@ class FilamentFlexFieldsPlugin implements Plugin
                 ...FlexFieldsPlaygroundRegistry::pageConfigurations(),
             ]);
         }
+
+        FlexFieldGroupResourceRegistrar::register($panel);
     }
 
     public function boot(Panel $panel): void
     {
-        //
+        if (! config('filament-flex-fields.enabled', true)) {
+            return;
+        }
+
+        $flexFieldsTheme = app(FlexFieldsTheme::class);
+
+        if ($this->density !== null) {
+            $flexFieldsTheme->setDensity($this->density);
+        }
+
+        if ($this->theme !== null) {
+            $flexFieldsTheme->mergeTheme($this->theme);
+        }
+
+        if (! static::$themeRenderHookRegistered) {
+            FilamentView::registerRenderHook(
+                PanelsRenderHook::HEAD_START,
+                fn (): string => view('filament-flex-fields::partials.flex-fields-theme')->render(),
+            );
+
+            static::$themeRenderHookRegistered = true;
+        }
+    }
+
+    public function density(Density|string $density): static
+    {
+        $this->density = $density;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<string, mixed>  $theme
+     */
+    public function theme(array $theme): static
+    {
+        $this->theme = $theme;
+
+        return $this;
     }
 
     public function navigationGroup(?string $group): static

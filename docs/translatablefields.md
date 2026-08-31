@@ -100,7 +100,7 @@ Third-party preset method names are also aliased on the component:
 
 | Preferred method | Migration alias |
 |------------------|-----------------|
-| `directionByLocale()` | `addDirectionByLocale()` |
+| `directionByLocale(TranslatableDirectionScope $scope = Auto)` | `addDirectionByLocale()` |
 | `emptyBadgeWhenAllFieldsAreEmpty()` | `addEmptyBadgeWhenAllFieldsAreEmpty()` |
 | `activeTabWithValue()` | `addSetActiveTabThatHasValue()` |
 
@@ -218,9 +218,9 @@ TranslatableFields::make('Article')
     ]);
 ```
 
-#### `directionByLocale()`
+#### `directionByLocale(TranslatableDirectionScope $scope = TranslatableDirectionScope::Auto)`
 
-Sets `dir="rtl"` on fields for RTL locales. Default list from config:
+Sets `dir="rtl"` or `dir="ltr"` per locale tab. Default list from config:
 
 ```php
 'translatable' => [
@@ -228,7 +228,19 @@ Sets `dir="rtl"` on fields for RTL locales. Default list from config:
 ],
 ```
 
-Locales starting with `ar` (e.g. `ar-SA`) are also treated as RTL.
+Locales such as `ar-SA` or `he_IL` match by **primary language subtag** (BCP 47).
+
+By default (`Auto`), direction is applied to the **editable control** (`extraInputAttributes()`) when the field supports Filament's `HasExtraInputAttributes` — labels and helper text keep the panel direction. Fields without a native input (custom layouts) still receive `dir` on the field wrapper so nothing breaks.
+
+```php
+use Bjanczak\FilamentFlexFields\Enums\TranslatableDirectionScope;
+
+TranslatableFields::make('Content')
+    ->directionByLocale(); // Auto — input when supported
+
+TranslatableFields::make('Content')
+    ->directionByLocale(TranslatableDirectionScope::Field); // legacy wrapper behavior
+```
 
 #### `emptyBadgeWhenAllFieldsAreEmpty(?string $emptyLabel = null)`
 
@@ -491,7 +503,7 @@ TranslatableFields::make('field_name')
     ->modifyTabsUsing(true)
     ->modifyFieldsUsing(true);
 ```
-#### `directionByLocale()` / `emptyBadgeWhenAllFieldsAreEmpty(?string $emptyLabel = null)` / `activeTabWithValue()` / `withRecommendedDefaults(?string $emptyBadgeLabel = null)` / `borderedPanels(bool $condition = true)`
+#### `directionByLocale(TranslatableDirectionScope $scope = Auto)` / `emptyBadgeWhenAllFieldsAreEmpty(?string $emptyLabel = null)` / `activeTabWithValue()` / `withRecommendedDefaults(?string $emptyBadgeLabel = null)` / `borderedPanels(bool $condition = true)`
 
 
 See [Production presets](#production-presets).
@@ -584,7 +596,7 @@ Component concerns (under `TranslatableFields/Concerns/`):
 | `ConfiguresTranslatableLocales` | `locales()`, `localesLabels()`, `getLocales()` |
 | `CustomizesTranslatableComponents` | `schema()`, `modifyTabsUsing()`, `modifyFieldsUsing()`, `spatieTranslatable()`, `localeFieldUsing()`, `storageAttributeUsing()` |
 | `BuildsTranslatableTabs` | `buildTranslatableTabs()`, child-schema modifier application |
-| `ProvidesTranslatablePresets` | `directionByLocale()`, `emptyBadgeWhenAllFieldsAreEmpty()`, `activeTabWithValue()`, `withRecommendedDefaults()`, `borderedPanels()` |
+| `ProvidesTranslatablePresets` | `directionByLocale(TranslatableDirectionScope)`, `emptyBadgeWhenAllFieldsAreEmpty()`, `activeTabWithValue()`, `withRecommendedDefaults()`, `borderedPanels()` |
 | `HasTranslatableMigrationAliases` | `addDirectionByLocale()`, `addEmptyBadgeWhenAllFieldsAreEmpty()`, `addSetActiveTabThatHasValue()` |
 
 ### Relationship to TitleSlugField

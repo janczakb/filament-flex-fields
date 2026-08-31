@@ -5,12 +5,25 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\Playground;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SignatureField;
+use Bjanczak\FilamentFlexFields\Support\Media\SignatureLegalPack;
+use Bjanczak\FilamentFlexFields\Support\Playground\Contracts\PlaygroundWithPersistence;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 
-class SignatureFieldPlayground
+class SignatureFieldPlayground implements PlaygroundWithPersistence
 {
+    private static function readonlyPreviewSignature(): string
+    {
+        $path = dirname(__DIR__, 3).'/resources/fixtures/signature-readonly-preview.svg';
+
+        if (! is_readable($path)) {
+            throw new \RuntimeException("Missing signature readonly fixture at [{$path}].");
+        }
+
+        return trim((string) file_get_contents($path));
+    }
+
     /**
      * @return array<string, mixed>
      */
@@ -18,8 +31,27 @@ class SignatureFieldPlayground
     {
         return [
             'signature__contract' => null,
+            'signature__enterprise' => null,
+            'signature__enterprise_legal' => null,
+            'signature__validation' => null,
             'signature__webp' => null,
-            'signature__readonly' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 320"><path d="M120,180 Q180,140 260,200 Q340,120 420,190" fill="none" stroke="#18181b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+            'signature__readonly' => self::readonlyPreviewSignature(),
+        ];
+    }
+
+    public function playgroundSlug(): string
+    {
+        return 'signature-field';
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function persistedStateKeys(): ?array
+    {
+        return [
+            'signature__contract',
+            'signature__enterprise',
         ];
     }
 
@@ -54,6 +86,46 @@ class SignatureFieldPlayground
                                 ->readOnly(),
                         ]),
                 ]),
+            Section::make('Enterprise persistence')
+                ->description('Use Validate, then Save to storage. Inline SVG is written to disk as an ffstage: token and reloaded after refresh. SignatureLegalPack::requiresInk() gates empty submissions.')
+                ->extraAttributes(['class' => 'fff-playground-section'])
+                ->schema([
+                    SignatureField::make('signature__enterprise')
+                        ->label('Contract signature (disk)')
+                        ->helperText('Requires at least 2 strokes. Saved state survives page reload via playground storage + disk token.')
+                        ->storeToDisk('flex-fields-playground/signatures')
+                        ->legalPack()
+                        ->timestampSeal()
+                        ->legalMetadataIn('signature__enterprise_legal')
+                        ->inkTrail()
+                        ->pdfPreview()
+                        ->minStrokes(2)
+                        ->maxSizeKb(64)
+                        ->required()
+                        ->downloadable(SignatureField::DOWNLOAD_SVG)
+                        ->downloadFilename('enterprise-contract')
+                        ->columnSpanFull(),
+                    SignatureField::make('signature__validation')
+                        ->label('Stroke validation demo')
+                        ->helperText('Try Validate with a single stroke — minStrokes(2) fails server-side and shows inline feedback.')
+                        ->minStrokes(2)
+                        ->guidelines(),
+                ]),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $state
+     * @return array<string, mixed>
+     */
+    public function sealPersistedState(array $state): array
+    {
+        if (! SignatureLegalPack::requiresInk($state['signature__enterprise'] ?? null)) {
+            return $state;
+        }
+
+        $state['_meta'] = SignatureLegalPack::legalAuditSeal($state['signature__enterprise'] ?? null);
+
+        return $state;
     }
 }

@@ -89,7 +89,11 @@
         <x-filament-flex-fields::lazy-alpine-mount
             :eager="$hasInitialSelection"
             :mount-immediately="$isDisabled || $isReadOnly || $hasInitialSelection"
+            :wrap-slot="false"
         >
+        <div class="fi-select-input fff-icon-picker-shell">
+            @include('filament-flex-fields::forms.components.partials.icon-picker-trigger-ssr')
+
         <div
             x-load
             x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('icon-picker-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
@@ -120,7 +124,6 @@
             x-on:click.outside="if ($refs.pickerPanel?.contains($event.target)) { return }; closePanel()"
             x-on:keydown.escape.window="closePanel()"
             @class([
-                'fi-select-input',
                 'fff-icon-picker',
                 'fff-icon-picker--layout-'.$layout,
             ])
@@ -156,10 +159,9 @@
                         >
                             <span
                                 class="fff-icon-picker__preview"
-                                data-ssr-visible="{{ $hasInitialSelection ? 'true' : 'false' }}"
-                                x-bind:hidden="triggerHydrated && ! state"
+                                x-bind:hidden="! state"
                                 x-html="selectedHtml"
-                            >@if (filled($initialSelectedHtml)){!! $initialSelectedHtml !!}@endif</span>
+                            ></span>
                             <span
                                 class="fff-icon-picker__name"
                                 x-text="state || placeholder"
@@ -187,9 +189,12 @@
                     x-ref="pickerPanel"
                     @class([
                         'fff-icon-picker__panel',
+                        'fff-select-headless-menu',
                         'fi-dropdown-panel',
                         'fff-select-dropdown-panel',
                         'fff-teleported-menu',
+                        'fff-select-dropdown-panel--below',
+                        'fff-select-dropdown-panel--dropdown-fixed',
                         'fi-color-primary',
                         'fff-select-dropdown-panel--'.$field->getSize(),
                         'fff-select-dropdown-panel--layout-grid' => $isGridLayout,
@@ -205,6 +210,7 @@
                     @include('filament-flex-fields::forms.components.partials.icon-picker-browser')
                 </div>
             </template>
+        </div>
         </div>
         </x-filament-flex-fields::lazy-alpine-mount>
         </div>

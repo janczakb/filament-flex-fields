@@ -26,8 +26,12 @@ const CSS_ONLY_STYLESHEETS = [
     'user-column',
     'rating-column',
     'icon-column',
+    'progress-column',
+    'status-chip-column',
+    'signature-preview-column',
+    'map-pin-column',
     'map-picker-dropdown',
-    'matrix-choice-field',
+    'overlay-runtime',
 ];
 
 /**
@@ -74,4 +78,11 @@ it('allows css-only lazy stylesheets without alpine entries', function (): void 
 
         expect($manifest)->not->toHaveKey($stylesheet);
     }
+});
+
+it('keeps segment-tabs lazy stylesheet with segment-control dependency', function (): void {
+    expect(FlexFieldAssets::LAZY_COMPONENT_STYLESHEETS)->toContain('segment-tabs')
+        ->and(FlexFieldAssets::STYLESHEET_DEPENDENCIES['segment-tabs'] ?? null)->toBe(['segment-control'])
+        ->and(FlexFieldAssets::stylesheetsFor('segment-tabs'))->toBe(['segment-control', 'segment-tabs'])
+        ->and(FlexFieldAssets::alpineManifest())->toHaveKey('segment-tabs');
 });

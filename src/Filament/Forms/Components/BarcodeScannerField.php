@@ -13,6 +13,8 @@ use Bjanczak\FilamentFlexFields\Support\Barcode\BarcodeStateNormalizer;
 use Bjanczak\FilamentFlexFields\Support\Barcode\BarcodeValidator;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Media\BarcodeValue;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -89,10 +91,24 @@ class BarcodeScannerField extends Field
         });
 
         $this->dehydrateStateUsing(function (BarcodeScannerField $component, mixed $state): string|array|null {
-            return BarcodeStateNormalizer::dehydrate(
+            $dehydrated = BarcodeStateNormalizer::dehydrate(
                 $state,
                 $component->shouldStoreDetectedFormat(),
             );
+
+            if (! BarcodeStateNormalizer::isEmpty($dehydrated)) {
+                $extracted = BarcodeStateNormalizer::extractValue($dehydrated);
+                $format = BarcodeStateNormalizer::extractFormat($dehydrated);
+
+                if (is_string($extracted) && $extracted !== '') {
+                    MediaCaptureOs::recordBarcodeCapture(
+                        new BarcodeValue($extracted, is_string($format) ? $format : null),
+                        $component->getName(),
+                    );
+                }
+            }
+
+            return $dehydrated;
         });
 
         $this->rule(function (BarcodeScannerField $component): Closure {

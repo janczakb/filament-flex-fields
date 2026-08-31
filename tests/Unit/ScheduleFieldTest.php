@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ScheduleField;
+use Bjanczak\FilamentFlexFields\Support\DateTime\ScheduleV2;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleDays;
 use Bjanczak\FilamentFlexFields\Support\Schedule\ScheduleNormalizer;
@@ -279,6 +280,58 @@ it('fails validation when slots overlap on an enabled day', function () {
     expect($errors)->not->toBeEmpty();
 });
 
+it('rejects overnight interval overlaps detected by ScheduleV2', function () {
+    $validator = new ScheduleValidator;
+    $errors = [];
+
+    $state = ScheduleField::defaultSchedule('UTC');
+    $state['days']['mon']['slots'] = [
+        ['from' => '22:00', 'to' => '06:00', 'overnight' => true],
+        ['from' => '23:30', 'to' => '23:45'],
+    ];
+
+    expect(ScheduleV2::validateNoOverlap([
+        ['from' => '22:00', 'to' => '06:00', 'overnight' => true],
+        ['from' => '23:30', 'to' => '23:45'],
+    ]))->toBeFalse();
+
+    $validator->validate(
+        $state,
+        ScheduleDays::ALL,
+        function (string $message) use (&$errors): void {
+            $errors[] = $message;
+        },
+        'UTC',
+        timezone_identifiers_list(),
+    );
+
+    expect($errors)->not->toBeEmpty()
+        ->and($errors[0])->toContain(__('filament-flex-fields::default.schedule.days.mon'));
+});
+
+it('allows non-overlapping overnight intervals via ScheduleV2', function () {
+    $validator = new ScheduleValidator;
+    $errors = [];
+
+    $state = ScheduleField::defaultSchedule('UTC');
+    $state['days']['mon']['slots'] = [
+        ['from' => '22:00', 'to' => '06:00', 'overnight' => true],
+        ['from' => '07:00', 'to' => '08:00'],
+    ];
+
+    $validator->validate(
+        $state,
+        ScheduleDays::ALL,
+        function (string $message) use (&$errors): void {
+            $errors[] = $message;
+        },
+        'UTC',
+        timezone_identifiers_list(),
+    );
+
+    expect($errors)->toBe([]);
+});
+
 it('exposes slot limits and validation messages in alpine configuration', function () {
     $field = ScheduleField::make('hours')
         ->timezone('UTC')
@@ -291,7 +344,8 @@ it('exposes slot limits and validation messages in alpine configuration', functi
     expect($config['minSlots'])->toBe(1)
         ->and($config['maxSlots'])->toBe(6)
         ->and($config['requireSlotsForEnabledDays'])->toBeTrue()
-        ->and($config['validationMessages']['overlap'])->toBe(__('filament-flex-fields::default.schedule.validation.ui.overlap'));
+        ->and($config['validationMessages']['overlap'])->toBe(__('filament-flex-fields::default.schedule.ui.overlap'))
+        ->and($config['validationMessages']['overlap'])->not->toContain('filament-flex-fields::');
 });
 
 it('dehydrates normalized schedule state for storage', function () {
@@ -326,6 +380,7 @@ it('registers lazy stylesheet assets for schedule field', function () {
         'emoji-picker',
         'flex-text-input',
         'switch',
+        'overlay-runtime',
         'teleported-menu',
         'timezone-field',
         'flex-time-segments',
@@ -450,5 +505,10 @@ it('renders server-side schedule markup before alpine hydrates', function () {
         ->and($css)->toContain('@media (max-width: 639px)')
         ->and($css)->toContain('grid-template-areas')
         ->and($blade)->toContain('x-show="canRemoveSlot(@js($day))"')
-        ->and($blade)->toContain('x-if="flexTimeSegmentsReady"');
+        ->and($blade)->toContain('x-if="flexTimeSegmentsReady"')
+        ->and($blade)->toContain('toggleSlotOvernight')
+        ->and($blade)->toContain('is-overlap')
+        ->and($blade)->toContain('moveSlotUp')
+        ->and($css)->toContain('.fff-schedule-field__slot.is-overlap')
+        ->and($css)->toContain('.fff-schedule-field__overnight-btn');
 });

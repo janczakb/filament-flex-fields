@@ -31,7 +31,15 @@ describe('schedule-validation', () => {
     it('validates individual slots', () => {
         assert.equal(isValidSlot({ from: '09:00', to: '17:00' }), true)
         assert.equal(isValidSlot({ from: '17:00', to: '09:00' }), false)
+        assert.equal(isValidSlot({ from: '22:00', to: '06:00', overnight: true }), true)
         assert.equal(isValidSlot({ from: 'bad', to: '17:00' }), false)
+    })
+
+    it('detects overlapping overnight slots', () => {
+        assert.equal(slotsOverlap([
+            { from: '22:00', to: '06:00', overnight: true },
+            { from: '23:00', to: '01:00', overnight: true },
+        ]), true)
     })
 
     it('detects overlapping slots', () => {

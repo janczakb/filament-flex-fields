@@ -11,6 +11,24 @@ class PlaygroundOptions
     /**
      * @return array<string, string>
      */
+    public static function heroOverflow(): array
+    {
+        return [
+            'overview' => 'Overview',
+            'analytics' => 'Analytics',
+            'reports' => 'Reports',
+            'performance' => 'Performance',
+            'engagement' => 'Engagement',
+            'audience' => 'Audience',
+            'acquisition' => 'Acquisition',
+            'retention' => 'Retention',
+            'settings' => 'Settings',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
     public static function hero(): array
     {
         return [

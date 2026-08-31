@@ -46,15 +46,13 @@ class UserColumnPlayground
         $authorColumn = UserColumn::make('author')
             ->nameColumn('name')
             ->emailColumn('email')
-            ->verificationColumn('email_verified_at')
-            ->getAvatarUrlUsing(fn (Model $record): ?string => $record->getAttribute('avatar_url'));
+            ->verificationColumn('email_verified_at');
 
         $membersColumn = UserColumn::make('members')
             ->nameColumn('name')
             ->maxVisibleAvatars(4)
             ->stackedRing(2)
-            ->stackedOverlap(10)
-            ->getAvatarUrlUsing(fn (Model $record): ?string => $record->getAttribute('avatar_url'));
+            ->stackedOverlap(10);
 
         return [
             [
@@ -105,6 +103,13 @@ class UserColumnPlayground
             public function __construct(array $attributes = [])
             {
                 parent::__construct($attributes);
+            }
+
+            public function getFilamentAvatarUrl(): ?string
+            {
+                $url = $this->attributes['avatar_url'] ?? null;
+
+                return filled($url) ? (string) $url : null;
             }
         };
     }

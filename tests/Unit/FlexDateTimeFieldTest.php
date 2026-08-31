@@ -106,7 +106,25 @@ it('builds alpine configuration with constraints and labels', function () {
         ->and($config['mode'])->toBe('date')
         ->and($config['minValue'])->toBe('2026-06-01')
         ->and($config['maxValue'])->toBe('2026-06-30')
-        ->and($config['initialState'])->toBe('2026-06-15');
+        ->and($config['initialState'])->toBe('2026-06-15')
+        ->and($config['segmentInvalidMessage'])->toBeNull()
+        ->and($config['validationMessages'])->toHaveKeys([
+            'invalid',
+            'before_min',
+            'after_max',
+            'unavailable',
+            'incomplete_range',
+            'range_order',
+            'same_day_not_allowed',
+        ]);
+});
+
+it('exposes custom segment invalid message in alpine configuration', function () {
+    $field = FlexDatePicker::make('appointment')
+        ->segmentInvalidMessage('Date must be today or in the future.');
+
+    expect($field->getAlpineConfiguration()['segmentInvalidMessage'])
+        ->toBe('Date must be today or in the future.');
 });
 
 it('includes wrapper classes for size and variant', function () {
@@ -193,7 +211,32 @@ it('registers date time field playground variants', function () {
         'date_time__time_field',
         'date_time__time_field_24h',
         'date_time__date_time_field',
+        'date_time__picker_validation',
+        'date_time__range_validation',
+        'date_time__picker_format_options',
+        'date_time__range_format_options',
+        'date_time__indian_calendar',
     ]);
+});
+
+it('exposes calendar identifier and isInvalid in alpine configuration', function () {
+    $field = FlexDatePicker::make('event_date')
+        ->locale('hi-IN-u-ca-indian')
+        ->isInvalid(true);
+
+    $config = $field->getAlpineConfiguration();
+
+    expect($config['calendarIdentifier'])->toBe('indian')
+        ->and($config['isInvalid'])->toBeTrue();
+});
+
+it('resolves calendar identifier from calendarSystem override', function () {
+    $field = FlexDatePicker::make('event_date')
+        ->locale('en_US')
+        ->calendarSystem('persian');
+
+    expect($field->getCalendarIdentifier())->toBe('persian')
+        ->and($field->getAlpineConfiguration()['calendarIdentifier'])->toBe('persian');
 });
 
 it('keeps minute granularity on date range when recommended defaults are applied first', function () {
@@ -359,4 +402,18 @@ it('uses locale-aware date segment order in view segments', function () {
             'month' => '06',
             'year' => '2026',
         ]);
+});
+
+it('keeps ssr segments visible during alpine mount to prevent reload layout jumps', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-date-time-field.blade.php');
+    $js = file_get_contents(__DIR__.'/../../resources/js/components/flex-date-time-field.js');
+
+    expect($blade)
+        ->toContain(':wrap-slot="false"')
+        ->toContain('is-display-ready')
+        ->toContain('value="{{ e($segmentValue) }}"')
+        ->not->toContain('x-show="mode === \'time\' && ! config.hideTimeZone"')
+        ->and($js)->toContain('displayReady: false')
+        ->and($js)->toContain('markDisplayReady()')
+        ->and($js)->toContain('hasInitialSegments');
 });

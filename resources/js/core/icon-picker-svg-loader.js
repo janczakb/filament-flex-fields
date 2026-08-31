@@ -67,7 +67,7 @@ export function createIconPickerSvgLoader({
         }
     }
 
-    const queueIcons = (icons) => {
+    const queueIcons = (icons, { flush = false } = {}) => {
         const cache = getSvgCache()
         let queued = false
 
@@ -81,6 +81,12 @@ export function createIconPickerSvgLoader({
         }
 
         if (! queued) {
+            return
+        }
+
+        if (flush) {
+            void flushBatch()
+
             return
         }
 

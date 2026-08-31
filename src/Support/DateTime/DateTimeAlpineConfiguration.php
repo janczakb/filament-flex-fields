@@ -6,6 +6,8 @@ namespace Bjanczak\FilamentFlexFields\Support\DateTime;
 
 use Bjanczak\FilamentFlexFields\Enums\DateTimeFieldMode;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexDateTimeField;
+use Bjanczak\FilamentFlexFields\Support\Translatable\TranslatableLocaleDirection;
+use Carbon\Carbon;
 
 class DateTimeAlpineConfiguration
 {
@@ -31,11 +33,14 @@ class DateTimeAlpineConfiguration
         $minValue = $constraints->resolveMin();
         $maxValue = $constraints->resolveMax();
         $initialState = $field->resolveInitialStateForAlpine();
+        $unavailableAnchor = self::resolveUnavailableAnchorDate($initialState, $mode);
 
         return [
             'mode' => $mode->value,
             'granularity' => $granularity->value,
             'locale' => $field->getLocale(),
+            'direction' => TranslatableLocaleDirection::resolveDirection($field->getLocale()),
+            'calendarIdentifier' => $field->getCalendarIdentifier(),
             'timeZone' => $field->getTimeZone(),
             'hourCycle' => $hourCycle,
             'displayFormat' => $displayFormat,
@@ -43,7 +48,7 @@ class DateTimeAlpineConfiguration
             'forceLeadingZeros' => $field->shouldForceLeadingZeros(),
             'minValue' => $minValue,
             'maxValue' => $maxValue,
-            'unavailableDates' => $constraints->unavailableDatesBetween($minValue, $maxValue),
+            'unavailableDates' => $constraints->unavailableDatesBetween($minValue, $maxValue, 2190, $unavailableAnchor),
             'hasDateUnavailable' => $field->getIsDateUnavailableCallback() !== null,
             'rangeSeparator' => $field->getRangeSeparator(),
             'allowSameDay' => $field->shouldAllowSameDay(),
@@ -62,7 +67,25 @@ class DateTimeAlpineConfiguration
             'initialState' => $initialState,
             'initialDisplay' => self::initialDisplay($normalizer, $initialState, $displayFormat, $mode, $field->getRangeSeparator()),
             'initialSegments' => DateTimeSegmentHydrator::forField($field),
-            'segmentInvalidMessage' => __('filament-flex-fields::default.date_time.validation.invalid'),
+            'segmentInvalidMessage' => $field->getSegmentInvalidMessage(),
+            'isInvalid' => $field->getIsInvalid(),
+            'validationMessages' => self::validationMessages(),
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function validationMessages(): array
+    {
+        return [
+            'invalid' => __('filament-flex-fields::default.date_time.validation.invalid'),
+            'before_min' => __('filament-flex-fields::default.date_time.validation.before_min'),
+            'after_max' => __('filament-flex-fields::default.date_time.validation.after_max'),
+            'unavailable' => __('filament-flex-fields::default.date_time.validation.unavailable'),
+            'incomplete_range' => __('filament-flex-fields::default.date_time.validation.incomplete_range'),
+            'range_order' => __('filament-flex-fields::default.date_time.validation.range_order'),
+            'same_day_not_allowed' => __('filament-flex-fields::default.date_time.validation.same_day_not_allowed'),
         ];
     }
 
@@ -83,6 +106,7 @@ class DateTimeAlpineConfiguration
             'range_start' => __('filament-flex-fields::default.date_time.range_start'),
             'range_end' => __('filament-flex-fields::default.date_time.range_end'),
             'time' => __('filament-flex-fields::default.date_time.time'),
+            'selected_range' => __('filament-flex-fields::default.date_time.selected_range'),
         ];
     }
 
@@ -131,5 +155,26 @@ class DateTimeAlpineConfiguration
             'end' => $end,
             'combined' => $combined,
         ];
+    }
+
+    protected static function resolveUnavailableAnchorDate(string|array|null $initialState, DateTimeFieldMode $mode): ?string
+    {
+        if (is_array($initialState)) {
+            $start = $initialState['start'] ?? null;
+
+            if (is_string($start) && $start !== '') {
+                return $start;
+            }
+        }
+
+        if (! is_string($initialState) || $initialState === '') {
+            return Carbon::now()->format('Y-m-d');
+        }
+
+        return match ($mode) {
+            DateTimeFieldMode::Month => "{$initialState}-01",
+            DateTimeFieldMode::Year => "{$initialState}-01-01",
+            default => $initialState,
+        };
     }
 }

@@ -60,6 +60,20 @@ class VideoField extends Field
 
     protected bool|Closure $volumeControl = true;
 
+    protected bool|Closure $settingsMenu = true;
+
+    protected bool|Closure $tooltips = true;
+
+    protected bool|Closure $castable = false;
+
+    protected bool|Closure $airPlayable = false;
+
+    /** @var array<int, float>|bool|Closure|null */
+    protected array|bool|Closure|null $playbackRates = null;
+
+    /** @var array<int, array<string, mixed>>|Closure|null */
+    protected array|Closure|null $qualityOptions = null;
+
     protected bool|Closure $allowYoutube = true;
 
     protected bool|Closure $allowVimeo = true;
@@ -83,6 +97,16 @@ class VideoField extends Field
     protected string|BackedEnum|Htmlable|Closure|null $pictureInPictureIcon = null;
 
     protected string|BackedEnum|Htmlable|Closure|null $exitPictureInPictureIcon = null;
+
+    protected string|BackedEnum|Htmlable|Closure|null $settingsIcon = null;
+
+    protected string|BackedEnum|Htmlable|Closure|null $speedIcon = null;
+
+    protected string|BackedEnum|Htmlable|Closure|null $qualityIcon = null;
+
+    protected string|BackedEnum|Htmlable|Closure|null $castIcon = null;
+
+    protected string|BackedEnum|Htmlable|Closure|null $airPlayIcon = null;
 
     protected string|BackedEnum|Htmlable|Closure|null $placeholderIcon = null;
 
@@ -253,6 +277,54 @@ class VideoField extends Field
         return $this;
     }
 
+    public function settingsMenu(bool|Closure $condition = true): static
+    {
+        $this->settingsMenu = $condition;
+
+        return $this;
+    }
+
+    public function tooltips(bool|Closure $condition = true): static
+    {
+        $this->tooltips = $condition;
+
+        return $this;
+    }
+
+    public function castable(bool|Closure $condition = true): static
+    {
+        $this->castable = $condition;
+
+        return $this;
+    }
+
+    public function airPlayable(bool|Closure $condition = true): static
+    {
+        $this->airPlayable = $condition;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<int, float>|bool|Closure  $rates
+     */
+    public function playbackRates(array|bool|Closure $rates = true): static
+    {
+        $this->playbackRates = $rates;
+
+        return $this;
+    }
+
+    /**
+     * @param  array<int, array<string, mixed>>|Closure  $options
+     */
+    public function qualityOptions(array|Closure $options): static
+    {
+        $this->qualityOptions = $options;
+
+        return $this;
+    }
+
     public function allowYoutube(bool|Closure $condition = true): static
     {
         $this->allowYoutube = $condition;
@@ -362,6 +434,41 @@ class VideoField extends Field
         return $this;
     }
 
+    public function settingsIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->settingsIcon = $icon;
+
+        return $this;
+    }
+
+    public function speedIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->speedIcon = $icon;
+
+        return $this;
+    }
+
+    public function qualityIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->qualityIcon = $icon;
+
+        return $this;
+    }
+
+    public function castIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->castIcon = $icon;
+
+        return $this;
+    }
+
+    public function airPlayIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
+    {
+        $this->airPlayIcon = $icon;
+
+        return $this;
+    }
+
     public function placeholderIcon(string|BackedEnum|Htmlable|Closure|null $icon): static
     {
         $this->placeholderIcon = $icon;
@@ -407,6 +514,31 @@ class VideoField extends Field
     public function getExitPictureInPictureIcon(): string|BackedEnum|Htmlable
     {
         return $this->resolveFieldIcon($this->exitPictureInPictureIcon, 'video_exit_picture_in_picture_icon', GravityIcon::ChevronsCollapseUpRight);
+    }
+
+    public function getSettingsIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->settingsIcon, 'video_settings_icon', GravityIcon::Gear);
+    }
+
+    public function getSpeedIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->speedIcon, 'video_speed_icon', GravityIcon::Thunderbolt);
+    }
+
+    public function getQualityIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->qualityIcon, 'video_quality_icon', GravityIcon::Display);
+    }
+
+    public function getCastIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->castIcon, 'video_cast_icon', 'ri-cast-line');
+    }
+
+    public function getAirPlayIcon(): string|BackedEnum|Htmlable
+    {
+        return $this->resolveFieldIcon($this->airPlayIcon, 'video_airplay_icon', 'ri-airplay-line');
     }
 
     public function getPlaceholderIcon(): string|BackedEnum|Htmlable
@@ -561,6 +693,135 @@ class VideoField extends Field
     public function hasVolumeControl(): bool
     {
         return (bool) $this->evaluate($this->volumeControl);
+    }
+
+    public function showsSettingsMenu(mixed $state = null): bool
+    {
+        if (! (bool) $this->evaluate($this->settingsMenu)) {
+            return false;
+        }
+
+        return $this->hasPlaybackRateControl($state) || $this->hasQualityControl($state);
+    }
+
+    public function showsTooltips(): bool
+    {
+        return (bool) $this->evaluate($this->tooltips);
+    }
+
+    public function isCastable(mixed $state = null): bool
+    {
+        if (! (bool) $this->evaluate($this->castable)) {
+            return false;
+        }
+
+        return filled($this->resolveVideoSrc($state)) && ! $this->usesYoutubeEmbed($state) && ! $this->usesVimeoEmbed($state);
+    }
+
+    public function isAirPlayable(mixed $state = null): bool
+    {
+        if (! (bool) $this->evaluate($this->airPlayable)) {
+            return false;
+        }
+
+        return filled($this->resolveVideoSrc($state)) && ! $this->usesYoutubeEmbed($state) && ! $this->usesVimeoEmbed($state);
+    }
+
+    public function hasPlaybackRateControl(mixed $state = null): bool
+    {
+        if ($this->usesYoutubeEmbed($state) && ! $this->usesYoutubeCustomControls($state)) {
+            return false;
+        }
+
+        $rates = $this->getPlaybackRates();
+
+        return is_array($rates) && count($rates) > 1;
+    }
+
+    /**
+     * @return list<float>|null
+     */
+    public function getPlaybackRates(): ?array
+    {
+        $configured = $this->evaluate($this->playbackRates);
+
+        if ($configured === null || $configured === false) {
+            return null;
+        }
+
+        if ($configured === true) {
+            return [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+        }
+
+        if (! is_array($configured)) {
+            return null;
+        }
+
+        $rates = array_values(array_filter(array_map(
+            static fn (mixed $rate): ?float => is_numeric($rate) ? (float) $rate : null,
+            $configured,
+        )));
+
+        sort($rates);
+
+        return count($rates) > 0 ? $rates : null;
+    }
+
+    public function hasQualityControl(mixed $state = null): bool
+    {
+        if ($this->usesYoutubeEmbed($state) || $this->usesVimeoEmbed($state)) {
+            return false;
+        }
+
+        return count($this->getQualityOptions()) > 1;
+    }
+
+    /**
+     * @return list<array{key: string, label: string, src: string, height: ?int, default: bool}>
+     */
+    public function getQualityOptions(): array
+    {
+        $configured = $this->evaluate($this->qualityOptions);
+
+        if (! is_array($configured)) {
+            return [];
+        }
+
+        $options = [];
+
+        foreach ($configured as $index => $option) {
+            if (! is_array($option)) {
+                continue;
+            }
+
+            $src = isset($option['src']) ? SafeMediaUrl::sanitize((string) $option['src']) : null;
+
+            if ($src === null) {
+                continue;
+            }
+
+            $label = filled($option['label'] ?? null)
+                ? (string) $option['label']
+                : __('filament-flex-fields::default.video.quality_option', ['height' => $option['height'] ?? $index + 1]);
+
+            $key = filled($option['key'] ?? null)
+                ? (string) $option['key']
+                : 'quality-'.$index;
+
+            $options[] = [
+                'key' => $key,
+                'label' => $label,
+                'src' => $src,
+                'height' => isset($option['height']) && is_numeric($option['height']) ? (int) $option['height'] : null,
+                'default' => (bool) ($option['default'] ?? false),
+            ];
+        }
+
+        if ($options !== [] && ! collect($options)->contains(fn (array $option): bool => $option['default'])) {
+            $options[0]['default'] = true;
+        }
+
+        return $options;
     }
 
     public function allowsYoutube(): bool

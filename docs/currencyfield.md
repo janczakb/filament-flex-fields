@@ -92,7 +92,7 @@ All methods accept `Closure` unless noted.
 | `max(float\|int\|Closure\|null $value)` | Setup | `null` | Maximum value in **major units** |
 | `allowNegative(bool\|Closure $condition = true)` | Setup | `false` | Allow negative amounts |
 | `animated(bool\|Closure $condition = true)` | Setup | `true` | Enable digit animations |
-| `commitDecimalsOnBlur(bool\|Closure $condition = true)` | Setup | `true` | Pad decimals when field loses focus |
+| `commitDecimalsOnBlur(bool\|Closure $condition = true)` | Setup | `true` | Show ghost trailing zeros while focused (editing aid). Blur display keeps typed fraction (e.g. `,5`); storage still pads to currency decimals. |
 | `searchable(bool\|Closure $condition = true)` | Setup | `true` | Enable search in currency picker |
 | `variant(string\|Closure $variant)` | Setup | `'primary'` | Visual style: `primary`, `secondary`, `flat`, `soft` |
 | `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |

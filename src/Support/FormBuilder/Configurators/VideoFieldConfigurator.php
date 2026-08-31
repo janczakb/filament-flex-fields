@@ -85,6 +85,30 @@ final class VideoFieldConfigurator implements FieldConfigurator
             $field->volumeControl((bool) $config['volume_control']);
         }
 
+        if (array_key_exists('settings_menu', $config)) {
+            $field->settingsMenu((bool) $config['settings_menu']);
+        }
+
+        if (array_key_exists('tooltips', $config)) {
+            $field->tooltips((bool) $config['tooltips']);
+        }
+
+        if (array_key_exists('castable', $config) || array_key_exists('cast', $config)) {
+            $field->castable((bool) ($config['castable'] ?? $config['cast'] ?? false));
+        }
+
+        if (array_key_exists('air_playable', $config) || array_key_exists('airplay', $config)) {
+            $field->airPlayable((bool) ($config['air_playable'] ?? $config['airplay'] ?? false));
+        }
+
+        if (array_key_exists('playback_rates', $config)) {
+            $field->playbackRates($config['playback_rates']);
+        }
+
+        if (array_key_exists('quality_options', $config)) {
+            $field->qualityOptions($config['quality_options']);
+        }
+
         if (array_key_exists('allow_youtube', $config)) {
             $field->allowYoutube((bool) $config['allow_youtube']);
         }

@@ -1,5 +1,33 @@
 /* BarcodeScannerField — FlexTextInput shell + Filament modal scanner */
 
+.fff-barcode-scanner-mount {
+    position: relative;
+    width: 100%;
+    min-height: var(--fff-flex-text-input-h, var(--fff-track-h-md));
+}
+
+.fff-barcode-scanner-input-ssr {
+    width: 100%;
+}
+
+.fff-barcode-scanner-mount:has(.fff-barcode-scanner.is-hydrated) .fff-barcode-scanner-input-ssr {
+    display: none;
+}
+
+.fff-barcode-scanner-mount .fff-barcode-scanner:not(.is-hydrated) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fff-barcode-scanner-mount .fff-barcode-scanner.is-hydrated {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .fff-barcode-scanner {
     @apply flex w-full min-w-0 flex-col;
     gap: 0.375rem;
@@ -10,24 +38,6 @@
 }
 
 .fff-barcode-scanner.is-manual-disabled .fff-flex-text-input__input {
-    cursor: not-allowed;
-}
-
-.fff-barcode-scanner__scan-btn {
-    @apply inline-flex items-center justify-center rounded-lg transition-all duration-200;
-    width: var(--fff-flex-text-input-action-size, 2rem);
-    height: var(--fff-flex-text-input-action-size, 2rem);
-    color: var(--fff-flex-text-input-muted, rgb(113 113 122));
-}
-
-.fff-barcode-scanner__scan-btn:hover:not(:disabled) {
-    color: var(--fff-flex-text-input-primary, rgb(59 130 246));
-    background: color-mix(in srgb, var(--fff-flex-text-input-primary, rgb(59 130 246)) 12%, transparent);
-    transform: translateY(-1px);
-}
-
-.fff-barcode-scanner__scan-btn:disabled {
-    opacity: 0.45;
     cursor: not-allowed;
 }
 
@@ -418,7 +428,4 @@
         opacity: 0.75;
     }
 
-    .fff-barcode-scanner__scan-btn:hover:not(:disabled) {
-        transform: none;
-    }
 }

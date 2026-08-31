@@ -67,6 +67,75 @@ SelectField::make('tags')
 
 By default, multi-select **removes** chosen values from the dropdown list (pick-from-remaining / chip mode).
 
+#### Email recipients (two-line options + chip labels)
+
+Use `chipLabel` (or `chip_label`) on rich options when the dropdown should show name + email, but selected chips should show only the email:
+
+```php
+SelectField::make('recipients')
+    ->multiple()
+    ->searchable()
+    ->keepSelectedOptionsInDropdown()
+    ->richOptions()
+    ->options([
+        'jane' => [
+            'label' => 'Jane Cooper',
+            'description' => 'jane.cooper@example.com',
+            'chipLabel' => 'jane.cooper@example.com',
+        ],
+        'john' => [
+            'label' => 'John Smith',
+            'description' => 'john.smith@example.com',
+            'chipLabel' => 'john.smith@example.com',
+        ],
+    ]);
+```
+
+The dropdown row renders the full two-line layout; chips and `triggerLabel` use the compact `chipLabel` text.
+
+#### Custom value (`optionView()`)
+
+Use `optionView()` when you need full control over option HTML — custom Blade per row and trigger (server-side equivalent of render props). Pair with `optionTriggerView()` when the closed trigger should differ from the dropdown row.
+
+```php
+SelectField::make('user_id')
+    ->label('User')
+    ->searchable()
+    ->options([
+        'fred' => [
+            'label' => 'Fred',
+            'description' => 'fred@example.com',
+        ],
+        'bob' => [
+            'label' => 'Bob',
+            'description' => 'bob@example.com',
+        ],
+    ])
+    ->optionView('my-app.select.user-option')
+    ->optionTriggerView('my-app.select.user-trigger'); // optional
+```
+
+Each view receives `$option`, `$layout` (`list`, `trigger`, `grid`, `chip`), `$field`, `$value`, `$label`, `$description`, and any data from `optionViewData()`.
+
+Use `richListTriggerDisplay()` to keep the full list row (avatar + name + email) in the closed trigger instead of the compact trigger layout.
+
+```php
+SelectField::make('assignee_id')
+    ->optionView('my-app.select.user-option')
+    ->richListTriggerDisplay();
+```
+
+Closure form — return HTML, `Htmlable`, `View`, or a nested view name:
+
+```php
+->optionView(fn (array $option, string $layout): string => view('my-app.select.user-option', [
+    'option' => $option,
+    'layout' => $layout,
+])->render())
+```
+
+`optionView()` automatically enables `allowHtml()` and sanitizes output through the package HTML sanitizer.
+
 #### Multi-select checklist (keep options visible)
 
 Use `keepSelectedOptionsInDropdown()` when selected options should stay in the list with checkmarks (dropdown stays open while toggling):
@@ -129,9 +198,17 @@ All methods accept `Closure` unless noted.
 | `chipColor(string\|Closure $chipColor)` | Setup | `'neutral'` | Color for multi-select chips |
 | `keepSelectedOptionsInDropdown(bool\|Closure $condition = true)` | Setup | `false` | Multi-select: keep selected options in the dropdown with checkmarks (checklist) instead of removing them |
 | `richOptions(bool\|Closure $condition = true)` | Setup | auto | Force rich option rendering |
+| `optionView(string\|Closure $view)` | Setup | — | Custom Blade (or Closure) per option row and trigger |
+| `optionTriggerView(string\|Closure\|null $view)` | Setup | — | Optional separate view for closed trigger / chips |
+| `optionViewData(array\|Closure $data)` | Setup | `[]` | Extra data passed into every option view |
+| `richListTriggerDisplay(bool\|Closure $condition = true)` | Setup | `false` | Keep full list HTML in the closed trigger |
 | `optionLayout(string\|Closure $layout)` | Setup | `'list'` | Dropdown layout: `list`, `grid` |
 | `inlineFieldLabel(bool\|Closure $condition = true)` | Setup | `false` | Render label inside the field track |
-| `inlineSearch(bool\|Closure $condition = true)` | Setup | `false` | Render search input inside the dropdown |
+| `inlineSearch(bool\|Closure $condition = true)` | Setup | `false` | Render search input inside the trigger (dropdown header search hidden) |
+| `recentOptions(array\|Closure $values)` | Setup | `[]` | Pin recent option keys at the top of the dropdown (smart suggest) |
+| `suggestedOptions(array\|Closure $values)` | Setup | `[]` | Pin suggested option keys below recent (smart suggest) |
+| `allowCreateOption(bool\|Closure $condition = true)` | Setup | `false` | Show inline “Create …” row when search has no exact match |
+| `entityMentions(bool\|Closure $condition = true, string\|Closure $trigger = '@')` | Setup | `false` | Async people/entity picker; type the trigger in search or on the closed trigger |
 | `clearable(bool\|Closure $condition = true)` | Setup | auto | Show clear button (×) |
 | `dropdownAlign(string\|Closure $align)` | Setup | auto | Align dropdown: `start`, `end` |
 | `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |
@@ -159,13 +236,50 @@ SelectField::make('theme')
 
 #### `inlineSearch()`
 
-Recommended for searchable selects to keep the UI compact:
+Recommended for **single-select** searchable fields to keep the UI compact — the search field is the trigger, not a separate label swap:
 
 ```php
 SelectField::make('user_id')
     ->searchable()
     ->inlineSearch();
 ```
+
+When closed, the trigger input shows the selected label. When focused or open, the same input stays editable and keeps that label until you type or clear it; clearing the input clears the selection. Use the default field clear (×) next to the chevron to reset the value — inline mode does not render a separate search-query × (that control exists only in the dropdown search header). Multi-select fields should use dropdown search instead (`searchable()` without `inlineSearch()`).
+
+For RTL layouts, set `extraAttributes(['dir' => 'rtl'])` on the field — the teleported menu mirrors from the trigger, and the inline input inherits the same direction for Arabic/Hebrew labels.
+
+Works with `entityMentions()` — type `@` in the inline search input or press `@` on the closed trigger to start a mention query.
+
+#### Smart suggest (`recentOptions`, `suggestedOptions`, `allowCreateOption`)
+
+Pin curated rows at the top of the dropdown and optionally allow creating a new value from the current search:
+
+```php
+SelectField::make('project_id')
+    ->searchable()
+    ->recentOptions(['inbox', 'drafts'])
+    ->suggestedOptions(['archived'])
+    ->allowCreateOption();
+```
+
+#### Entity mentions (`entityMentions()`)
+
+Async people/entity picker triggered with `@` in the closed trigger, inline search input, or dropdown search:
+
+```php
+SelectField::make('assignees')
+    ->multiple()
+    ->searchable()
+    ->inlineSearch()
+    ->entityMentions(trigger: '@')
+    ->getSearchResultsUsing(fn (string $search): array => User::query()
+        ->where('name', 'like', "%{$search}%")
+        ->limit(20)
+        ->pluck('name', 'id')
+        ->all());
+```
+
+Selected mention chips render with the `@` prefix and `fff-select-entity-mention-chip` styling. Playground: **Entity mentions** on `/select-field`. See also [Upgrade v2 → v3](/docs/upgrade-v2-to-v3).
 
 ---
 
@@ -203,6 +317,75 @@ Section::make('Metadata')
 
 ---
 
+### Grouped sections
+
+Nest option groups in `options()` to render section headers in the dropdown. Enable explicit dividers between groups (default on):
+
+```php
+SelectField::make('country')
+    ->searchable()
+    ->optionGroupSeparators()
+    ->options([
+        'North America' => [
+            'usa' => 'United States',
+            'canada' => 'Canada',
+        ],
+        'Europe' => [
+            'france' => 'France',
+            'germany' => 'Germany',
+        ],
+    ]);
+```
+
+Use `optionGroupSeparators(false)` to fall back to header-only dividers.
+
+---
+
+### Disabled options
+
+Disable specific keys while keeping them visible in the list:
+
+```php
+SelectField::make('animal')
+    ->searchable()
+    ->disabledOptions(['cat', 'kangaroo'])
+    ->options([
+        'dog' => 'Dog',
+        'cat' => 'Cat',
+        'bird' => 'Bird',
+    ]);
+```
+
+`disableOptionWhen()` remains available for dynamic rules.
+
+---
+
+### Async search with load more
+
+For large remote datasets, paginate search results and append rows as the user scrolls:
+
+```php
+SelectField::make('character')
+    ->searchable()
+    ->paginatedSearchResults()
+    ->searchResultsPageSize(20)
+    ->getSearchResultsPageUsing(function (string $search, ?string $cursor, int $pageSize): array {
+        [$items, $nextCursor, $hasMore] = CharacterRepository::search($search, $cursor, $pageSize);
+
+        return [
+            'items' => $items,
+            'cursor' => $nextCursor,
+            'hasMore' => $hasMore,
+        ];
+    });
+```
+
+The trigger shows a loading indicator while the first page loads or while a new query is debounced. A footer spinner appears while additional pages load.
+
+Closure-based `options()` still lazy-load on first open (`select__dynamic_options` in the playground).
+
+---
+
 ### Playground
 
 `/admin/flex-fields-playground/select-field`
@@ -232,6 +415,8 @@ See [Playground](/docs/index#playground) for setup.
 | `fff-select-field--chips-{color}` | Multi-select chip color |
 | `fff-select-field--inline-field-label` | Inline label active |
 | `fff-select-field--inline-search` | Inline search active |
+| `fff-select-entity-mention-chip` | Mention chip styling (multi-select) |
+| `fff-select-entity-mention__highlight` | Mention match highlight in dropdown |
 
 ---
 
@@ -242,3 +427,5 @@ See [Playground](/docs/index#playground) for setup.
 | **Lazy CSS** | Loads `select-field` styles only when the field renders |
 | **JS Transformation** | Efficiently prepares rich options for the frontend component |
 | **Search Cache** | Memoizes search results to reduce server round-trips |
+| **Virtualized rows** | Flat and grouped lists virtualize from 100 visible rows (~50-row window) |
+| **Paginated search** | `paginatedSearchResults()` appends pages via scroll sentinel |

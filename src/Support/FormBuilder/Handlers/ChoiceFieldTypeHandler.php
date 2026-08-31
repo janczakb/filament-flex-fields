@@ -11,6 +11,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCheckboxCards;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\DualListboxField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexChecklist;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRadiolist;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ImageChoiceCards;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MatrixChoiceField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NpsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RatingField;
@@ -25,6 +26,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\ChoiceCheckbox
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\DualListboxFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexChecklistFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexRadiolistFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\ImageChoiceCardsFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\MatrixChoiceFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\NpsFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\RatingFieldConfigurator;
@@ -32,6 +34,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SegmentControl
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SelectFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SwitchFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TagsFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\UserSelectFieldConfigurator;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
@@ -41,11 +44,14 @@ use Spatie\Tags\Tag;
 
 final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
 {
+    use NormalizesStudioChoiceOptions;
+
     public function __construct(
         private readonly SwitchFieldConfigurator $switch = new SwitchFieldConfigurator,
         private readonly SegmentControlFieldConfigurator $segmentControl = new SegmentControlFieldConfigurator,
         private readonly ChoiceCardsFieldConfigurator $choiceCards = new ChoiceCardsFieldConfigurator,
         private readonly ChoiceCheckboxCardsFieldConfigurator $choiceCheckboxCards = new ChoiceCheckboxCardsFieldConfigurator,
+        private readonly ImageChoiceCardsFieldConfigurator $imageChoiceCards = new ImageChoiceCardsFieldConfigurator,
         private readonly FlexChecklistFieldConfigurator $flexChecklist = new FlexChecklistFieldConfigurator,
         private readonly FlexRadiolistFieldConfigurator $flexRadiolist = new FlexRadiolistFieldConfigurator,
         private readonly MatrixChoiceFieldConfigurator $matrixChoice = new MatrixChoiceFieldConfigurator,
@@ -67,6 +73,7 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::SegmentControl,
             FieldType::ChoiceCards,
             FieldType::ChoiceCheckboxCards,
+            FieldType::ImageChoiceCards,
             FieldType::FlexChecklist,
             FieldType::FlexRadiolist,
             FieldType::MatrixChoice,
@@ -86,11 +93,12 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
         return match ($definition->type) {
             FieldType::Toggle => $this->switch->configure(SwitchField::make($statePath), $config),
             FieldType::Checkbox => Checkbox::make($statePath),
-            FieldType::CheckboxList => CheckboxList::make($statePath)->options($config['options'] ?? []),
-            FieldType::Radio => Radio::make($statePath)->options($config['options'] ?? []),
+            FieldType::CheckboxList => CheckboxList::make($statePath)->options($this->normalizeStudioLabeledList($config['options'] ?? [])),
+            FieldType::Radio => Radio::make($statePath)->options($this->normalizeStudioLabeledList($config['options'] ?? [])),
             FieldType::SegmentControl => $this->segmentControl->configure(SegmentControl::make($statePath), $config),
             FieldType::ChoiceCards => $this->choiceCards->configure(ChoiceCards::make($statePath), $config),
             FieldType::ChoiceCheckboxCards => $this->choiceCheckboxCards->configure(ChoiceCheckboxCards::make($statePath), $config),
+            FieldType::ImageChoiceCards => $this->imageChoiceCards->configure(ImageChoiceCards::make($statePath), $config),
             FieldType::FlexChecklist => $this->flexChecklist->configure(FlexChecklist::make($statePath), $config),
             FieldType::FlexRadiolist => $this->flexRadiolist->configure(FlexRadiolist::make($statePath), $config),
             FieldType::MatrixChoice => $this->matrixChoice->configure(MatrixChoiceField::make($statePath), $config),

@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
+use Illuminate\Database\Migrations\Migration;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        FlexFieldGroup::query()->updateOrCreate(
+            ['slug' => 'example-group', 'tenant_id' => ''],
+            [
+                'name' => 'Example group',
+                'target_type' => 'App\\Models\\Model',
+                'order' => 0,
+                'sections' => [],
+                'fields' => [
+                    [
+                        'slug' => 'notes',
+                        'label' => 'Notes',
+                        'type' => 'single_line_text',
+                        'sort' => 0,
+                    ],
+                ],
+            ],
+        );
+    }
+
+    public function down(): void
+    {
+        FlexFieldGroup::query()
+            ->where('slug', 'example-group')
+            ->where('tenant_id', '')
+            ->delete();
+    }
+};

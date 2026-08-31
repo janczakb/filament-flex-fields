@@ -111,12 +111,21 @@ it('rejects unsupported mapbox search types', function () {
         ->toThrow(InvalidArgumentException::class);
 });
 
+it('enables focus outline on the map search input by default', function () {
+    expect(MapPickerField::make('location')->shouldShowFocusOutline())->toBeTrue()
+        ->and(MapPickerField::make('location')->focusOutline(false)->shouldShowFocusOutline())->toBeFalse();
+});
+
 it('registers map picker playground defaults', function () {
     $state = app(FlexFieldsPlaygroundBuilder::class)->defaultState();
 
     expect($state)->toHaveKeys([
         'map_picker__full',
+        'map_picker__split',
+        'map_picker__split_street',
         'map_picker__city_only',
+        'map_picker__venue',
+        'map_picker__poi',
     ]);
 });
 

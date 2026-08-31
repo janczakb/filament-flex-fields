@@ -1,4 +1,5 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createOverlayMenuKeyboardMixin } from '../core/overlay-menu-keyboard.js'
 import { normalizeSearchQuery } from '../core/search-normalize.js'
 
 export const FFF_TIMEZONE_VIRTUAL_THRESHOLD = 50
@@ -29,6 +30,21 @@ export function createTimezonePickerMixin(options = {}) {
         },
     })
 
+    const timezoneKeyboard = createOverlayMenuKeyboardMixin({
+        openKey: 'menuOpen',
+        resultsKey: 'filteredTimezones',
+        scrollRef: null,
+        menuRef,
+        searchRef: 'timezoneSearch',
+        searchEnabledKey: 'searchable',
+        itemHeight: FFF_TIMEZONE_ROW_HEIGHT,
+        selectMethod: 'selectTimezone',
+        optionIdPrefix: `${ownerIdPrefix}-option`,
+        onEscape: 'closeTimezoneMenu',
+        getItemValue: (item) => item?.id ?? item,
+        isItemSelected: (component, item) => component.resolveTimezoneValue?.() === item?.id,
+    })
+
     return {
         displayReady: false,
         menuOpen: false,
@@ -37,9 +53,13 @@ export function createTimezonePickerMixin(options = {}) {
         menuScrollHandler: null,
         menuResizeHandler: null,
         virtualScrollTop: 0,
+        overlayMenuActiveIndex: -1,
         ...selectMenu,
+        ...timezoneKeyboard,
 
         initTimezonePicker() {
+            this.initOverlayMenuKeyboard()
+
             this.$nextTick(() => {
                 requestAnimationFrame(() => {
                     this.displayReady = true

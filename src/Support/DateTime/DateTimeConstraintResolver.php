@@ -51,14 +51,24 @@ class DateTimeConstraintResolver
     /**
      * @return list<string>
      */
-    public function unavailableDatesBetween(?string $min, ?string $max, int $cap = 366): array
+    public function unavailableDatesBetween(?string $min, ?string $max, int $cap = 2190, ?string $anchorDate = null): array
     {
         if (! $this->isDateUnavailable instanceof Closure) {
             return [];
         }
 
         if ($min === null && $max === null) {
-            return [];
+            if ($anchorDate === null) {
+                return [];
+            }
+
+            try {
+                $anchor = Carbon::parse($anchorDate)->startOfDay();
+                $min = $anchor->copy()->subYears(5)->format('Y-m-d');
+                $max = $anchor->copy()->addYears(5)->format('Y-m-d');
+            } catch (\Throwable) {
+                return [];
+            }
         }
 
         try {

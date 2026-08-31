@@ -8,6 +8,7 @@ use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\AudioField\HasWhisperTranscription;
 use Bjanczak\FilamentFlexFields\Support\AudioWaveformGenerator;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Security\SafeMediaUrl;
@@ -22,6 +23,7 @@ class AudioField extends Field
     use CanBeReadOnly;
     use HasControlSize;
     use HasFieldRounding;
+    use HasWhisperTranscription;
     use ResolvesConfiguredIcons;
 
     protected string $view = 'filament-flex-fields::forms.components.audio-field';
