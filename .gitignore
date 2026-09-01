@@ -75,3 +75,5 @@ pnpm-debug.log*
 /DEVELOPMENT.md
 /COMPONENTS.md
 /composer.lock
+
+.cursor/
