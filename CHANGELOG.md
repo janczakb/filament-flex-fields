@@ -5,6 +5,42 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-09-04
+
+Flex Fields **3.1** ships two major interactive fields, closes the admin-to-runtime loop from 3.0, refreshes Phone/Video marketing art, speeds up heavy fields, and polishes the playground and release process.
+
+### New
+
+- **BubbleChoiceField** — pannable bubble multi-select with center magnification, fringe shrink on pan, optional icons/images, min/max selection, and scalloped selection morph (radial geometry + SVG stroke). Studio/`FieldType::BubbleChoice`, playground hub, and Help Center page.
+- **TodoListField** — enterprise animated checklist: check/strike motion, spark lines, celebrations (fireworks and custom hooks), sub-stacks, undo toast, create/edit/delete, reorder, search, virtualize, and infinite scroll. Studio/`FieldType::TodoList`, playground hub, and Help Center page.
+- **Sections end-to-end** — layout sections defined in field groups render in Filament forms via `flexFieldFormLayout()`. Import, export, publish, and rollback preserve sections and field `section_id` assignments.
+- **Section visibility at runtime** — section `visibleWhen` rules apply in forms, table column order follows section sort with section-prefixed labels, and infolist entries group by section.
+- **Visibility builder v2** — field pickers for required/disabled rules and model-attribute sources in the field-group editor; section visibility rules in admin.
+- **Formula field in admin** — save calculated expressions with cycle detection before publish.
+- **CSV value exchange** — export a values CSV template and validate imports from the field-group editor.
+- **Playground categories** — Guides, Navigation, Buttons, Pickers, Date and Time, Colors, Controls, Collections, Text Input, Data Display, Media, and Location group the hubs; related-hub cross-links between composition demos; SelectField hub demos `allowCreateOption()` (smart suggest create row).
+- **Package CI workflow** — Pest, PHPStan, component audit, and bundle budgets in GitHub Actions.
+- **Help Center pages** — field intelligence, schema conditions, and admin columns documentation; BubbleChoice and TodoList docs with screenshots.
+
+### Improved
+
+- **PhoneField & VideoField** — updated marketing screenshots (`art/phone-field.webp`, `art/videofield.webp`); README and docs point at the new WebP art (legacy `sc-23` / `sc-15` refreshed in parallel).
+- **README & art** — BubbleChoice and TodoList featured first; package art screenshots prefer WebP; component count updated to **72** (60 form + 9 layout + 3 table).
+- **SelectField and UserSelect** — lazy Alpine mount markers; **select-field.css** gzip budget met (≤12 KB); critical preload of overlay-runtime and teleported-menu when picker CSS is queued; explicit JS semantic chunks for theme-utils, combobox-engine, and search-normalize; playground CSS loads shared base + slim per-hub bundles (no duplicated toolbar chrome).
+- **Asset preloads** — transitive barcode chunk preloading; background preloads respect save-data and reduced-motion preferences.
+- **Encrypted fields** — masked display in table and infolist builders; persist/decrypt round-trip on models using `HasFlexFields`.
+- **Schema export** — full JSON file download instead of truncated notifications.
+- **Flex Field Studio** — registry publish version/state on group cards; entity-discovery empty-state hint and config cookbook.
+- **Blueprint packs** — CRM and support starters ship with layout sections.
+- **Quality gates** — `audit:components` in release checklist; plugin navigation reads `schema.navigation_*` config keys; PHPStan burn-down on RichEditor, FileUpload, Slug, and Select paths.
+
+### Fixed
+
+- **Schema import validation** — rejects unknown section IDs and circular formula dependencies.
+- **Schema export stream** — download callback echoes JSON payload correctly.
+- **Playground docs** — corrected hold-confirm, voice-note, and compliance-pack links; added focus-outline documentation; removed stale NEW badges on v3 hubs.
+- **Docs art paths** — Help Center field pages use `/art/*.webp` instead of outdated PNGs.
+
 ## [3.0.0] - 2026-09-01
 
 Flex Fields **3.0** is a major release: manage custom fields from the admin panel, a faster form experience, and enterprise-ready uploads and signatures.

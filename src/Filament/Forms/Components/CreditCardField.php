@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Field;
 use InvalidArgumentException;
@@ -252,7 +253,7 @@ class CreditCardField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.credit_card.number');
+            : Translations::get('filament-flex-fields::default.credit_card.number');
     }
 
     public function getNameLabel(): string
@@ -261,7 +262,7 @@ class CreditCardField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.credit_card.name');
+            : Translations::get('filament-flex-fields::default.credit_card.name');
     }
 
     public function getExpiryLabel(): string
@@ -270,7 +271,7 @@ class CreditCardField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.credit_card.expiry');
+            : Translations::get('filament-flex-fields::default.credit_card.expiry');
     }
 
     public function getCvvLabel(): string
@@ -279,7 +280,7 @@ class CreditCardField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.credit_card.cvv');
+            : Translations::get('filament-flex-fields::default.credit_card.cvv');
     }
 
     public function getMark(): string
@@ -288,7 +289,7 @@ class CreditCardField extends Field
 
         return filled($mark)
             ? (string) $mark
-            : __('filament-flex-fields::default.credit_card.mark');
+            : Translations::get('filament-flex-fields::default.credit_card.mark');
     }
 
     /**
@@ -408,7 +409,7 @@ class CreditCardField extends Field
         }
 
         if (! preg_match('/^(0[1-9]|1[0-2])\/(\d{2})$/', $expiry, $matches)) {
-            return __('filament-flex-fields::default.validation.credit_card.invalid_expiry');
+            return Translations::get('filament-flex-fields::default.validation.credit_card.invalid_expiry');
         }
 
         $month = (int) $matches[1];
@@ -416,7 +417,7 @@ class CreditCardField extends Field
         $expiryYearMonth = ($year * 100) + $month;
 
         if ($expiryYearMonth < (int) now()->format('Ym')) {
-            return __('filament-flex-fields::default.validation.credit_card.expired');
+            return Translations::get('filament-flex-fields::default.validation.credit_card.expired');
         }
 
         return null;

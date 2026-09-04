@@ -237,12 +237,28 @@ Components **without** entries in the manifest (e.g. `rating-field`, `dual-listb
 
 Modules used by only a single field (e.g. `core/date-time/*` used only by `flex-date-time-field`, `nouislider` used only by `flex-slider`) remain inside their entries until another component starts importing them.
 
-#### Preload & delivery
+#### FFART — Flex Field Asset Runtime
+
+FFART (Flex Field Asset Runtime) is the third pillar of the asset pipeline alongside server queues and Filament `x-load`:
+
+| Module | Role |
+|--------|------|
+| `flex-field-consumer-graph.js` | Consumer Reference Graph — refCount per URL, `instanceId = livewireKey::surface` |
+| `flex-field-asset-injector.js` | Managed Asset Store, single-flight loader, modal/morph/navigate hooks |
+| `flex-alpine-load-gate.js` | P0 single-flight `import()` + idempotent `Alpine.data` |
+| `flex-field-prefetch-engine.js` | Hover intent (48ms), viewport, idle prefetch tiers |
+| `flex-fff-load-directive.js` | `x-fff-load` CRG-aware Alpine lazy loader (all fields) |
+
+`emit-assets` is **batch-only**: hidden `data-fff-asset-batch` JSON plus optional `data-fff-asset-consumer` markers. The runtime promotes URLs to managed `<link data-fff-managed-asset>` nodes and uninstalls when `refCount(url) === 0` (debounced), except `core.css` and playground bundles.
+
+`load-stylesheet` passes `livewireKey` + `consumerComponent` into `emit-assets` for every form field. Table columns flush via `queued-stylesheets` with page-scoped `table-columns` consumer ids.
+
+#### Preload & delivery (server)
 
 Every blade template rendering a component stylesheet registers CSS and Alpine chunks in request-scoped queues (`FlexFieldStylesheetQueue`, `FlexFieldAlpineQueue`). `load-stylesheet` immediately emits `emit-assets`:
 
 - **Full page** — `@push('styles')` into Filament `@stack('styles')` in `&lt;head&gt;`.
-- **Livewire partial** — inline `&lt;link&gt;` / `modulepreload` tags plus a hidden `data-fff-asset-batch` marker for the injector.
+- **Livewire partial** — hidden `data-fff-asset-batch` marker (batch-only emit; runtime loads managed links).
 
 `queued-stylesheets` flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END`. At `HEAD_END`, `critical-stylesheet-preloads` may emit `teleported-menu` **only when** `FlexFieldStylesheetQueue` has already registered a component that depends on it (e.g. table columns in `setUp()`). Form fields enqueue during body render via `load-stylesheet` → `emit-assets` instead.
 
@@ -255,9 +271,9 @@ Every blade template rendering a component stylesheet registers CSS and Alpine c
 - href deduplication (`normalizeAssetUrl`, Map indices, in-flight promise cache),
 - loading missing CSS and Alpine chunks from morph batches,
 - modal FOUC prevention (`morph.updating` / `morph.updated`, `fff-flex-fields-assets-pending` / `ready` classes),
-- protected links (`data-fff-stylesheet`, `data-fff-alpine-chunk`, `data-fff-playground-bundle`).
-
-Components without custom CSS but requiring JS (e.g. `rating-field`) load their chunks dynamically via ESM `import` inside `x-load` — without explicit preloading, since their manifest entry is empty.
+- managed links (`data-fff-managed-asset`) with CRG refCount uninstall,
+- `scheduleResyncFromDom` rAF coalescing,
+- protected links (`data-fff-playground-bundle`, `flex-fields-core.css` only).
 
 After modifying JavaScript (including the injector):
 

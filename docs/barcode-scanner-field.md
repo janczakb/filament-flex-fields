@@ -2,7 +2,7 @@
 title: "BarcodeScannerField"
 ---
 
-![BarcodeScannerField](/art/sc-30.png)
+![BarcodeScannerField](/art/sc-30.webp)
 
 > **Added in v2.6.0**
 

@@ -65,6 +65,8 @@ class PhoneField extends Field
 
     protected bool|Closure $browserLocaleSortFirst = false;
 
+    protected string|Closure|null $locale = null;
+
     public function variant(string|Closure $variant): static
     {
         $this->variant = $variant;
@@ -171,6 +173,20 @@ class PhoneField extends Field
         $this->browserLocaleSortFirst = $condition;
 
         return $this;
+    }
+
+    public function locale(string|Closure|null $locale): static
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    public function getLocale(): string
+    {
+        $locale = $this->evaluate($this->locale);
+
+        return filled($locale) ? (string) $locale : app()->getLocale();
     }
 
     public function shouldUseBrowserLocaleDefault(): bool
@@ -347,7 +363,7 @@ class PhoneField extends Field
             return null;
         }
 
-        $metadata = PhoneCountries::metadata([$selectedCode], $this->getExceptCountryCodes());
+        $metadata = PhoneCountries::metadata([$selectedCode], $this->getExceptCountryCodes(), $this->getLocale());
 
         return $metadata[0] ?? null;
     }
@@ -363,6 +379,7 @@ class PhoneField extends Field
         $metadata = PhoneCountries::metadata(
             $this->getAllowedCountryCodes(),
             $this->getExceptCountryCodes(),
+            $this->getLocale(),
         );
 
         if ($this->shouldSortCountriesByBrowserLocale()) {
@@ -383,6 +400,7 @@ class PhoneField extends Field
         return PhoneCountries::selectOptions(
             $this->getAllowedCountryCodes(),
             $this->getExceptCountryCodes(),
+            $this->getLocale(),
         );
     }
 

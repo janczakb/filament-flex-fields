@@ -2,8 +2,11 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
+    connectionSaveDataEnabled,
     createFlexFieldAssetInjector,
     normalizeAssetUrl,
+    prefersReducedMotion,
+    shouldDeferBackgroundAssetPreload,
 } from '../../resources/js/core/flex-field-asset-injector.js'
 import { installPlaygroundSkeletonDemo } from '../../resources/js/playground/skeleton-demo.js'
 
@@ -92,7 +95,11 @@ function createElement(tagName) {
         classList: createClassList(),
         parentElement: null,
         dataset: {},
+        style: {},
         id: '',
+        get isConnected() {
+            return this.parentElement !== null
+        },
         appendChild(child) {
             child.parentElement = element
             element.children.push(child)
@@ -105,6 +112,9 @@ function createElement(tagName) {
             }
 
             return this.parentElement?.closest?.(selector) ?? null
+        },
+        querySelector(selector) {
+            return this.querySelectorAll(selector)[0] ?? null
         },
         querySelectorAll(selector) {
             const matches = []
@@ -144,8 +154,18 @@ function createElement(tagName) {
                 return this.hasAttribute?.('data-fff-asset-batch') ?? false
             }
 
-            if (selector === '.fi-modal') {
-                return this.classList.contains('fi-modal')
+            if (selector.startsWith('.')) {
+                for (const className of selector.split(/[\s,]+/).filter(Boolean)) {
+                    if (! className.startsWith('.')) {
+                        continue
+                    }
+
+                    if (! this.classList?.contains?.(className.slice(1))) {
+                        return false
+                    }
+                }
+
+                return selector.split(/[\s,]+/).some((token) => token.startsWith('.'))
             }
 
             return false
@@ -192,12 +212,42 @@ function createElement(tagName) {
     return element
 }
 
-function createAssetBatch(stylesheets, chunks = []) {
+function createAssetBatch(stylesheets, chunks = [], { consumerComponent = null, livewireKey = 'test.consumer' } = {}) {
     const batch = createElement('span')
     batch.attributes = {
         'data-fff-asset-batch': '',
         'data-fff-stylesheets': JSON.stringify(stylesheets),
         'data-fff-chunks': JSON.stringify(chunks),
+    }
+
+    const resolvedComponent = consumerComponent ?? (() => {
+        for (const href of stylesheets) {
+            const match = String(href).match(/flex-fields-([^./]+)\.css/)
+
+            if (match?.[1]) {
+                return match[1]
+            }
+        }
+
+        for (const href of chunks) {
+            const match = String(href).match(/flex-fields-([^.]+)\.js/)
+
+            if (match?.[1]) {
+                return match[1]
+            }
+        }
+
+        return null
+    })()
+
+    const componentForCrg = resolvedComponent
+        ?? ((stylesheets.length > 0 || chunks.length > 0) ? 'flex-asset-batch' : null)
+
+    if (componentForCrg && livewireKey) {
+        batch.attributes['data-fff-asset-consumer'] = componentForCrg
+        batch.attributes['data-fff-asset-consumer-id'] = livewireKey
+        batch.dataset.fffAssetConsumer = componentForCrg
+        batch.dataset.fffAssetConsumerId = livewireKey
     }
 
     return batch
@@ -292,6 +342,10 @@ function createDom() {
                 if (selector === '[data-fff-asset-batch]' && node.hasAttribute?.('data-fff-asset-batch')) {
                     pushMatch(node)
                 }
+
+                if (selector === '[data-fff-asset-consumer]' && node.dataset?.fffAssetConsumer) {
+                    pushMatch(node)
+                }
             }
 
             const walk = (node) => {
@@ -340,6 +394,9 @@ function createDom() {
         addEventListener() {},
         setTimeout(fn, ms) {
             return globalThis.setTimeout(fn, ms)
+        },
+        clearTimeout(id) {
+            return globalThis.clearTimeout(id)
         },
         location: {
             pathname: '/admin/flex-fields-playground/file-upload',
@@ -663,6 +720,44 @@ test('prepareModal applies pending skeleton state when modal assets still need l
     assert.equal(modal.classList.contains('fff-flex-fields-assets-ready'), true)
 })
 
+test('pending skeleton auto-releases within MAX_PENDING_VISIBLE_MS even if CSS is still loading', async () => {
+    const { document, window, head } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+
+    const modal = createElement('div')
+    modal.classList.add('fi-modal')
+    modal.id = 'slow-pending-modal'
+
+    const batch = createElement('span')
+    batch.attributes = {
+        'data-fff-asset-batch': '',
+        'data-fff-stylesheets': '["/css/janczakb/filament-flex-fields/flex-fields-schedule-field.css"]',
+        'data-fff-chunks': '[]',
+    }
+    modal.children.push(batch)
+    modal.querySelectorAll = (selector) => (selector === '[data-fff-asset-batch]' ? [batch] : [])
+
+    document.getElementById = (id) => (id === 'slow-pending-modal' ? modal : null)
+
+    const modalPromise = injector.prepareModal({ detail: { id: 'slow-pending-modal' } })
+
+    assert.equal(modal.classList.contains('fff-flex-fields-assets-pending'), true)
+
+    await new Promise((resolve) => setTimeout(resolve, 80))
+    assert.equal(modal.classList.contains('fff-flex-fields-assets-pending'), true)
+
+    await new Promise((resolve) => setTimeout(resolve, 280))
+
+    assert.equal(modal.classList.contains('fff-flex-fields-assets-pending'), false)
+    assert.equal(modal.classList.contains('fff-flex-fields-assets-ready'), true)
+
+    const created = head.children.find((child) => child.rel === 'stylesheet')
+    assert.ok(created)
+    created.dispatchEvent('load')
+
+    await modalPromise
+})
+
 test('protected stylesheet links are never removed during dedupe', async () => {
     const { document, window, head } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
@@ -812,7 +907,7 @@ test('skeleton demo keeps pending visible for the minimum display duration while
     assert.equal(modal.classList.contains('fff-flex-fields-assets-pending'), true)
     assert.equal(head.children.some((child) => child.href === href), true)
 
-    await new Promise((resolve) => setTimeout(resolve, 1800))
+    await new Promise((resolve) => setTimeout(resolve, 350))
 
     await morphPromise
 
@@ -947,7 +1042,7 @@ test('enterprise: page-only boot loads page batches and never duplicates stylesh
 
     assert.equal(stylesheetHrefs(head).filter((href) => href.includes('flex-text-input')).length, 1)
     assert.equal(injector.isStylesheetLoaded(flexHref), true)
-    assert.equal(injector.collectRetainedAssetUrls().has(normalizeAssetUrl(flexHref, document.baseURI)), true)
+    assert.equal(injector.getConsumerGraph().getRefCount(normalizeAssetUrl(flexHref, document.baseURI)) > 0, true)
 })
 
 test('enterprise: modal close uninstalls modal-only assets but retains shared page assets', async () => {
@@ -1010,7 +1105,7 @@ test('enterprise: pageOnly ensure ignores modal batches so closed modal CSS is n
     assert.equal(stylesheetHrefs(head).some((href) => href.includes('item-card')), true)
     assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
     assert.equal(
-        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        injector.getConsumerGraph().getRefCount(normalizeAssetUrl(modalOnlyHref, document.baseURI)) > 0,
         false,
     )
 })
@@ -1120,11 +1215,11 @@ test('enterprise: SPA tab navigation rebuilds page retain set and does not keep 
     assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
     assert.equal(injector.isStylesheetLoaded(videoHref), true)
     assert.equal(
-        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(videoHref, document.baseURI)),
+        injector.getConsumerGraph().getRefCount(normalizeAssetUrl(videoHref, document.baseURI)) > 0,
         true,
     )
     assert.equal(
-        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        injector.getConsumerGraph().getRefCount(normalizeAssetUrl(modalOnlyHref, document.baseURI)) > 0,
         false,
     )
 })
@@ -1152,7 +1247,7 @@ test('enterprise: page morph does not claim modal-only batches sitting in a clos
     assert.equal(stylesheetHrefs(head).some((href) => href.includes('flex-text-input')), true)
     assert.equal(stylesheetHrefs(head).some((href) => href.includes('switch')), false)
     assert.equal(
-        injector.collectRetainedAssetUrls().has(normalizeAssetUrl(modalOnlyHref, document.baseURI)),
+        injector.getConsumerGraph().getRefCount(normalizeAssetUrl(modalOnlyHref, document.baseURI)) > 0,
         false,
     )
 })
@@ -1314,4 +1409,71 @@ test('enterprise: returning to parent via x-modal-opened does not duplicate head
 
     assert.deepEqual(injector.getModalOpenStack(), ['modal:return-parent'])
     assert.equal(stylesheetHrefs(head).filter((href) => href.includes('switch')).length, 1)
+})
+
+test('background preload defers when saveData or reduced motion is enabled', async () => {
+    const { document, window, head } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+
+    window.matchMedia = () => ({ matches: true })
+    assert.equal(prefersReducedMotion(window), true)
+    assert.equal(shouldDeferBackgroundAssetPreload(window), true)
+
+    const batch = createElement('span')
+    batch.attributes = {
+        'data-fff-asset-batch': '',
+        'data-fff-stylesheets': '["/css/janczakb/filament-flex-fields/flex-fields-phone-field.css"]',
+        'data-fff-chunks': '[]',
+    }
+    batch.getBoundingClientRect = () => ({
+        top: 0,
+        left: 0,
+        bottom: 100,
+        right: 100,
+    })
+
+    document.querySelectorAll = (selector) => (
+        selector === '[data-fff-asset-batch]' ? [batch] : []
+    )
+
+    await injector.preloadVisibleBatchesIn(document)
+
+    assert.equal(head.children.length, 0)
+
+    window.matchMedia = () => ({ matches: false })
+    window.navigator = { connection: { saveData: true } }
+
+    assert.equal(connectionSaveDataEnabled(window), true)
+    assert.equal(shouldDeferBackgroundAssetPreload(window), true)
+
+    await injector.preloadVisibleBatchesIn(document)
+
+    assert.equal(head.children.length, 0)
+})
+
+test('L5: runtime critical preload hook loads overlay stylesheets for select-family acquire path', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const selectHref = '/css/janczakb/filament-flex-fields/flex-fields-select-field.css'
+    const overlayHref = '/css/janczakb/filament-flex-fields/flex-fields-overlay-runtime.css'
+    const menuHref = '/css/janczakb/filament-flex-fields/flex-fields-teleported-menu.css'
+
+    body.appendChild(createAssetBatch([selectHref, overlayHref, menuHref], [], {
+        consumerComponent: 'select-field',
+        livewireKey: 'select-1',
+    }))
+
+    injector.getConsumerGraph().resyncFromDom(document)
+    await flushStylesheetLoads(head)
+
+    assert.equal(typeof injector.injectCriticalPreloadsForSelectFamily, 'function')
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('select-field')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('overlay-runtime')), true)
+    assert.equal(stylesheetHrefs(head).some((href) => href.includes('teleported-menu')), true)
+    assert.equal(head.children.some((child) => child.rel === 'preload'), false)
+
+    await injector.injectCriticalPreloadsForSelectFamily()
+    await flushStylesheetLoads(head)
+
+    assert.equal(stylesheetHrefs(head).filter((href) => href.includes('overlay-runtime')).length, 1)
 })

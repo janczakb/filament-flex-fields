@@ -18,6 +18,21 @@ const pathsToRemove = new Set([
     'src/Filament/Forms/Components/BarcodeScannerField.php',
     'src/Filament/Forms/Components/ScheduleField.php',
     'src/Support/ProgressColor.php',
+    'src/Filament/Forms/Components/FlexRichEditor.php',
+    'src/Support/FileUpload/FileUploadImageProcessor.php',
+    'src/Filament/Forms/Components/SlugField.php',
+    'src/Filament/Forms/Components/SelectField.php',
+    'src/Filament/Forms/Components/Concerns/SelectField/InteractsWithSelectAsyncSearch.php',
+    'src/Filament/Forms/Components/Concerns/SelectField/InteractsWithSelectHeadlessRuntime.php',
+    'src/Filament/Forms/Components/Concerns/SelectField/ConfiguresSelectSmartSuggest.php',
+    'src/Data/FlexFieldSchema.php',
+    'src/Support/FormBuilder/AppliesFieldDefinitionMeta.php',
+    'src/Support/Geocoding/CircuitBreakerGeocodingProvider.php',
+    'src/Filament/Actions/Concerns/CanRequireHoldConfirm.php',
+    'src/Filament/Forms/Components/CreditCardField.php',
+    'src/Filament/Forms/Components/DualListboxField.php',
+    'src/Filament/Forms/Components/VideoField.php',
+    'src/Filament/Forms/Components/Concerns/InteractsWithUserSelectPresentation.php',
 ])
 
 const baseline = fs.readFileSync(baselinePath, 'utf8')

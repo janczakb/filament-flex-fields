@@ -10,6 +10,7 @@ use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Security\SafeMediaUrl;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Bjanczak\FilamentFlexFields\Support\VideoSources;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -802,7 +803,7 @@ class VideoField extends Field
 
             $label = filled($option['label'] ?? null)
                 ? (string) $option['label']
-                : __('filament-flex-fields::default.video.quality_option', ['height' => $option['height'] ?? $index + 1]);
+                : Translations::get('filament-flex-fields::default.video.quality_option', ['height' => $option['height'] ?? $index + 1]);
 
             $key = filled($option['key'] ?? null)
                 ? (string) $option['key']

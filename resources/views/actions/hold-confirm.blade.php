@@ -13,7 +13,9 @@
     $bulkHoldMs = HoldConfirmEnterprise::bulkHoldMs();
 @endphp
 
-@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'hold-confirm-action'])
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'hold-confirm-action',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
 @push('styles')
     <link

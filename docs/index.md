@@ -107,7 +107,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Choice & selection
 
-[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [ImageChoiceCards](/docs/imagechoicecards) · [FlexChecklist](/docs/flexchecklist) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield)
+[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [ImageChoiceCards](/docs/imagechoicecards) · [FlexChecklist](/docs/flexchecklist) · [TodoListField](/docs/todolistfield) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield) · [BubbleChoiceField](/docs/bubblechoicefield)
 
 ### Date & time
 

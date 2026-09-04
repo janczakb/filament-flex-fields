@@ -10,6 +10,7 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldStudio;
+use Filament\Schemas\Components\Section;
 use Illuminate\Validation\ValidationException;
 
 beforeEach(function (): void {
@@ -103,6 +104,51 @@ describe('FlexFieldStudio', function (): void {
         expect($components)->not->toBeEmpty();
     });
 
+    it('builds multi-section layout from registry sections', function (): void {
+        app(FlexFieldSchemaRegistry::class)->register(
+            FlexFieldSchema::make('sections-studio', 'App\\Models\\Lead')
+                ->sections([
+                    ['id' => 'basics', 'label' => 'Basics', 'type' => 'section', 'sort' => 0],
+                    ['id' => 'ops', 'label' => 'Operations', 'type' => 'fieldset', 'sort' => 1],
+                ])
+                ->fields([
+                    ['slug' => 'company', 'label' => 'Company', 'type' => 'single_line_text', 'sort' => 0, 'section_id' => 'basics'],
+                    ['slug' => 'score', 'label' => 'Score', 'type' => 'number_stepper', 'sort' => 1, 'section_id' => 'ops'],
+                    ['slug' => 'notes', 'label' => 'Notes', 'type' => 'multi_line_text', 'sort' => 2],
+                ]),
+        );
+
+        $layout = app(FlexFieldStudio::class)
+            ->form()
+            ->forModel('App\\Models\\Lead')
+            ->layout();
+
+        expect($layout)->toHaveCount(3)
+            ->and($layout[0]->getHeading())->toBe('Basics')
+            ->and($layout[1]->getHeading())->toBe('Operations')
+            ->and($layout[2]->getHeading())->toBe(__('filament-flex-fields::default.schema.custom_fields_section'));
+    });
+
+    it('renders headless sections as flat components', function (): void {
+        app(FlexFieldSchemaRegistry::class)->register(
+            FlexFieldSchema::make('headless-studio', 'App\\Models\\Lead')
+                ->sections([
+                    ['id' => 'inline', 'label' => 'Inline', 'type' => 'headless', 'sort' => 0],
+                ])
+                ->fields([
+                    ['slug' => 'inline_note', 'label' => 'Inline note', 'type' => 'single_line_text', 'sort' => 0, 'section_id' => 'inline'],
+                ]),
+        );
+
+        $layout = app(FlexFieldStudio::class)
+            ->form()
+            ->forModel('App\\Models\\Lead')
+            ->layout();
+
+        expect($layout)->toHaveCount(1)
+            ->and($layout[0])->not->toBeInstanceOf(Section::class);
+    });
+
     it('builds table columns for flex field values', function (): void {
         app(FlexFieldSchemaRegistry::class)->register(FlexFieldSchema::make('table-studio', 'App\\Models\\Lead')
             ->fields([
@@ -116,6 +162,82 @@ describe('FlexFieldStudio', function (): void {
 
         expect($columns)->toHaveCount(1)
             ->and($columns[0]->getName())->toBe('flex_score');
+    });
+});
+
+describe('FlexFieldStudio sections runtime', function (): void {
+    it('applies section visibleWhen via compileVisibleWhen on form sections', function (): void {
+        app(FlexFieldSchemaRegistry::class)->register(
+            FlexFieldSchema::make('visible-sections', 'App\\Models\\Lead')
+                ->sections([
+                    [
+                        'id' => 'conditional',
+                        'label' => 'Conditional',
+                        'type' => 'section',
+                        'visible_when' => [
+                            'and' => [[
+                                'source' => 'flex_field',
+                                'field' => 'flex_field.flag',
+                                'operator' => 'equals',
+                                'value' => true,
+                            ]],
+                        ],
+                    ],
+                ])
+                ->fields([
+                    ['slug' => 'flag', 'label' => 'Flag', 'type' => 'toggle', 'sort' => 0],
+                    ['slug' => 'note', 'label' => 'Note', 'type' => 'single_line_text', 'sort' => 1, 'section_id' => 'conditional'],
+                ]),
+        );
+
+        $layout = app(FlexFieldStudio::class)
+            ->form()
+            ->forModel('App\\Models\\Lead')
+            ->layout();
+
+        $conditional = collect($layout)->first(fn ($component): bool => $component instanceof Section
+            && $component->getHeading() === 'Conditional');
+
+        expect($conditional)->not->toBeNull();
+    });
+
+    it('groups infolist entries into schema sections', function (): void {
+        app(FlexFieldSchemaRegistry::class)->register(
+            FlexFieldSchema::make('infolist-sections', 'App\\Models\\Lead')
+                ->sections([
+                    ['id' => 'basics', 'label' => 'Basics', 'type' => 'section', 'sort' => 0],
+                ])
+                ->fields([
+                    ['slug' => 'company', 'label' => 'Company', 'type' => 'single_line_text', 'sort' => 0, 'section_id' => 'basics'],
+                ]),
+        );
+
+        $layout = app(FlexFieldStudio::class)
+            ->infolist()
+            ->forModel('App\\Models\\Lead')
+            ->layout();
+
+        expect($layout)->toHaveCount(1)
+            ->and($layout[0]->getHeading())->toBe('Basics');
+    });
+
+    it('prefixes table column labels with section names', function (): void {
+        app(FlexFieldSchemaRegistry::class)->register(
+            FlexFieldSchema::make('table-sections', 'App\\Models\\Lead')
+                ->sections([
+                    ['id' => 'crm', 'label' => 'CRM', 'type' => 'section', 'sort' => 0],
+                ])
+                ->fields([
+                    ['slug' => 'company', 'label' => 'Company', 'type' => 'single_line_text', 'sort' => 0, 'section_id' => 'crm'],
+                ]),
+        );
+
+        $columns = app(FlexFieldStudio::class)
+            ->table()
+            ->forModel('App\\Models\\Lead')
+            ->columns();
+
+        expect($columns[0]->getLabel())->toBe('CRM · Company');
     });
 });
 

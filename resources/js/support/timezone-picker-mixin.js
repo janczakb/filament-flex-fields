@@ -61,12 +61,56 @@ export function createTimezonePickerMixin(options = {}) {
             this.initOverlayMenuKeyboard()
 
             this.$nextTick(() => {
-                requestAnimationFrame(() => {
-                    this.displayReady = true
-                })
+                this.finalizeTimezoneTriggerHandoff()
             })
 
             this.bindSelectMenuLifecycle()
+        },
+
+        /**
+         * Keep SSR as the visible trigger when the blocking catalog boot already
+         * painted the official label. Never flip displayReady in that case —
+         * that swap was CET (Intl) → catalog city after x-load.
+         *
+         * @param {number} [attempt]
+         */
+        finalizeTimezoneTriggerHandoff(attempt = 0) {
+            if (this.browserTimezoneDefault && ! this.isTimezoneLocked) {
+                const detected = this.$el?.dataset?.fffDetectedTimezone
+
+                if (! this.state && detected) {
+                    this.state = detected
+                }
+
+                const ssr = this.$el?.querySelector?.('.fff-timezone-field__ssr-label')
+                const official = this.selectedTimezone?.label
+                const ssrText = ssr?.textContent?.trim() ?? ''
+                const ssrIsPlaceholder = Boolean(ssr?.classList?.contains?.('is-placeholder'))
+
+                if (official && ssrText === String(official).trim()) {
+                    return
+                }
+
+                if (official && (ssrIsPlaceholder || ssrText === '')) {
+                    this.syncTriggerSsrFromSelection?.()
+
+                    return
+                }
+
+                if (official) {
+                    return
+                }
+
+                if (attempt < 8) {
+                    this.$nextTick(() => {
+                        this.finalizeTimezoneTriggerHandoff(attempt + 1)
+                    })
+
+                    return
+                }
+            }
+
+            this.displayReady = true
         },
 
         resolveTimezoneValue() {
@@ -177,6 +221,7 @@ export function createTimezonePickerMixin(options = {}) {
             }
 
             this.assignTimezoneValue(id)
+            this.syncTriggerSsrFromSelection?.()
             this.closeMenu()
         },
 

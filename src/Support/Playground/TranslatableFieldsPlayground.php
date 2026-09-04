@@ -212,6 +212,9 @@ class TranslatableFieldsPlayground
      */
     public function components(): array
     {
-        return [$this->section()];
+        return [
+            PlaygroundRelatedHubs::view('translatable-fields'),
+            $this->section(),
+        ];
     }
 }

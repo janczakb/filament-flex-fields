@@ -7,10 +7,22 @@ parameters:
 			path: src/Console/BuildIconManifestCommand.php
 
 		-
-			message: '#^PHPDoc tag @var with type Filament\\Actions\\Action is not subtype of native type static\(Bjanczak\\FilamentFlexFields\\Filament\\Actions\\Action\)\.$#'
-			identifier: varTag.nativeType
+			message: '#^Parameter \#1 \$string of function trim expects string, array\|bool\|float\|int\|string\|null given\.$#'
+			identifier: argument.type
 			count: 1
-			path: src/Filament/Actions/Action.php
+			path: src/Console/MakeFlexFieldSchemaMigrationCommand.php
+
+		-
+			message: '#^Parameter \#2 \$directories of static method Bjanczak\\FilamentFlexFields\\Support\\Media\\SpatieMediaCaptureAdapter\:\:pruneDiskDirectories\(\) expects list\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Console/PruneCaptureMediaCommand.php
+
+		-
+			message: '#^Trait Bjanczak\\FilamentFlexFields\\Filament\\Concerns\\InteractsWithFlexFieldSchemas is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Filament/Concerns/InteractsWithFlexFieldSchemas.php
 
 		-
 			message: '#^Call to an undefined method Filament\\Forms\\Components\\Field\:\:dehydrateFromCanonical\(\)\.$#'
@@ -43,12 +55,6 @@ parameters:
 			path: src/Filament/Forms/Components/AddressAutocompleteField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AddressAutocompleteField\:\:getValidationMessage\(\) should return string\|null but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 5
-			path: src/Filament/Forms/Components/AddressAutocompleteField.php
-
-		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AddressAutocompleteField\:\:getWrapperClasses\(\) should return array\<string, bool\> but returns array\<int, string\>\.$#'
 			identifier: return.type
 			count: 1
@@ -59,6 +65,12 @@ parameters:
 			identifier: assign.propertyType
 			count: 1
 			path: src/Filament/Forms/Components/AddressAutocompleteField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AudioField\:\:getTranscriptionAlpineConfig\(\) should return array\{model\: string, quantized\: bool, multilingual\: bool, language\: string\|null, task\: string, settingsVisible\: bool, runtimeModuleUrl\: string, runtimeWasmBaseUrl\: string, \.\.\.\} but returns array\{\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Forms/Components/AudioField.php
 
 		-
 			message: '#^Parameter \#1 \$waveform of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AudioField\:\:normalizeWaveformPeaks\(\) expects list\<mixed\>, non\-empty\-array\<mixed, mixed\> given\.$#'
@@ -109,42 +121,6 @@ parameters:
 			path: src/Filament/Forms/Components/ColorSwatchField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getCvvLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getExpiryLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getExpiryValidationMessage\(\) should return string\|null but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 2
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getMark\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getNameLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CreditCardField\:\:getNumberLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/CreditCardField.php
-
-		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\CurrencyField\:\:extractAmount\(\) has parameter \$state with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -161,42 +137,6 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Filament/Forms/Components/CurrencyField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:formatOptionsForJs\(\) should return list\<array\{value\: string, label\: string, description\?\: string\|null, disabled\?\: bool\}\> but returns array\<int, array\{value\: string, label\: string, description\: string\|null, disabled\: bool\}\|array\{value\: string, label\: string\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:getAvailableLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:getFullOptionsForJs\(\) should return list\<array\{value\: string, label\: string, description\: string\|null, disabled\: bool\}\> but returns array\<int, array\{value\: string, label\: string, description\: string\|null, disabled\: bool\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:getOptionsForJs\(\) should return list\<array\{value\: string, label\: string, description\: string\|null, disabled\: bool\}\> but returns list\<array\{value\: string, label\: string, description\?\: string\|null, disabled\?\: bool\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:getSelectedLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\DualListboxField\:\:getWrapperClasses\(\) should return array\<string, string\> but returns array\<int, string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/DualListboxField.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexChecklist\:\:normalizeOptionArray\(\) has parameter \$disabledOptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
@@ -253,6 +193,36 @@ parameters:
 			path: src/Filament/Forms/Components/FlexDateTimeField.php
 
 		-
+			message: '#^Parameter \#1 \$value of method Filament\\Support\\Components\\Component\:\:evaluate\(\) expects \(callable\(\)\: void\)\|void, Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, Livewire\\Features\\SupportFileUploads\\TemporaryUploadedFile\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/FlexFileUpload.php
+
+		-
+			message: '#^Parameter \#1 \$value of method Filament\\Support\\Components\\Component\:\:evaluate\(\) expects \(callable\(\)\: void\)\|void, Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, int\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/FlexFileUpload.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexMatrixTable\:\:dehydrateItems\(\) should return array\<int, array\<string, mixed\>\> but returns array\<string, array\<string, mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Forms/Components/FlexMatrixTable.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexMatrixTable\:\:getNormalizedRows\(\) should return array\<string, array\{label\: string, description\: string\|null, disabled\: bool\}\> but returns array\<string, non\-empty\-array\<mixed\>\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Forms/Components/FlexMatrixTable.php
+
+		-
+			message: '#^Property Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexMatrixTable\:\:\$normalizedRowsCache \(array\<string, array\{label\: string, description\: string\|null, disabled\: bool\}\>\|null\) does not accept array\<string, non\-empty\-array\<mixed\>\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Filament/Forms/Components/FlexMatrixTable.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRadiolist\:\:normalizeOptionArray\(\) has parameter \$disabledOptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
 			identifier: missingType.generics
 			count: 1
@@ -281,174 +251,6 @@ parameters:
 			identifier: argument.templateType
 			count: 2
 			path: src/Filament/Forms/Components/FlexRadiolist.php
-
-		-
-			message: '#^Anonymous function never returns Filament\\Forms\\Components\\RichEditor\\ToolbarButtonGroup so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:countRichEditorImagesMissingAltText\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:countRichEditorWords\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:getMaxCharacters\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:getMaxWords\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:getMinCharacters\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\RichEditor\:\:shouldRequireRichEditorAltText\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Cannot call method getKey\(\) on array\<string, mixed\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Cannot call method getMorphClass\(\) on array\<string, mixed\>\|Illuminate\\Database\\Eloquent\\Model\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getJsonBadgeLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getReadingTimeLabelTemplate\(\) should return string but returns array\<string\>\|string\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getToolbarButtons\(\) should return array\<array\<Filament\\Forms\\Components\\RichEditor\\ToolbarButtonGroup\|string\>\> but returns array\<int, array\<int, Filament\\Forms\\Components\\RichEditor\\ToolbarButtonGroup\|string\>\|string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getWordCountEmptyLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getWordCountLineTemplate\(\) should return string but returns array\<string\>\|string\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:getWrapperClasses\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^PHPDoc tag @var with type Filament\\Forms\\Components\\RichEditor is not subtype of native type \$this\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\)\.$#'
-			identifier: varTag.nativeType
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^PHPDoc tag @var with type static\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\) is not subtype of native type \$this\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\)\.$#'
-			identifier: varTag.nativeType
-			count: 2
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\RichEditor\\RichEditorTool\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 4
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#1 \$label of static method Filament\\Forms\\Components\\RichEditor\\ToolbarButtonGroup\:\:make\(\) expects string, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 9
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#1 \$path of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexRichEditor\:\:postProcessStoredRichEditorAttachment\(\) expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#1 \$path of method Illuminate\\Contracts\\Filesystem\\Filesystem\:\:setVisibility\(\) expects string, string\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#1 \$path of method Illuminate\\Http\\UploadedFile\:\:store\(\) expects string, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#2 \$record of static method Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\ScopedDirectoryResolver\:\:resolve\(\) expects Illuminate\\Database\\Eloquent\\Model\|null, array\<string, mixed\>\|Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/FlexRichEditor.php
-
-		-
-			message: '#^Parameter \#3 \$subject of function str_replace expects array\<string\>\|string, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Filament/Forms/Components/FlexRichEditor.php
 
 		-
 			message: '#^Call to function is_array\(\) with '''' will always evaluate to false\.$#'
@@ -535,19 +337,19 @@ parameters:
 			path: src/Filament/Forms/Components/FlexVerificationCode.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:getDigitAriaLabel\(\) should return string but returns array\|string\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:getDigitAriaLabel\(\) should return string but returns array\|string\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Filament/Forms/Components/FlexVerificationCode.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:getResolvedGroups\(\) should return list\<int\> but returns non\-empty\-array\<int\>\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:getResolvedGroups\(\) should return list\<int\> but returns non\-empty\-array\<int\<1, max\>\>\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Filament/Forms/Components/FlexVerificationCode.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Filament/Forms/Components/FlexVerificationCode.php
@@ -571,13 +373,31 @@ parameters:
 			path: src/Filament/Forms/Components/IconPickerField.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\LinkPreviewField\:\:visitLabel\(\) expects Closure\|string, array\|string\|null given\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ImageChoiceCards\:\:gridColumns\(\) has parameter \$columns with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/ImageChoiceCards.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ImageChoiceCards\:\:normalizeOptionArray\(\) has parameter \$disabledOptions with generic class Illuminate\\Support\\Collection but does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Filament/Forms/Components/ImageChoiceCards.php
+
+		-
+			message: '#^Property Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ImageChoiceCards\:\:\$gridColumns type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/ImageChoiceCards.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\LinkPreviewField\:\:visitLabel\(\) expects Closure\|string, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Filament/Forms/Components/LinkPreviewField.php
 
 		-
-			message: '#^Parameter \#1 \$placeholder of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\LinkPreviewField\:\:placeholder\(\) expects Closure\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$placeholder of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\LinkPreviewField\:\:placeholder\(\) expects Closure\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Filament/Forms/Components/LinkPreviewField.php
@@ -610,12 +430,6 @@ parameters:
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\MapPickerField\:\:dehydrateFromCanonical\(\) has parameter \$state with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
-			path: src/Filament/Forms/Components/MapPickerField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\MapPickerField\:\:getValidationMessage\(\) should return string\|null but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 5
 			path: src/Filament/Forms/Components/MapPickerField.php
 
 		-
@@ -661,7 +475,43 @@ parameters:
 			path: src/Filament/Forms/Components/MatrixChoiceField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PhoneField\:\:getPhoneValidationMessage\(\) should return string\|null but returns array\|string\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:colors\(\) has parameter \$colors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:getColors\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:getEmojiImages\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:getTextColors\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:textColors\(\) has parameter \$textColors with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Parameter \#1 \$options of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:options\(\) expects array\<int\|string, string\>\|Closure, array\{0, 1, 2, 3, 4, 5, 6, 7, \.\.\.\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/NpsField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PhoneField\:\:getPhoneValidationMessage\(\) should return string\|null but returns array\|string\.$#'
 			identifier: return.type
 			count: 4
 			path: src/Filament/Forms/Components/PhoneField.php
@@ -679,13 +529,13 @@ parameters:
 			path: src/Filament/Forms/Components/PriceRangeField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PriceRangeField\:\:getMaxInputLabel\(\) should return string but returns array\|string\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PriceRangeField\:\:getMaxInputLabel\(\) should return string but returns array\|string\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Filament/Forms/Components/PriceRangeField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PriceRangeField\:\:getMinInputLabel\(\) should return string but returns array\|string\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PriceRangeField\:\:getMinInputLabel\(\) should return string but returns array\|string\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Filament/Forms/Components/PriceRangeField.php
@@ -707,24 +557,6 @@ parameters:
 			identifier: argument.templateType
 			count: 1
 			path: src/Filament/Forms/Components/PriceRangeField.php
-
-		-
-			message: '#^Parameter \#1 \$heading of method Filament\\Actions\\Action\:\:modalHeading\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/RichEditor/Actions/YoutubeAction.php
-
-		-
-			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/RichEditor/Actions/YoutubeAction.php
-
-		-
-			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/RichEditor/Actions/YoutubeAction.php
 
 		-
 			message: '#^Access to an undefined property object\:\:\$attrs\.$#'
@@ -811,12 +643,6 @@ parameters:
 			path: src/Filament/Forms/Components/RichEditor/Plugins/FlexRichEditorYoutubePlugin.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\RichEditor\\RichEditorTool\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/RichEditor/Plugins/FlexRichEditorYoutubePlugin.php
-
-		-
 			message: '#^Unsafe usage of new static\(\)\.$#'
 			identifier: new.static
 			count: 1
@@ -865,178 +691,28 @@ parameters:
 			path: src/Filament/Forms/Components/RichEditor/TipTapExtensions/Youtube.php
 
 		-
-			message: '#^Call to function is_array\(\) with '''' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Cannot call method getRelated\(\) on Illuminate\\Database\\Eloquent\\Relations\\BelongsTo\|Illuminate\\Database\\Eloquent\\Relations\\BelongsToMany\|Illuminate\\Database\\Eloquent\\Relations\\HasOneOrMany\|Illuminate\\Database\\Eloquent\\Relations\\HasOneOrManyThrough\|Znck\\Eloquent\\Relations\\BelongsToThrough\|null\.$#'
-			identifier: method.nonObject
-			count: 2
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:findOptionLabel\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:getWrapperClasses\(\) should return array\<string, string\> but returns array\<int\|string, bool\|string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:normalizeOption\(\) has parameter \$label with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:restrictRelationshipQueryColumns\(\) has parameter \$query with generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:restrictRelationshipQueryColumns\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:restrictRelationshipQueryColumns\(\) should return Illuminate\\Database\\Eloquent\\Builder but returns Illuminate\\Database\\Query\\Builder\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:transformRichOptionsForJsLegacy\(\) should return list\<array\<string, mixed\>\> but returns array\<int, array\{label\: string, options\: list\<array\<string, mixed\>\>\}\|array\{label\: string, value\: string, isDisabled\: bool, triggerLabel\?\: string\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Offset ''image'' does not exist on array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Parameter \#1 \$option of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:formatOptionLabelForJs\(\) expects array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\}, array\<string, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
-			message: '#^Parameter \#1 \$option of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:renderRichOptionLabel\(\) expects array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, image\: string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\}, array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\} given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Filament/Forms/Components/SelectField.php
-
-		-
 			message: '#^Part \$format \(Closure\) of encapsed string cannot be cast to string\.$#'
 			identifier: encapsedStringPart.nonString
 			count: 1
 			path: src/Filament/Forms/Components/SignatureField.php
 
 		-
-			message: '#^Call to an undefined method Filament\\Forms\\Components\\Field\:\:readOnly\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Call to an undefined method object\:\:getTable\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\) and ''getSpatieModelClass'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\) and ''getSpatieSlugField'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Call to function method_exists\(\) with \$this\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\) and ''normalizeSlug'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Instanceof between Illuminate\\Database\\Eloquent\\Model and Illuminate\\Database\\Eloquent\\Model will always evaluate to true\.$#'
-			identifier: instanceof.alwaysTrue
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:getPermalinkLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:getSlugUniqueValidationMessage\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:getUiLabels\(\) should return array\<string, string\> but returns array\<string, array\|string\|null\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:getVisitLinkLabel\(\) should return string but returns array\|string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:resolveOwnStatePath\(\) should return string but returns string\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SlugField\:\:shouldDeferSlugUniqueModelResolution\(\) has parameter \$parameters with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$query contains generic class Illuminate\\Database\\Eloquent\\Builder but does not specify its types\: TModel$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
-			message: '#^Parameter \#1 \$model of static method Bjanczak\\FilamentFlexFields\\Support\\Slug\\SpatieSlugIntegration\:\:resolveSlugOptions\(\) expects Illuminate\\Database\\Eloquent\\Model, object given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Filament/Forms/Components/SlugField.php
-
-		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SocialLinksField\:\:defaultPlatformDefinitionMap\(\) has parameter \$customDefinitions with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Filament/Forms/Components/SocialLinksField.php
+
+		-
+			message: '#^Parameter \#1 \$value of method Filament\\Support\\Components\\Component\:\:evaluate\(\) expects \(callable\(\)\: void\)\|void, Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, Livewire\\Features\\SupportFileUploads\\TemporaryUploadedFile\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/Spatie/FlexSpatieMediaLibraryFileUpload.php
+
+		-
+			message: '#^Parameter \#1 \$value of method Filament\\Support\\Components\\Component\:\:evaluate\(\) expects \(callable\(\)\: void\)\|void, Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, int\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/Spatie/FlexSpatieMediaLibraryFileUpload.php
 
 		-
 			message: '#^Unable to resolve the template type TMapValue in call to method Illuminate\\Support\\Collection\<\(int\|string\),string\>\:\:map\(\)$#'
@@ -1135,30 +811,6 @@ parameters:
 			path: src/Filament/Forms/Components/UserSelect.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\UserSelect\:\:getWrapperClasses\(\) should return array\<string, string\> but returns array\<string, bool\|string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Filament/Forms/Components/UserSelect.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\UserSelect\:\:normalizeOption\(\) has parameter \$label with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: src/Filament/Forms/Components/UserSelect.php
-
-		-
-			message: '#^Parameter \#1 \$option \(array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, image\: string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool, \.\.\.\}\) of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\UserSelect\:\:formatOptionLabelForJs\(\) should be compatible with parameter \$option \(array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\}\) of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:formatOptionLabelForJs\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: src/Filament/Forms/Components/UserSelect.php
-
-		-
-			message: '#^Parameter \#1 \$option \(array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, image\: string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool, \.\.\.\}\) of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\UserSelect\:\:renderRichOptionLabel\(\) should be compatible with parameter \$option \(array\{value\: int\|string, label\: string, description\: string\|null, icon\: BackedEnum\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, image\: string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool\}\) of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:renderRichOptionLabel\(\)$#'
-			identifier: method.childParameterType
-			count: 1
-			path: src/Filament/Forms/Components/UserSelect.php
-
-		-
 			message: '#^Parameter \#1 \$options of method Filament\\Forms\\Components\\Select\:\:transformOptionsForJs\(\) expects array\<array\<string\>\|string\>, array\<array\<string, bool\|string\|null\>\> given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1231,8 +883,50 @@ parameters:
 			path: src/Filament/Forms/Components/UserSelect/UserSelectQueryEngine.php
 
 		-
-			message: '#^Cannot call method defaultState\(\) on class\-string\|object\.$#'
-			identifier: method.nonObject
+			message: '#^Parameter \#1 \$sql of method Illuminate\\Database\\Query\\Builder\:\:orderByRaw\(\) expects literal\-string, non\-falsy\-string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Forms/Components/UserSelect/UserSelectQueryEngine.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\:\:afterPersistUploadedFileUsing\(\) expects \(Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, Livewire\\Features\\SupportFileUploads\\TemporaryUploadedFile\)\: void\)\|null, Closure\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\VoiceNoteRecorderField, string\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Forms/Components/VoiceNoteRecorderField.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldManagementPage\:\:groupsQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Filament/Pages/FlexFieldManagementPage.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldManagementPage\:\:groupsQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder but returns Illuminate\\Database\\Query\\Builder\.$#'
+			identifier: return.type
+			count: 3
+			path: src/Filament/Pages/FlexFieldManagementPage.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Pages/FlexFieldManagementPage.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Navigation\\NavigationItem\:\:make\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Pages/FlexFieldManagementPage.php
+
+		-
+			message: '#^Property Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldManagementPage\:\:\$groups \(list\<Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\>\) does not accept array\<int, Illuminate\\Database\\Eloquent\\Model\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Filament/Pages/FlexFieldManagementPage.php
+
+		-
+			message: '#^Call to an undefined method object\:\:components\(\)\.$#'
+			identifier: method.notFound
 			count: 1
 			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
 
@@ -1252,6 +946,24 @@ parameters:
 			message: '#^PHPDoc type class\-string\<Bjanczak\\FilamentFlexFields\\Filament\\Pages\\Cluster\>\|null of property Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldsPlaygroundComponentPage\:\:\$cluster is not covariant with PHPDoc type class\-string\<Filament\\Clusters\\Cluster\>\|null of overridden property Filament\\Pages\\Page\<Filament\\Pages\\PageConfiguration\>\:\:\$cluster\.$#'
 			identifier: property.phpDocType
 			count: 1
+			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
+
+		-
+			message: '#^Parameter \#1 \$body of method Filament\\Notifications\\Notification\:\:body\(\) expects Closure\|string\|null, array\|string\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
+
+		-
+			message: '#^Parameter \#1 \$title of method Filament\\Notifications\\Notification\:\:title\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 2
 			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
 
 		-
@@ -1279,7 +991,607 @@ parameters:
 			path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Tables\\Columns\\Column\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Parameter \#1 \$text of method Filament\\Forms\\Components\\Field\:\:helperText\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Parameter \#2 \$flexFieldOptions of static method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\VisibilityRuleBuilder\:\:make\(\) expects \(callable\(\)\: array\<string, string\>\)\|null, Closure\(Filament\\Schemas\\Components\\Utilities\\Get\)\: array\<string, string\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Parameter \#3 \$modelAttributeOptions of static method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\VisibilityRuleBuilder\:\:make\(\) expects \(callable\(\)\: array\<string, string\>\)\|null, Closure\(Filament\\Schemas\\Components\\Utilities\\Get\)\: array\<string, string\> given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Unable to resolve the template type TKey in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function collect$#'
+			identifier: argument.templateType
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>label" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:user\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Cannot access property \$slug on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: property.nonObject
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Cannot call method toRegistrySchema\(\) on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Method Filament\\Resources\\Pages\\CreateRecord\<Illuminate\\Database\\Eloquent\\Model\>\:\:fillForm\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$description of method Filament\\Actions\\Action\:\:modalDescription\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$fields of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupValidator\:\:prepareFieldsForForm\(\) expects list\<array\<string, mixed\>\>\|null, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$group of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupRegistrySync\:\:syncGroup\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup, Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$heading of method Filament\\Actions\\Action\:\:modalHeading\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\ActionGroup\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$title of method Filament\\Notifications\\Notification\:\:title\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 7
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>target_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
+
+		-
+			message: '#^Anonymous function should return string but returns int\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:user\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:registrySchemaId\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Database\\Eloquent\\Model\:\:rollbackRegistryVersion\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Cannot access property \$slug on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: property.nonObject
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Cannot call method toArray\(\) on Illuminate\\Database\\Eloquent\\Model\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Cannot call method toRegistrySchema\(\) on Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\EditFlexFieldGroup\:\:definitionsFromGroup\(\) should return list\<Bjanczak\\FilamentFlexFields\\Data\\FlexFieldDefinition\> but returns array\<int, Bjanczak\\FilamentFlexFields\\Data\\FlexFieldDefinition\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\EditFlexFieldGroup\:\:flexFieldValueCsvActions\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Method Filament\\Resources\\Pages\\EditRecord\<Illuminate\\Database\\Eloquent\\Model\>\:\:fillForm\(\) invoked with 1 parameter, 0 required\.$#'
+			identifier: arguments.count
+			count: 3
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$description of method Filament\\Actions\\Action\:\:modalDescription\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$fields of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupValidator\:\:prepareFieldsForForm\(\) expects list\<array\<string, mixed\>\>\|null, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$group of method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\EditFlexFieldGroup\:\:definitionsFromGroup\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup, Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$group of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupRegistrySync\:\:syncGroup\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup, Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$group of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupRegistrySync\:\:syncGroup\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup, Illuminate\\Database\\Eloquent\\Model\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$heading of method Filament\\Actions\\Action\:\:modalHeading\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 7
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\ActionGroup\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 4
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$record of method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\EditFlexFieldGroup\:\:flexFieldGroupSchemaActions\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$record of method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\EditFlexFieldGroup\:\:flexFieldValueCsvActions\(\) expects Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\|null, Illuminate\\Database\\Eloquent\\Model given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$text of method Filament\\Forms\\Components\\Field\:\:helperText\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$title of method Filament\\Notifications\\Notification\:\:title\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 9
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>target_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:user\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/ListFlexFieldGroups.php
+
+		-
+			message: '#^Cannot call method where\(\) on Illuminate\\Database\\Eloquent\\Builder\|Illuminate\\Database\\Eloquent\\Relations\\Relation\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/ListFlexFieldGroups.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\ListFlexFieldGroups\:\:getTableQuery\(\) return type with generic class Illuminate\\Database\\Eloquent\\Builder does not specify its types\: TModel$#'
+			identifier: missingType.generics
+			count: 1
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/ListFlexFieldGroups.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Resources\\FlexFieldGroupResource\\Pages\\ListFlexFieldGroups\:\:getTableQuery\(\) should return Illuminate\\Database\\Eloquent\\Builder but returns Illuminate\\Database\\Eloquent\\Builder\|Illuminate\\Database\\Eloquent\\Relations\\Relation\|null\.$#'
+			identifier: return.type
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Pages/ListFlexFieldGroups.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\FieldTypeAutoAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 18
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\KeyValue\:\:keyLabel\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\KeyValue\:\:valueLabel\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Schemas\\Components\\Fieldset\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$text of method Filament\\Forms\\Components\\Field\:\:helperText\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 7
+			path: src/Filament/Schema/Admin/FieldTypeAutoAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\ChoiceFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/ChoiceFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 30
+			path: src/Filament/Schema/Admin/Schemas/ChoiceFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Filament/Schema/Admin/Schemas/ChoiceFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\DateTimeFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/DateTimeFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 16
+			path: src/Filament/Schema/Admin/Schemas/DateTimeFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Schema/Admin/Schemas/DateTimeFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\LocationPhoneColorAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/LocationPhoneColorAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 24
+			path: src/Filament/Schema/Admin/Schemas/LocationPhoneColorAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Filament/Schema/Admin/Schemas/LocationPhoneColorAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\MatrixFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/MatrixFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 7
+			path: src/Filament/Schema/Admin/Schemas/MatrixFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/MatrixFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\MediaFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/MediaFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 16
+			path: src/Filament/Schema/Admin/Schemas/MediaFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Filament/Schema/Admin/Schemas/MediaFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\NumberFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/NumberFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 14
+			path: src/Filament/Schema/Admin/Schemas/NumberFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/NumberFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\TextFieldAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/TextFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 19
+			path: src/Filament/Schema/Admin/Schemas/TextFieldAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Filament/Schema/Admin/Schemas/TextFieldAdminSchema.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\Admin\\Schemas\\ToggleTagsRatingAdminSchema\:\:isOneOf\(\) has parameter \$types with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Filament/Schema/Admin/Schemas/ToggleTagsRatingAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 21
+			path: src/Filament/Schema/Admin/Schemas/ToggleTagsRatingAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of static method Filament\\Schemas\\Components\\Fieldset\:\:make\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 5
+			path: src/Filament/Schema/Admin/Schemas/ToggleTagsRatingAdminSchema.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 9
+			path: src/Filament/Schema/FieldOptionsBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Repeater\:\:addActionLabel\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/FieldOptionsBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$description of method Filament\\Schemas\\Components\\Section\:\:description\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/FieldTypeSettingsBuilder.php
+
+		-
+			message: '#^Anonymous function never returns null so it can be removed from the return type\.$#'
+			identifier: return.unusedType
+			count: 1
+			path: src/Filament/Schema/FlexFieldTargetModelSelect.php
+
+		-
+			message: '#^Anonymous function should return string\|null but returns array\|string\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Schema/FlexFieldTargetModelSelect.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/FlexFieldTargetModelSelect.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Infolists\\Components\\Entry\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/FlexFieldTargetModelSelect.php
+
+		-
+			message: '#^Parameter \#1 \$placeholder of method Filament\\Forms\\Components\\Select\:\:placeholder\(\) expects Closure\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/FlexFieldTargetModelSelect.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Filament/Schema/MatrixChoiceBuilder.php
+
+		-
+			message: '#^Parameter \$addLabel of static method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\MatrixChoiceBuilder\:\:dimensionRepeater\(\) expects string, array\|string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Schema/MatrixChoiceBuilder.php
+
+		-
+			message: '#^Parameter \$label of static method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\MatrixChoiceBuilder\:\:dimensionRepeater\(\) expects string, array\|string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Filament/Schema/MatrixChoiceBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
+			identifier: argument.type
+			count: 6
+			path: src/Filament/Schema/VisibilityRuleBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$state of static method Bjanczak\\FilamentFlexFields\\Filament\\Schema\\VisibilityRuleBuilder\:\:repeaterStateToRules\(\) expects list\<array\<string, mixed\>\>\|null, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Filament/Schema/VisibilityRuleBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Filament/Schemas/Components/CoverCard.php
@@ -1347,12 +1659,6 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(Filament\\Actions\\Action\|Filament\\Actions\\ActionGroup\|Filament\\Schemas\\Components\\Component\)\: bool\)\|null, Closure\(Filament\\Schemas\\Components\\Component\)\: bool given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Filament/Schemas/Components/SegmentTabs.php
-
-		-
-			message: '#^Using nullsafe method call on non\-nullable type Bjanczak\\FilamentFlexFields\\Filament\\Schemas\\Components\\SegmentTabs\\SegmentTab\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
 			count: 1
 			path: src/Filament/Schemas/Components/SegmentTabs.php
 
@@ -1429,6 +1735,42 @@ parameters:
 			path: src/Filament/Tables/Columns/UserColumn.php
 
 		-
+			message: '#^Class Bjanczak\\FilamentFlexFields\\FlexFieldEntityDiscovery not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/FilamentFlexFieldsServiceProvider.php
+
+		-
+			message: '#^Class Bjanczak\\FilamentFlexFields\\FlexFieldEntityRegistry not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/FilamentFlexFieldsServiceProvider.php
+
+		-
+			message: '#^Class Bjanczak\\FilamentFlexFields\\FlexFieldFilterBuilder not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/FilamentFlexFieldsServiceProvider.php
+
+		-
+			message: '#^Class Bjanczak\\FilamentFlexFields\\FlexFieldFormBuilder not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/FilamentFlexFieldsServiceProvider.php
+
+		-
+			message: '#^Access to an undefined property Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\:\:\$sections\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Models/FlexFieldGroup.php
+
+		-
+			message: '#^Parameter \#1 \$fields of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupValidator\:\:normalizeFields\(\) expects list\<array\<string, mixed\>\>\|null, array\<int, array\<string, mixed\>\>\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Models/FlexFieldGroup.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\StateCasts\\CurrencyFieldStateCast\:\:get\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1439,6 +1781,12 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/StateCasts/CurrencyFieldStateCast.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Choice\\RichOptionSchemaV2\:\:normalizeTagsList\(\) should return list\<string\> but returns array\<int, string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Choice/RichOptionSchemaV2.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\CountryRegistryQueue\:\:registerCountryFilter\(\) has parameter \$codes with no value type specified in iterable type array\.$#'
@@ -1453,13 +1801,13 @@ parameters:
 			path: src/Support/CountryRegistryQueue.php
 
 		-
-			message: '#^Cannot cast array\|string\|null to string\.$#'
+			message: '#^Cannot cast array\|string to string\.$#'
 			identifier: cast.string
 			count: 1
 			path: src/Support/CurrencyCountries.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:defaultPlaceholder\(\) should return string but returns array\|string\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:defaultPlaceholder\(\) should return string but returns array\|string\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Support/DateTime/DateTimeAlpineConfiguration.php
@@ -1471,7 +1819,19 @@ parameters:
 			path: src/Support/DateTime/DateTimeAlpineConfiguration.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:labels\(\) should return array\<string, string\> but returns array\<string, array\|string\|null\>\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:labels\(\) should return array\<string, string\> but returns array\<string, array\|string\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/DateTime/DateTimeAlpineConfiguration.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:resolveUnavailableAnchorDate\(\) has parameter \$initialState with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/DateTime/DateTimeAlpineConfiguration.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\DateTime\\DateTimeAlpineConfiguration\:\:validationMessages\(\) should return array\<string, string\> but returns array\<string, array\|string\>\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Support/DateTime/DateTimeAlpineConfiguration.php
@@ -1531,142 +1891,22 @@ parameters:
 			path: src/Support/DateTime/DateTimeMonthLabels.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''Intervention\\\\Image\\\\ImageManager'' and ''decodePath'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Enterprise\\OemWhiteLabel\:\:tokenRenameMap\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
+			path: src/Support/Enterprise/OemWhiteLabel.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''Intervention\\\\Image\\\\ImageManager'' and ''read'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Call to function method_exists\(\) with Illuminate\\Contracts\\Filesystem\\Filesystem and ''path'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 3
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Call to method decodePath\(\) on an unknown class Intervention\\Image\\ImageManager\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Call to method read\(\) on an unknown class Intervention\\Image\\ImageManager\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Instantiated class Intervention\\Image\\Drivers\\Imagick\\Driver not found\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Instantiated class Intervention\\Image\\ImageManager not found\.$#'
-			identifier: class.notFound
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImageProcessor\:\:createImageResource\(\) should return resource\|null but returns GdImage\|false\|null\.$#'
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Enterprise\\SchemaRegistry\:\:versions\(\) should return list\<array\{version\: int, schema\: array\<string, mixed\>, checksum\: string, actor\: string\|null, state\: string, published_at\: string\}\> but returns array\<int, array\{version\: int, schema\: array\<string, mixed\>, checksum\: string, actor\: string\|null, state\: string, published_at\: string\}\>\.$#'
 			identifier: return.type
 			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
+			path: src/Support/Enterprise/SchemaRegistry.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImageProcessor\:\:createInterventionImageManager\(\) has invalid return type Intervention\\Image\\ImageManager\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagedestroy expects GdImage, GdImage\|resource given\.$#'
-			identifier: argument.type
-			count: 3
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagedestroy expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagegif expects GdImage, resource given\.$#'
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array\{version\: int, schema\: array\<string, mixed\>, checksum\: string, actor\: string\|null, state\: string, published_at\: string\}, Closure\(Bjanczak\\FilamentFlexFields\\Models\\FlexFieldSchemaVersion\)\: array\{version\: int, schema\: array\<string, mixed\>, checksum\: string, actor\: string\|null, state\: string, published_at\: string\} given\.$#'
 			identifier: argument.type
 			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagejpeg expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagepng expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagesx expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagesy expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagewebp expects GdImage, GdImage\|resource given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$image of function imagewebp expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$resource of method Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImageProcessor\:\:saveGdResource\(\) expects resource, GdImage\|resource given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#1 \$width of function imagecreatetruecolor expects int\<1, max\>, int given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#2 \$height of function imagecreatetruecolor expects int\<1, max\>, int given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \#2 \$src_image of function imagecopyresampled expects GdImage, resource given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
-
-		-
-			message: '#^Parameter \$manager of method Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImageProcessor\:\:loadInterventionImage\(\) has invalid type Intervention\\Image\\ImageManager\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/FileUpload/FileUploadImageProcessor.php
+			path: src/Support/Enterprise/SchemaRegistry.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Contracts\\Filesystem\\Filesystem\:\:mimeType\(\)\.$#'
@@ -1699,7 +1939,7 @@ parameters:
 			path: src/Support/FileUpload/FileUploadMetadata.php
 
 		-
-			message: '#^Parameter \#1 \$message of class Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImportException constructor expects string, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$message of class Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImportException constructor expects string, array\|string given\.$#'
 			identifier: argument.type
 			count: 4
 			path: src/Support/FileUpload/FileUploadRemoteImporter.php
@@ -1717,10 +1957,16 @@ parameters:
 			path: src/Support/FileUpload/RemoteFileFetcher.php
 
 		-
-			message: '#^Parameter \#1 \$message of class Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImportException constructor expects string, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$message of class Bjanczak\\FilamentFlexFields\\Support\\FileUpload\\FileUploadImportException constructor expects string, array\|string given\.$#'
 			identifier: argument.type
 			count: 9
 			path: src/Support/FileUpload/RemoteFileFetcher.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldAssets\:\:expandTransitiveAlpineChunks\(\) has parameter \$manifest with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FlexFieldAssets.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldAssets\:\:overlayCoordinatorChunk\(\) has parameter \$manifest with no value type specified in iterable type array\.$#'
@@ -1735,14 +1981,62 @@ parameters:
 			path: src/Support/FlexFieldAssets.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\AddressAutocompleteFieldConfigurator\:\:configureAddressAutocompleteField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Parameter \#1 \$chunks of static method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldAssets\:\:expandTransitiveAlpineChunks\(\) expects list\<string\>, array\<mixed\> given\.$#'
+			identifier: argument.type
 			count: 1
-			path: src/Support/FormBuilder/Configurators/AddressAutocompleteFieldConfigurator.php
+			path: src/Support/FlexFieldAssets.php
 
 		-
-			message: '#^Parameter \#1 \$countries of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AddressAutocompleteField\:\:countries\(\) expects Closure\|list\<string\>\|null, array\<mixed, mixed\>\|null given\.$#'
-			identifier: argument.type
+			message: '#^Undefined variable\: \$statePathPrefix$#'
+			identifier: variable.undefined
+			count: 2
+			path: src/Support/FlexFieldFormBuilder.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:find\(\) should return array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\|null but returns array\{label\: string, playground\: class\-string, sort\: int, icon\: string\}\|null\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:groupedByCategory\(\) should return array\<string, list\<array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\> but returns array\{meta\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, layout\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, fields\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, tables\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, media\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:ordered\(\) should return array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\> but returns array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\?\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Offset ''category'' does not exist on array\{label\: string, playground\: class\-string, sort\: int, icon\: string\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 2
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Static property Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:\$definitionsCache \(array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\|null\) does not accept array\{focus\-outline\: array\{label\: ''Focus outline'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\FocusOutlinePlayground'', sort\: 10, icon\: ''gravityui\-eye''\}, schema\-conditions\: array\{label\: ''Schema conditions'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\SchemaConditionsPlayground'', sort\: 12, icon\: ''gravityui\-file\-text''\}, field\-intelligence\: array\{label\: ''Calculated formulas'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\FieldIntelligencePlayground'', sort\: 14, icon\: ''gravityui…''\}, composition\-recipes\: array\{label\: ''Composition recipes'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\CompositionRecipesPlayground'', sort\: 17, icon\: ''gravityui\-layout…''\}, phone\-field\: array\{label\: ''Phone field'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\PhoneFieldPlayground'', sort\: 20, icon\: ''gravityui\-handset''\}, country\-field\: array\{label\: ''Country field'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\CountryFieldPlayground'', sort\: 30, icon\: ''gravityui\-globe''\}, timezone\-field\: array\{label\: ''Timezone field'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\TimezoneFieldPlayground'', sort\: 40, icon\: ''gravityui\-clock''\}, currency\-field\: array\{label\: ''Currency field'', playground\: ''Bjanczak\\\\FilamentFlexFields\\\\Support\\\\Playground\\\\CurrencyFieldPlayground'', sort\: 50, icon\: ''gravityui\-circle…''\}, \.\.\.\}\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Static property Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:\$orderedCache \(array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\|null\) does not accept array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string\}\>\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Static property Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:\$orderedCache \(array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\|null\) is never assigned array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\> so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Support/FlexFieldsPlaygroundRegistry.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\AddressAutocompleteFieldConfigurator\:\:configureAddressAutocompleteField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
 			count: 1
 			path: src/Support/FormBuilder/Configurators/AddressAutocompleteFieldConfigurator.php
 
@@ -1777,7 +2071,25 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/AudioFieldConfigurator.php
 
 		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\BarcodeScannerFieldConfigurator\:\:configureBarcodeScannerField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/BarcodeScannerFieldConfigurator.php
+
+		-
+			message: '#^Parameter \#1 \$facing of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\BarcodeScannerField\:\:cameraFacing\(\) expects ''environment''\|''user''\|Closure, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/BarcodeScannerFieldConfigurator.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\ChoiceCardsFieldConfigurator\:\:configureChoiceCardsField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/ChoiceCardsFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\ChoiceCardsFieldConfigurator\:\:optionsAreRichArrays\(\) has parameter \$raw with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Support/FormBuilder/Configurators/ChoiceCardsFieldConfigurator.php
@@ -1921,6 +2233,12 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/IconPickerFieldConfigurator.php
 
 		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\ImageChoiceCardsFieldConfigurator\:\:configureImageChoiceCardsField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/ImageChoiceCardsFieldConfigurator.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\MapPickerFieldConfigurator\:\:configureMapPickerField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1928,12 +2246,6 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$center of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\MapPickerField\:\:defaultCenter\(\) expects array\{float, float\}\|Closure, array\<mixed, mixed\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/FormBuilder/Configurators/MapPickerFieldConfigurator.php
-
-		-
-			message: '#^Parameter \#1 \$countries of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\MapPickerField\:\:countries\(\) expects Closure\|list\<string\>\|null, array\<mixed, mixed\>\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Support/FormBuilder/Configurators/MapPickerFieldConfigurator.php
@@ -1951,7 +2263,7 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/MapPickerFieldConfigurator.php
 
 		-
-			message: '#^Parameter \#1 \$types of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\MapPickerField\:\:searchTypes\(\) expects Closure\|list\<Bjanczak\\FilamentFlexFields\\Enums\\MapboxSearchType\|string\>\|null, array\<mixed, mixed\>\|null given\.$#'
+			message: '#^Parameter \#1 \$types of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\AddressAutocompleteField\:\:searchTypes\(\) expects Closure\|list\<Bjanczak\\FilamentFlexFields\\Enums\\MapboxSearchType\|string\>\|null, array\<mixed, mixed\>\|null given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Support/FormBuilder/Configurators/MapPickerFieldConfigurator.php
@@ -1961,6 +2273,18 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Support/FormBuilder/Configurators/MatrixChoiceFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\NpsFieldConfigurator\:\:configureNpsField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/NpsFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\NpsFieldConfigurator\:\:resolveNumericOptions\(\) should return array\<int\|string, string\> but returns array\<int, int\>\.$#'
+			identifier: return.type
+			count: 2
+			path: src/Support/FormBuilder/Configurators/NpsFieldConfigurator.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\NumberStepperFieldConfigurator\:\:configureNumberStepperField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
@@ -2005,6 +2329,24 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/RatingFieldConfigurator.php
 
 		-
+			message: '#^Parameter \#1 \$days of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ScheduleField\:\:days\(\) expects Closure\|list\<string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/ScheduleFieldConfigurator.php
+
+		-
+			message: '#^Parameter \#1 \$days of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ScheduleField\:\:lockedDays\(\) expects Closure\|list\<string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/ScheduleFieldConfigurator.php
+
+		-
+			message: '#^Parameter \#1 \$days of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\ScheduleField\:\:workdays\(\) expects Closure\|list\<string\>, array\<mixed, mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/ScheduleFieldConfigurator.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\SegmentControlFieldConfigurator\:\:configureSegmentControlField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -2033,6 +2375,12 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Support/FormBuilder/Configurators/SlugFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\SocialLinksFieldConfigurator\:\:configureSocialLinksField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/SocialLinksFieldConfigurator.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\SwitchFieldConfigurator\:\:configureSwitchField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
@@ -2089,10 +2437,106 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/VideoFieldConfigurator.php
 
 		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\VoiceNoteRecorderFieldConfigurator\:\:configureVoiceNoteRecorderField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\FieldComponentFactory\:\:makeComponent\(\) never returns null so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
 			path: src/Support/FormBuilder/FieldComponentFactory.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Handlers\\NumericFieldTypeHandler\:\:makeFlexNumberInput\(\) should return Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexTextInput but returns Filament\\Schemas\\Components\\Component\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FormBuilder/Handlers/NumericFieldTypeHandler.php
+
+		-
+			message: '#^Parameter \#1 \$config of static method Bjanczak\\FilamentFlexFields\\Support\\Geocoding\\GeocodingOs\:\:buildMapboxProvider\(\) expects array\<string, mixed\>, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Geocoding/GeocodingOs.php
+
+		-
+			message: '#^Offset 1 might not exist on array\{0\: ''bin'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 1 might not exist on array\{0\: ''call'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 1 might not exist on array\{0\: ''lit'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 1 might not exist on array\{0\: ''un'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 2 might not exist on array\{0\: ''bin'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 2 might not exist on array\{0\: ''call'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 2 might not exist on array\{0\: ''un'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Offset 3 might not exist on array\{0\: ''bin'', 1\?\: mixed, 2\?\: mixed, 3\?\: mixed\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaEvaluator.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function max expects non\-empty\-array, array\<int\<0, max\>\|string, float\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaFunctions.php
+
+		-
+			message: '#^Parameter \#1 \.\.\.\$arg1 of function min expects non\-empty\-array, array\<int\<0, max\>\|string, float\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaFunctions.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<''abs''\|''and''\|''avg''\|''between''\|''ceil''\|''clamp''\|''coalesce''\|''floor''\|''if''\|''max''\|''min''\|''not''\|''nz''\|''or''\|''pct''\|''pow''\|''round''\|''sign''\|''sqrt''\|''sum''\|''trunc''\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaLexer.php
+
+		-
+			message: '#^Offset 1 on array\{list\<string\>, list\<non\-falsy\-string\>\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/Support/Intelligence/Formula/FormulaLexer.php
+
+		-
+			message: '#^Cannot call method format\(\) on IntlDateFormatter\|null\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Support/Locale/FlexFieldsLocale.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Mapbox\\MapboxGeocodingClient\:\:normalizeResponse\(\) should return array\{features\: list\<array\<string, mixed\>\>, error\: string\|null\} but returns array\{features\: array\<mixed\>, error\: string\|null\}\.$#'
@@ -2101,10 +2545,106 @@ parameters:
 			path: src/Support/Mapbox/MapboxGeocodingClient.php
 
 		-
-			message: '#^Constant Bjanczak\\FilamentFlexFields\\Support\\Playground\\CoverCardPlayground\:\:YACHT_BANNER_IMAGE is unused\.$#'
-			identifier: classConstant.unused
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:user\(\)\.$#'
+			identifier: method.notFound
 			count: 1
-			path: src/Support/Playground/CoverCardPlayground.php
+			path: src/Support/Media/MediaCaptureOs.php
+
+		-
+			message: '#^Parameter \#1 \$resolver of static method Bjanczak\\FilamentFlexFields\\Support\\Media\\MediaCaptureOs\:\:registerSignedUploadUrlResolver\(\) expects \(callable\(string, string, array\<string, mixed\>\)\: string\)\|null, Bjanczak\\FilamentFlexFields\\Support\\Media\\LaravelStorageSignedUrlResolver given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Media/MediaCaptureOs.php
+
+		-
+			message: '#^Static property Bjanczak\\FilamentFlexFields\\Support\\Media\\MediaCaptureOs\:\:\$retentionPolicies \(array\{uploads\: array\{enabled\: bool, days\: int\|null\}, voice_notes\: array\{enabled\: bool, days\: int\|null\}, signatures\: array\{enabled\: bool, days\: int\|null\}, temp_captures\: array\{enabled\: bool, days\: int\|null\}\}\|null\) does not accept array\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: src/Support/Media/MediaCaptureOs.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Media\\MediaCaptureTenantDiskResolver\:\:resolveDirectory\(\) has parameter \$context with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Media/MediaCaptureTenantDiskResolver.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getAttributeValue\(\)\.$#'
+			identifier: method.notFound
+			count: 6
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getTemporaryUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Call to an undefined method object\:\:getUrl\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Call to an undefined method object\:\:hasGeneratedConversion\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Call to method resolveMediaCaptureSignedUrl\(\) on an unknown class Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage\.$#'
+			identifier: class.notFound
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Cannot call method delete\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Cannot call method getAttributeValue\(\) on stdClass\.$#'
+			identifier: method.nonObject
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^PHPDoc tag @var for variable \$component has invalid type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage\.$#'
+			identifier: varTag.trait
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^PHPDoc tag @var with type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage is not subtype of native type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Unable to resolve the template type TValue in call to function rescue$#'
+			identifier: argument.templateType
+			count: 1
+			path: src/Support/Media/SpatieMediaCaptureAdapter.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Support/Playground/FlexFieldsPlaygroundStore.php
+
+		-
+			message: '#^Cannot call method getNormalizedRows\(\) on Filament\\Schemas\\Components\\Component\|null\.$#'
+			identifier: method.nonObject
+			count: 2
+			path: src/Support/Playground/FlexMatrixTablePlayground.php
+
+		-
+			message: '#^Parameter \#2 \$string of function explode expects string, string\|null given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Support/Playground/FlexMatrixTablePlayground.php
 
 		-
 			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
@@ -2113,25 +2653,13 @@ parameters:
 			path: src/Support/Playground/FlexRichEditorPlayground.php
 
 		-
-			message: '#^Parameter \#1 \$description of method Filament\\Schemas\\Components\\Section\:\:description\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/Playground/FlexRichEditorPlayground.php
-
-		-
-			message: '#^Parameter \#1 \$label of method Filament\\Forms\\Components\\Field\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Support/Playground/FlexRichEditorPlayground.php
-
-		-
-			message: '#^Parameter \#1 \$footer of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:footer\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$footer of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexVerificationCode\:\:footer\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Support/Playground/FlexVerificationCodePlayground.php
 
 		-
-			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string\|null given\.$#'
+			message: '#^Parameter \#1 \$label of method Filament\\Actions\\Action\:\:label\(\) expects Closure\|Illuminate\\Contracts\\Support\\Htmlable\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Support/Playground/FlexVerificationCodePlayground.php
@@ -2141,6 +2669,42 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Support/Playground/FormLayoutPlayground.php
+
+		-
+			message: '#^Parameter \#1 \$options of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\NpsField\:\:options\(\) expects array\<int\|string, string\>\|Closure, array\{1\: 1, 2\: 2, 3\: 3, 4\: 4, 5\: 5\} given\.$#'
+			identifier: argument.type
+			count: 3
+			path: src/Support/Playground/NpsFieldPlayground.php
+
+		-
+			message: '#^Call to function method_exists\(\) with Filament\\Schemas\\Components\\View and ''getView'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: src/Support/Playground/PlaygroundCodeSnippet.php
+
+		-
+			message: '#^Parameter \#1 \$filename of function file_get_contents expects string, string\|false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Playground/PlaygroundCodeSnippet.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Playground\\SelectPlayground\:\:paginatedCharacterSearch\(\) should return array\{items\: list\<array\{value\: string, label\: string\}\>, cursor\: string\|null, hasMore\: bool\} but returns array\{items\: array\<int, array\{value\: string, label\: string\}\>, cursor\: decimal\-int\-string\|null, hasMore\: bool\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Playground/SelectPlayground.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:getSearchResultsPageUsing\(\) expects \(Closure\(array\{search\: string, cursor\: string\|null, pageSize\: int\}\)\: array\<''cursor''\|''hasMore''\|''items''\|int, array\<int\|string, mixed\>\|bool\|string\|null\>\)\|null, Closure\(string, string\|null, int\)\: array\{items\: list\<array\{value\: string, label\: string\}\>, cursor\: string\|null, hasMore\: bool\} given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Playground/SelectPlayground.php
+
+		-
+			message: '#^Parameter \#2 \$resolveOptions of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\SelectField\:\:dependsOn\(\) expects Closure\(mixed \.\.\.\)\: array\<mixed\>, Closure\(string\|null\)\: \(array\{\}\|array\{ca\: ''California'', tx\: ''Texas'', ny\: ''New York''\}\|array\{du\: ''Dubai'', az\: ''Abu Dhabi'', sh\: ''Sharjah''\}\|array\{mz\: ''Mazowieckie'', wp\: ''Wielkopolskie'', pm\: ''Pomorskie''\}\) given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Playground/SelectPlayground.php
 
 		-
 			message: '#^Parameter \#1 \$options of method Filament\\Forms\\Components\\Select\:\:options\(\) expects array\<array\<string\>\|string\>\|Closure\|Illuminate\\Contracts\\Support\\Arrayable\|string\|null, array\<string, array\{label\: string, description\: string, image\?\: string, verified\: bool\}\> given\.$#'
@@ -2197,28 +2761,184 @@ parameters:
 			path: src/Support/RichEditor/RichEditorResponsiveSrcsetBuilder.php
 
 		-
-			message: '#^Closure invoked with 1 parameter, 2 required\.$#'
-			identifier: arguments.count
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schedule\\ScheduleChangeAuditor\:\:diff\(\) should return list\<array\{type\: string, day\?\: string, before\?\: mixed, after\?\: mixed, message\: string\}\> but returns list\<array\{type\: ''timezone'', before\: string\|null, after\: string\|null, message\: array\|string\}\|array\{type\: string, day\: string, before\: array\{enabled\: bool, slots\: list\<array\{from\: string, to\: string\}\>\}, after\: array\{enabled\: bool, slots\: list\<array\{from\: string, to\: string\}\>\}, message\: array\|string\}\>\.$#'
+			identifier: return.type
 			count: 1
-			path: src/Support/Select/RichOptionJsTransformer.php
+			path: src/Support/Schedule/ScheduleChangeAuditor.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Select\\RichOptionJsTransformer\:\:transform\(\) has parameter \$normalizeOption with no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schedule\\ScheduleExporter\:\:toOpeningHoursSummary\(\) should return list\<array\{day\: string, label\: string, periods\: list\<array\{from\: string, to\: string, overnight\?\: bool, type\?\: string\}\>\}\> but returns list\<array\{day\: string, label\: array\|string, periods\: list\<array\{from\: string, to\: string, type\: ''break''\|''slot'', overnight\?\: true\}\>\}\>\.$#'
+			identifier: return.type
 			count: 1
-			path: src/Support/Select/RichOptionJsTransformer.php
+			path: src/Support/Schedule/ScheduleExporter.php
 
 		-
-			message: '#^Parameter \#1 \$normalized of method Bjanczak\\FilamentFlexFields\\Support\\Select\\RichOptionJsTransformer\:\:isClientRenderable\(\) expects array\{value\: int\|string, label\: string, description\: string\|null, icon\: mixed, image\: string\|null, badge\: string\|null, badge_color\: string\|null, disabled\: bool, \.\.\.\}, array\<string, mixed\> given\.$#'
+			message: '#^Parameter \#1 \$value of static method Illuminate\\Support\\Facades\\Crypt\:\:encryptString\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 1
-			path: src/Support/Select/RichOptionJsTransformer.php
+			path: src/Support/Schema/FlexFieldEncryption.php
 
 		-
-			message: '#^Unknown parameter \$compact in call to closure\.$#'
-			identifier: argument.unknown
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: src/Support/Schema/FlexFieldEntityDiscovery.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldEntityDiscovery\:\:emptyStateHint\(\) should return string but returns array\|string\.$#'
+			identifier: return.type
 			count: 1
-			path: src/Support/Select/RichOptionJsTransformer.php
+			path: src/Support/Schema/FlexFieldEntityDiscovery.php
+
+		-
+			message: '#^Parameter \$modelClass of class Bjanczak\\FilamentFlexFields\\Data\\FlexFieldEntity constructor expects class\-string, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldEntityDiscovery.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldFilterBuilder\:\:makeFilter\(\) should return Filament\\Tables\\Filters\\Filter\|null but returns Filament\\Tables\\Filters\\SelectFilter\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/FlexFieldFilterBuilder.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldFilterBuilder\:\:makeFilter\(\) should return Filament\\Tables\\Filters\\Filter\|null but returns Filament\\Tables\\Filters\\TernaryFilter\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/FlexFieldFilterBuilder.php
+
+		-
+			message: '#^Anonymous function with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupRegistrySync.php
+
+		-
+			message: '#^Parameter \#1 \$callback of method Illuminate\\Database\\Query\\Builder\:\:each\(\) expects callable\(stdClass, int\)\: mixed, Closure\(Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\)\: void given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupRegistrySync.php
+
+		-
+			message: '#^Access to an undefined property Bjanczak\\FilamentFlexFields\\Models\\FlexFieldGroup\:\:\$sections\.$#'
+			identifier: property.notFound
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupValidator.php
+
+		-
+			message: '#^Parameter \#1 \$sections of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldGroupValidator\:\:collectSectionIds\(\) expects list\<array\<string, mixed\>\>, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupValidator.php
+
+		-
+			message: '#^Parameter \#1 \$state of static method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldOptionStorage\:\:repeaterToConfigList\(\) expects list\<array\<string, mixed\>\>\|null, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupValidator.php
+
+		-
+			message: '#^Parameter \#1 \$state of static method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldOptionStorage\:\:repeaterToSuggestions\(\) expects list\<array\<string, mixed\>\>\|null, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldGroupValidator.php
+
+		-
+			message: '#^Anonymous function should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/FlexFieldInfolistBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$state of static method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldMatrixStorage\:\:repeaterToConfigList\(\) expects list\<array\<string, mixed\>\>\|null, array\<mixed\> given\.$#'
+			identifier: argument.type
+			count: 2
+			path: src/Support/Schema/FlexFieldMatrixStorage.php
+
+		-
+			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:user\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Support/Schema/FlexFieldSchemaResolver.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldSectionLayoutHelper\:\:buildSectionedLayout\(\) has parameter \$definitions with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Schema/FlexFieldSectionLayoutHelper.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldSectionLayoutHelper\:\:buildSectionedLayout\(\) has parameter \$sections with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Schema/FlexFieldSectionLayoutHelper.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldSectionLayoutHelper\:\:sortDefinitionsBySections\(\) has parameter \$sections with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Schema/FlexFieldSectionLayoutHelper.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldSectionLayoutHelper\:\:sortDefinitionsBySections\(\) should return list\<Bjanczak\\FilamentFlexFields\\Data\\FlexFieldDefinition\> but returns array\<int, Bjanczak\\FilamentFlexFields\\Data\\FlexFieldDefinition\>\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/FlexFieldSectionLayoutHelper.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldStudio\:\:definitionsForModel\(\) has parameter \$onlySlugs with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Schema/FlexFieldStudio.php
+
+		-
+			message: '#^Parameter \#4 \$onlySlugs of method Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldSchemaResolver\:\:definitionsForModel\(\) expects list\<string\>\|null, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldStudio.php
+
+		-
+			message: '#^Property Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldFilterIntegration\:\:\$rbacUserKey \(string\|null\) is never assigned string so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Support/Schema/FlexFieldStudio.php
+
+		-
+			message: '#^Property Bjanczak\\FilamentFlexFields\\Support\\Schema\\FlexFieldFilterIntegration\:\:\$tenantId \(string\|null\) is never assigned string so it can be removed from the property type\.$#'
+			identifier: property.unusedType
+			count: 1
+			path: src/Support/Schema/FlexFieldStudio.php
+
+		-
+			message: '#^Anonymous function should return string but returns string\|false\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/FlexFieldTableBuilder.php
+
+		-
+			message: '#^Parameter \#1 \$array of function array_flip expects array\<int\|string\>, list\<string\|null\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Schema/FlexFieldValueCsvExchange.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: src/Support/Schema/FlexFieldValueCsvExchange.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Schema\\JsonFieldConditions\:\:normalizeRules\(\) should return list\<array\<string, mixed\>\> but returns array\{array\<int\<0, max\>\|string, mixed\>\}\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/Schema/JsonFieldConditions.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between non\-empty\-string and '''' will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: src/Support/Select/EntityMentionQuery.php
 
 		-
 			message: '#^Call to function class_exists\(\) with ''Spatie\\\\Sluggable\\\\HasTranslatableSlug'' will always evaluate to false\.$#'
@@ -2299,6 +3019,24 @@ parameters:
 			path: src/Support/Translatable/TranslatableHydrator.php
 
 		-
+			message: '#^Call to an undefined method Filament\\Forms\\Components\\Field\:\:extraInputAttributes\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: src/Support/Translatable/TranslatableLocaleDirection.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\Translatable\\TranslatableLocaleDirection\:\:applyToField\(\) has parameter \$rtlLocales with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/Translatable/TranslatableLocaleDirection.php
+
+		-
+			message: '#^Parameter \#2 \$rtlLocales of static method Bjanczak\\FilamentFlexFields\\Support\\Translatable\\TranslatableLocaleDirection\:\:resolveDirection\(\) expects list\<string\>\|null, array\|null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Support/Translatable/TranslatableLocaleDirection.php
+
+		-
 			message: '#^Cannot call method getComponents\(\) on Filament\\Schemas\\Schema\|null\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -2309,3 +3047,542 @@ parameters:
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/Support/Translatable/TranslatableTitle.php
+
+		-
+			message: '#^Static method Bjanczak\\FilamentFlexFields\\Support\\Upgrade\\V3AutoUpgrade\:\:headlessEngineExplicitlyConfigured\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: src/Support/Upgrade/V3AutoUpgrade.php
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

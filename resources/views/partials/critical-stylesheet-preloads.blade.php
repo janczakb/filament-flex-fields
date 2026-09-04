@@ -1,6 +1,7 @@
 @php
     use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 
+    // overlay-runtime + teleported-menu when select/icon-picker fields queue overlay CSS.
     $preloads = FlexFieldAssets::criticalPreloadStylesheets();
 @endphp
 

@@ -22,6 +22,8 @@ class FlexFieldAssets
 
     public const ASSET_INJECTOR_SCRIPT_ID = 'flex-field-asset-injector';
 
+    public const FFF_LOAD_BOOTSTRAP_SCRIPT_ID = 'flex-fff-load-bootstrap';
+
     public const ASSET_INSPECTOR_SCRIPT_ID = 'flex-field-asset-inspector';
 
     public const FLEX_RICH_EDITOR_PASTE_EXTENSION_SCRIPT_ID = 'flex-rich-editor-paste-extension';
@@ -33,6 +35,8 @@ class FlexFieldAssets
     public const PLAYGROUND_SKELETON_DEMO_SCRIPT_ID = 'playground-skeleton-demo';
 
     public const SEGMENT_OVERFLOW_SSR_SCRIPT_ID = 'flex-fields-segment-overflow-ssr';
+
+    public const TIMEZONE_BROWSER_SSR_BOOT_SCRIPT_ID = 'flex-fields-timezone-browser-ssr-boot';
 
     public const STATIC_ASSETS_PUBLIC_DIRECTORY = 'filament-flex-fields-assets';
 
@@ -56,6 +60,7 @@ class FlexFieldAssets
      * @var list<string>
      */
     public const CRITICAL_PRELOAD_STYLESHEETS = [
+        'overlay-runtime',
         'teleported-menu',
     ];
 
@@ -66,6 +71,8 @@ class FlexFieldAssets
         'number-stepper',
         'traffic-split',
         'dual-listbox',
+        'bubble-choice',
+        'todo-list-field',
         'price-range',
         'flex-textarea',
         'rich-editor-field',
@@ -371,6 +378,23 @@ class FlexFieldAssets
     }
 
     /**
+     * Minified blocking IIFE inlined next to browserTimezoneDefault triggers
+     * (paints Intl timezone before Alpine x-load — no network round-trip).
+     */
+    public static function timezoneBrowserSsrInlineContents(): string
+    {
+        return once(function (): string {
+            $path = dirname(__DIR__, 2).'/resources/dist/core/timezone-browser-ssr-boot.js';
+
+            if (! is_readable($path)) {
+                return '';
+            }
+
+            return (string) file_get_contents($path);
+        });
+    }
+
+    /**
      * @return list<string>
      */
     public static function criticalPreloadStylesheets(): array
@@ -381,7 +405,7 @@ class FlexFieldAssets
         ));
 
         if (! request()->is('*flex-fields-playground*')) {
-            if (! FlexFieldStylesheetQueue::hasQueuedTeleportedMenu()) {
+            if (! FlexFieldStylesheetQueue::hasQueuedSelectFamilyPicker()) {
                 return [];
             }
 
@@ -455,20 +479,25 @@ class FlexFieldAssets
      */
     public static function playgroundStylesheetHrefsForSlug(?string $slug): array
     {
-        return [self::playgroundStylesheetHrefForSlug($slug)];
+        if (blank($slug)) {
+            return [self::playgroundStylesheetHref()];
+        }
+
+        if (self::hasPlaygroundBundleForSlug($slug)) {
+            return [
+                self::playgroundStylesheetHref(),
+                self::playgroundBundleHrefForSlug($slug),
+            ];
+        }
+
+        return [self::playgroundStylesheetHref()];
     }
 
     public static function playgroundStylesheetHrefForSlug(?string $slug): string
     {
-        if (blank($slug)) {
-            return self::playgroundStylesheetHref();
-        }
+        $hrefs = self::playgroundStylesheetHrefsForSlug($slug);
 
-        if (self::hasPlaygroundBundleForSlug($slug)) {
-            return self::playgroundBundleHrefForSlug($slug);
-        }
-
-        return self::playgroundStylesheetHref();
+        return $hrefs[array_key_last($hrefs)] ?? self::playgroundStylesheetHref();
     }
 
     /**
@@ -480,16 +509,84 @@ class FlexFieldAssets
             return [];
         }
 
-        return [self::playgroundStylesheetHrefForRequest()];
+        $slug = self::resolvePlaygroundSlugFromRequest();
+
+        return self::playgroundStylesheetHrefsForSlug($slug);
     }
 
     public static function playgroundStylesheetHrefForRequest(): ?string
     {
-        if (! request()->is('*flex-fields-playground*')) {
+        $hrefs = self::playgroundStylesheetHrefsForRequest();
+
+        if ($hrefs === []) {
             return null;
         }
 
-        return self::playgroundStylesheetHrefForSlug(self::resolvePlaygroundSlugFromRequest());
+        return $hrefs[array_key_last($hrefs)];
+    }
+
+    public static function resolveCanonicalComponent(string $component): string
+    {
+        return self::resolveStylesheetComponent($component);
+    }
+
+    /**
+     * @return array{
+     *     componentId: string,
+     *     stylesheets: list<string>,
+     *     chunks: list<string>,
+     *     entry: string,
+     *     kind: string,
+     * }
+     */
+    public static function assetBundleFor(string $component): array
+    {
+        $canonical = self::resolveCanonicalComponent($component);
+        $manifest = self::alpineManifest();
+        $hasAlpineEntry = array_key_exists($canonical, $manifest)
+            && ! str_starts_with($canonical, '__');
+
+        return [
+            'componentId' => $canonical,
+            'stylesheets' => self::stylesheetHrefsFor($canonical),
+            'chunks' => array_map(
+                fn (string $chunk): string => self::alpineChunkSrc($chunk),
+                self::alpineChunksFor($canonical),
+            ),
+            'entry' => $hasAlpineEntry ? self::alpineEntrySrc($canonical) : null,
+            'kind' => $hasAlpineEntry ? 'full' : 'styles-only',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function consumerAttributesFor(string $livewireKey, string $component): array
+    {
+        return [
+            'data-fff-asset-consumer' => self::resolveCanonicalComponent($component),
+            'data-fff-asset-consumer-id' => $livewireKey,
+        ];
+    }
+
+    /**
+     * @return array<string, array{
+     *     componentId: string,
+     *     stylesheets: list<string>,
+     *     chunks: list<string>,
+     *     entry: string,
+     *     kind: string,
+     * }>
+     */
+    public static function exportConsumerBundles(): array
+    {
+        $bundles = [];
+
+        foreach (self::LAZY_COMPONENT_STYLESHEETS as $component) {
+            $bundles[$component] = self::assetBundleFor($component);
+        }
+
+        return $bundles;
     }
 
     /**
@@ -499,6 +596,13 @@ class FlexFieldAssets
      *     playground_aliases: array<string, string>,
      *     playground_extras: array<string, list<string>>,
      *     critical_preload: list<string>,
+     *     bundles: array<string, array{
+     *         componentId: string,
+     *         stylesheets: list<string>,
+     *         chunks: list<string>,
+     *         entry: string,
+     *         kind: string,
+     *     }>,
      * }
      */
     public static function exportRegistry(): array
@@ -509,6 +613,7 @@ class FlexFieldAssets
             'playground_aliases' => self::PLAYGROUND_STYLESHEET_ALIASES,
             'playground_extras' => self::PLAYGROUND_EXTRA_STYLESHEETS,
             'critical_preload' => self::CRITICAL_PRELOAD_STYLESHEETS,
+            'bundles' => self::exportConsumerBundles(),
         ];
     }
 
@@ -586,12 +691,56 @@ class FlexFieldAssets
             }
         }
 
+        $chunks = self::expandTransitiveAlpineChunks($chunks, $manifest);
+
         return array_values(array_filter(
             array_unique($chunks),
             fn (mixed $chunk): bool => is_string($chunk)
                 && $chunk !== ''
                 && ! str_starts_with($chunk, 'flex-fields-phone-lib'),
         ));
+    }
+
+    /**
+     * Resolve nested dynamic-import chunks (e.g. ZXing fallback inside barcode scanner).
+     *
+     * @param  list<string>  $chunks
+     * @return list<string>
+     */
+    public static function expandTransitiveAlpineChunks(array $chunks, ?array $manifest = null): array
+    {
+        $manifest ??= self::alpineManifest();
+        $graph = $manifest['__chunk_imports__'] ?? [];
+
+        if (! is_array($graph) || $graph === []) {
+            return array_values(array_unique($chunks));
+        }
+
+        $expanded = [];
+        $seen = [];
+        $queue = array_values(array_unique(array_filter(
+            $chunks,
+            fn (mixed $chunk): bool => is_string($chunk) && $chunk !== '',
+        )));
+
+        while ($queue !== []) {
+            $chunk = array_shift($queue);
+
+            if (! is_string($chunk) || $chunk === '' || isset($seen[$chunk])) {
+                continue;
+            }
+
+            $seen[$chunk] = true;
+            $expanded[] = $chunk;
+
+            foreach ($graph[$chunk] ?? [] as $nestedChunk) {
+                if (is_string($nestedChunk) && $nestedChunk !== '' && ! isset($seen[$nestedChunk])) {
+                    $queue[] = $nestedChunk;
+                }
+            }
+        }
+
+        return $expanded;
     }
 
     public static function overlayCoordinatorChunk(?array $manifest = null): ?string
@@ -748,5 +897,28 @@ class FlexFieldAssets
     {
         self::publishRegisteredFilamentAssetsIfStale($filesystem);
         self::publishStaticAssetsIfStale($filesystem);
+        self::publishTodoListAudioIfStale($filesystem);
+    }
+
+    public static function publishTodoListAudioIfStale(Filesystem $filesystem): void
+    {
+        $source = dirname(__DIR__, 2).'/resources/dist/audio/todo-list-field';
+
+        if (! is_dir($source)) {
+            return;
+        }
+
+        $destination = public_path('js/'.FilamentFlexFieldsPlugin::PACKAGE_NAME.'/audio/todo-list-field');
+        $filesystem->ensureDirectoryExists($destination);
+
+        foreach ($filesystem->files($source) as $file) {
+            $target = $destination.'/'.$file->getFilename();
+
+            if (is_file($target) && filemtime($file->getPathname()) <= filemtime($target)) {
+                continue;
+            }
+
+            $filesystem->copy($file->getPathname(), $target);
+        }
     }
 }

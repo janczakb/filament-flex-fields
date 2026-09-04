@@ -1,4 +1,12 @@
 <x-filament-panels::page>
+    @if ($entityDiscoveryEmpty)
+        <x-filament::section class="mb-4">
+            <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ $entityDiscoveryHint }}
+            </p>
+        </x-filament::section>
+    @endif
+
     @if ($groups === [])
         <x-filament::section>
             <x-slot name="heading">
@@ -21,6 +29,18 @@
                         <div><strong>{{ __('Slug') }}:</strong> {{ $group->slug }}</div>
                         <div><strong>{{ __('Fields') }}:</strong> {{ is_array($group->fields) ? count($group->fields) : 0 }}</div>
                         <div><strong>{{ __('Sections') }}:</strong> {{ is_array($group->sections) ? count($group->sections) : 0 }}</div>
+                        @php($registry = $this->latestRegistryVersion($group))
+                        <div>
+                            <strong>{{ __('filament-flex-fields::default.schema.management_registry_label') }}:</strong>
+                            @if ($registry)
+                                {{ __('filament-flex-fields::default.schema.management_registry_version', [
+                                    'version' => $registry['version'],
+                                    'state' => $registry['state'],
+                                ]) }}
+                            @else
+                                {{ __('filament-flex-fields::default.schema.management_registry_unpublished') }}
+                            @endif
+                        </div>
                     </div>
 
                     <div class="mt-4">

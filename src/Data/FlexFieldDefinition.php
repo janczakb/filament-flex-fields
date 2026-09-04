@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Data;
 
-use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Enums\FlexFieldWidth;
 

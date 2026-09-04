@@ -23,7 +23,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'nps-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'nps-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     <div
         x-load

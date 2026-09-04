@@ -15,6 +15,7 @@ use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorImageVariant;
 use Closure;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\FileAttachmentProviders\Contracts\FileAttachmentProvider;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -115,9 +116,11 @@ trait InteractsWithFlexRichEditorFileAttachments
     public function scopedAttachmentDirectory(string|Closure $prefix = 'rich-editor'): static
     {
         return $this->fileAttachmentsDirectory(function () use ($prefix): string {
+            $record = $this->getRecord();
+
             return ScopedDirectoryResolver::resolve(
                 (string) $this->evaluate($prefix),
-                $this->getRecord(),
+                $record instanceof Model ? $record : null,
                 Auth::id(),
             );
         });
@@ -216,13 +219,10 @@ trait InteractsWithFlexRichEditorFileAttachments
     public function registerFlexRichEditorFileAttachmentHooks(): void
     {
         $this->saveUploadedFileAttachmentUsing(function (TemporaryUploadedFile $file): mixed {
-            /** @var static $this */
-
             return $this->persistFlexRichEditorFileAttachment($file);
         });
 
         $this->beforeStateDehydrated(function (): void {
-            /** @var static $this */
             $this->pruneFlexRichEditorOrphanedAttachments();
         }, shouldUpdateValidatedStateAfter: true);
     }
@@ -237,7 +237,14 @@ trait InteractsWithFlexRichEditorFileAttachments
             return $savedFile;
         }
 
-        $path = $file->store($this->getFileAttachmentsDirectory(), $this->getFileAttachmentsDiskName());
+        $path = $file->store(
+            $this->getFileAttachmentsDirectory() ?? '',
+            $this->getFileAttachmentsDiskName(),
+        );
+
+        if (! is_string($path) || $path === '') {
+            return null;
+        }
 
         if ($this->getFileAttachmentsVisibility() === 'public') {
             rescue(fn () => $this->getFileAttachmentsDisk()->setVisibility($path, 'public'), report: false);
@@ -373,7 +380,7 @@ trait InteractsWithFlexRichEditorFileAttachments
 
         $absolutePath = $file->getRealPath();
 
-        if (! is_string($absolutePath) || ! is_file($absolutePath)) {
+        if (! is_file($absolutePath)) {
             return $file;
         }
 

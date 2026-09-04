@@ -144,6 +144,8 @@ Or in config:
 
 Navigation: **Field groups** (`/flex-field-groups` slug under your panel path).
 
+When `schema.management_page_enabled` is true (default with the resource), **Flex field studio** lists groups per discovered entity. Each card shows the latest `SchemaRegistry` version and approval state (`draft`, `review`, or `live`) when the group has been published; otherwise it reads **Not published**.
+
 ---
 
 ## SchemaRegistry persistence
@@ -209,7 +211,7 @@ class LeadResource extends Resource
     {
         return $schema->components([
             // …your core fields…
-            static::flexFieldFormSectionForResource('CRM attributes', collapsible: true),
+            ...static::flexFieldFormLayoutForResource('CRM attributes', collapsible: true),
         ]);
     }
 
@@ -236,7 +238,26 @@ $section = app(FlexFieldStudio::class)
 | `FlexFieldStudio::form()` | Build form section / components from live schemas |
 | `FlexFieldStudio::table()` | Searchable, sortable table columns for JSON values |
 | `FlexFieldStudio::infolist()` | Read-only entries on view pages |
-| `InteractsWithFlexFieldSchemas` | Resource trait with `flexFieldFormSection()`, `flexFieldTableColumns()`, … |
+| `InteractsWithFlexFieldSchemas` | Resource trait with `flexFieldFormLayout()`, `flexFieldFormSection()`, `flexFieldTableColumns()`, … |
+
+### Sections in runtime forms
+
+When a field group defines **sections** in the admin UI, use `flexFieldFormLayout()` (instance or static) to render one Filament `Section` per schema section, plus an optional catch-all section for ungrouped fields:
+
+```php
+use Filament\Schemas\Schema;
+
+public static function form(Schema $schema): Schema
+{
+    return $schema->components([
+        ...static::flexFieldFormLayoutForResource('CRM attributes', collapsible: true),
+    ]);
+}
+```
+
+`flexFieldFormSection()` remains available for backward compatibility: it returns a single section wrapping the layout when multiple sections exist.
+
+Import, export, publish, and **rollback** all preserve `sections` and `section_id` on fields.
 
 Tenant-aware resolution uses `FlexFieldSchemaResolver` (global schemas + `tenantId:slug` scoped groups). Field types can be limited per tenant via `TenantFieldPacks::registerPack()` and per user via `FieldRbacMatrix`.
 

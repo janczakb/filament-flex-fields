@@ -73,6 +73,7 @@ class FlexFieldsPlaygroundCluster extends Cluster
         foreach (FlexFieldsPlaygroundRegistry::ordered() as $slug => $definition) {
             $item = NavigationItem::make($definition['label'])
                 ->icon($definition['icon'])
+                ->group($definition['category']->label())
                 ->url(FlexFieldsPlaygroundComponentPage::getUrl(configuration: $slug))
                 ->sort($definition['sort'])
                 ->isActiveWhen(fn (): bool => Filament::getCurrentPageConfigurationKey() === $slug);

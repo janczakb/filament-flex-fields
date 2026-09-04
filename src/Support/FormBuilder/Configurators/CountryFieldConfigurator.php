@@ -52,6 +52,10 @@ final class CountryFieldConfigurator implements FieldConfigurator
             $field->showDialCode((bool) $config['show_dial_code']);
         }
 
+        if (array_key_exists('locale', $config) && filled($config['locale'])) {
+            $field->locale($config['locale']);
+        }
+
         return $field;
     }
 }

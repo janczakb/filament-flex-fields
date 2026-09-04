@@ -38,7 +38,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'number-stepper'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'number-stepper',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('number-stepper', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

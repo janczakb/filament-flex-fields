@@ -8,7 +8,8 @@ use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 it('builds gravity ui icon names for filament', function () {
     expect(GravityIcon::make('arrow-chevron-down'))->toBe('gravityui-arrow-chevron-down')
         ->and(GravityIcon::make('Magnifier'))->toBe('gravityui-magnifier')
-        ->and(GravityIcon::make('trash_bin'))->toBe('gravityui-trash-bin');
+        ->and(GravityIcon::make('trash_bin'))->toBe('gravityui-trash-bin')
+        ->and(GravityIcon::CirclePlusFill)->toBe('gravityui-circle-plus-fill');
 });
 
 it('requires blade gravity icons package', function () {

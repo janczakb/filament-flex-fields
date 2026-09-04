@@ -226,3 +226,21 @@
         transform: none !important;
     }
 }
+
+/* Headless select menus stay out of flow until positioned (prevents page scroll jump). */
+body > .fi-dropdown-panel.fff-select-headless-menu.fff-teleported-menu:not(.is-positioned) {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    overflow: hidden !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding-block: 0 !important;
+    opacity: 0 !important;
+}
+
+body > .fi-dropdown-panel.fff-select-headless-menu.fff-teleported-menu.is-positioned {
+    position: fixed;
+}

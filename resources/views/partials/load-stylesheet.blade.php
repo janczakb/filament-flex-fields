@@ -25,6 +25,8 @@
     @include('filament-flex-fields::partials.emit-assets', [
         'stylesheets' => $pendingStylesheets,
         'chunks' => $pendingChunks,
+        'consumerComponent' => $component,
+        'livewireKey' => $livewireKey ?? null,
     ])
 
     @php

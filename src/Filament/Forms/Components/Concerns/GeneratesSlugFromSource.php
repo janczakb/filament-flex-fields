@@ -8,6 +8,7 @@ use Bjanczak\FilamentFlexFields\Support\Slug\SlugGenerator;
 use Bjanczak\FilamentFlexFields\Support\Slug\SpatieSlugIntegration;
 use Closure;
 use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 trait GeneratesSlugFromSource
@@ -209,10 +210,23 @@ trait GeneratesSlugFromSource
 
         $modelClass = $this->getSpatieModelClass();
         $record = $this->resolveRecord();
-        $model = $record ?? new $modelClass;
+
+        if ($record instanceof Model) {
+            $model = $record;
+        } elseif (is_string($modelClass) && is_subclass_of($modelClass, Model::class)) {
+            $model = new $modelClass;
+        } else {
+            return SlugGenerator::fromString(
+                $source,
+                $this->getSeparator(),
+                $this->getMaxSlugLength(),
+                $this->usesTranslatableTitle() ? $this->getSlugSourceLocale() : null,
+            );
+        }
+
         $options = SpatieSlugIntegration::resolveSlugOptions($model, $this->getSpatieSlugField());
 
-        if ($options === null && $record !== null && filled($modelClass) && $record::class !== $modelClass) {
+        if ($options === null && $record instanceof Model && is_string($modelClass) && is_subclass_of($modelClass, Model::class) && $record::class !== $modelClass) {
             $options = SpatieSlugIntegration::resolveSlugOptions(new $modelClass, $this->getSpatieSlugField());
         }
 

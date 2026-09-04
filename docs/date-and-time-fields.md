@@ -2,7 +2,7 @@
 title: "Date & time fields"
 ---
 
-![FlexDateRangeField](/art/sc-26.png)
+![FlexDateRangeField](/art/sc-26.webp)
 
 [← Back to Table of Contents](/docs/index)
 

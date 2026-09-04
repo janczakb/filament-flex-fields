@@ -20,7 +20,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'currency-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'currency-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getVariant(), $hasCurrencySelect])), 0, 64) }}"

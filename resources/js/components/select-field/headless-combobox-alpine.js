@@ -1,6 +1,8 @@
 import { createComboboxEngine, DEFAULT_VIRTUALIZE_THRESHOLD, DEFAULT_VIRTUAL_WINDOW_SIZE } from '../../core/combobox-engine.js'
-import { createEntityMentionMixin } from '../../core/entity-mention.js'
+import { normalizeSearchQuery } from '../../core/search-normalize.js'
 import { createSearchableSelectMenuMixin } from '../../core/searchable-select-menu.js'
+import { updateVerticalScrollFade } from '../../core/vertical-scroll-fade.js'
+import { bindOverlayScrollbar, syncOverlayScrollbar } from '../../core/overlay-scrollbar.js'
 import {
     buildHeadlessDropdownRows,
     filterHeadlessOptionTree,
@@ -11,6 +13,7 @@ import {
     headlessOptionIsDisabled,
     headlessOptionLabelHtml,
     headlessOptionValue,
+    limitHeadlessOptionTree,
     windowHeadlessVirtualRows,
 } from './headless-select-options.js'
 import {
@@ -20,7 +23,6 @@ import {
     seedHeadlessKnownSelected,
     setCheckVisibleInstant,
 } from './headless-select-selection-ux.js'
-import { createHeadlessComboboxLivewireMixin } from './headless-combobox-livewire.js'
 import {
     positionInlineSearchCaretAtInlineStart,
     resolveInlineSearchInputAfterClose,
@@ -29,11 +31,70 @@ import {
     shouldInlineSearchInputBeEditable,
     stripHtmlToPlainText,
 } from './headless-inline-search.js'
-import { createHeadlessUserSelectMixin } from './headless-user-select.js'
 import {
     normalizeInitialSelectedValues,
     resolveHeadlessBoundState,
+    shouldIgnoreEmptyHeadlessWireSync,
 } from './headless-select-state.js'
+
+const optionalMixinStubs = {
+    initLivewireIntegration() {},
+    initUserSelectIntegration() {},
+    cancelRelationshipSearch() {},
+    syncUserSelectTags() {},
+    onHeadlessMenuOpenedForLivewire() {},
+    observeHeadlessLoadMore() {},
+    disconnectHeadlessLoadMoreObserver() {},
+    comboboxEntityMentionActive() {
+        return false
+    },
+    userSelectTriggerHtml() {
+        return this.placeholder ?? ''
+    },
+    labelEntry() {
+        return null
+    },
+    optionRecord() {
+        return null
+    },
+    storeLabelEntry() {},
+    shouldShowHeadlessTriggerLoading() {
+        return false
+    },
+    shouldShowHeadlessLoadMoreIndicator() {
+        return false
+    },
+    shouldShowHeadlessLoadMoreSentinel() {
+        return false
+    },
+    headlessLoadMoreLabel() {
+        return this.loadingMoreMessage || this.loadingMessage || ''
+    },
+    teardownSelectedOptionLabelRefreshListener() {},
+    teardownDynamicOptionsInvalidation() {},
+    shouldShowHeadlessUserSelectSkeleton() {
+        return false
+    },
+    shouldShowHeadlessUserSelectEmptyState() {
+        return false
+    },
+    headlessUserSelectSkeletonAriaLabel() {
+        return ''
+    },
+    headlessUserSelectSkeletonRows() {
+        return []
+    },
+    headlessUserSelectEmptyIconHtml() {
+        return ''
+    },
+    headlessUserSelectEmptyTitle() {
+        return ''
+    },
+    headlessUserSelectEmptyHint() {
+        return ''
+    },
+    isUserSelectField: false,
+}
 
 function defaultGetOptionLabel(option) {
     return headlessOptionLabelHtml(option, 'dropdown')
@@ -54,6 +115,9 @@ const selectMenu = createSearchableSelectMenuMixin({
     closeMethod: 'comboboxCloseMenu',
     ownerIdPrefix: 'fff-headless-select',
     onMenuClose() {
+        this._engine?.close?.()
+        this.comboboxHighlightedIndex = -1
+        this.inlineSearchFocused = false
         this._engine?.setQuery?.('')
         this.cancelRelationshipSearch?.()
         this._syncFromEngine()
@@ -66,13 +130,18 @@ const selectMenu = createSearchableSelectMenuMixin({
     },
 })
 
+function dropdownOptionsScroller(menu) {
+    return menu?.querySelector?.('.fi-select-input-options-ctn')
+        ?? menu?.querySelector?.('.fi-dropdown-list')
+        ?? null
+}
+
 function syncDropdownScrollbarInset(menu) {
     if (! menu) {
         return
     }
 
-    const list = menu.querySelector('.fi-select-input-options-ctn')
-        ?? menu.querySelector('.fi-dropdown-list')
+    const list = dropdownOptionsScroller(menu)
 
     if (! list) {
         menu.classList.remove('fff-select-dropdown-panel--scrollable')
@@ -84,6 +153,10 @@ function syncDropdownScrollbarInset(menu) {
         'fff-select-dropdown-panel--scrollable',
         list.scrollHeight > list.clientHeight + 1,
     )
+    const thumb = menu.querySelector('.fff-select-dropdown-scrollbar__thumb')
+    bindOverlayScrollbar(list, thumb?.parentElement, thumb)
+    syncOverlayScrollbar(list, thumb)
+    updateVerticalScrollFade(list)
 }
 
 /**
@@ -107,6 +180,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         selectedOptionCheckIconHtml = '',
         noSearchResultsMessage = '',
         componentKey = null,
+        menuDomId = null,
         hasDynamicSearchResults = false,
         hasPaginatedSearchResults = false,
         hasDynamicOptions = false,
@@ -120,6 +194,12 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         loadingMoreMessage = '',
         noOptionsMessage = '',
         searchPrompt = '',
+        optionsLimit = 50,
+        searchableOptionFields = ['label'],
+        livewireId = null,
+        maxItems = null,
+        maxItemsMessage = '',
+        position = null,
         initialOptionLabel = null,
         initialOptionLabels = [],
         initialSelectedUserEntries = [],
@@ -155,7 +235,13 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
     const flatOptions = flattenHeadlessOptions(options)
 
-    const livewireMixin = createHeadlessComboboxLivewireMixin({
+    const needsLivewireMixin = hasDynamicSearchResults
+        || hasDynamicOptions
+        || ! hasClientSideOptionList
+    const needsUserSelectMixin = isUserSelectField
+    const needsEntityMentionMixin = entityMentionsEnabled
+
+    const livewireConfig = {
         componentKey,
         hasDynamicSearchResults,
         hasPaginatedSearchResults,
@@ -175,29 +261,30 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         initialOptionLabel,
         initialOptionLabels,
         multiple,
-    })
+        livewireId,
+        statePath,
+        optionsLimit,
+    }
 
-    const userSelectMixin = createHeadlessUserSelectMixin({
+    const userSelectConfig = {
         isUserSelectField,
         verifiedIconHtml,
         tagRemoveIconHtml,
         userSelectNoOptionsIconHtml,
         userSelectNoResultsIconHtml,
         userSelectEmptyStateHints,
-    })
+    }
 
-    const entityMentionMixin = createEntityMentionMixin({
+    const entityMentionConfig = {
         enabledKey: 'entityMentionsEnabled',
         triggerKey: 'mentionTrigger',
         queryKey: 'comboboxQuery',
         sectionLabel: entityMentionSectionLabel,
-    })
+    }
 
     return {
         ...selectMenu,
-        ...livewireMixin,
-        ...userSelectMixin,
-        ...entityMentionMixin,
+        ...optionalMixinStubs,
 
         state,
         initialState,
@@ -215,13 +302,296 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         useRichListDropdownLayout,
         selectedOptionCheckIconHtml,
         noSearchResultsMessage,
+        loadingMessage,
+        searchingMessage,
+        loadingMoreMessage,
+        noOptionsMessage,
+        searchPrompt,
+        optionsLimit,
+        searchableOptionFields,
+        livewireId,
+        maxItems,
+        maxItemsMessage,
+        maxItemsMessageVisible: false,
+        position,
+        hasDynamicSearchResults,
+        hasPaginatedSearchResults,
+        hasDynamicOptions,
+        hasClientSideOptionList,
+        isPreloaded,
+        hasInitialNoOptionsMessage,
+        searchDebounce,
+        minSearchLength,
         initialSelectedUserEntries,
+        isUserSelectField,
         selectNoOptionsIconHtml,
         selectNoResultsIconHtml,
         selectEmptyStateHints,
         userSelectEmptyStateHints,
         canOptionLabelsWrap,
         isReorderable,
+        initialOptionLabel,
+        initialOptionLabels,
+        /** Bumped when trigger label sources change so Alpine `x-html` re-evaluates. */
+        triggerLabelEpoch: 0,
+        _knownLabelEntries: new Map(),
+
+        headlessSelectDropdownState() {
+            if (this.isUserSelectField) {
+                return null
+            }
+
+            if (this.optionsLoading) {
+                return 'loading'
+            }
+
+            if (this.searchPending) {
+                return 'searching'
+            }
+
+            if (this.comboboxOpen && this.hasDynamicOptions && ! this.dynamicOptionsLoaded) {
+                const pendingCount = typeof this.getEngineOptions === 'function'
+                    ? this.getEngineOptions().length
+                    : 0
+
+                if (pendingCount === 0) {
+                    return 'loading'
+                }
+            }
+
+            const query = String(this.comboboxQuery ?? '').trim()
+            const visibleOptionCount = typeof this.getEngineOptions === 'function'
+                ? this.getEngineOptions().length
+                : 0
+
+            if (this.hasDynamicSearchResults && query.length < Number(this.minSearchLength ?? 0)) {
+                return visibleOptionCount > 0 ? null : 'prompt'
+            }
+
+            if (visibleOptionCount > 0) {
+                return null
+            }
+
+            if (
+                this.allowCreateOption
+                && query.length > 0
+                && this.searchable
+                && ! this.hasDynamicSearchResults
+            ) {
+                return null
+            }
+
+            if (this.hasDynamicSearchResults && query.length >= Number(this.minSearchLength ?? 0)) {
+                return 'search'
+            }
+
+            if (query.length > 0) {
+                return 'search'
+            }
+
+            return 'options'
+        },
+
+        shouldShowHeadlessDropdownOptions() {
+            if (this.isUserSelectField) {
+                return ! this.shouldShowHeadlessUserSelectSkeleton()
+                    && ! this.shouldShowHeadlessUserSelectEmptyState()
+            }
+
+            return ! this.shouldShowHeadlessSelectEmptyState()
+                && ! this.shouldShowHeadlessSelectSkeleton()
+        },
+
+        shouldShowHeadlessSelectEmptyState() {
+            const state = this.headlessSelectDropdownState()
+
+            return state === 'prompt' || state === 'search' || state === 'options'
+        },
+
+        shouldShowHeadlessSelectSkeleton() {
+            if (this.isUserSelectField) {
+                return false
+            }
+
+            const state = this.headlessSelectDropdownState()
+
+            return state === 'loading' || state === 'searching'
+        },
+
+        headlessSelectSkeletonAriaLabel() {
+            const state = this.headlessSelectDropdownState()
+
+            if (state === 'searching') {
+                return this.searchingMessage
+            }
+
+            return this.loadingMessage
+        },
+
+        headlessSelectEmptyIconHtml() {
+            const state = this.headlessSelectDropdownState()
+
+            if (state === 'search' || state === 'prompt') {
+                return this.selectNoResultsIconHtml
+            }
+
+            return this.selectNoOptionsIconHtml
+        },
+
+        headlessSelectEmptyTitle() {
+            const state = this.headlessSelectDropdownState()
+
+            if (state === 'prompt') {
+                return this.searchPrompt
+            }
+
+            if (state === 'search') {
+                return this.noSearchResultsMessage
+            }
+
+            return this.noOptionsMessage
+        },
+
+        headlessSelectEmptyHint() {
+            const hints = this.selectEmptyStateHints ?? {}
+            const state = this.headlessSelectDropdownState()
+
+            if (state === 'loading' || state === 'searching') {
+                return hints.pleaseWait ?? ''
+            }
+
+            if (state === 'prompt') {
+                return Number(this.minSearchLength ?? 0) > 0
+                    ? (hints.minSearchLength ?? '')
+                    : (hints.filterList ?? '')
+            }
+
+            if (state === 'search') {
+                return hints.tryDifferentSearch ?? ''
+            }
+
+            return hints.noOptionsAvailable ?? ''
+        },
+
+        labelEntry(value) {
+            return this._knownLabelEntries.get(String(value)) ?? null
+        },
+
+        storeLabelEntry(value, entry) {
+            if (! entry) {
+                return
+            }
+
+            this._knownLabelEntries.set(String(value), entry)
+        },
+
+        syncClearablePresentation() {
+            if (this.multiple || ! this.clearable) {
+                return
+            }
+
+            const hasValue = this.isTriggerLabelSelected()
+            const wrapper = this.$el?.closest?.('.fff-select-field')
+            const ctn = this.$refs.headlessTriggerCtn
+
+            wrapper?.classList.toggle('fff-select-field--clearable-has-value', hasValue)
+            ctn?.classList.toggle('fi-select-input-ctn-clearable', hasValue)
+        },
+
+        seedInitialTriggerLabels() {
+            if (this.initialOptionLabel != null && this.initialOptionLabel !== '' && ! this.multiple) {
+                const value = this.comboboxSelectedValues[0]
+
+                if (value != null && value !== '') {
+                    this.storeLabelEntry(value, {
+                        value,
+                        label: String(this.initialOptionLabel),
+                        triggerLabel: String(this.initialOptionLabel),
+                    })
+                }
+            }
+
+            if (this.multiple && Array.isArray(this.initialOptionLabels)) {
+                for (const entry of this.initialOptionLabels) {
+                    if (entry?.value != null) {
+                        this.storeLabelEntry(entry.value, entry)
+                    }
+                }
+            }
+
+            if (this.isUserSelectField && Array.isArray(this.initialSelectedUserEntries)) {
+                for (const entry of this.initialSelectedUserEntries) {
+                    if (entry?.value === undefined || entry?.value === null) {
+                        continue
+                    }
+
+                    this.storeLabelEntry(entry.value, {
+                        value: entry.value,
+                        label: entry.user?.name ?? String(entry.value),
+                        triggerLabel: entry.user?.name ?? String(entry.value),
+                        user: entry.user,
+                        fffClientRender: Boolean(entry.user),
+                    })
+
+                    if (entry.user && typeof this.storeUserInRepository === 'function') {
+                        this.storeUserInRepository(entry.value, entry.user)
+                    }
+                }
+            }
+        },
+
+        canShowHydratedTrigger() {
+            if (! this._engine) {
+                return false
+            }
+
+            if (! this.isTriggerLabelSelected()) {
+                return true
+            }
+
+            // UserSelect paints via client `userSelectTriggerHtml()`. Do not replace SSR
+            // until that HTML is a real selection — otherwise Alpine can snapshot the
+            // placeholder and never refresh (Assignee FOUC on reload).
+            if (this.isUserSelectField) {
+                if (! this._optionalMixinsLoaded) {
+                    return false
+                }
+
+                if (typeof this.userSelectTriggerHtml !== 'function') {
+                    return false
+                }
+
+                const html = this.userSelectTriggerHtml()
+
+                return html != null
+                    && String(html) !== ''
+                    && String(html) !== String(this.placeholder ?? '')
+            }
+
+            const value = String(this.comboboxSelectedValues[0] ?? '')
+
+            if (this.labelEntry(value)) {
+                return true
+            }
+
+            if (findHeadlessOptionRecord(this.options, value) || findHeadlessOptionRecord(this.flatOptions, value)) {
+                return true
+            }
+
+            if (
+                this.initialOptionLabel != null
+                && this.initialOptionLabel !== ''
+                && value === String(resolveHeadlessBoundState(this.state, this.initialState, this.multiple) ?? '')
+            ) {
+                return true
+            }
+
+            return false
+        },
+
+        bumpTriggerLabelEpoch() {
+            this.triggerLabelEpoch = (Number(this.triggerLabelEpoch) || 0) + 1
+        },
 
         comboboxOpen: false,
         inlineSearchFocused: false,
@@ -230,9 +600,15 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         comboboxSelectedValues: [],
         menuReady: false,
         displayReady: false,
+        menuDomId,
+        componentKey,
         knownSelectedChecks: seedHeadlessKnownSelected([]),
         checkExitCancel: null,
+        /** @type {Record<string, true>} */
+        checkExitKeys: {},
+        checkExitTick: 0,
         menuTriggerResizeObserver: null,
+        menuOptionsResizeObserver: null,
         virtualScrollTick: 0,
         virtualizeThreshold,
         virtualWindowSize,
@@ -250,6 +626,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         dropdownAlign,
         matchTriggerWidth,
         virtualRowWindowStart: 0,
+        _userHasMutatedSelection: false,
 
         resolveDropdownAlign() {
             return this.dropdownAlign === 'end' ? 'end' : 'start'
@@ -261,22 +638,84 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
         _engine: null,
         _virtualFlatRows: [],
+        _optionalMixinsLoaded: false,
 
-        init() {
+        async loadOptionalMixins() {
+            if (this._optionalMixinsLoaded) {
+                return
+            }
+
+            const jobs = []
+
+            if (needsLivewireMixin) {
+                jobs.push(import('./headless-combobox-livewire.js').then(({ createHeadlessComboboxLivewireMixin }) => {
+                    Object.assign(this, createHeadlessComboboxLivewireMixin(livewireConfig))
+                }))
+            }
+
+            if (needsUserSelectMixin) {
+                jobs.push(import('./headless-user-select.js').then(({ createHeadlessUserSelectMixin }) => {
+                    Object.assign(this, createHeadlessUserSelectMixin(userSelectConfig))
+                }))
+            }
+
+            if (needsEntityMentionMixin) {
+                jobs.push(import('../../core/entity-mention.js').then(({ createEntityMentionMixin }) => {
+                    Object.assign(this, createEntityMentionMixin(entityMentionConfig))
+                }))
+            }
+
+            await Promise.all(jobs)
+            this._optionalMixinsLoaded = true
+
+            if (needsLivewireMixin) {
+                this.initLivewireIntegration()
+            }
+
+            if (needsUserSelectMixin) {
+                this.initUserSelectIntegration()
+            }
+        },
+
+        async init() {
+            await this.loadOptionalMixins()
+
             const initialSelectedValues = normalizeInitialSelectedValues(
                 resolveHeadlessBoundState(this.state, this.initialState, this.multiple),
                 this.multiple,
             )
 
             this._engine = createComboboxEngine({
-                options: this.getEngineOptions(),
+                options: flattenHeadlessOptions(this.options),
                 multiple: this.multiple,
                 searchable: this.searchable,
                 getOptionLabel: engineConfig.getOptionLabel ?? defaultGetOptionLabel,
                 getOptionValue: engineConfig.getOptionValue ?? defaultGetOptionValue,
                 filterFn: this.hasDynamicSearchResults
                     ? this.serverSideFilterFn()
-                    : () => true,
+                    : (option, normalizedQuery, getOptionLabel) => {
+                        if (normalizedQuery === '') {
+                            return true
+                        }
+
+                        const fields = Array.isArray(this.searchableOptionFields) && this.searchableOptionFields.length > 0
+                            ? this.searchableOptionFields
+                            : ['label']
+
+                        if (fields.includes('label') && normalizeSearchQuery(getOptionLabel(option)).includes(normalizedQuery)) {
+                            return true
+                        }
+
+                        if (fields.includes('description') && normalizeSearchQuery(String(option?.description ?? '')).includes(normalizedQuery)) {
+                            return true
+                        }
+
+                        if (fields.includes('value') && normalizeSearchQuery(String(headlessOptionValue(option) ?? '')).includes(normalizedQuery)) {
+                            return true
+                        }
+
+                        return false
+                    },
                 isOptionDisabled: (option) => this.isHeadlessOptionDisabled(option),
                 virtualizeThreshold,
                 virtualWindowSize,
@@ -286,12 +725,14 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 allowCreate: allowCreateOption,
                 createOptionLabel: (query) => `${createOptionLabel} "${query}"`,
                 onChange: (values) => {
+                    this._userHasMutatedSelection = true
                     this.comboboxSelectedValues = values
                     this.syncStateFromEngine(values)
+                    this.syncClearablePresentation()
                     this.syncUserSelectTags?.()
                     userOnChange?.(values, this._engine)
                     this.$nextTick(() => {
-                        syncDropdownScrollbarInset(this.$refs.headlessMenu)
+                        syncDropdownScrollbarInset(this.resolveMenuElement())
                         this.scheduleMenuPositionAfterLayout()
                     })
                 },
@@ -300,22 +741,21 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this._syncFromEngine()
             this.syncInlineSearchInputAfterClose()
             this.bindSelectMenuLifecycle()
-            this.initLivewireIntegration()
-            this.initUserSelectIntegration()
 
             this.$watch('comboboxOpen', (open) => {
                 if (open) {
-                    this.syncEngineOptions()
+                    // Options were already synced in comboboxOpenMenu(); avoid a
+                    // second flatOptions replace that remounts optionView HTML.
                     this.knownSelectedChecks = seedHeadlessKnownSelected(this.comboboxSelectedValues)
+                    this.clearAllOptionCheckExiting()
                     this.checkExitCancel?.()
                     this.checkExitCancel = null
                     this.bindHeadlessMenuPositionObservers()
                     this.onHeadlessMenuOpenedForLivewire()
 
                     this.$nextTick(() => {
-                        syncDropdownScrollbarInset(this.$refs.headlessMenu)
+                        this.bindDropdownScrollFadeObserver()
                         this.markKnownOptionChecksVisible()
-                        this.scheduleMenuPositionAfterLayout()
 
                         if (this.searchable) {
                             this.focusHeadlessSearchInput()
@@ -327,13 +767,25 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                     return
                 }
 
-                this.menuReady = false
+                this.unbindDropdownScrollFadeObserver()
                 this.unbindHeadlessMenuPositionObservers()
                 this.disconnectHeadlessLoadMoreObserver?.()
                 this.freezeOptionChecksForMenuClose()
+                this.teardownHeadlessMenuPosition()
             })
 
             this.$watch('state', (nextState) => {
+                if (shouldIgnoreEmptyHeadlessWireSync(
+                    nextState,
+                    this.initialState,
+                    this.multiple,
+                    this._userHasMutatedSelection,
+                )) {
+                    this.syncStateFromEngine(this.comboboxSelectedValues)
+
+                    return
+                }
+
                 const nextValues = normalizeInitialSelectedValues(
                     resolveHeadlessBoundState(nextState, this.initialState, this.multiple, {
                         fallbackToInitial: false,
@@ -354,43 +806,69 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             })
 
             this.$watch('comboboxQuery', () => {
-                if (this.hasDynamicSearchResults) {
-                    return
-                }
-
-                this._engine?.setQuery('')
-                this._engine?.setOptions(this.getEngineOptions())
-                this._syncFromEngine()
+                this.applyComboboxQueryToEngine()
             })
 
-            if (! this.isUserSelectField || ! this.multiple) {
+            this.seedInitialTriggerLabels()
+            this.syncEngineOptions()
+            this._syncFromEngine()
+            this.syncClearablePresentation()
+            this.bumpTriggerLabelEpoch()
+
+            const revealHeadlessTrigger = () => {
+                this.bumpTriggerLabelEpoch()
                 this.markHeadlessDisplayReady()
-            } else {
+            }
+
+            if (this.isUserSelectField && this.multiple) {
                 this.$nextTick(() => {
                     requestAnimationFrame(() => {
-                        if (this.$refs.headlessTrigger) {
-                            requestAnimationFrame(() => {
-                                this.markHeadlessDisplayReady()
-                            })
-
-                            return
-                        }
-
-                        this.markHeadlessDisplayReady()
+                        requestAnimationFrame(revealHeadlessTrigger)
                     })
                 })
+            } else if (this.isUserSelectField) {
+                // Wait one Alpine flush so `x-if` / `x-html` bind against seeded users
+                // before SSR handoff — avoids flashing the placeholder.
+                this.$nextTick(() => {
+                    this.$nextTick(() => {
+                        requestAnimationFrame(revealHeadlessTrigger)
+                    })
+                })
+            } else {
+                this.$nextTick(() => {
+                    requestAnimationFrame(revealHeadlessTrigger)
+                })
+            }
+
+            if (this.comboboxOpen) {
+                this.scheduleMenuPosition?.()
+                this.bindHeadlessMenuPositionObservers()
+                this.onHeadlessMenuOpenedForLivewire?.()
+                this.$nextTick(() => this.bindDropdownScrollFadeObserver())
             }
         },
 
         markHeadlessDisplayReady() {
-            if (this.displayReady) {
+            if (this.displayReady || ! this._engine || ! this.canShowHydratedTrigger()) {
                 return
             }
 
             this.displayReady = true
+            this.ensureHeadlessSsrHandoff()
+        },
 
-            const shell = this.$el.closest('.fff-select-field__shell--headless')
-                ?? this.$el.closest('.fff-select-field__shell')
+        /**
+         * Re-apply SSR → hydrated handoff after Livewire remorphs. Parent
+         * dependsOn ->live() can drop `.is-replaced` while Alpine stays alive,
+         * leaving the trigger under pointer-events: none for 1–2s.
+         */
+        ensureHeadlessSsrHandoff() {
+            if (! this.displayReady) {
+                return
+            }
+
+            const shell = this.$el?.closest?.('.fff-select-field__shell--headless')
+                ?? this.$el?.closest?.('.fff-select-field__shell')
 
             if (! shell) {
                 return
@@ -403,9 +881,22 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             })
         },
 
+        applyComboboxQueryToEngine() {
+            this._engine?.setQuery(this.comboboxQuery)
+
+            if (! this.hasDynamicSearchResults) {
+                this._engine?.setOptions(flattenHeadlessOptions(this.options))
+            }
+
+            this._syncFromEngine()
+        },
+
         destroy() {
+            this.unbindDropdownScrollFadeObserver()
             this.unbindHeadlessMenuPositionObservers()
             this.disconnectHeadlessLoadMoreObserver?.()
+            this.teardownSelectedOptionLabelRefreshListener?.()
+            this.teardownDynamicOptionsInvalidation?.()
             this._engine?.destroy()
             this._engine = null
         },
@@ -462,7 +953,14 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             this.comboboxHighlightedIndex = snapshot.highlightedIndex
-            this.comboboxSelectedValues = Array.from(snapshot.selectedValues)
+
+            const nextSelected = Array.from(snapshot.selectedValues)
+
+            // Keep the same array reference when values are unchanged so Alpine
+            // does not re-run x-html on the trigger (optionView avatars remount).
+            if (! this._valuesEqual(nextSelected, this.comboboxSelectedValues)) {
+                this.comboboxSelectedValues = nextSelected
+            }
         },
 
         comboboxFilteredOptions() {
@@ -535,10 +1033,14 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                     }
 
                     for (const option of section.options ?? []) {
+                        const value = String(headlessOptionValue(option))
+
                         rows.push({
                             type: 'option',
                             option,
-                            key: String(headlessOptionValue(option)),
+                            // Prefix by section so Alpine x-for keys stay unique when the
+                            // same value appears in Recent/Suggested and the main list.
+                            key: `${section.type}:${value}`,
                         })
                     }
 
@@ -577,6 +1079,8 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         onHeadlessOptionsScroll(event) {
+            syncDropdownScrollbarInset(this.resolveMenuElement())
+
             if (! this.shouldVirtualizeDropdown()) {
                 if (this.hasPaginatedSearchResults) {
                     this.observeHeadlessLoadMore?.()
@@ -613,21 +1117,27 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         comboboxFilteredOptionTree() {
-            let tree = Array.isArray(this.options) ? this.options : []
+            const tree = Array.isArray(this.options) ? this.options : []
+            const query = String(this.comboboxQuery ?? '').trim()
 
-            if (this.searchable && ! this.hasDynamicSearchResults && String(this.comboboxQuery ?? '').trim() !== '') {
-                tree = filterHeadlessOptionTree(
+            let filtered = tree
+
+            if (this.searchable && ! this.hasDynamicSearchResults && query !== '') {
+                filtered = filterHeadlessOptionTree(
                     tree,
-                    this.comboboxQuery,
+                    query,
                     (option) => defaultGetOptionLabel(option),
+                    this.searchableOptionFields,
                 )
             }
 
-            return tree
+            return limitHeadlessOptionTree(filtered, this.optionsLimit)
         },
 
         comboboxFilteredDropdownRowsWithoutSections() {
+            void this.comboboxQuery
             void this.virtualScrollTick
+            void this.options
 
             let rows = this.buildHeadlessDropdownRowsForDisplay()
 
@@ -649,34 +1159,22 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 })
             }
 
-            if (this.shouldVirtualizeDropdown()) {
-                const flatRows = flattenHeadlessDropdownRowsForVirtualization(rows)
-                this._virtualFlatRows = flatRows
+            // Always flatten nested groups so the Blade loop renders one concrete
+            // row type per iteration (no nested option x-for / group wrappers).
+            const flatRows = flattenHeadlessDropdownRowsForVirtualization(rows)
+            this._virtualFlatRows = flatRows
 
+            if (this.shouldVirtualizeDropdown()) {
                 const windowed = windowHeadlessVirtualRows(
                     flatRows,
                     this.virtualRowWindowStart ?? 0,
                     this.virtualWindowSize ?? DEFAULT_VIRTUAL_WINDOW_SIZE,
                 )
 
-                return windowed.rows.map((row) => {
-                    if (row.type === 'group-header') {
-                        return {
-                            type: 'group',
-                            label: row.label,
-                            options: [],
-                            key: row.key,
-                            virtualHeaderOnly: true,
-                        }
-                    }
-
-                    return row
-                })
+                return windowed.rows
             }
 
-            this._virtualFlatRows = []
-
-            return rows
+            return flatRows
         },
 
         comboboxFilteredDropdownRows() {
@@ -701,9 +1199,37 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         syncEngineOptions() {
-            this.flatOptions = flattenHeadlessOptions(this.options)
-            this._engine?.setOptions(this.getEngineOptions())
+            const next = flattenHeadlessOptions(this.options)
+            const fingerprint = this.fingerprintHeadlessOptions(next)
+
+            // Replacing flatOptions on every open re-runs Alpine x-html for the
+            // trigger + rows (optionView avatars remount and flash ~1s).
+            if (fingerprint === this._engineOptionsFingerprint) {
+                this._engine?.setOptions(next)
+
+                return
+            }
+
+            this._engineOptionsFingerprint = fingerprint
+            this.flatOptions = next
+            this._engine?.setOptions(next)
             this._syncFromEngine()
+        },
+
+        fingerprintHeadlessOptions(options) {
+            if (! Array.isArray(options) || options.length === 0) {
+                return '0'
+            }
+
+            let fingerprint = String(options.length)
+
+            for (const option of options) {
+                fingerprint += `\0${headlessOptionValue(option)}`
+                fingerprint += `\0${option?.triggerLabel ?? ''}`
+                fingerprint += `\0${option?.label ?? ''}`
+            }
+
+            return fingerprint
         },
 
         isHeadlessOptionDisabled(option) {
@@ -717,11 +1243,75 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         selectCreateOption(value) {
+            if (this.multiple && this.hasReachedMaxItems()) {
+                this.showMaxItemsMessage()
+
+                return
+            }
+
             if (! this._engine?.createInlineOption?.(value)) {
                 return
             }
 
+            this.hideMaxItemsMessage()
             this._syncFromEngine()
+        },
+
+        hasReachedMaxItems() {
+            const limit = this.maxItems
+
+            if (limit == null || limit === '' || Number(limit) <= 0) {
+                return false
+            }
+
+            return this.comboboxSelectedValues.length >= Number(limit)
+        },
+
+        showMaxItemsMessage() {
+            if (! this.maxItemsMessage) {
+                return
+            }
+
+            this.maxItemsMessageVisible = true
+        },
+
+        hideMaxItemsMessage() {
+            this.maxItemsMessageVisible = false
+        },
+
+        shouldShowMaxItemsMessage() {
+            return Boolean(this.multiple && this.maxItemsMessageVisible && this.maxItemsMessage)
+        },
+
+        smartCreateRowLabel() {
+            const query = String(this.comboboxQuery ?? '').trim()
+
+            if (query === '') {
+                return this.createOptionLabel
+            }
+
+            return `${this.createOptionLabel} "${query}"`
+        },
+
+        smartCreateRowHtml() {
+            const query = String(this.comboboxQuery ?? '').trim()
+
+            if (query === '') {
+                return this.escapeHtml(String(this.createOptionLabel ?? ''))
+            }
+
+            const label = this.escapeHtml(String(this.createOptionLabel ?? ''))
+            const term = this.escapeHtml(query)
+
+            return `${label} <em class="fff-select-smart-create__term">"${term}"</em>`
+        },
+
+        escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
         },
 
         reorderSelectedChips(event) {
@@ -768,19 +1358,23 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         resolveMenuTriggerElement() {
-            const button = this.$refs.headlessTrigger
+            const button = this.$refs?.headlessTrigger
 
             if (! button) {
-                return this.$refs.headlessTriggerCtn ?? null
+                return this.$refs?.headlessTriggerCtn ?? null
             }
 
             if (this.multiple) {
-                return this.$refs.headlessTriggerCtn
+                return this.$refs?.headlessTriggerCtn
                     ?? button.closest('.fi-select-input-ctn:not(.fff-select-trigger-ssr)')
                     ?? button
             }
 
             return button
+        },
+
+        hasHeadlessMenuBeenPositioned() {
+            return this.resolveMenuElement()?.__fffHasBeenPositioned === true
         },
 
         applyHeadlessDropdownWidthLayout() {
@@ -800,7 +1394,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         updateMenuPosition({ reveal = false } = {}) {
-            const menu = this.$refs.headlessMenu
+            const menu = this.resolveMenuElement()
             const trigger = this.resolveMenuTriggerElement()
 
             if (! menu || ! trigger) {
@@ -813,21 +1407,29 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         teardownHeadlessMenuPosition() {
-            this.menuReady = false
+            if (! this.hasHeadlessMenuBeenPositioned()) {
+                this.menuReady = false
+            }
+
+            this.unbindDropdownScrollFadeObserver()
             this.unbindHeadlessMenuPositionObservers()
             this.unbindMenuListeners()
 
-            const menu = this.$refs.headlessMenu
+            const menu = this.resolveMenuElement()
 
             if (! menu) {
                 return
             }
 
-            menu.classList.remove('is-positioned', 'is-open', 'is-closing')
+            menu.classList.remove('is-open', 'is-closing')
+
+            if (! menu.__fffHasBeenPositioned) {
+                menu.classList.remove('is-positioned')
+            }
         },
 
         applyRichListDropdownWidth() {
-            const menu = this.$refs.headlessMenu
+            const menu = this.resolveMenuElement()
             const trigger = this.resolveMenuTriggerElement()
 
             if (! menu || ! trigger) {
@@ -843,7 +1445,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         applyPlainListDropdownWidth() {
-            const menu = this.$refs.headlessMenu
+            const menu = this.resolveMenuElement()
             const trigger = this.resolveMenuTriggerElement()
 
             if (! menu || ! trigger) {
@@ -877,7 +1479,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         applyGridDropdownWidth() {
-            const menu = this.$refs.headlessMenu
+            const menu = this.resolveMenuElement()
 
             if (! menu) {
                 return
@@ -946,13 +1548,38 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this.menuTriggerResizeObserver = null
         },
 
-        comboboxOpenMenu() {
-            if (this.disabled) {
+        syncDropdownOverflowChrome() {
+            syncDropdownScrollbarInset(this.resolveMenuElement())
+        },
+
+        bindDropdownScrollFadeObserver() {
+            this.unbindDropdownScrollFadeObserver()
+            syncDropdownScrollbarInset(this.resolveMenuElement())
+
+            const list = this.$refs.headlessOptionsList ?? dropdownOptionsScroller(this.resolveMenuElement())
+
+            if (! list || typeof ResizeObserver === 'undefined') {
                 return
             }
 
-            if (! this.displayReady) {
-                this.markHeadlessDisplayReady()
+            this.menuOptionsResizeObserver = new ResizeObserver(() => {
+                syncDropdownScrollbarInset(this.resolveMenuElement())
+            })
+            this.menuOptionsResizeObserver.observe(list)
+
+            if (list.firstElementChild) {
+                this.menuOptionsResizeObserver.observe(list.firstElementChild)
+            }
+        },
+
+        unbindDropdownScrollFadeObserver() {
+            this.menuOptionsResizeObserver?.disconnect()
+            this.menuOptionsResizeObserver = null
+        },
+
+        comboboxOpenMenu() {
+            if (this.disabled) {
+                return
             }
 
             this.ensureInlineSearchInputValueBeforeOpen()
@@ -961,6 +1588,24 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this._engine?.open()
             this._syncFromEngine()
             this.comboboxOpen = true
+
+            // Optimistic glass reveal — do not wait for Livewire option fetch /
+            // measure passes or the panel stays invisible while comboboxOpen=true
+            // (Region felt "blocked" for 1–2s after Country ->live()).
+            const menu = typeof this.resolveMenuElement === 'function'
+                ? this.resolveMenuElement()
+                : this.$refs?.headlessMenu
+
+            if (menu) {
+                menu.classList.remove('is-closing')
+                menu.classList.add('is-open')
+                menu.hidden = false
+                menu.setAttribute('aria-hidden', 'false')
+            }
+
+            if (typeof this.scheduleMenuPosition === 'function') {
+                this.scheduleMenuPosition()
+            }
         },
 
         ensureInlineSearchInputValueBeforeOpen() {
@@ -982,13 +1627,24 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
         },
 
-        comboboxCloseMenu() {
-            this.teardownHeadlessMenuPosition()
+        comboboxCloseMenu({ immediate = false } = {}) {
+            if (! this.comboboxOpen) {
+                return
+            }
+
             this._engine?.close()
             this.comboboxHighlightedIndex = -1
             this.inlineSearchFocused = false
 
-            if (! this.comboboxOpen) {
+            if (immediate && typeof this.closeTeleportedMenuImmediate === 'function') {
+                this.closeTeleportedMenuImmediate()
+
+                return
+            }
+
+            if (typeof this.closeTeleportedMenu === 'function') {
+                this.closeTeleportedMenu()
+
                 return
             }
 
@@ -1123,7 +1779,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
             window.setTimeout(() => {
                 const active = document.activeElement
-                const menu = this.$refs.headlessMenu
+                const menu = this.resolveMenuElement()
                 const trigger = this.$refs.headlessTrigger
 
                 if (menu?.contains(active) || trigger?.contains(active)) {
@@ -1162,17 +1818,13 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         comboboxSetQuery(value) {
             this.comboboxQuery = value
             this.virtualRowWindowStart = 0
+            this._virtualFlatRows = []
+            this.virtualScrollTick = (this.virtualScrollTick ?? 0) + 1
 
-            if (this.hasDynamicSearchResults) {
-                this._engine?.setQuery(value)
-            } else {
-                this._engine?.setQuery('')
-                this._engine?.setOptions(this.getEngineOptions())
-            }
+            this.applyComboboxQueryToEngine()
 
-            this._syncFromEngine()
             this.$nextTick(() => {
-                syncDropdownScrollbarInset(this.$refs.headlessMenu)
+                syncDropdownScrollbarInset(this.resolveMenuElement())
                 this.markKnownOptionChecksVisible()
                 this.scheduleMenuPositionAfterLayout()
             })
@@ -1234,7 +1886,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             if (selected && ! this.multiple) {
-                this.comboboxCloseMenu()
+                this.comboboxCloseMenu({ immediate: true })
 
                 if (highlightedKey) {
                     this.syncInlineSearchInputAfterSelection(highlightedKey)
@@ -1266,12 +1918,19 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         comboboxSelectValue(value) {
             const key = String(value)
 
+            if (this.multiple && this.hasReachedMaxItems()) {
+                this.showMaxItemsMessage()
+
+                return
+            }
+
+            this.hideMaxItemsMessage()
             this.rememberSelectedOption(value)
             this._engine?.selectValue(value)
             this._syncFromEngine()
 
             if (! this.multiple) {
-                this.comboboxCloseMenu()
+                this.comboboxCloseMenu({ immediate: true })
                 this.syncInlineSearchInputAfterSelection(value)
 
                 return
@@ -1282,25 +1941,42 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
         comboboxDeselectValue(value) {
             const key = String(value)
+            const shouldAnimateExit = this.multiple
+                && ! this.isGridLayout
+                && this.comboboxOpen
 
-            if (this.multiple && ! this.isGridLayout && this.comboboxOpen) {
-                const check = this.findOptionCheckElement(key)
+            const check = shouldAnimateExit ? this.findOptionCheckElement(key) : null
+            const animateExit = Boolean(check && check.getAttribute('data-visible') === 'true')
 
-                if (check?.getAttribute('data-visible') === 'true') {
-                    this.checkExitCancel?.()
-                    this.checkExitCancel = runAfterSelectedCheckExit(check, () => {
-                        this.checkExitCancel = null
-                        this.finishDeselectValue(key)
-                    })
-
-                    return
-                }
+            // Mark exiting BEFORE syncing selection so Alpine keeps the selected-row
+            // chrome (and the check node) while chips update immediately.
+            if (animateExit) {
+                this.markOptionCheckExiting(key)
             }
 
-            this.finishDeselectValue(key)
+            this.knownSelectedChecks.delete(key)
+            this._engine?.deselectValue(key)
+            this._syncFromEngine()
+
+            if (this.comboboxOpen) {
+                this.scheduleMenuPositionAfterLayout()
+            }
+
+            if (! animateExit) {
+                setCheckVisibleInstant(check, false)
+
+                return
+            }
+
+            this.checkExitCancel?.()
+            this.checkExitCancel = runAfterSelectedCheckExit(check, () => {
+                this.checkExitCancel = null
+                this.clearOptionCheckExiting(key)
+            })
         },
 
         finishDeselectValue(key) {
+            this.clearOptionCheckExiting(key)
             this.knownSelectedChecks.delete(key)
             this._engine?.deselectValue(key)
             this._syncFromEngine()
@@ -1316,10 +1992,22 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         optionRecord(value) {
             const normalized = String(value)
 
-            return findHeadlessOptionRecord(this.options, normalized)
+            const fromOptions = findHeadlessOptionRecord(this.options, normalized)
                 ?? findHeadlessOptionRecord(this.flatOptions, normalized)
-                ?? this.labelEntry(value)
-                ?? null
+
+            if (fromOptions) {
+                return fromOptions
+            }
+
+            const fromKnown = this._knownLabelEntries?.get(normalized)
+
+            if (fromKnown) {
+                return fromKnown
+            }
+
+            const fromRepository = this.labelRepository?.[normalized]
+
+            return fromRepository ?? null
         },
 
         optionLabel(value) {
@@ -1363,6 +2051,9 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         triggerLabelHtml() {
+            // Depend on epoch so Alpine re-runs `x-html` after user/label seeding.
+            void this.triggerLabelEpoch
+
             if (this.isUserSelectField) {
                 return this.userSelectTriggerHtml()
             }
@@ -1386,6 +2077,53 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             return this.comboboxSelectedValues.includes(String(value))
         },
 
+        isOptionCheckExiting(value) {
+            void this.checkExitTick
+
+            return Boolean(this.checkExitKeys[String(value)])
+        },
+
+        /**
+         * Dropdown may keep the selected-row chrome while the check strokes out.
+         * Trigger chips always follow isOptionSelected() only.
+         */
+        isOptionSelectedInDropdown(value) {
+            return this.isOptionSelected(value) || this.isOptionCheckExiting(value)
+        },
+
+        markOptionCheckExiting(value) {
+            const key = String(value)
+
+            if (this.checkExitKeys[key]) {
+                return
+            }
+
+            this.checkExitKeys = { ...this.checkExitKeys, [key]: true }
+            this.checkExitTick = (this.checkExitTick ?? 0) + 1
+        },
+
+        clearOptionCheckExiting(value) {
+            const key = String(value)
+
+            if (! this.checkExitKeys[key]) {
+                return
+            }
+
+            const next = { ...this.checkExitKeys }
+            delete next[key]
+            this.checkExitKeys = next
+            this.checkExitTick = (this.checkExitTick ?? 0) + 1
+        },
+
+        clearAllOptionCheckExiting() {
+            if (Object.keys(this.checkExitKeys).length === 0) {
+                return
+            }
+
+            this.checkExitKeys = {}
+            this.checkExitTick = (this.checkExitTick ?? 0) + 1
+        },
+
         toggleOption(value) {
             if (this.disabled) {
                 return
@@ -1399,6 +2137,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
             if (this.isOptionSelected(value)) {
                 if (this.multiple) {
+                    this.hideMaxItemsMessage()
                     this.comboboxDeselectValue(value)
 
                     return
@@ -1407,6 +2146,10 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 if (this.clearable) {
                     this.clearSelection()
                 }
+
+                // Always close — re-clicking the current value used to leave the
+                // glass panel open and cover sibling cascade fields (Region).
+                this.comboboxCloseMenu({ immediate: true })
 
                 return
             }
@@ -1421,6 +2164,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
             this._engine?.setSelectedValues([])
             this._syncFromEngine()
+            this.syncClearablePresentation()
 
             if (this.usesInlineSearchTriggerInput() && ! this.comboboxOpen) {
                 this.syncInlineSearchInputAfterClose()
@@ -1447,6 +2191,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         freezeOptionChecksForMenuClose() {
             this.checkExitCancel?.()
             this.checkExitCancel = null
+            this.clearAllOptionCheckExiting()
 
             if (this.isGridLayout) {
                 return

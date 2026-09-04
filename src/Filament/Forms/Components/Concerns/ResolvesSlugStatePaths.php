@@ -28,7 +28,7 @@ trait ResolvesSlugStatePaths
             return $this->getName();
         }
 
-        return $this->getStatePath();
+        return $this->getStatePath() ?? $this->getName();
     }
 
     protected function isRootMounted(): bool
@@ -113,10 +113,6 @@ trait ResolvesSlugStatePaths
         try {
             $model = $this->resolveRecord() ?? new $modelClass;
         } catch (\Throwable) {
-            return [];
-        }
-
-        if (! $model instanceof Model) {
             return [];
         }
 

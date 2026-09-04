@@ -41,7 +41,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-date-time-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-date-time-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled || $isReadOnly" :wrap-slot="false">
     <div
         wire:ignore

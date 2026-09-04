@@ -7,7 +7,6 @@ namespace Bjanczak\FilamentFlexFields\Filament\Actions\Concerns;
 use Closure;
 use DOMDocument;
 use DOMElement;
-use Filament\Actions\Action as BaseAction;
 use InvalidArgumentException;
 
 trait CanRequireHoldConfirm
@@ -161,7 +160,7 @@ trait CanRequireHoldConfirm
 
     public function renderHoldConfirmTriggerHtml(): string
     {
-        /** @var BaseAction $clone */
+        /** @var static $clone */
         $clone = $this->getClone();
 
         if ($this->holdConfirmOriginalView !== null) {

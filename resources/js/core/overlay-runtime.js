@@ -1,6 +1,6 @@
 import { emitObservabilityEvent } from './observability.js'
 import { recordOverlayOpenLatency } from './overlay-telemetry-p95.js'
-import { resolveTeleportedMenuHorizontalLeft } from './teleported-menu-position.js'
+import { resolveTeleportedMenuHorizontalLeft, resolveTeleportedMenuVerticalPlacement } from './teleported-menu-position.js'
 import { prefersReducedMotion, resolveTeleportedMenuZIndex } from './theme-utils.js'
 
 const OVERFLOW_SCROLL_RE = /(auto|scroll|overlay)/
@@ -156,16 +156,17 @@ export function createOverlayRuntime({ document, window }) {
             ? Math.min(Math.max(rect.width, minWidth), window.innerWidth - (VIEWPORT_PADDING * 2))
             : Math.min(minWidth, window.innerWidth - (VIEWPORT_PADDING * 2))
 
-        let top = rect.bottom + gap
-        let opensAbove = false
         const direction = typeof window.getComputedStyle === 'function'
             ? window.getComputedStyle(anchor).direction || 'ltr'
             : 'ltr'
+        const forcedPlacement = entry.position === 'top' || entry.position === 'bottom'
+            ? entry.position
+            : null
 
         panel.style.position = 'fixed'
         panel.style.width = `${Math.round(menuWidth)}px`
         panel.style.zIndex = resolveTeleportedMenuZIndex()
-        panel.style.top = `${Math.round(top)}px`
+        panel.style.top = `${Math.round(rect.bottom + gap)}px`
         panel.style.left = `${Math.round(rect.left)}px`
         panel.style.marginTop = '0'
 
@@ -179,14 +180,14 @@ export function createOverlayRuntime({ document, window }) {
             windowWidth: window.innerWidth,
         })
 
-        if (panelRect.bottom > window.innerHeight - VIEWPORT_PADDING) {
-            const aboveTop = rect.top - panelRect.height - gap
-
-            if (aboveTop >= VIEWPORT_PADDING) {
-                top = aboveTop
-                opensAbove = true
-            }
-        }
+        const { top, opensAbove } = resolveTeleportedMenuVerticalPlacement({
+            triggerRect: rect,
+            panelHeight: panelRect.height,
+            gap,
+            viewportPadding: VIEWPORT_PADDING,
+            windowHeight: window.innerHeight,
+            forcedPlacement,
+        })
 
         panel.style.top = `${Math.round(top)}px`
         panel.style.left = `${Math.round(left)}px`
@@ -458,6 +459,7 @@ export function createOverlayRuntime({ document, window }) {
         matchTriggerWidth = true,
         align = 'start',
         gap = PANEL_GAP,
+        position = null,
     }) {
         if (destroyed || ! id || ! panel || ! anchor) {
             return
@@ -490,6 +492,7 @@ export function createOverlayRuntime({ document, window }) {
             matchTriggerWidth,
             align: align === 'end' ? 'end' : 'start',
             gap,
+            position: position === 'top' || position === 'bottom' ? position : null,
             openedAt: Date.now(),
             scrollHandler: null,
             resizeHandler: null,
@@ -542,6 +545,10 @@ export function createOverlayRuntime({ document, window }) {
 
     function isOpen(id) {
         return overlays.has(id) || exclusiveClaims.has(id)
+    }
+
+    function hasPanel(id) {
+        return overlays.has(id)
     }
 
     function getOpenIds() {
@@ -608,6 +615,7 @@ export function createOverlayRuntime({ document, window }) {
         closeAll,
         updatePosition,
         isOpen,
+        hasPanel,
         getOpenIds,
         claimExclusive,
         releaseExclusive,

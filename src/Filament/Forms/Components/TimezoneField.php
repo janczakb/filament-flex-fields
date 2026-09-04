@@ -49,6 +49,10 @@ class TimezoneField extends Field
 
     protected bool|Closure $browserTimezoneSortFirst = false;
 
+    protected bool|Closure $includeUtc = true;
+
+    protected string|Closure|null $locale = null;
+
     protected string|BackedEnum|Htmlable|Closure|null $prefixIcon = null;
 
     public function variant(string|Closure $variant): static
@@ -157,6 +161,13 @@ class TimezoneField extends Field
         return $this;
     }
 
+    public function includeUtc(bool|Closure $condition = true): static
+    {
+        $this->includeUtc = $condition;
+
+        return $this;
+    }
+
     public function showOffset(bool|Closure $condition = true): static
     {
         $this->showOffset = $condition;
@@ -169,6 +180,20 @@ class TimezoneField extends Field
         $this->prefixIcon = $icon;
 
         return $this;
+    }
+
+    public function locale(string|Closure|null $locale): static
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    public function getLocale(): string
+    {
+        $locale = $this->evaluate($this->locale);
+
+        return filled($locale) ? (string) $locale : app()->getLocale();
     }
 
     public function searchable(bool|Closure $condition = true): static
@@ -186,6 +211,11 @@ class TimezoneField extends Field
     public function shouldSortTimezonesByBrowserTimezone(): bool
     {
         return (bool) $this->evaluate($this->browserTimezoneSortFirst);
+    }
+
+    public function shouldIncludeUtc(): bool
+    {
+        return (bool) $this->evaluate($this->includeUtc);
     }
 
     public function isSearchable(): bool
@@ -224,7 +254,13 @@ class TimezoneField extends Field
      */
     public function getExceptTimezoneIdentifiers(): array
     {
-        return array_values($this->evaluate($this->exceptTimezones));
+        $except = array_values($this->evaluate($this->exceptTimezones));
+
+        if (! $this->shouldIncludeUtc() && ! in_array('UTC', $except, true)) {
+            $except[] = 'UTC';
+        }
+
+        return $except;
     }
 
     /**
@@ -277,6 +313,7 @@ class TimezoneField extends Field
         $metadata = Timezones::metadata(
             $this->getAllowedTimezoneIdentifiers(),
             $this->getExceptTimezoneIdentifiers(),
+            $this->getLocale(),
         );
 
         if ($this->shouldSortTimezonesByBrowserTimezone()) {
@@ -297,6 +334,7 @@ class TimezoneField extends Field
         return Timezones::selectOptions(
             $this->getAllowedTimezoneIdentifiers(),
             $this->getExceptTimezoneIdentifiers(),
+            $this->getLocale(),
         );
     }
 
@@ -335,6 +373,23 @@ class TimezoneField extends Field
             ])
             ->values()
             ->all();
+    }
+
+    /**
+     * Compact id → [label, offset] map for blocking browser-timezone SSR boot.
+     * Must match Alpine option labels exactly so the trigger never swaps names.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public function getBrowserTimezoneBootCatalog(): array
+    {
+        $catalog = [];
+
+        foreach ($this->getOptionsForJs() as $timezone) {
+            $catalog[$timezone['id']] = [$timezone['label'], $timezone['offset']];
+        }
+
+        return $catalog;
     }
 
     public function getVirtualScrollThreshold(): int

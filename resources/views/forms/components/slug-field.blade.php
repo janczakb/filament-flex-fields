@@ -71,7 +71,9 @@
     @endif
 
     <div class="fff-slug-field__host">
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'slug-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'slug-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $slugReadOnly, $getSize(), $field->getVariant(), $showPermalinkChrome])), 0, 64) }}"

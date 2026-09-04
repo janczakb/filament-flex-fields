@@ -1,7 +1,7 @@
 @props(['mountImmediately' => false, 'eager' => false, 'mountOnInteraction' => false, 'wrapSlot' => true])
 
 @if ($eager)
-    <div {{ $attributes }}>
+    <div {{ $attributes->class(['fff-lazy-alpine-gate']) }}>
         {{ $slot }}
     </div>
 @else

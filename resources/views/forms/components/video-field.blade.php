@@ -45,7 +45,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'video-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'video-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getRatio(), $getSrc(), $getPoster(), $usesYoutube, $usesYoutubeCustomControls, $usesVimeo])), 0, 64) }}"

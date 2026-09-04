@@ -104,6 +104,7 @@ it('exports the asset registry with expected top-level keys', function (): void 
         'playground_aliases',
         'playground_extras',
         'critical_preload',
+        'bundles',
     ])
         ->and($registry['lazy_stylesheets'])->toBe(FlexFieldAssets::LAZY_COMPONENT_STYLESHEETS)
         ->and($registry['stylesheet_dependencies'])->toBe(FlexFieldAssets::STYLESHEET_DEPENDENCIES)

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
-import { resolveTeleportedMenuHorizontalLeft } from '../../resources/js/core/teleported-menu-position.js'
+import {
+    resolveTeleportedMenuHorizontalLeft,
+    resolveTeleportedMenuVerticalPlacement,
+} from '../../resources/js/core/teleported-menu-position.js'
 
 describe('resolveTeleportedMenuHorizontalLeft', () => {
     it('aligns the trailing edge in LTR when align is end', () => {
@@ -41,5 +44,47 @@ describe('resolveTeleportedMenuHorizontalLeft', () => {
         })
 
         assert.equal(left, 940)
+    })
+})
+
+describe('resolveTeleportedMenuVerticalPlacement', () => {
+    it('forces above when position is top', () => {
+        const result = resolveTeleportedMenuVerticalPlacement({
+            triggerRect: { top: 400, bottom: 440 },
+            panelHeight: 200,
+            gap: 6,
+            windowHeight: 800,
+            forcedPlacement: 'top',
+        })
+
+        assert.equal(result.opensAbove, true)
+        assert.equal(result.top, 400 - 200 - 6)
+    })
+
+    it('forces below when position is bottom', () => {
+        const result = resolveTeleportedMenuVerticalPlacement({
+            triggerRect: { top: 700, bottom: 740 },
+            panelHeight: 200,
+            gap: 6,
+            windowHeight: 800,
+            forcedPlacement: 'bottom',
+        })
+
+        assert.equal(result.opensAbove, false)
+        assert.equal(result.top, 740 + 6)
+    })
+
+    it('flips above when the panel would overflow the viewport', () => {
+        const result = resolveTeleportedMenuVerticalPlacement({
+            triggerRect: { top: 700, bottom: 740 },
+            panelHeight: 200,
+            gap: 6,
+            viewportPadding: 16,
+            windowHeight: 800,
+            forcedPlacement: null,
+        })
+
+        assert.equal(result.opensAbove, true)
+        assert.equal(result.top, 700 - 200 - 6)
     })
 })

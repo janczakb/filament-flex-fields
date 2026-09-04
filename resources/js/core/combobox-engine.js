@@ -152,9 +152,22 @@ export function createComboboxEngine({
             assertActive()
             open = true
 
-            const total = computeFilteredList().length
+            const filtered = computeFilteredList()
+            const total = filtered.length
 
-            highlightedIndex = clampHighlightedIndex(highlightedIndex, total)
+            if (selectedValues.size > 0) {
+                const firstSelected = String(Array.from(selectedValues)[0])
+                const selectedIndex = filtered.findIndex(
+                    (option) => String(getOptionValue(option)) === firstSelected,
+                )
+
+                highlightedIndex = selectedIndex >= 0
+                    ? selectedIndex
+                    : clampHighlightedIndex(highlightedIndex, total)
+            } else {
+                highlightedIndex = clampHighlightedIndex(highlightedIndex, total)
+            }
+
             syncVirtualWindowToHighlight(total)
         },
 
@@ -332,19 +345,33 @@ export function createComboboxEngine({
             const filtered = computeFilteredList()
             const normalizedQuery = searchable ? normalizeSearchQuery(query) : ''
             const sections = []
+            const pinnedValues = new Set()
 
             if (normalizedQuery === '' && recentValueSet.size > 0) {
                 const recent = filtered.filter((option) => recentValueSet.has(String(getOptionValue(option))))
 
                 if (recent.length > 0) {
+                    for (const option of recent) {
+                        pinnedValues.add(String(getOptionValue(option)))
+                    }
+
                     sections.push({ type: 'recent', label: 'Recent', options: recent })
                 }
             }
 
             if (normalizedQuery === '' && suggestedValueSet.size > 0) {
-                const suggested = filtered.filter((option) => suggestedValueSet.has(String(getOptionValue(option))))
+                const suggested = filtered.filter((option) => {
+                    const value = String(getOptionValue(option))
+
+                    // Prefer Recent when a value is listed in both buckets.
+                    return suggestedValueSet.has(value) && ! pinnedValues.has(value)
+                })
 
                 if (suggested.length > 0) {
+                    for (const option of suggested) {
+                        pinnedValues.add(String(getOptionValue(option)))
+                    }
+
                     sections.push({ type: 'suggested', label: 'Suggested', options: suggested })
                 }
             }
@@ -361,7 +388,13 @@ export function createComboboxEngine({
                 }
             }
 
-            sections.push({ type: 'options', label: null, options: filtered })
+            const remainder = pinnedValues.size > 0
+                ? filtered.filter((option) => ! pinnedValues.has(String(getOptionValue(option))))
+                : filtered
+
+            if (remainder.length > 0 || sections.length === 0) {
+                sections.push({ type: 'options', label: null, options: remainder })
+            }
 
             return sections
         },

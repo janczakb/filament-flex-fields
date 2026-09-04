@@ -13,12 +13,9 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\NumberStepper;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PriceRangeField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RatingField;
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SwitchField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\CoverCard;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCard;
-use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardGroup;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\ItemCardStack;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
@@ -46,9 +43,6 @@ class FormLayoutPlayground
             'form_layout__phone' => '+385911234567',
             'form_layout__class' => 'motor',
             'form_layout__rating' => 4.5,
-            'form_layout__public_listing' => true,
-            'form_layout__instant_book' => false,
-            'form_layout__notifications' => 'email',
             'form_layout__profile_name' => 'Alex Rivera',
             'form_layout__profile_email' => 'alex@wyachts.com',
             'form_layout__contact_phone' => '+48123456789',
@@ -70,12 +64,12 @@ class FormLayoutPlayground
     public function components(): array
     {
         return [
+            PlaygroundRelatedHubs::view('form-layouts'),
             Section::make('Modern form layouts')
                 ->description('Full forms built without Filament Section, Grid, Fieldset or FusedGroup — using CoverCard, SegmentTabs, ItemCardGroup and ItemCardStack instead.')
                 ->extraAttributes(['class' => 'fff-playground-section fff-form-layouts-playground'])
                 ->schema([
                     ...$this->charterListingDemo(),
-                    ...$this->settingsPanelDemo(),
                     ...$this->stackedCardsDemo(),
                     ...$this->bookingFlowDemo(),
                 ]),
@@ -187,59 +181,6 @@ class FormLayoutPlayground
                                                 ->stars(5),
                                         ]),
                                 ]),
-                        ]),
-                ]),
-        ];
-    }
-
-    /**
-     * @return list<Component>
-     */
-    protected function settingsPanelDemo(): array
-    {
-        $channelOptions = [
-            'email' => 'Email',
-            'push' => 'Push',
-            'both' => 'Email & push',
-            'none' => 'Off',
-        ];
-
-        return [
-            View::make('filament-flex-fields::partials.playground.form-layout-demo-heading')
-                ->viewData([
-                    'title' => 'Listing preferences',
-                    'description' => 'ItemCardGroup — iOS-style settings list with switches and inline selects.',
-                ]),
-            ItemCardGroup::make('Publishing')
-                ->description('Control how this listing appears to guests')
-                ->headerStyle('outside')
-                ->variant('secondary')
-                ->separated()
-                ->schema([
-                    ItemCard::make('Public listing')
-                        ->description('Visible in search and catalog')
-                        ->icon(GravityIcon::Eye)
-                        ->schema([
-                            SwitchField::make('form_layout__public_listing')
-                                ->inline()
-                                ->size('sm'),
-                        ]),
-                    ItemCard::make('Instant book')
-                        ->description('Guests can book without manual approval')
-                        ->icon(GravityIcon::Thunderbolt)
-                        ->schema([
-                            SwitchField::make('form_layout__instant_book')
-                                ->inline()
-                                ->size('sm'),
-                        ]),
-                    ItemCard::make('Notifications')
-                        ->description('New inquiries and booking updates')
-                        ->icon(GravityIcon::Bell)
-                        ->schema([
-                            SelectField::make('form_layout__notifications')
-                                ->options($channelOptions)
-                                ->variant('item-card')
-                                ->hiddenLabel(),
                         ]),
                 ]),
         ];

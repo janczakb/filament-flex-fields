@@ -7,9 +7,11 @@ namespace Bjanczak\FilamentFlexFields\Support\Playground;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Set;
 
 class SelectPlayground
 {
@@ -84,6 +86,9 @@ class SelectPlayground
             'select__rtl_inline_field_label' => 'riyadh',
             'select__rtl_hebrew_inline' => 'tel_aviv',
             'select__rtl_dropdown_clearable' => 'jeddah',
+            'select__create_single' => null,
+            'select__create_multiple' => ['laravel'],
+            'select__create_with_sections' => 'tailwind',
         ];
     }
 
@@ -789,6 +794,80 @@ SelectField::make('tech')
     ->dropdownAlign('end');
 PHP),
                 ]),
+            Section::make('Smart suggest · create option')
+                ->description('Headless combobox allowCreateOption() — type a label that is not in the list, then pick the create row to commit it as the value (inline, no modal).')
+                ->extraAttributes(['class' => 'fff-playground-section'])
+                ->schema([
+                    Grid::make(['default' => 1, 'lg' => 2])
+                        ->extraAttributes(['class' => 'fff-playground-variants'])
+                        ->schema([
+                            SelectField::make('select__create_single')
+                                ->label('Create option · single')
+                                ->helperText('Search for a framework that is not listed (e.g. "Svelte") — a Create row appears at the top of the dropdown.')
+                                ->options($techOptions)
+                                ->searchable()
+                                ->allowCreateOption()
+                                ->placeholder('Search or create…'),
+                            SelectField::make('select__create_multiple')
+                                ->label('Create option · multiple')
+                                ->helperText('Same create row in multi-select — each created value becomes a chip. minItems(1) validates on submit; maxItems(3) blocks extra picks with an in-menu message.')
+                                ->options($techOptions)
+                                ->multiple()
+                                ->searchable()
+                                ->allowCreateOption()
+                                ->minItems(1)
+                                ->maxItems(3)
+                                ->chipColor('primary'),
+                        ]),
+                    SelectField::make('select__modal_create')
+                        ->label('Create option · modal form (Filament)')
+                        ->helperText('createOptionForm() + createOptionUsing() — multi-field modal (not the inline Create row). After save, the new value is selected and the label refreshes.')
+                        ->options([
+                            'alpha' => 'Alpha',
+                            'beta' => 'Beta',
+                        ])
+                        ->searchable()
+                        ->createOptionForm([
+                            TextInput::make('name')
+                                ->label('Name')
+                                ->required(),
+                            TextInput::make('code')
+                                ->label('Code')
+                                ->required(),
+                        ])
+                        ->createOptionUsing(function (array $data): string {
+                            return 'created-'.str($data['code'] ?? $data['name'] ?? 'option')->slug().'-'.substr(uniqid(), -4);
+                        })
+                        ->getOptionLabelUsing(function ($value): ?string {
+                            $value = (string) $value;
+
+                            return match ($value) {
+                                'alpha' => 'Alpha',
+                                'beta' => 'Beta',
+                                default => str_starts_with($value, 'created-')
+                                    ? 'Created · '.str($value)->after('created-')->beforeLast('-')->replace('-', ' ')->title()
+                                    : $value,
+                            };
+                        })
+                        ->columnSpanFull(),
+                    SelectField::make('select__create_with_sections')
+                        ->label('Create + recent & suggested')
+                        ->helperText('recentOptions() and suggestedOptions() sections appear when the query is empty; create row appears once you type a new label.')
+                        ->options($techOptions)
+                        ->searchable()
+                        ->allowCreateOption()
+                        ->recentOptions(['livewire', 'alpine'])
+                        ->suggestedOptions(['tailwind', 'laravel'])
+                        ->columnSpanFull(),
+                    PlaygroundCodeSnippet::make(<<<'PHP'
+SelectField::make('tag')
+    ->options($existingTags)
+    ->searchable()
+    ->allowCreateOption()
+    ->recentOptions(['laravel', 'filament'])
+    ->suggestedOptions(['tailwindcss']);
+PHP),
+                ]),
             Section::make('Scale · cascading · RTL')
                 ->description('Virtualized 10k options, dependsOn() cascading selects, and dir=rtl previews (dropdown search vs inlineSearch).')
                 ->extraAttributes(['class' => 'fff-playground-section'])
@@ -804,17 +883,19 @@ PHP),
                         ->schema([
                             SelectField::make('select__cascade_country')
                                 ->label('Country (parent)')
-                                ->helperText('->live() so the region field can re-resolve options.')
+                                ->helperText('->live() + skipRenderAfterStateUpdated() so Region stays clickable (no full-page morph). Options still re-resolve via getOptionsForJs when Region opens.')
                                 ->options([
                                     'us' => 'United States',
                                     'pl' => 'Poland',
                                     'ae' => 'United Arab Emirates',
                                 ])
                                 ->live()
+                                ->skipRenderAfterStateUpdated()
+                                ->afterStateUpdated(fn (Set $set) => $set('select__cascade_region', null))
                                 ->searchable(),
                             SelectField::make('select__cascade_region')
                                 ->label('Region (dependsOn)')
-                                ->helperText('dependsOn(\'select__cascade_country\', fn ($country) => …)')
+                                ->helperText('Options refetch when the dropdown opens after the country changes. Empty until a country is chosen is expected.')
                                 ->dependsOn('select__cascade_country', fn (?string $country): array => match ($country) {
                                     'us' => [
                                         'ca' => 'California',

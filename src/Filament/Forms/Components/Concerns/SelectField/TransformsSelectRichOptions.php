@@ -13,6 +13,19 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
 
 /**
+ * @phpstan-type NormalizedSelectOption array{
+ *     value: string|int,
+ *     label: string,
+ *     description: ?string,
+ *     icon: string|BackedEnum|Htmlable|null,
+ *     image: ?string,
+ *     badge: ?string,
+ *     badge_color: ?string,
+ *     chip_label: ?string,
+ *     disabled: bool,
+ *     isDisabled: bool,
+ * }
+ *
  * @mixin SelectField
  */
 trait TransformsSelectRichOptions
@@ -93,7 +106,7 @@ trait TransformsSelectRichOptions
      */
     protected function transformRichOptionsForJsLegacy(array $options): array
     {
-        return collect($options)
+        $transformed = collect($options)
             ->map(function (array|string $label, string|int $value): array {
                 if (is_array($label) && $this->isOptionGroupArray($label)) {
                     return [
@@ -120,6 +133,8 @@ trait TransformsSelectRichOptions
             })
             ->values()
             ->all();
+
+        return array_values($transformed);
     }
 
     /**
@@ -169,17 +184,8 @@ trait TransformsSelectRichOptions
     }
 
     /**
-     * @return array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     chip_label: ?string,
-     *     disabled: bool,
-     * }
+     * @param  array<string, mixed>  $label
+     * @return NormalizedSelectOption
      */
     protected function normalizeOption(string|int $value, array|string $label): array
     {
@@ -221,16 +227,7 @@ trait TransformsSelectRichOptions
     }
 
     /**
-     * @param  array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     chip_label: ?string,
-     *     disabled: bool,
-     * }  $option
+     * @param  NormalizedSelectOption  $option
      */
     protected function formatOptionLabelForJs(array $option, bool $compact = false): string
     {
@@ -281,16 +278,7 @@ trait TransformsSelectRichOptions
     }
 
     /**
-     * @param  array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     disabled: bool,
-     * }  $option
+     * @param  NormalizedSelectOption  $option
      */
     protected function renderRichOptionLabel(array $option, string $layout = 'list'): string
     {

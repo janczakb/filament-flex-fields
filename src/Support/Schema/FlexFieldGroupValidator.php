@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Support\Schema;
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
+use Bjanczak\FilamentFlexFields\Support\Intelligence\FormulaEngine;
 use Illuminate\Validation\ValidationException;
 use JsonException;
 use Throwable;
@@ -40,6 +41,8 @@ final class FlexFieldGroupValidator
         }
 
         $slugs = [];
+        $sectionIds = $this->collectSectionIds(is_array($group->sections) ? $group->sections : []);
+        $formulas = [];
 
         foreach ($fields as $index => $field) {
             if (! is_array($field)) {
@@ -89,6 +92,21 @@ final class FlexFieldGroupValidator
                 $errors[] = "Field \"{$label}\" could not be parsed: {$exception->getMessage()}";
             }
 
+            $sectionId = $field['section_id'] ?? null;
+
+            if (is_string($sectionId) && filled($sectionId) && ! isset($sectionIds[$sectionId])) {
+                $label = is_string($slug) && filled($slug) ? $slug : (string) $index;
+                $errors[] = "Field \"{$label}\" references unknown section \"{$sectionId}\".";
+            }
+
+            if (is_string($slug) && filled($slug)) {
+                $formula = $field['formula'] ?? $field['calculated'] ?? null;
+
+                if (is_string($formula) && trim($formula) !== '') {
+                    $formulas[$slug] = trim($formula);
+                }
+            }
+
             $type = FieldType::tryFrom((string) ($field['type'] ?? ''));
 
             if ($type?->requiresConfiguredOptions()) {
@@ -100,6 +118,24 @@ final class FlexFieldGroupValidator
                     $label = is_string($slug) && filled($slug) ? $slug : (string) $index;
                     $errors[] = "Field \"{$label}\" requires at least one option.";
                 }
+            }
+        }
+
+        if ($formulas !== [] && FormulaEngine::detectCycle($formulas) !== []) {
+            $errors[] = 'Field formulas contain a circular dependency.';
+        }
+
+        foreach (is_array($group->sections) ? $group->sections : [] as $index => $section) {
+            if (! is_array($section)) {
+                $errors[] = "Section at index {$index} must be an object.";
+
+                continue;
+            }
+
+            $sectionId = $section['id'] ?? null;
+
+            if (! is_string($sectionId) || ! filled($sectionId)) {
+                $errors[] = "Section at index {$index} is missing an id.";
             }
         }
 
@@ -229,6 +265,29 @@ final class FlexFieldGroupValidator
         }
 
         return $field;
+    }
+
+    /**
+     * @param  list<array<string, mixed>>  $sections
+     * @return array<string, true>
+     */
+    private function collectSectionIds(array $sections): array
+    {
+        $ids = [];
+
+        foreach ($sections as $section) {
+            if (! is_array($section)) {
+                continue;
+            }
+
+            $id = $section['id'] ?? null;
+
+            if (is_string($id) && filled($id)) {
+                $ids[$id] = true;
+            }
+        }
+
+        return $ids;
     }
 
     /**

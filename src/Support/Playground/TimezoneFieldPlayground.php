@@ -20,6 +20,7 @@ class TimezoneFieldPlayground
             'timezone__basic' => 'Europe/Warsaw',
             'timezone__empty' => null,
             'timezone__limited' => 'America/New_York',
+            'timezone__no_utc' => 'Europe/Warsaw',
             'timezone__browser' => null,
             'timezone__sm' => 'Europe/Berlin',
             'timezone__soft' => 'Europe/Warsaw',
@@ -54,6 +55,10 @@ class TimezoneFieldPlayground
                                 ->label('Limited timezones')
                                 ->timezones(['Europe/Warsaw', 'Europe/Berlin', 'America/New_York', 'UTC'])
                                 ->defaultTimezone('UTC'),
+                            TimezoneField::make('timezone__no_utc')
+                                ->label('Without UTC')
+                                ->includeUtc(false)
+                                ->helperText('Hides canonical UTC from the default IANA list.'),
                             TimezoneField::make('timezone__browser')
                                 ->label('Browser timezone')
                                 ->browserTimezoneDefault()

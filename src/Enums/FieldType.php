@@ -55,6 +55,8 @@ enum FieldType: string
     case Select = 'select';
     case UserSelect = 'user_select';
     case DualListbox = 'dual_listbox';
+    case BubbleChoice = 'bubble_choice';
+    case TodoList = 'todo_list';
     case Tags = 'tags';
 
     // Date & time
@@ -139,6 +141,8 @@ enum FieldType: string
             self::Select,
             self::UserSelect,
             self::DualListbox,
+            self::BubbleChoice,
+            self::TodoList,
             self::Tags => FieldCategory::Choice,
 
             self::Date,
@@ -227,6 +231,8 @@ enum FieldType: string
             self::Select => 'heroicon-o-chevron-up-down',
             self::UserSelect => 'heroicon-o-user-circle',
             self::DualListbox => 'heroicon-o-arrows-right-left',
+            self::BubbleChoice => 'heroicon-o-stop-circle',
+            self::TodoList => 'heroicon-o-clipboard-document-list',
             self::Tags => 'heroicon-o-tag',
 
             self::Date => 'heroicon-o-calendar',
@@ -283,6 +289,8 @@ enum FieldType: string
             self::ColorPresets,
             self::FlexColorPicker,
             self::DualListbox,
+            self::BubbleChoice,
+            self::TodoList,
             self::Tags,
             self::PriceRange,
             self::FlexTextarea,
@@ -364,6 +372,8 @@ enum FieldType: string
             self::Select => ['select-field'],
             self::UserSelect => ['user-select'],
             self::DualListbox => ['dual-listbox'],
+            self::BubbleChoice => ['bubble-choice'],
+            self::TodoList => ['todo-list-field'],
             self::Tags => ['tags-field'],
             self::Date,
             self::DateTime,
@@ -412,6 +422,8 @@ enum FieldType: string
             self::FlexChecklist,
             self::FlexRadiolist,
             self::DualListbox,
+            self::BubbleChoice,
+            self::TodoList,
             self::Tags => true,
             default => false,
         };
@@ -435,7 +447,9 @@ enum FieldType: string
             self::ChoiceCheckboxCards,
             self::ImageChoiceCards,
             self::FlexChecklist,
-            self::FlexRadiolist => true,
+            self::FlexRadiolist,
+            self::BubbleChoice,
+            self::TodoList => true,
             default => false,
         };
     }

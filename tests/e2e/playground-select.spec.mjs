@@ -5,17 +5,17 @@ import { trackConsoleErrors, waitForSelectCoordinatorAttached } from './helpers/
 const playgroundPaths = ['/select-field', '/user-select']
 
 const selectFieldSmokeTargets = [
-    { label: 'basic status', selector: '[id$="select__basic"] .fi-select-input-btn' },
-    { label: 'searchable', selector: '[id$="select__searchable"] .fi-select-input-btn' },
-    { label: 'multiple', selector: '[id$="select__multiple"] .fi-select-input-btn' },
-    { label: 'multiple checklist', selector: '[id$="select__multiple_checklist"] .fi-select-input-btn' },
-    { label: 'grid theme', selector: '[id$="select__grid"] .fi-select-input-btn' },
-    { label: 'rich options', selector: '[id$="select__rich"] .fi-select-input-btn' },
+    { label: 'basic status', selector: '[id$="select__basic"].fi-select-input-btn, [id$="select__basic"] .fi-select-input-btn' },
+    { label: 'searchable', selector: '[id$="select__searchable"].fi-select-input-btn, [id$="select__searchable"] .fi-select-input-btn' },
+    { label: 'multiple', selector: '[id$="select__multiple"].fi-select-input-btn, [id$="select__multiple"] .fi-select-input-btn' },
+    { label: 'multiple checklist', selector: '[id$="select__multiple_checklist"].fi-select-input-btn, [id$="select__multiple_checklist"] .fi-select-input-btn' },
+    { label: 'grid theme', selector: '[id$="select__grid"].fi-select-input-btn, [id$="select__grid"] .fi-select-input-btn' },
+    { label: 'rich options', selector: '[id$="select__rich"].fi-select-input-btn, [id$="select__rich"] .fi-select-input-btn' },
 ]
 
 const userSelectSmokeTargets = [
-    { label: 'single assignee', selector: '[id$="user_select__single"] .fi-select-input-btn' },
-    { label: 'multiple team', selector: '[id$="user_select__multiple"] .fi-select-input-btn' },
+    { label: 'single assignee', selector: '[id$="user_select__single"].fi-select-input-btn, [id$="user_select__single"] .fi-select-input-btn' },
+    { label: 'multiple team', selector: '[id$="user_select__multiple"].fi-select-input-btn, [id$="user_select__multiple"] .fi-select-input-btn' },
 ]
 
 test.describe('Flex Fields playground select fields', () => {
@@ -62,7 +62,7 @@ test.describe('Flex Fields playground select fields', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__basic"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__basic"].fi-select-input-btn, [id$="select__basic"] .fi-select-input-btn').first()
 
         await expect(trigger).toBeVisible()
         await trigger.click()
@@ -83,7 +83,7 @@ test.describe('Flex Fields playground select fields', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__rich"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__rich"].fi-select-input-btn, [id$="select__rich"] .fi-select-input-btn').first()
 
         await trigger.click()
 
@@ -122,7 +122,7 @@ test.describe('Flex Fields playground select fields', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__multiple_checklist"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__multiple_checklist"].fi-select-input-btn, [id$="select__multiple_checklist"] .fi-select-input-btn').first()
 
         await trigger.click()
 
@@ -143,7 +143,7 @@ test.describe('Flex Fields playground select fields', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__multiple"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__multiple"].fi-select-input-btn, [id$="select__multiple"] .fi-select-input-btn').first()
 
         await trigger.click()
         await expect(page.locator('body > .fff-select-dropdown-panel .fi-select-input-option').first()).toBeVisible()
@@ -156,7 +156,7 @@ test.describe('Flex Fields playground select fields', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__searchable"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__searchable"].fi-select-input-btn, [id$="select__searchable"] .fi-select-input-btn').first()
 
         await trigger.click()
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Concerns;
 
 use Bjanczak\FilamentFlexFields\Enums\MapboxSearchType;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Field;
 use InvalidArgumentException;
@@ -568,8 +569,8 @@ trait InteractsWithGeocodedAddress
 
         foreach ($this->getRequiredFields() as $field) {
             if (blank($canonical[$field] ?? null)) {
-                return __("filament-flex-fields::default.validation.{$translationKey}.required_field", [
-                    'field' => __("filament-flex-fields::default.{$translationKey}.fields.{$field}"),
+                return Translations::get("filament-flex-fields::default.validation.{$translationKey}.required_field", [
+                    'field' => Translations::get("filament-flex-fields::default.{$translationKey}.fields.{$field}"),
                 ]);
             }
         }
@@ -579,7 +580,7 @@ trait InteractsWithGeocodedAddress
             && filled($canonical['lat'] ?? null)
             && ($canonical['lat'] < -90 || $canonical['lat'] > 90)
         ) {
-            return __("filament-flex-fields::default.validation.{$translationKey}.invalid_latitude");
+            return Translations::get("filament-flex-fields::default.validation.{$translationKey}.invalid_latitude");
         }
 
         if (
@@ -587,7 +588,7 @@ trait InteractsWithGeocodedAddress
             && filled($canonical['lng'] ?? null)
             && ($canonical['lng'] < -180 || $canonical['lng'] > 180)
         ) {
-            return __("filament-flex-fields::default.validation.{$translationKey}.invalid_longitude");
+            return Translations::get("filament-flex-fields::default.validation.{$translationKey}.invalid_longitude");
         }
 
         $countries = $this->getCountries();
@@ -598,11 +599,11 @@ trait InteractsWithGeocodedAddress
             && filled($canonical['country'] ?? null)
             && ! in_array(strtoupper((string) $canonical['country']), $countries, true)
         ) {
-            return __("filament-flex-fields::default.validation.{$translationKey}.country_not_allowed");
+            return Translations::get("filament-flex-fields::default.validation.{$translationKey}.country_not_allowed");
         }
 
         if ($this->isStreetAddressesOnly() && $this->hasAnyStoredValue($canonical) && ! $this->hasStreetAddress($canonical)) {
-            return __("filament-flex-fields::default.validation.{$translationKey}.street_address_required");
+            return Translations::get("filament-flex-fields::default.validation.{$translationKey}.street_address_required");
         }
 
         return null;

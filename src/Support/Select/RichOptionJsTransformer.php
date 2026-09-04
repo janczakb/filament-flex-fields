@@ -15,8 +15,8 @@ class RichOptionJsTransformer
 
     /**
      * @param  array<string | int, string | array<string, mixed>>  $options
-     * @param  Closure(string|int, array|string): array<string, mixed>  $normalizeOption
-     * @param  Closure(array<string, mixed>, bool): string  $formatOptionLabelForJs
+     * @param  Closure(string|int, array<string, mixed>|string): array{value: int|string, label: string, description: ?string, icon: mixed, image: ?string, badge: ?string, badge_color: ?string, chip_label: ?string, disabled: bool, isDisabled: bool}  $normalizeOption
+     * @param  Closure(array{value: int|string, label: string, description: ?string, icon: mixed, image: ?string, badge: ?string, badge_color: ?string, chip_label: ?string, disabled: bool, isDisabled: bool}, bool=): string  $formatOptionLabelForJs
      * @param  Closure(array<string, mixed>): bool  $isOptionGroupArray
      * @param  Closure(array<string, mixed>): bool  $isRichOptionArray
      * @param  Closure(string|null): ?string  $sanitizeHtml
@@ -52,8 +52,8 @@ class RichOptionJsTransformer
             }
 
             $normalized = $normalizeOption($value, $label);
-            $dropdownLabel = $sanitizeHtml($formatOptionLabelForJs($normalized));
-            $triggerLabel = $sanitizeHtml($formatOptionLabelForJs($normalized, compact: true));
+            $dropdownLabel = $sanitizeHtml($formatOptionLabelForJs($normalized, false));
+            $triggerLabel = $sanitizeHtml($formatOptionLabelForJs($normalized, true));
 
             $option = [
                 'label' => $dropdownLabel,

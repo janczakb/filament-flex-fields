@@ -12,17 +12,30 @@ use Illuminate\Http\Request;
 it('exposes one registry entry per playground component', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(61)
-        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(61);
+    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(63)
+        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(63);
 });
 
-it('orders playground definitions by sort', function () {
-    $sorts = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'sort');
-    $sorted = $sorts;
-    sort($sorted);
+it('orders playground definitions by category then sort', function () {
+    $previousCategorySort = null;
+    $previousSort = null;
 
-    expect($sorts)->toBe($sorted)
-        ->and(array_key_first(FlexFieldsPlaygroundRegistry::ordered()))->toBe('focus-outline');
+    foreach (FlexFieldsPlaygroundRegistry::ordered() as $definition) {
+        $categorySort = $definition['category']->sort();
+
+        if ($previousCategorySort !== null) {
+            expect($categorySort)->toBeGreaterThanOrEqual($previousCategorySort);
+        }
+
+        if ($previousCategorySort === $categorySort && $previousSort !== null) {
+            expect($definition['sort'])->toBeGreaterThanOrEqual($previousSort);
+        }
+
+        $previousCategorySort = $categorySort;
+        $previousSort = $definition['sort'];
+    }
+
+    expect(array_key_first(FlexFieldsPlaygroundRegistry::ordered()))->toBe('focus-outline');
 });
 
 it('does not expose playground page configurations when disabled', function () {
@@ -64,14 +77,14 @@ it('resolves playground slug from request path for authorization', function () {
 it('renders playground stylesheet on component pages', function () {
     $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
 
-    expect($stylesPartial)->toContain('playgroundStylesheetHrefForRequest()');
+    expect($stylesPartial)->toContain('playgroundStylesheetHrefsForRequest()');
 });
 
 it('uses registry labels for sub-navigation entries', function () {
     $labels = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'label');
 
     expect($labels)->toContain('RatingColumn', 'IconColumn', 'UserColumn', 'Phone field')
-        ->and(count($labels))->toBe(61);
+        ->and(count($labels))->toBe(63);
 });
 
 it('assigns a gravity icon to every playground sub-navigation entry', function () {
@@ -97,10 +110,45 @@ it('resolves every registered playground class from the container', function () 
 it('renders playground icons in cluster sub-navigation', function () {
     $cluster = file_get_contents(__DIR__.'/../../src/Filament/Pages/FlexFieldsPlaygroundCluster.php');
 
-    expect($cluster)->toContain("->icon(\$definition['icon'])");
+    expect($cluster)->toContain("->icon(\$definition['icon'])")
+        ->and($cluster)->toContain("->group(\$definition['category']->label())");
 });
 
-it('registers interactive v3 hubs with NEW success badges', function () {
+it('assigns a playground category to every registry hub', function () {
+    foreach (FlexFieldsPlaygroundRegistry::definitions() as $slug => $definition) {
+        expect($definition)->toHaveKey('category')
+            ->and($definition['category']->label())->toBeString()->not->toBeEmpty();
+    }
+
+    expect(FlexFieldsPlaygroundRegistry::groupedByCategory()['guides'] ?? null)->not->toBeEmpty()
+        ->and(FlexFieldsPlaygroundRegistry::groupedByCategory()['pickers'] ?? null)->not->toBeEmpty()
+        ->and(FlexFieldsPlaygroundRegistry::groupedByCategory()['date_and_time'] ?? null)->not->toBeEmpty();
+});
+
+it('maps every playground hub to an explicit design-system category', function () {
+    $categories = [];
+
+    foreach (FlexFieldsPlaygroundRegistry::definitions() as $slug => $definition) {
+        $categories[$definition['category']->value][] = $slug;
+    }
+
+    expect($categories)->toHaveKeys([
+        'guides',
+        'navigation',
+        'buttons',
+        'pickers',
+        'date_and_time',
+        'colors',
+        'controls',
+        'collections',
+        'text_input',
+        'data_display',
+        'media',
+        'location',
+    ])->and(count($categories, COUNT_RECURSIVE) - count($categories))->toBe(63);
+});
+
+it('expires NEW badges on v3 meta hubs', function () {
     $removedDumpSlugs = [
         'compliance-pack',
         'enterprise-control',
@@ -122,11 +170,11 @@ it('registers interactive v3 hubs with NEW success badges', function () {
         $definition = FlexFieldsPlaygroundRegistry::find($slug);
 
         expect($definition)->not->toBeNull("Playground slug [{$slug}] must exist.")
-            ->and($definition['badge'] ?? null)->toBe('NEW')
-            ->and($definition['badgeColor'] ?? null)->toBe('success');
+            ->and($definition['badge'] ?? null)->toBeNull("V3 hub [{$slug}] should not ship a NEW badge in 3.1.");
     }
 
-    expect(FlexFieldsPlaygroundRegistry::find('select-field')['badge'] ?? null)->toBeNull();
+    expect(FlexFieldsPlaygroundRegistry::find('field-intelligence')['label'])->toBe('Calculated formulas')
+        ->and(FlexFieldsPlaygroundRegistry::find('select-field')['badge'] ?? null)->toBeNull();
 });
 
 it('keeps component page class bound to the playground cluster', function () {
@@ -138,6 +186,7 @@ it('builds command palette entries on the page class without Blade use statement
 
     expect($blade)
         ->toContain('commandPaletteEntries()')
+        ->not->toContain('showreel')
         ->not->toContain('@php')
         ->not->toContain('use Bjanczak\\FilamentFlexFields\\');
 });

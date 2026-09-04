@@ -58,6 +58,10 @@ final class PhoneFieldConfigurator implements FieldConfigurator
             $field->fixedLineOnly((bool) $config['fixed_line_only']);
         }
 
+        if (array_key_exists('locale', $config) && filled($config['locale'])) {
+            $field->locale($config['locale']);
+        }
+
         return $field;
     }
 }

@@ -68,7 +68,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'schedule-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'schedule-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     @once
         <link

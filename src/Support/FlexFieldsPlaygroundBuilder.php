@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support;
 
 use Bjanczak\FilamentFlexFields\Support\Playground\AddressAutocompletePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\AudioFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\BubbleChoicePlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ChoiceCheckboxCardsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\ColorSwatchPlayground;
@@ -51,6 +52,9 @@ use Bjanczak\FilamentFlexFields\Support\Playground\VideoFieldPlayground;
 use Bjanczak\FilamentFlexFields\Support\Playground\VoiceNoteRecorderFieldPlayground;
 use Filament\Schemas\Components\Component;
 
+/**
+ * @internal Playground demo state builder — not part of the public customer API.
+ */
 class FlexFieldsPlaygroundBuilder
 {
     public function __construct(
@@ -76,6 +80,7 @@ class FlexFieldsPlaygroundBuilder
         protected RatingColumnPlayground $ratingColumnPlayground = new RatingColumnPlayground,
         protected IconColumnPlayground $iconColumnPlayground = new IconColumnPlayground,
         protected DualListboxPlayground $dualListboxPlayground = new DualListboxPlayground,
+        protected BubbleChoicePlayground $bubbleChoicePlayground = new BubbleChoicePlayground,
         protected PriceRangePlayground $priceRangePlayground = new PriceRangePlayground,
         protected FlexTextareaPlayground $flexTextareaPlayground = new FlexTextareaPlayground,
         protected FlexTextInputPlayground $flexTextInputPlayground = new FlexTextInputPlayground,
@@ -129,6 +134,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->ratingColumnPlayground->components(),
             ...$this->iconColumnPlayground->components(),
             ...$this->dualListboxPlayground->components(),
+            ...$this->bubbleChoicePlayground->components(),
             ...$this->priceRangePlayground->components(),
             ...$this->flexTextareaPlayground->components(),
             ...$this->flexTextInputPlayground->components(),
@@ -180,6 +186,7 @@ class FlexFieldsPlaygroundBuilder
             ...$this->userSelectPlayground->defaultState(),
             ...$this->ratingPlayground->defaultState(),
             ...$this->dualListboxPlayground->defaultState(),
+            ...$this->bubbleChoicePlayground->defaultState(),
             ...$this->priceRangePlayground->defaultState(),
             ...$this->flexTextareaPlayground->defaultState(),
             ...$this->flexTextInputPlayground->defaultState(),

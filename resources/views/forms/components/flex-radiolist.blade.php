@@ -10,7 +10,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-radiolist'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-radiolist',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-data="{
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},

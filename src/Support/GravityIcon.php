@@ -27,6 +27,10 @@ final class GravityIcon
 
     public const string Plus = 'gravityui-plus';
 
+    public const string CirclePlus = 'gravityui-circle-plus';
+
+    public const string CirclePlusFill = 'gravityui-circle-plus-fill';
+
     public const string MagnifierMinus = 'gravityui-magnifier-minus';
 
     public const string MagnifierPlus = 'gravityui-magnifier-plus';
@@ -143,9 +147,15 @@ final class GravityIcon
 
     public const string ArrowChevronRight = 'gravityui-arrow-chevron-right';
 
+    public const string ArrowChevronDown = 'gravityui-arrow-chevron-down';
+
+    public const string ArrowChevronUp = 'gravityui-arrow-chevron-up';
+
     public const string ArrowRight = 'gravityui-arrow-right';
 
     public const string ArrowRightArrowLeft = 'gravityui-arrow-right-arrow-left';
+
+    public const string ArrowUpArrowDown = 'gravityui-arrow-up-arrow-down';
 
     public const string ArrowLeft = 'gravityui-arrow-left';
 
@@ -230,6 +240,20 @@ final class GravityIcon
     public const string ArrowDownToSquare = 'gravityui-arrow-down-to-square';
 
     public const string Xmark = 'gravityui-xmark';
+
+    public const string Grip = 'gravityui-grip';
+
+    public const string NodesRight = 'gravityui-nodes-right';
+
+    public const string CodeTrunk = 'gravityui-code-trunk';
+
+    public const string BranchesRight = 'gravityui-branches-right';
+
+    public const string Hierarchy = 'gravityui-hierarchy';
+
+    public const string Tag = 'gravityui-tag';
+
+    public const string Comment = 'gravityui-comment';
 
     /**
      * @var array<string, string>

@@ -3,7 +3,7 @@ title: "ChoiceCards"
 description: Single-select card group with rich options, layouts, and Material-style ripple effects.
 ---
 
-![ChoiceCards](/art/sc-14.png)
+![ChoiceCards](/art/sc-14.webp)
 
 [← Back to Table of Contents](/docs/index)
 

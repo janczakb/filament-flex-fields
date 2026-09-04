@@ -10,6 +10,8 @@ const patches = [
     ['resources/views/forms/components/segment-control.blade.php', 'segment-control'],
     ['resources/views/forms/components/traffic-split.blade.php', 'traffic-split'],
     ['resources/views/forms/components/dual-listbox-field.blade.php', 'dual-listbox'],
+    ['resources/views/forms/components/bubble-choice-field.blade.php', 'bubble-choice'],
+    ['resources/views/forms/components/todo-list-field.blade.php', 'todo-list-field'],
     ['resources/views/forms/components/price-range-field.blade.php', 'price-range'],
     ['resources/views/forms/components/flex-textarea-field.blade.php', 'flex-textarea'],
     ['resources/views/forms/components/flex-text-input-field.blade.php', 'flex-text-input'],

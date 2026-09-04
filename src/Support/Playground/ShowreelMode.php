@@ -49,7 +49,7 @@ final class ShowreelMode
     }
 
     /**
-     * Suggested dwell time per hub when auto-advancing the showreel.
+     * Suggested dwell time per hub for manual upgrade spot-check budgeting.
      */
     public static function secondsPerHub(): int
     {

@@ -107,7 +107,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-text-input'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-text-input',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize()])), 0, 64) }}"

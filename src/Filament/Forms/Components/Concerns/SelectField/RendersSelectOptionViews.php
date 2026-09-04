@@ -13,6 +13,8 @@ use InvalidArgumentException;
 /**
  * Custom Blade (or Closure) rendering per option — server-side equivalent of render props.
  *
+ * @phpstan-import-type NormalizedSelectOption from TransformsSelectRichOptions
+ *
  * @mixin SelectField
  */
 trait RendersSelectOptionViews
@@ -21,6 +23,7 @@ trait RendersSelectOptionViews
 
     protected string|Closure|null $optionTriggerView = null;
 
+    /** @var array<string, mixed>|Closure */
     protected array|Closure $optionViewData = [];
 
     /**
@@ -78,6 +81,7 @@ trait RendersSelectOptionViews
     }
 
     /**
+     * @param  NormalizedSelectOption  $option
      * @return array<string, mixed>
      */
     protected function getOptionViewData(array $option, string $layout): array
@@ -105,17 +109,7 @@ trait RendersSelectOptionViews
     }
 
     /**
-     * @param  array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: mixed,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     chip_label: ?string,
-     *     disabled: bool,
-     * }  $option
+     * @param  NormalizedSelectOption  $option
      */
     protected function renderOptionView(array $option, string $layout = 'list'): string
     {

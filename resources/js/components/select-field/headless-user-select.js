@@ -32,14 +32,16 @@ export function createHeadlessUserSelectMixin({
             this.seedUserRepository()
             this.bindUserSelectTagRemoveHandlers()
             this.syncUserSelectTags()
+            this.bumpTriggerLabelEpoch?.()
 
             this.$watch('comboboxSelectedValues', () => {
                 this.syncUserSelectTags()
+                this.bumpTriggerLabelEpoch?.()
             })
         },
 
         resolveUserSelectTagsContainer() {
-            return this.$el.closest('.fff-select-field-wrapper')
+            return this.$el?.closest?.('.fff-select-field-wrapper')
                 ?.querySelector('[data-fff-user-select-tags]')
                 ?? null
         },
@@ -122,12 +124,30 @@ export function createHeadlessUserSelectMixin({
         },
 
         seedUserRepository() {
-            if (! Array.isArray(this.initialSelectedUserEntries)) {
+            if (Array.isArray(this.initialSelectedUserEntries)) {
+                for (const entry of this.initialSelectedUserEntries) {
+                    this.storeUserInRepository(entry?.value, entry?.user)
+                }
+            }
+
+            this.seedUsersFromOptions(this.options)
+        },
+
+        seedUsersFromOptions(options) {
+            if (! Array.isArray(options)) {
                 return
             }
 
-            for (const entry of this.initialSelectedUserEntries) {
-                this.storeUserInRepository(entry?.value, entry?.user)
+            for (const option of options) {
+                if (option?.options && Array.isArray(option.options)) {
+                    this.seedUsersFromOptions(option.options)
+
+                    continue
+                }
+
+                if (option?.user && option?.value !== undefined && option?.value !== null) {
+                    this.storeUserInRepository(option.value, option.user)
+                }
             }
         },
 
@@ -254,9 +274,32 @@ export function createHeadlessUserSelectMixin({
         },
 
         userSelectTriggerHtml() {
+            void this.triggerLabelEpoch
+
             const entries = this.selectedUserEntries()
 
             if (entries.length === 0) {
+                if (! Array.isArray(this.comboboxSelectedValues) || this.comboboxSelectedValues.length === 0) {
+                    return this.placeholder
+                }
+
+                // Selection exists but the user repo has not resolved yet — prefer
+                // stored option/label HTML over flashing the empty placeholder.
+                if (this.comboboxSelectedValues.length === 1) {
+                    const value = this.comboboxSelectedValues[0]
+                    const option = this.optionRecord?.(value) ?? this.labelEntry?.(value)
+
+                    if (option?.user) {
+                        this.storeUserInRepository(value, option.user)
+
+                        return this.renderUserOptionHtml(option.user, 'trigger')
+                    }
+
+                    if (option?.label) {
+                        return option.label
+                    }
+                }
+
                 return this.placeholder
             }
 

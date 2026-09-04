@@ -40,7 +40,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'rich-editor-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'rich-editor-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     @include('filament-flex-fields::partials.flex-rich-editor-runtime-preload')
 
     <div

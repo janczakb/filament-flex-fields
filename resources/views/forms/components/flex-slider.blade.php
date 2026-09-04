@@ -49,7 +49,9 @@
     :field="$field"
     :inline-label-vertical-alignment="\Filament\Support\Enums\VerticalAlignment::Center"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-slider'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-slider',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('flex-slider', package: \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

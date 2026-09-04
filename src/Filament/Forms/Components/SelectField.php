@@ -146,13 +146,22 @@ class SelectField extends Select
         return parent::selectablePlaceholder($condition);
     }
 
-    public function canSelectPlaceholder(): bool
+    /**
+     * Whether the clear (×) control and null-placeholder selection are available in the UI.
+     * Combines Flex Fields `clearable()` with Filament `selectablePlaceholder()`.
+     */
+    public function isClearableInUi(): bool
     {
-        return $this->isClearable();
+        return $this->isClearable() && $this->canSelectPlaceholder();
     }
 
     /**
      * Resolve options from parent field value(s). Parent path(s) should be `->live()`.
+     *
+     * Prefer `->live()->skipRenderAfterStateUpdated()` (or
+     * `partiallyRenderComponentsAfterStateUpdated([...])`) on the parent so a
+     * large form does not remorph for seconds and freeze sibling triggers.
+     * This field keeps `wire:ignore` and loads options via `getOptionsForJs` when opened.
      *
      * @param  string|list<string>  $paths
      * @param  Closure(mixed ...$parentValues): array<array-key, mixed>  $resolveOptions

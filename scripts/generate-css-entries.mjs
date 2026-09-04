@@ -39,6 +39,16 @@ const components = [
         sources: ['../../src/Filament/Forms/Components/DualListboxField.php', '../views/forms/components/dual-listbox-field.blade.php'],
     },
     {
+        name: 'bubble-choice',
+        imports: ['../components/bubble-choice.css'],
+        sources: ['../../src/Filament/Forms/Components/BubbleChoiceField.php', '../views/forms/components/bubble-choice-field.blade.php'],
+    },
+    {
+        name: 'todo-list-field',
+        imports: ['../components/todo-list-field.css'],
+        sources: ['../../src/Filament/Forms/Components/TodoListField.php', '../views/forms/components/todo-list-field.blade.php'],
+    },
+    {
         name: 'price-range',
         imports: ['../components/price-range.css'],
         sources: ['../../src/Filament/Forms/Components/PriceRangeField.php', '../views/forms/components/price-range-field.blade.php'],

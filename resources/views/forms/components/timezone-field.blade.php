@@ -27,7 +27,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'timezone-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'timezone-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $shouldShowOffset()])), 0, 64) }}"
@@ -66,6 +68,14 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
+        @once
+            <link
+                rel="modulepreload"
+                href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('timezone-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+                as="script"
+                crossorigin
+            />
+        @endonce
         <div @class([
             'fff-timezone-field__shell fff-flex-text-input__shell',
             'is-invalid' => $hasError,
@@ -141,6 +151,8 @@
                     class="fff-timezone-field__chevron"
                 />
             </button>
+
+            @include('filament-flex-fields::forms.components.partials.timezone-browser-ssr-boot')
 
             <template x-teleport="body">
                 <div

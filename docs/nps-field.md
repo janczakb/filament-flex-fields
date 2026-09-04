@@ -3,7 +3,7 @@ title: "NpsField"
 description: NPS, CSAT, and Likert scale inputs with three visual variants.
 ---
 
-![NpsField](/art/sc-33.png)
+![NpsField](/art/sc-33.webp)
 
 [← Back to Table of Contents](/docs/index)
 

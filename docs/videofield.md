@@ -3,7 +3,7 @@ title: "VideoField"
 description: Custom video player with optional YouTube embed, skip controls, PiP, fullscreen, and compact control layout.
 ---
 
-![VideoField](/art/sc-15.png)
+![VideoField](/art/videofield.webp)
 
 [← Back to Table of Contents](/docs/index)
 

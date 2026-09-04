@@ -117,6 +117,55 @@ Playwright: `tests/e2e/playground-select.spec.mjs` and `field-smoke.spec.mjs` wh
 
 ---
 
+## FFART asset runtime checklist
+
+Run after any change to `flex-field-asset-injector.js`, `flex-field-consumer-graph.js`, `emit-assets`, or modal/slide-over asset hooks:
+
+- [ ] `npm run test:consumer-graph` — logic + property + chaos + inspector (80+ unit tests).
+- [ ] No duplicate `link[href*="filament-flex-fields"]` in `<head>` for the same normalized URL (Inspector **I1** / **I33**).
+- [ ] `FffAssetInspector.inspect().legacySymbols` is empty (**I34** — no `pageRetainedUrls` / `modalOwnedUrls`).
+- [ ] Page field + modal field same `livewireKey` → shared URL `refCount ≥ 1` after modal close (**REQ-3** / **I5**).
+- [ ] Modal-only CSS/chunks uninstalled after modal close (**REQ-4** / **I6**).
+- [ ] Nested modals: LIFO stack pop only — parent assets survive child open/close (**I7**).
+- [ ] `wire:navigate` / Livewire tab swap: page batches resync, modal leftovers gone (**I8**).
+- [ ] Slide-over (`.fi-modal-slide-over`) uses the same modal stack as centered modals (**REQ-5** / **I9**).
+
+### Browser inspector (dev)
+
+With playground or admin panel open:
+
+```javascript
+FffAssetInspector.inspect()
+```
+
+Check `failingInvariants` is `[]`, `duplicates` is `[]`, and `performanceMarks` includes `fff:load` after opening a heavy field.
+
+### E2E (requires `FLEX_FIELDS_PLAYGROUND_URL`)
+
+| Spec | Requirement |
+|------|-------------|
+| `asset-page-modal-select.spec.mjs` | REQ-3 |
+| `asset-modal-only-uninstall.spec.mjs` | REQ-4 |
+| `asset-network-dedup.spec.mjs` | REQ-1 |
+| `asset-action-select-slideover.spec.mjs` | REQ-5 |
+| `asset-action-fillform-select.spec.mjs` | fillForm retain |
+
+---
+
+## Component audit WARN policy
+
+`npm run audit:components` reports three statuses per component:
+
+| Status | Meaning | Release gate |
+|--------|---------|--------------|
+| **OK** | Within PHP/JS line budgets and asset wiring complete | Required |
+| **WARN** | Asset wiring OK but PHP or JS entry exceeds monolith line budget (500 PHP / 400 JS) | Allowed for v3 heavy fields (SelectField, FlexRichEditor, SignatureField) — track in 3.2 split backlog |
+| **FAIL** | Missing dist CSS/JS, broken Alpine manifest, or critical asset gap | Blocks release |
+
+WARN rows do **not** fail CI or `QualityGates::releaseChecklist()`. Treat them as refactor signals: prefer splitting Alpine mixins and PHP concerns before adding features to monolith entries. Re-run the audit after JS/CSS splits to confirm status moves to OK.
+
+---
+
 ## Export asset registry
 
 For CI audits and release gates:

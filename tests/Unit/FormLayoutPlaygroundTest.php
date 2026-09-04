@@ -24,5 +24,5 @@ it('includes form layout playground in the builder', function () {
     $state = $builder->defaultState();
 
     expect($state)->toHaveKey('form_layout__name')
-        ->and($state)->toHaveKey('form_layout__public_listing');
+        ->and($state)->toHaveKey('form_layout__broker');
 });

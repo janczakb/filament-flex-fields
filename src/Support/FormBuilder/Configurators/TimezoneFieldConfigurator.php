@@ -35,6 +35,10 @@ final class TimezoneFieldConfigurator implements FieldConfigurator
             $field->exceptTimezones($config['except_timezones']);
         }
 
+        if (array_key_exists('include_utc', $config)) {
+            $field->includeUtc((bool) $config['include_utc']);
+        }
+
         if (array_key_exists('searchable', $config)) {
             $field->searchable((bool) $config['searchable']);
         }
@@ -53,6 +57,10 @@ final class TimezoneFieldConfigurator implements FieldConfigurator
 
         if (array_key_exists('prefix_icon', $config)) {
             $field->prefixIcon($config['prefix_icon']);
+        }
+
+        if (array_key_exists('locale', $config) && filled($config['locale'])) {
+            $field->locale($config['locale']);
         }
 
         return $field;

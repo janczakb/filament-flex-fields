@@ -52,7 +52,7 @@ $report = CompliancePack::exportReport();
 // ]
 ```
 
-Open the **Compliance pack** playground hub for a live sample table.
+Use this report in CI dashboards, release checklists, or internal admin tooling. There is no customer-facing playground hub for the compliance pack.
 
 ## Locale formatting helpers
 

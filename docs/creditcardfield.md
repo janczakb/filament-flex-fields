@@ -3,7 +3,7 @@ title: "CreditCardField"
 description: High-fidelity credit card input with real-time validation, Luhn check, and interactive card preview.
 ---
 
-![CreditCardField](/art/sc-10.png)
+![CreditCardField](/art/sc-10.webp)
 
 [← Back to Table of Contents](/docs/index)
 

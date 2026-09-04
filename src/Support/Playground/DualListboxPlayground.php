@@ -23,6 +23,7 @@ class DualListboxPlayground
             'dual_listbox__sm' => ['draft'],
             'dual_listbox__lg' => ['published'],
             'dual_listbox__disabled' => ['read'],
+            'dual_listbox__locked' => ['users.view', 'posts.edit'],
         ];
     }
 
@@ -89,7 +90,7 @@ class DualListboxPlayground
                 ->schema([
                     DualListboxField::make('dual_listbox__permissions')
                         ->label('Permissions')
-                        ->helperText('Assign capabilities. Double-click moves an item. Hold Cmd/Ctrl for multi-select.')
+                        ->helperText('Assign capabilities. Drag selected items to reorder. On touch, hold one item, tap others with a second finger, then drag the group onto the other pane — drop on a Selected row to insert before or after it.')
                         ->options($permissionOptions)
                         ->default(['users.view', 'posts.edit'])
                         ->columnSpanFull(),
@@ -110,7 +111,7 @@ class DualListboxPlayground
                                 ->variant('flat')
                                 ->options($techOptions),
                         ]),
-                    Grid::make(['default' => 1, 'sm' => 2, 'lg' => 3])
+                    Grid::make(['default' => 1, 'lg' => 2])
                         ->extraAttributes(['class' => 'fff-playground-variants'])
                         ->schema([
                             DualListboxField::make('dual_listbox__sm')
@@ -125,6 +126,12 @@ class DualListboxPlayground
                                 ->label('Disabled')
                                 ->disabled()
                                 ->options($statusOptions),
+                            DualListboxField::make('dual_listbox__locked')
+                                ->label('Locked options')
+                                ->helperText('Grayed rows cannot move between panes. View users stays granted but can still be reordered; Delete users cannot be added.')
+                                ->options($permissionOptions)
+                                ->disabledOptions(['users.view', 'users.delete'])
+                                ->default(['users.view', 'posts.edit']),
                         ]),
                 ]),
         ];

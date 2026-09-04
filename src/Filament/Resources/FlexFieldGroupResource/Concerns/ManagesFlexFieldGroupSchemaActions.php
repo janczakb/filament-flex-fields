@@ -14,6 +14,7 @@ use Filament\Actions\ActionGroup;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use JsonException;
 
@@ -39,7 +40,7 @@ trait ManagesFlexFieldGroupSchemaActions
             Action::make('importSchemaJson')
                 ->label(__('filament-flex-fields::default.schema.import_json'))
                 ->icon('heroicon-o-arrow-down-tray')
-                ->form([
+                ->schema([
                     Textarea::make('json')
                         ->label(__('filament-flex-fields::default.schema.import_json_payload'))
                         ->required()
@@ -52,20 +53,22 @@ trait ManagesFlexFieldGroupSchemaActions
                 ->label(__('filament-flex-fields::default.schema.export_json'))
                 ->icon('heroicon-o-arrow-up-on-square')
                 ->visible($record !== null)
-                ->action(function () use ($record): void {
+                ->action(function () use ($record) {
                     $payload = app(SchemaImportExport::class)->export($record->toRegistrySchema());
+                    $filename = Str::slug($record->slug).'-schema.json';
 
-                    Notification::make()
-                        ->title(__('filament-flex-fields::default.schema.export_json_success'))
-                        ->body(Str::limit($payload, 1200))
-                        ->success()
-                        ->persistent()
-                        ->send();
+                    return Response::streamDownload(
+                        static function () use ($payload): void {
+                            echo $payload;
+                        },
+                        $filename,
+                        ['Content-Type' => 'application/json'],
+                    );
                 }),
             Action::make('applyBlueprintPack')
                 ->label(__('filament-flex-fields::default.schema.apply_blueprint'))
                 ->icon('heroicon-o-sparkles')
-                ->form([
+                ->schema([
                     Select::make('pack')
                         ->label(__('filament-flex-fields::default.schema.blueprint_select'))
                         ->options(collect(SchemaBlueprintPacks::names())
@@ -129,6 +132,7 @@ trait ManagesFlexFieldGroupSchemaActions
             'name' => $pack['label'] ?? ($record?->name ?? 'Blueprint group'),
             'slug' => $record?->slug ?? Str::slug((string) ($pack['key'] ?? 'blueprint')),
             'target_type' => $pack['target'] ?? ($record?->target_type ?? config('filament-flex-fields.schema.default_target_type')),
+            'sections' => is_array($pack['sections'] ?? null) ? array_values($pack['sections']) : [],
             'fields' => is_array($fields) ? array_values($fields) : [],
         ];
 
@@ -189,6 +193,7 @@ trait ManagesFlexFieldGroupSchemaActions
             'name' => $schema['label'] ?? ($record?->name ?? 'Imported group'),
             'slug' => $slug,
             'target_type' => $schema['target'] ?? ($record?->target_type ?? config('filament-flex-fields.schema.default_target_type')),
+            'sections' => array_values($schema['sections'] ?? []),
             'fields' => array_values($schema['fields'] ?? []),
         ];
 

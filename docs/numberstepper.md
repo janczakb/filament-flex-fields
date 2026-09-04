@@ -3,7 +3,7 @@ title: "NumberStepper"
 description: Pill-shaped numeric control with − / + buttons and an animated NumberFlow display.
 ---
 
-![NumberStepper](/art/sc-13.png)
+![NumberStepper](/art/sc-13.webp)
 
 [← Back to Table of Contents](/docs/index)
 

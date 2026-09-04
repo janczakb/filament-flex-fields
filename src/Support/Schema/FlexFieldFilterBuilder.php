@@ -6,9 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support\Schema;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
-use Filament\Tables\Columns\Column;
-use Filament\Tables\Columns\IconColumn;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -71,8 +69,8 @@ final class FlexFieldFilterBuilder
 
         return Filter::make("flex_filter_{$definition->slug}")
             ->label($definition->label)
-            ->form([
-                \Filament\Forms\Components\TextInput::make('value')
+            ->schema([
+                TextInput::make('value')
                     ->label($definition->label),
             ])
             ->query(function (Builder $query, array $data) use ($statePath): Builder {

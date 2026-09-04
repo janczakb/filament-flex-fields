@@ -10,7 +10,10 @@ import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
 import { createOverlayBackdrop, removeOverlayBackdrop } from './overlay-backdrop.js'
 import { resolveOverlayMode } from './overlay-mode.js'
 import { bindOverlaySheetDismiss } from './overlay-sheet-dismiss.js'
-import { resolveTeleportedMenuHorizontalLeft } from './teleported-menu-position.js'
+import {
+    resolveTeleportedMenuHorizontalLeft,
+    resolveTeleportedMenuVerticalPlacement,
+} from './teleported-menu-position.js'
 import {
     claimOverlayExclusive,
     closeOverlayPanel,
@@ -140,6 +143,84 @@ function cancelMenuCloseAnimation(menu) {
     }
 }
 
+/**
+ * Resolve this instance's teleported menu panel.
+ * Prefer an explicit DOM id / owner attribute so multiple SelectFields on one
+ * page cannot steal each other's `$refs.headlessMenu` after x-teleport.
+ *
+ * @param {object} component
+ * @param {string} menuRef
+ * @returns {HTMLElement | null}
+ */
+export function resolveSearchableSelectMenuElement(component, menuRef = 'menuMenu') {
+    const byRef = component?.$refs?.[menuRef] ?? null
+    const expectedId = component?.menuDomId
+        ? String(component.menuDomId)
+        : null
+    const owner = component?.componentKey ?? component?.statePath ?? null
+    const ownerToken = owner != null && String(owner) !== ''
+        ? String(owner)
+        : null
+
+    if (
+        byRef
+        && (! expectedId || byRef.id === expectedId)
+        && (
+            ! ownerToken
+            || byRef.getAttribute?.('data-fff-select-menu-owner') === ownerToken
+            || ! byRef.hasAttribute?.('data-fff-select-menu-owner')
+        )
+    ) {
+        return byRef
+    }
+
+    const root = typeof document !== 'undefined' ? document : null
+
+    if (expectedId && root?.getElementById) {
+        const byId = root.getElementById(expectedId)
+
+        if (byId) {
+            return byId
+        }
+    }
+
+    if (ownerToken && typeof root?.querySelector === 'function') {
+        const escaped = typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+            ? CSS.escape(ownerToken)
+            : ownerToken.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+        const byOwner = root.querySelector(
+            `.fff-select-headless-menu[data-fff-select-menu-owner="${escaped}"]`,
+        )
+
+        if (byOwner) {
+            return byOwner
+        }
+    }
+
+    return byRef
+}
+
+/**
+ * Hide any other SelectField glass menus that are still painted open.
+ * Belt-and-suspenders when exclusive close is delayed by exit animation.
+ *
+ * @param {HTMLElement | null} ownMenu
+ */
+export function forceHideForeignSelectMenus(ownMenu = null) {
+    if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') {
+        return
+    }
+
+    for (const menu of document.querySelectorAll('.fff-select-headless-menu.is-open, .fff-select-headless-menu.is-closing')) {
+        if (ownMenu && menu === ownMenu) {
+            continue
+        }
+
+        cancelMenuCloseAnimation(menu)
+        menu.classList.remove('is-open', 'is-closing')
+    }
+}
+
 function revealTeleportedMenuPanel(menu, isOpen) {
     if (! menu) {
         return
@@ -147,6 +228,14 @@ function revealTeleportedMenuPanel(menu, isOpen) {
 
     cancelMenuCloseAnimation(menu)
     menu.classList.remove('is-closing')
+
+    // Optimistic open already painted `is-open` — stripping it for a reflow flash
+    // leaves the panel on :not(.is-positioned)/opacity:0 for an extra frame (or
+    // longer when Livewire starves rAF) and feels like the field is frozen.
+    if (isOpen && typeof menu.classList?.contains === 'function' && menu.classList.contains('is-open')) {
+        return
+    }
+
     menu.classList.remove('is-open')
     void menu.offsetWidth
 
@@ -260,11 +349,34 @@ export function createSearchableSelectMenuMixin({
 } = {}) {
     return {
         resolveMenuOverlayId() {
-            return this.__fffMenuOverlayId ?? `${ownerIdPrefix}-menu`
+            if (this.__fffMenuOverlayId) {
+                return this.__fffMenuOverlayId
+            }
+
+            const raw = this.componentKey
+                ?? this.statePath
+                ?? this.menuDomId
+                ?? this.$el?.id
+                ?? this.$el?.getAttribute?.('wire:key')
+                ?? null
+
+            // Prefer a stable per-field id (componentKey/statePath) so multiple
+            // SelectFields on one page do not share one overlay slot and steal
+            // each other's teleported panel. Fall back to ownerIdPrefix-menu for
+            // single-field hosts (phone/map) that already use a unique prefix.
+            this.__fffMenuOverlayId = raw
+                ? `${ownerIdPrefix}-${String(raw).replace(/[^a-zA-Z0-9_-]+/g, '-')}`
+                : `${ownerIdPrefix}-menu`
+
+            return this.__fffMenuOverlayId
         },
 
         resolveDropdownAlign() {
             return 'start'
+        },
+
+        resolveMenuElement() {
+            return resolveSearchableSelectMenuElement(this, menuRef)
         },
 
         resolveMenuTriggerRef() {
@@ -276,38 +388,94 @@ export function createSearchableSelectMenuMixin({
         },
 
         scheduleMenuPosition({ onAnchored = null } = {}) {
-            this[readyKey] = false
+            const trigger = this.resolveMenuTriggerRef()
+            const menu = this.resolveMenuElement()
+            const hasPositionedBefore = menu?.__fffHasBeenPositioned === true
+
+            // Same-turn unlock only when the panel was already shown (Livewire
+            // remorph / dependsOn). First open must wait for Alpine list paint +
+            // final anchor — otherwise phone/country menus flash wrong size/top
+            // (content-sized width, below→above flip) before settling.
+            if (this[openKey] && trigger && menu) {
+                this.updateMenuPosition({ reveal: false, markReady: hasPositionedBefore })
+
+                if (hasPositionedBefore) {
+                    menu.__fffHasBeenPositioned = true
+                    this[readyKey] = true
+                } else {
+                    this[readyKey] = false
+                }
+            } else if (hasPositionedBefore) {
+                this[readyKey] = true
+            } else {
+                this[readyKey] = false
+            }
 
             const attempt = (pass = 0) => {
                 this.$nextTick(() => {
                     requestAnimationFrame(() => {
-                        const trigger = this.resolveMenuTriggerRef()
-                        const menu = this.$refs[menuRef]
+                        const currentTrigger = this.resolveMenuTriggerRef()
+                        const currentMenu = this.resolveMenuElement()
 
-                        if ((! trigger || ! menu) && pass < 12) {
+                        if ((! currentTrigger || ! currentMenu) && pass < 12) {
                             attempt(pass + 1)
 
                             return
                         }
 
-                        if (! trigger || ! menu) {
+                        if (! currentTrigger || ! currentMenu) {
                             onAnchored?.()
 
                             return
                         }
 
-                        // Open animation only once — never on follow-up layout/scroll passes.
-                        this.updateMenuPosition({ reveal: true })
+                        const alreadyPaintedOpen = typeof currentMenu.classList?.contains === 'function'
+                            && currentMenu.classList.contains('is-open')
 
-                        requestAnimationFrame(() => {
-                            this.updateMenuPosition({ reveal: false })
+                        // Skip reveal reflow when optimistic is-open is already on.
+                        const shouldReveal = ! hasPositionedBefore && pass === 0 && ! alreadyPaintedOpen
 
+                        if (typeof this.measureVirtualListViewport === 'function') {
+                            this.measureVirtualListViewport()
+                        }
+
+                        // Position while still hidden — first paint must already be final size/placement.
+                        this.updateMenuPosition({
+                            reveal: false,
+                            markReady: false,
+                        })
+
+                        if (currentMenu) {
+                            currentMenu.__fffHasBeenPositioned = true
+                        }
+
+                        const finishAnchor = () => {
                             if (typeof this.measureVirtualListViewport === 'function') {
                                 this.measureVirtualListViewport()
                             }
 
+                            this.updateMenuPosition({
+                                reveal: shouldReveal,
+                                markReady: false,
+                            })
+
+                            // Overlay open (onAnchored) may nudge geometry — reveal only after that.
                             onAnchored?.()
-                        })
+                            this[readyKey] = true
+
+                            if (this[openKey] && currentMenu) {
+                                currentMenu.classList.remove('is-closing')
+                                currentMenu.classList.add('is-open')
+                            }
+                        }
+
+                        if (shouldReveal) {
+                            requestAnimationFrame(finishAnchor)
+
+                            return
+                        }
+
+                        finishAnchor()
                     })
                 })
             }
@@ -315,10 +483,9 @@ export function createSearchableSelectMenuMixin({
             attempt()
         },
 
-        updateMenuPosition({ reveal = false } = {}) {
+        updateMenuPosition({ reveal = false, markReady = true } = {}) {
             const trigger = this.resolveMenuTriggerRef()
-            const menu = this.$refs[menuRef]
-            const overlayId = this.resolveMenuOverlayId()
+            const menu = this.resolveMenuElement()
 
             if (! trigger || ! menu) {
                 return
@@ -327,17 +494,32 @@ export function createSearchableSelectMenuMixin({
             applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
 
             if (this.__fffOverlayManaged) {
-                updateOverlayPanelPosition(overlayId)
-                this[readyKey] = true
+                const managedOverlayId = this.resolveMenuOverlayId()
+                const runtime = typeof window !== 'undefined' ? window.FffOverlayRuntime : null
+                const hasManagedPanel = typeof runtime?.hasPanel === 'function'
+                    ? runtime.hasPanel(managedOverlayId)
+                    : false
 
-                if (reveal) {
-                    revealTeleportedMenuPanel(menu, this[openKey])
-                } else if (this[openKey]) {
-                    menu.classList.remove('is-closing')
-                    menu.classList.add('is-open')
+                if (hasManagedPanel) {
+                    updateOverlayPanelPosition(managedOverlayId)
+
+                    if (markReady) {
+                        this[readyKey] = true
+                    }
+
+                    if (reveal) {
+                        revealTeleportedMenuPanel(menu, this[openKey])
+                    } else if (this[openKey] && markReady) {
+                        menu.classList.remove('is-closing')
+                        menu.classList.add('is-open')
+                    }
+
+                    return
                 }
 
-                return
+                // Overlay entry gone (displaced/closed) but Alpine still flagged managed —
+                // fall through to local anchoring so the panel cannot float detached.
+                this.__fffOverlayManaged = false
             }
 
             const overlayMode = resolveOverlayMode(window)
@@ -354,11 +536,14 @@ export function createSearchableSelectMenuMixin({
                 menu.style.removeProperty('left')
                 menu.style.marginTop = '0'
                 menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
-                this[readyKey] = true
+
+                if (markReady) {
+                    this[readyKey] = true
+                }
 
                 if (reveal) {
                     revealTeleportedMenuPanel(menu, this[openKey])
-                } else if (this[openKey]) {
+                } else if (this[openKey] && markReady) {
                     menu.classList.remove('is-closing')
                     menu.classList.add('is-open')
                 }
@@ -375,43 +560,42 @@ export function createSearchableSelectMenuMixin({
                 : matchTriggerWidth
             const menuWidth = shouldMatchTriggerWidth
                 ? Math.min(Math.max(rect.width, minMenuWidth), window.innerWidth - (viewportPadding * 2))
-                : Math.min(minMenuWidth, window.innerWidth - (viewportPadding * 2))
+                : Math.min(Math.max(minMenuWidth, 0), window.innerWidth - (viewportPadding * 2))
 
-            let top = rect.bottom + gap
-            let opensAbove = false
             const direction = typeof window.getComputedStyle === 'function'
                 ? window.getComputedStyle(trigger).direction || 'ltr'
                 : 'ltr'
+            const forcedPlacement = this.position === 'top' || this.position === 'bottom'
+                ? this.position
+                : null
 
             menu.style.position = 'fixed'
-            if (shouldMatchTriggerWidth) {
-                menu.style.width = `${Math.round(menuWidth)}px`
-            } else {
-                menu.style.removeProperty('width')
-            }
+            // Always pin width before measure — content-sized first paint (e.g. phone
+            // country list) jumps when overlay later applies minMenuWidth.
+            menu.style.width = `${Math.round(menuWidth)}px`
             menu.style.zIndex = resolveTeleportedMenuZIndex()
-            menu.style.top = `${Math.round(top)}px`
+            menu.style.top = `${Math.round(rect.bottom + gap)}px`
             menu.style.left = `${Math.round(rect.left)}px`
             menu.style.marginTop = '0'
 
             const menuRect = menu.getBoundingClientRect()
             let left = resolveTeleportedMenuHorizontalLeft({
                 triggerRect: rect,
-                menuWidth: menuRect.width,
+                menuWidth: menuRect.width || menuWidth,
                 align,
                 direction,
                 viewportPadding,
                 windowWidth: window.innerWidth,
             })
 
-            if (menuRect.bottom > window.innerHeight - viewportPadding) {
-                const aboveTop = rect.top - menuRect.height - gap
-
-                if (aboveTop >= viewportPadding) {
-                    top = aboveTop
-                    opensAbove = true
-                }
-            }
+            const { top, opensAbove } = resolveTeleportedMenuVerticalPlacement({
+                triggerRect: rect,
+                panelHeight: menuRect.height,
+                gap,
+                viewportPadding,
+                windowHeight: window.innerHeight,
+                forcedPlacement,
+            })
 
             menu.style.top = `${Math.round(top)}px`
             menu.style.left = `${Math.round(left)}px`
@@ -421,11 +605,14 @@ export function createSearchableSelectMenuMixin({
 
             menu.classList.toggle('fff-teleported-menu--above', opensAbove)
             menu.classList.toggle('fff-teleported-menu--below', ! opensAbove)
-            this[readyKey] = true
+
+            if (markReady) {
+                this[readyKey] = true
+            }
 
             if (reveal) {
                 revealTeleportedMenuPanel(menu, this[openKey])
-            } else if (this[openKey]) {
+            } else if (this[openKey] && markReady) {
                 menu.classList.remove('is-closing')
                 menu.classList.add('is-open')
             }
@@ -440,11 +627,37 @@ export function createSearchableSelectMenuMixin({
                 return
             }
 
-            const menu = this.$refs[menuRef]
+            const menu = this.resolveMenuElement()
 
             hideTeleportedMenuPanel(menu, () => {
                 this[openKey] = false
             })
+        },
+
+        /**
+         * Exclusive displace must flip open state immediately. Delaying for the
+         * glass exit animation leaves comboboxOpen=true and can keep another
+         * field's panel painted while a sibling select is opening.
+         */
+        closeTeleportedMenuImmediate() {
+            if (! this[openKey]) {
+                return
+            }
+
+            const menu = this.resolveMenuElement()
+
+            cancelMenuCloseAnimation(menu)
+
+            if (menu) {
+                menu.classList.remove(
+                    'is-open',
+                    'is-closing',
+                    'fff-teleported-menu--sheet',
+                    'fff-teleported-menu--panel',
+                )
+            }
+
+            this[openKey] = false
         },
 
         bindMenuListeners() {
@@ -455,7 +668,7 @@ export function createSearchableSelectMenuMixin({
             this.unbindMenuListeners()
 
             this[scrollHandlerKey] = (event) => {
-                const menu = this.$refs[menuRef]
+                const menu = this.resolveMenuElement()
                 const trigger = this.resolveMenuTriggerRef()
 
                 if (shouldSkipMenuScrollReposition(event, menu, trigger)) {
@@ -529,15 +742,15 @@ export function createSearchableSelectMenuMixin({
         },
 
         bindSelectMenuLifecycle({ wireExclusive = true } = {}) {
-            const overlayExclusiveId = this.resolveMenuOverlayId()
-
             const displaceThisMenu = () => {
                 if (! this[openKey]) {
                     return
                 }
 
-                if (closeMethod && typeof this[closeMethod] === 'function') {
-                    this[closeMethod]()
+                // Never use the animated close path here — delayed openKey=false
+                // lets a sibling SelectField steal/show this panel.
+                if (typeof this.closeTeleportedMenuImmediate === 'function') {
+                    this.closeTeleportedMenuImmediate()
 
                     return
                 }
@@ -546,14 +759,18 @@ export function createSearchableSelectMenuMixin({
             }
 
             if (wireExclusive) {
+                // closeMethod null → controller sets openKey=false immediately
+                // (avoids comboboxCloseMenu's glass-exit delay during exclusive open).
                 wireExclusiveFlexDropdown(this, {
                     openKey,
-                    closeMethod,
+                    closeMethod: null,
                     ownerIdPrefix,
                 })
             }
 
             this.$watch(openKey, (open) => {
+                const overlayExclusiveId = this.resolveMenuOverlayId()
+
                 if (open) {
                     this.__fffMenuOpenStartedAt = typeof performance !== 'undefined' ? performance.now() : Date.now()
 
@@ -565,13 +782,16 @@ export function createSearchableSelectMenuMixin({
                     this.scheduleMenuPosition({
                         onAnchored: () => {
                             const trigger = this.resolveMenuTriggerRef()
-                            const menu = this.$refs[menuRef]
+                            const menu = this.resolveMenuElement()
+                            const anchoredOverlayId = this.resolveMenuOverlayId()
 
                             if (! trigger || ! menu) {
                                 this.bindMenuListeners()
 
                                 return
                             }
+
+                            forceHideForeignSelectMenus(menu)
 
                             const overlayMode = resolveOverlayMode(window)
 
@@ -580,7 +800,7 @@ export function createSearchableSelectMenuMixin({
                             if (overlayMode === 'sheet') {
                                 const zIndex = parseInt(window.getComputedStyle(menu).zIndex, 10) || 50
 
-                                createOverlayBackdrop(document, overlayExclusiveId, {
+                                createOverlayBackdrop(document, anchoredOverlayId, {
                                     zIndex: zIndex - 1,
                                     onDismiss: displaceThisMenu,
                                 })
@@ -596,7 +816,7 @@ export function createSearchableSelectMenuMixin({
                             }
 
                             openOverlayPanel({
-                                id: overlayExclusiveId,
+                                id: anchoredOverlayId,
                                 panel: menu,
                                 anchor: trigger,
                                 mode: overlayMode,
@@ -609,16 +829,20 @@ export function createSearchableSelectMenuMixin({
                                     : matchTriggerWidth,
                                 align: this.resolveDropdownAlign?.() === 'end' ? 'end' : 'start',
                                 gap: menuGap,
+                                position: this.position === 'top' || this.position === 'bottom'
+                                    ? this.position
+                                    : null,
                             })
                             this.__fffOverlayManaged = true
                             this.__fffOverlayMode = overlayMode
-                            this[readyKey] = true
+                            // readyKey is set by scheduleMenuPosition after onAnchored returns
+                            // so first paint already includes overlay geometry.
 
                             if (typeof this.__fffMenuOpenStartedAt === 'number') {
                                 const latency = (typeof performance !== 'undefined' ? performance.now() : Date.now())
                                     - this.__fffMenuOpenStartedAt
 
-                                emitOverlayOpenLatency(overlayExclusiveId, latency)
+                                emitOverlayOpenLatency(anchoredOverlayId, latency)
                             }
                         },
                     })
@@ -626,7 +850,7 @@ export function createSearchableSelectMenuMixin({
                     return
                 }
 
-                const menu = this.$refs[menuRef]
+                const menu = this.resolveMenuElement()
 
                 if (menu) {
                     cancelMenuCloseAnimation(menu)
@@ -651,7 +875,10 @@ export function createSearchableSelectMenuMixin({
 
                 this.__fffOverlayMode = null
                 this.__fffMenuOpenStartedAt = null
-                this[readyKey] = false
+
+                if (! menu?.__fffHasBeenPositioned) {
+                    this[readyKey] = false
+                }
 
                 if (typeof onMenuClose === 'function') {
                     onMenuClose.call(this)

@@ -82,6 +82,9 @@ class SegmentTabsPlayground
      */
     public function components(): array
     {
-        return [$this->section()];
+        return [
+            PlaygroundRelatedHubs::view('segment-tabs'),
+            $this->section(),
+        ];
     }
 }

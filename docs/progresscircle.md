@@ -3,7 +3,7 @@ title: "ProgressCircle"
 description: SVG circular progress with full-circle and semi-circle variants, gradient strokes, and optional card shell.
 ---
 
-![ProgressCircle](/art/sc-19.png)
+![ProgressCircle](/art/sc-19.webp)
 
 [← Back to Table of Contents](/docs/index)
 

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\Schema;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
-use Bjanczak\FilamentFlexFields\Data\FlexFieldSection;
+use Bjanczak\FilamentFlexFields\Enums\FlexFieldSectionType;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\FieldRbacMatrix;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
@@ -13,6 +13,7 @@ use Filament\Infolists\Components\Entry;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Tables\Columns\Column;
+use Filament\Tables\Filters\Filter;
 
 final class FlexFieldStudio
 {
@@ -174,6 +175,7 @@ final class FlexFieldFormIntegration
         $prefix = $this->statePathPrefix !== ''
             ? $this->statePathPrefix
             : FlexFieldsConfig::getValuesColumn();
+        $record = FlexFieldSectionLayoutHelper::resolveRecord($this->context);
 
         $layout = [];
 
@@ -187,16 +189,31 @@ final class FlexFieldFormIntegration
                 continue;
             }
 
-            $section = Section::make($sectionDefinition->label)
-                ->schema($this->formBuilder->build($sectionFields, $prefix, $this->resolveRbacUserKey()));
+            $built = $this->formBuilder->build($sectionFields, $prefix, $this->resolveRbacUserKey());
 
-            if ($sectionDefinition->type->value === 'fieldset') {
+            if ($sectionDefinition->type === FlexFieldSectionType::Headless) {
+                FlexFieldSectionLayoutHelper::applySectionVisibilityToComponents($built, $sectionDefinition, $prefix, $record);
+                array_push($layout, ...$built);
+
+                continue;
+            }
+
+            $section = Section::make($sectionDefinition->label)
+                ->schema($built);
+
+            if ($sectionDefinition->type === FlexFieldSectionType::Fieldset) {
                 $section->compact();
+            }
+
+            if ($this->collapsible && $sectionDefinition->type === FlexFieldSectionType::Section) {
+                $section->collapsible();
             }
 
             if ($sectionDefinition->description !== null) {
                 $section->description($sectionDefinition->description);
             }
+
+            FlexFieldSectionLayoutHelper::applySectionVisibilityToSection($section, $sectionDefinition, $prefix, $record);
 
             $layout[] = $section;
         }
@@ -207,8 +224,14 @@ final class FlexFieldFormIntegration
             ->all();
 
         if ($ungrouped !== []) {
-            $layout[] = Section::make($this->sectionLabel ?? __('filament-flex-fields::default.schema.custom_fields_section'))
+            $ungroupedSection = Section::make($this->sectionLabel ?? __('filament-flex-fields::default.schema.custom_fields_section'))
                 ->schema($this->formBuilder->build($ungrouped, $prefix, $this->resolveRbacUserKey()));
+
+            if ($this->collapsible) {
+                $ungroupedSection->collapsible();
+            }
+
+            $layout[] = $ungroupedSection;
         }
 
         return $layout;
@@ -345,15 +368,20 @@ final class FlexFieldTableIntegration
     public function columns(): array
     {
         $modelClass = $this->modelClass ?? ($this->context !== null ? $this->context::class : FlexFieldsConfig::getSchemaDefaultTargetType());
+        $tenantId = $this->tenantId ?? $this->resolver->resolveTenantId($this->context);
+        $sections = $this->resolver->sectionsForTarget($modelClass, $tenantId);
 
         $definitions = $this->resolver->definitionsForModel(
             $modelClass,
-            $this->tenantId ?? $this->resolver->resolveTenantId($this->context),
+            $tenantId,
             $this->rbacUserKey ?? $this->resolver->resolveRbacUserKey($this->context),
             $this->onlySlugs,
         );
 
-        return $this->tableBuilder->build($definitions, $this->valuesColumn);
+        $sorted = FlexFieldSectionLayoutHelper::sortDefinitionsBySections($definitions, $sections);
+        $columns = $this->tableBuilder->build($sorted, $this->valuesColumn);
+
+        return FlexFieldSectionLayoutHelper::labelColumnsBySections($columns, $sorted, $sections);
     }
 }
 
@@ -427,22 +455,62 @@ final class FlexFieldInfolistIntegration
      */
     public function entries(): array
     {
+        return $this->flatEntries();
+    }
+
+    /**
+     * @return list<Section>
+     */
+    public function layout(): array
+    {
         $modelClass = $this->modelClass ?? ($this->context !== null ? $this->context::class : FlexFieldsConfig::getSchemaDefaultTargetType());
+        $tenantId = $this->tenantId ?? $this->resolver->resolveTenantId($this->context);
+        $sections = $this->resolver->sectionsForTarget($modelClass, $tenantId);
+
+        if ($sections === []) {
+            return [$this->section()];
+        }
 
         $definitions = $this->resolver->definitionsForModel(
             $modelClass,
-            $this->tenantId ?? $this->resolver->resolveTenantId($this->context),
+            $tenantId,
             $this->rbacUserKey ?? $this->resolver->resolveRbacUserKey($this->context),
             $this->onlySlugs,
         );
 
-        return $this->infolistBuilder->build($definitions, $this->valuesColumn);
+        return FlexFieldSectionLayoutHelper::buildSectionedLayout(
+            $sections,
+            $definitions,
+            fn (array $sectionDefinitions): array => $this->infolistBuilder->build($sectionDefinitions, $this->valuesColumn),
+            record: FlexFieldSectionLayoutHelper::resolveRecord($this->context),
+        );
     }
 
     public function section(?string $label = null): Section
     {
         return Section::make($label ?? __('filament-flex-fields::default.schema.custom_fields_section'))
-            ->schema($this->entries());
+            ->schema($this->flatEntries());
+    }
+
+    /**
+     * @return list<Entry>
+     */
+    private function flatEntries(): array
+    {
+        $modelClass = $this->modelClass ?? ($this->context !== null ? $this->context::class : FlexFieldsConfig::getSchemaDefaultTargetType());
+        $tenantId = $this->tenantId ?? $this->resolver->resolveTenantId($this->context);
+        $sections = $this->resolver->sectionsForTarget($modelClass, $tenantId);
+
+        $definitions = $this->resolver->definitionsForModel(
+            $modelClass,
+            $tenantId,
+            $this->rbacUserKey ?? $this->resolver->resolveRbacUserKey($this->context),
+            $this->onlySlugs,
+        );
+
+        $sorted = FlexFieldSectionLayoutHelper::sortDefinitionsBySections($definitions, $sections);
+
+        return $this->infolistBuilder->build($sorted, $this->valuesColumn);
     }
 }
 
@@ -491,7 +559,7 @@ final class FlexFieldFilterIntegration
     }
 
     /**
-     * @return list<\Filament\Tables\Filters\Filter>
+     * @return list<Filter>
      */
     public function filters(): array
     {

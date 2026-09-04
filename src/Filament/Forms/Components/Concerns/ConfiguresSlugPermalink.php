@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 
 use Bjanczak\FilamentFlexFields\Support\Slug\SlugGenerator;
 use Bjanczak\FilamentFlexFields\Support\Slug\SpatieSlugIntegration;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 
 trait ConfiguresSlugPermalink
@@ -100,18 +101,22 @@ trait ConfiguresSlugPermalink
     {
         $label = $this->evaluate($this->permalinkLabel);
 
-        return filled($label)
-            ? (string) $label
-            : __('filament-flex-fields::default.slug.permalink');
+        if (is_string($label) && filled($label)) {
+            return $label;
+        }
+
+        return Translations::get('filament-flex-fields::default.slug.permalink');
     }
 
     public function getVisitLinkLabel(): string
     {
         $label = $this->evaluate($this->visitLinkLabel);
 
-        return filled($label)
-            ? (string) $label
-            : __('filament-flex-fields::default.slug.visit');
+        if (is_string($label) && filled($label)) {
+            return $label;
+        }
+
+        return Translations::get('filament-flex-fields::default.slug.visit');
     }
 
     public function getUrlHost(): ?string

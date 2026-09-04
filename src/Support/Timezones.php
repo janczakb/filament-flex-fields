@@ -10,7 +10,7 @@ use DateTimeZone;
 class Timezones
 {
     /**
-     * @var array<string, array{id: string, label: string, offset: string, offset_seconds: int, region: string}>
+     * @var array<string, array<string, array{id: string, label: string, offset: string, offset_seconds: int, region: string}>>
      */
     protected static array $metadataCache = [];
 
@@ -20,8 +20,6 @@ class Timezones
     protected static array $displayNameCache = [];
 
     protected static ?string $cachedDate = null;
-
-    protected static ?string $cachedLocale = null;
 
     /**
      * @return list<string>
@@ -78,25 +76,119 @@ class Timezones
         }
 
         $translationKey = 'filament-flex-fields::timezones.'.self::translationKey($timezone);
-        $translated = __($translationKey);
+        $translated = trans($translationKey, [], $locale);
 
         if (is_string($translated) && $translated !== $translationKey) {
             return self::$displayNameCache[$locale][$timezone] = $translated;
         }
 
-        if (class_exists(\IntlTimeZone::class)) {
-            $intlTimezone = \IntlTimeZone::createTimeZone($timezone);
+        $city = self::exemplarCity($timezone, $locale) ?? self::humanizeIdentifier($timezone);
 
-            if ($intlTimezone->getID() !== 'Etc/Unknown') {
-                $display = $intlTimezone->getDisplayName(false, \IntlTimeZone::DISPLAY_GENERIC_LOCATION, $locale);
+        return self::$displayNameCache[$locale][$timezone] = self::formatCityCountry(
+            $city,
+            self::countryName(self::countryCode($timezone), $locale),
+        );
+    }
 
-                if (is_string($display) && $display !== '') {
-                    return self::$displayNameCache[$locale][$timezone] = $display;
-                }
+    /**
+     * ISO 3166-1 alpha-2 for the timezone's home country (`PL` for Europe/Warsaw).
+     * World/offset zones (`UTC`, `Etc/GMT+1`) return null.
+     */
+    public static function countryCode(string $timezone): ?string
+    {
+        if ($timezone === 'UTC' || ! class_exists(\IntlTimeZone::class)) {
+            return null;
+        }
+
+        try {
+            $region = \IntlTimeZone::getRegion($timezone);
+        } catch (\Throwable) {
+            return null;
+        }
+
+        if (! is_string($region) || strlen($region) !== 2) {
+            return null;
+        }
+
+        $code = strtoupper($region);
+
+        if (in_array($code, ['001', 'ZZ'], true)) {
+            return null;
+        }
+
+        return $code;
+    }
+
+    public static function countryName(?string $countryCode, ?string $locale = null): ?string
+    {
+        if ($countryCode === null || $countryCode === '') {
+            return null;
+        }
+
+        $code = strtoupper($countryCode);
+        $locale ??= app()->getLocale();
+        $translationKey = "filament-flex-fields::countries.{$code}";
+        $translated = trans($translationKey, [], $locale);
+
+        if (is_string($translated) && $translated !== $translationKey) {
+            return $translated;
+        }
+
+        if (function_exists('locale_get_display_region')) {
+            $fallback = locale_get_display_region('-'.$code, $locale);
+
+            if (is_string($fallback) && $fallback !== '' && $fallback !== $code) {
+                return $fallback;
             }
         }
 
-        return self::$displayNameCache[$locale][$timezone] = self::humanizeIdentifier($timezone);
+        return null;
+    }
+
+    public static function formatCityCountry(string $city, ?string $country): string
+    {
+        $city = trim($city);
+        $country = is_string($country) ? trim($country) : '';
+
+        if ($country === '' || strcasecmp($city, $country) === 0) {
+            return $city;
+        }
+
+        return $city.', '.$country;
+    }
+
+    /**
+     * ICU exemplar city (`VVV`) — "Warsaw" / "Warszawa", never "Poland Time".
+     */
+    public static function exemplarCity(string $timezone, string $locale): ?string
+    {
+        if (! class_exists(\IntlDateFormatter::class)) {
+            return null;
+        }
+
+        try {
+            $formatter = new \IntlDateFormatter(
+                $locale,
+                \IntlDateFormatter::NONE,
+                \IntlDateFormatter::NONE,
+                $timezone,
+                null,
+                'VVV',
+            );
+            $formatted = $formatter->format(0);
+
+            if (! is_string($formatted) || $formatted === '') {
+                return null;
+            }
+
+            if (preg_match('/^(GMT|UTC|Unknown)\b/i', $formatted) === 1 || str_contains($formatted, '/')) {
+                return null;
+            }
+
+            return $formatted;
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     public static function humanizeIdentifier(string $timezone): string
@@ -105,18 +197,15 @@ class Timezones
             return 'UTC';
         }
 
-        $parts = explode('/', $timezone, 2);
+        $segments = explode('/', $timezone);
+        $city = str_replace('_', ' ', (string) (end($segments) ?: $timezone));
 
-        if (count($parts) === 2) {
-            return str_replace('_', ' ', $parts[1]);
-        }
-
-        return $timezone;
+        return $city !== '' ? $city : $timezone;
     }
 
     public static function label(string $timezone, ?string $locale = null): string
     {
-        return self::displayName($timezone, $locale).' ('.self::formatOffset($timezone).')';
+        return self::displayName($timezone, $locale);
     }
 
     /**
@@ -231,16 +320,15 @@ class Timezones
      * @param  list<string>  $except
      * @return list<array{id: string, label: string, offset: string, offset_seconds: int, region: string}>
      */
-    public static function metadata(?array $only = null, array $except = []): array
+    public static function metadata(?array $only = null, array $except = [], ?string $locale = null): array
     {
-        $locale = app()->getLocale();
+        $locale ??= app()->getLocale();
         $today = date('Y-m-d');
 
-        if (self::$cachedDate !== $today || self::$cachedLocale !== $locale) {
+        if (self::$cachedDate !== $today) {
             self::$metadataCache = [];
             self::$displayNameCache = [];
             self::$cachedDate = $today;
-            self::$cachedLocale = $locale;
         }
 
         $resolved = self::resolve($only, $except);
@@ -248,7 +336,7 @@ class Timezones
         $now = null;
 
         foreach ($resolved as $identifier) {
-            if (! isset(self::$metadataCache[$identifier])) {
+            if (! isset(self::$metadataCache[$locale][$identifier])) {
                 if ($now === null) {
                     $now = new DateTime('now', new DateTimeZone('UTC'));
                 }
@@ -256,7 +344,7 @@ class Timezones
                 $offsetSeconds = $tz->getOffset($now);
                 $offset = self::formatOffsetSeconds($offsetSeconds);
 
-                self::$metadataCache[$identifier] = [
+                self::$metadataCache[$locale][$identifier] = [
                     'id' => $identifier,
                     'label' => self::label($identifier, $locale),
                     'offset' => $offset,
@@ -265,7 +353,7 @@ class Timezones
                 ];
             }
 
-            $results[] = self::$metadataCache[$identifier];
+            $results[] = self::$metadataCache[$locale][$identifier];
         }
 
         return $results;
@@ -276,11 +364,11 @@ class Timezones
      * @param  list<string>  $except
      * @return array<string, array{label: string, description: string}>
      */
-    public static function selectOptions(?array $only = null, array $except = []): array
+    public static function selectOptions(?array $only = null, array $except = [], ?string $locale = null): array
     {
         $options = [];
 
-        foreach (self::metadata($only, $except) as $timezone) {
+        foreach (self::metadata($only, $except, $locale) as $timezone) {
             $options[$timezone['id']] = [
                 'label' => $timezone['label'],
                 'description' => $timezone['offset'],

@@ -2,7 +2,7 @@
 title: "PhoneField"
 ---
 
-![PhoneField](/art/sc-23.png)
+![PhoneField](/art/phone-field.webp)
 
 [← Back to Table of Contents](/docs/index)
 
@@ -188,6 +188,14 @@ Sort country list with browser locale country first.
 PhoneField::make('field_name')
     ->browserLocaleSortFirst(true);
 ```
+#### `locale(string|Closure|null $locale)`
+
+
+Language for country names in the picker (`en` → Poland, `pl` → Polska). Defaults to `app()->getLocale()`.
+
+```php
+PhoneField::make('phone')->locale('pl');
+```
 #### `placeholder(string|Closure|null $placeholder)`
 
 
@@ -256,6 +264,7 @@ PhoneField::make('field_name')
 | `fixed_line_only` | `fixedLineOnly()` |
 | `browser_locale_default` | `browserLocaleDefault()` |
 | `browser_locale_sort_first` | `browserLocaleSortFirst()` |
+| `locale` | `locale()` |
 
 ### CSS classes
 

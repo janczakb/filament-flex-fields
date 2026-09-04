@@ -267,7 +267,7 @@ ItemCard::make('Delete account')
     ]),
 ```
 
-Combine `itemCard()` + `holdConfirm()` for settings-style rows. See the playground **Item card group** section for live demos (default, fast 800 ms, slow 4 s left sweep).
+Combine `itemCard()` + `holdConfirm()` for settings-style rows. See the playground **Hold confirm** hub (`/admin/flex-fields-playground/hold-confirm`) for standalone action demos, and **Item card group** for card-embedded actions.
 
 ---
 
@@ -409,6 +409,8 @@ Three hold-confirm demos:
 | Hold confirm | 2000 ms | right | primary |
 | Hold confirm (fast) | 800 ms | right | danger |
 | Hold confirm (slow) | 4000 ms | left | danger |
+
+Open **Flex Fields Playground → Hold confirm** (`/admin/flex-fields-playground/hold-confirm`).
 
 ---
 

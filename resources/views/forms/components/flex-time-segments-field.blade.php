@@ -18,7 +18,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-time-segments'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-time-segments',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $field->getVariant(), $field->getMinuteStep()])), 0, 64) }}"

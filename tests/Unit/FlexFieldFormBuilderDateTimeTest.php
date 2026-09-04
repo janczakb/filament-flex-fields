@@ -143,11 +143,15 @@ it('maps timezone field type with configureTimezoneField', function () {
                 'default_timezone' => 'Europe/Warsaw',
                 'timezones' => ['Europe/Warsaw', 'UTC'],
                 'show_offset' => false,
+                'locale' => 'pl',
+                'include_utc' => false,
             ],
         ]),
     );
 
     expect($field)->toBeInstanceOf(TimezoneField::class)
         ->and($field->getDefaultTimezoneIdentifier())->toBe('Europe/Warsaw')
-        ->and($field->shouldShowOffset())->toBeFalse();
+        ->and($field->shouldShowOffset())->toBeFalse()
+        ->and($field->getLocale())->toBe('pl')
+        ->and($field->shouldIncludeUtc())->toBeFalse();
 });

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\FileUpload;
 
+use GdImage;
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver as GdDriver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
@@ -26,9 +28,9 @@ class FileUploadImageProcessor
 
     public function process(Filesystem $disk, string $path): string
     {
-        $absolutePath = method_exists($disk, 'path') ? $disk->path($path) : null;
+        $absolutePath = $this->resolveDiskAbsolutePath($disk, $path);
 
-        if (! is_string($absolutePath) || ! is_file($absolutePath)) {
+        if ($absolutePath === null || ! is_file($absolutePath)) {
             return $path;
         }
 
@@ -88,8 +90,7 @@ class FileUploadImageProcessor
             return false;
         }
 
-        return method_exists(ImageManager::class, 'decodePath')
-            || method_exists(ImageManager::class, 'read');
+        return class_exists(ImageManager::class);
     }
 
     protected function createInterventionImageManager(): ImageManager
@@ -105,7 +106,7 @@ class FileUploadImageProcessor
 
     protected function loadInterventionImage(ImageManager $manager, string $absolutePath): mixed
     {
-        if (method_exists($manager, 'decodePath')) {
+        if (is_callable([$manager, 'decodePath'])) {
             return $manager->decodePath($absolutePath);
         }
 
@@ -131,8 +132,8 @@ class FileUploadImageProcessor
             return;
         }
 
-        if (method_exists($image, 'toAvif')) {
-            $image->toAvif(quality: 65)->save($absolutePath);
+        if (is_object($image) && method_exists($image, 'toAvif')) {
+            $image->toAvif(65)->save($absolutePath);
         }
     }
 
@@ -140,9 +141,9 @@ class FileUploadImageProcessor
     {
         if ($this->optimizeImagesToAvif && $this->supportsAvif()) {
             $newPath = $this->replaceExtension($path, 'avif');
-            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+            $newAbsolutePath = $this->resolveDiskAbsolutePath($disk, $newPath);
 
-            if (is_string($newAbsolutePath)) {
+            if ($newAbsolutePath !== null) {
                 $this->saveInterventionImageAsAvif($image, $newAbsolutePath);
 
                 if ($newPath !== $path) {
@@ -155,9 +156,9 @@ class FileUploadImageProcessor
 
         if ($this->optimizeImagesToWebp && $this->supportsWebp()) {
             $newPath = $this->replaceExtension($path, 'webp');
-            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+            $newAbsolutePath = $this->resolveDiskAbsolutePath($disk, $newPath);
 
-            if (is_string($newAbsolutePath)) {
+            if ($newAbsolutePath !== null) {
                 $this->saveInterventionImageAsWebp($image, $newAbsolutePath);
 
                 if ($newPath !== $path) {
@@ -204,20 +205,7 @@ class FileUploadImageProcessor
             return $absolutePath;
         }
 
-        $width = imagesx($resource);
-        $height = imagesy($resource);
-
-        [$targetWidth, $targetHeight] = $this->resolveTargetDimensions($width, $height);
-
-        if ($targetWidth !== $width || $targetHeight !== $height) {
-            $resized = imagecreatetruecolor($targetWidth, $targetHeight);
-
-            if ($resized !== false) {
-                imagecopyresampled($resized, $resource, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
-                imagedestroy($resource);
-                $resource = $resized;
-            }
-        }
+        $resource = $this->resizeGdImage($resource);
 
         $this->saveGdResource($resource, $absolutePath, $mime);
         imagedestroy($resource);
@@ -255,26 +243,13 @@ class FileUploadImageProcessor
             return $path;
         }
 
-        $width = imagesx($resource);
-        $height = imagesy($resource);
-
-        [$targetWidth, $targetHeight] = $this->resolveTargetDimensions($width, $height);
-
-        if ($targetWidth !== $width || $targetHeight !== $height) {
-            $resized = imagecreatetruecolor($targetWidth, $targetHeight);
-
-            if ($resized !== false) {
-                imagecopyresampled($resized, $resource, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
-                imagedestroy($resource);
-                $resource = $resized;
-            }
-        }
+        $resource = $this->resizeGdImage($resource);
 
         if ($this->optimizeImagesToAvif && $this->supportsAvif()) {
             $newPath = $this->replaceExtension($path, 'avif');
-            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+            $newAbsolutePath = $this->resolveDiskAbsolutePath($disk, $newPath);
 
-            if (is_string($newAbsolutePath)) {
+            if ($newAbsolutePath !== null) {
                 imageavif($resource, $newAbsolutePath, 65);
                 imagedestroy($resource);
 
@@ -288,9 +263,9 @@ class FileUploadImageProcessor
 
         if ($this->optimizeImagesToWebp && $this->supportsWebp()) {
             $newPath = $this->replaceExtension($path, 'webp');
-            $newAbsolutePath = method_exists($disk, 'path') ? $disk->path($newPath) : null;
+            $newAbsolutePath = $this->resolveDiskAbsolutePath($disk, $newPath);
 
-            if (is_string($newAbsolutePath)) {
+            if ($newAbsolutePath !== null) {
                 imagewebp($resource, $newAbsolutePath, 85);
                 imagedestroy($resource);
 
@@ -308,24 +283,45 @@ class FileUploadImageProcessor
         return $path;
     }
 
-    /**
-     * @return resource|null
-     */
-    protected function createImageResource(string $absolutePath, string $mime)
+    protected function resizeGdImage(GdImage $resource): GdImage
     {
-        return match ($mime) {
+        $width = imagesx($resource);
+        $height = imagesy($resource);
+
+        [$targetWidth, $targetHeight] = $this->resolveTargetDimensions($width, $height);
+        $targetWidth = max(1, $targetWidth);
+        $targetHeight = max(1, $targetHeight);
+
+        if ($targetWidth === $width && $targetHeight === $height) {
+            return $resource;
+        }
+
+        $resized = imagecreatetruecolor($targetWidth, $targetHeight);
+
+        if ($resized === false) {
+            return $resource;
+        }
+
+        imagecopyresampled($resized, $resource, 0, 0, 0, 0, $targetWidth, $targetHeight, $width, $height);
+        imagedestroy($resource);
+
+        return $resized;
+    }
+
+    protected function createImageResource(string $absolutePath, string $mime): ?GdImage
+    {
+        $resource = match ($mime) {
             'image/jpeg', 'image/jpg' => @imagecreatefromjpeg($absolutePath),
             'image/png' => @imagecreatefrompng($absolutePath),
             'image/gif' => @imagecreatefromgif($absolutePath),
-            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($absolutePath) : null,
-            default => null,
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($absolutePath) : false,
+            default => false,
         };
+
+        return $resource instanceof GdImage ? $resource : null;
     }
 
-    /**
-     * @param  resource  $resource
-     */
-    protected function saveGdResource($resource, string $absolutePath, string $mime): void
+    protected function saveGdResource(GdImage $resource, string $absolutePath, string $mime): void
     {
         match ($mime) {
             'image/jpeg', 'image/jpg' => imagejpeg($resource, $absolutePath, $this->optimizeImages ? 85 : 92),
@@ -376,6 +372,15 @@ class FileUploadImageProcessor
         }
 
         return [$width, $height];
+    }
+
+    protected function resolveDiskAbsolutePath(Filesystem $disk, string $path): ?string
+    {
+        if (! $disk instanceof FilesystemAdapter) {
+            return null;
+        }
+
+        return $disk->path($path);
     }
 
     protected function replaceExtension(string $path, string $extension): string

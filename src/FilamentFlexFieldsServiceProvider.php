@@ -24,25 +24,25 @@ use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\SiemBridge;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupRegistrySync;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldInfolistBuilder;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldStudio;
-use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTableBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldSchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\FieldComponentFactory;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Registry\FieldTypeHandlerRegistry;
+use Bjanczak\FilamentFlexFields\Support\Geocoding\GeocodingOs;
 use Bjanczak\FilamentFlexFields\Support\HtmlSanitizer;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
-use Bjanczak\FilamentFlexFields\Support\Geocoding\GeocodingOs;
 use Bjanczak\FilamentFlexFields\Support\Media\CaptureRetentionSchedule;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupRegistrySync;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldInfolistBuilder;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldStudio;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTableBuilder;
 use Bjanczak\FilamentFlexFields\Support\Theme\FlexFieldsTheme;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
 use Bjanczak\FilamentFlexFields\Support\Upgrade\V3AutoUpgrade;
@@ -278,7 +278,11 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
     {
         $scripts = [
             // loadedOnRequest: URL is available via FilamentAsset::getScriptSrc(),
-            // but the tag is rendered once from SCRIPTS_AFTER (avoids double boot).
+            // but tags are rendered once from render hooks (avoids double boot).
+            Js::make(
+                FlexFieldAssets::FFF_LOAD_BOOTSTRAP_SCRIPT_ID,
+                __DIR__.'/../resources/dist/core/flex-fff-load-bootstrap.js',
+            )->loadedOnRequest(),
             Js::make(
                 FlexFieldAssets::ASSET_INJECTOR_SCRIPT_ID,
                 __DIR__.'/../resources/dist/core/flex-field-asset-injector.js',
@@ -302,6 +306,10 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             Js::make(
                 FlexFieldAssets::SEGMENT_OVERFLOW_SSR_SCRIPT_ID,
                 __DIR__.'/../resources/dist/core/segment-overflow-ssr.js',
+            )->loadedOnRequest(),
+            Js::make(
+                FlexFieldAssets::TIMEZONE_BROWSER_SSR_BOOT_SCRIPT_ID,
+                __DIR__.'/../resources/dist/core/timezone-browser-ssr-boot.js',
             )->loadedOnRequest(),
         ];
 

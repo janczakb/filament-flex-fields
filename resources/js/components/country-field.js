@@ -45,6 +45,7 @@ export default function countryFieldFormComponent({
     browserLocaleDefault,
     languageCountryMap,
     initialState = null,
+    locale = null,
 }) {
     return {
         state,
@@ -65,6 +66,7 @@ export default function countryFieldFormComponent({
         browserLocaleDefault,
         languageCountryMap,
         initialState,
+        locale,
         countries: [],
         countriesLoaded: false,
         countriesLoading: false,
@@ -132,6 +134,7 @@ export default function countryFieldFormComponent({
                     countryFilterKey: this.countryFilterKey,
                     preferredCountryCode: this.preferredCountryCode,
                     sortPreferredFirst: this.sortPreferredFirst,
+                    locale: this.locale,
                 })
 
                 if (this.countries.length === 0) {
@@ -142,6 +145,7 @@ export default function countryFieldFormComponent({
                         countryFilterKey: this.countryFilterKey,
                         preferredCountryCode: this.preferredCountryCode,
                         sortPreferredFirst: this.sortPreferredFirst,
+                        locale: this.locale,
                     })
                 }
 

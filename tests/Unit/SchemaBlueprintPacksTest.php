@@ -40,3 +40,29 @@ it('validates blueprint packs through schema import export dry run', function ()
 it('returns null for unknown blueprint pack names', function () {
     expect(SchemaBlueprintPacks::pack('unknown-pack'))->toBeNull();
 });
+
+it('includes layout sections in wave-2 blueprint packs', function () {
+    $packsWithSections = 0;
+
+    foreach (SchemaBlueprintPacks::names() as $name) {
+        $pack = SchemaBlueprintPacks::pack($name);
+        $sections = $pack['sections'] ?? [];
+
+        if ($sections === []) {
+            continue;
+        }
+
+        $packsWithSections++;
+        $sectionIds = collect($sections)->pluck('id')->filter()->all();
+
+        foreach ($pack['fields'] as $field) {
+            $sectionId = $field['section_id'] ?? null;
+
+            if (is_string($sectionId) && filled($sectionId)) {
+                expect($sectionIds)->toContain($sectionId);
+            }
+        }
+    }
+
+    expect($packsWithSections)->toBeGreaterThanOrEqual(2);
+});

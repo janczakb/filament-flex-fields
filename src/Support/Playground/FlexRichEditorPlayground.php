@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support\Playground;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexRichEditor;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Filament\Forms\Components\RichEditor;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Grid;
@@ -79,12 +80,12 @@ class FlexRichEditorPlayground
         }
 
         return [
-            Section::make(__('filament-flex-fields::default.rich_editor.playground.native.section'))
-                ->description(__('filament-flex-fields::default.rich_editor.playground.native.description'))
+            Section::make(Translations::get('filament-flex-fields::default.rich_editor.playground.native.section'))
+                ->description(Translations::get('filament-flex-fields::default.rich_editor.playground.native.description'))
                 ->icon(GravityIcon::make('text-align-left'))
                 ->schema([
                     RichEditor::make('filament_rich_editor__native')
-                        ->label(__('filament-flex-fields::default.rich_editor.playground.native.label'))
+                        ->label(Translations::get('filament-flex-fields::default.rich_editor.playground.native.label'))
                         ->json()
                         ->tools(FlexRichEditor::getNativeExtraTools())
                         ->toolbarButtons($flexReference->getNativeComparisonToolbarButtons())

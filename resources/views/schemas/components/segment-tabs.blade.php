@@ -62,7 +62,9 @@
             ])
     }}
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-tabs'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-tabs',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     @if ($isFullWidth)
         <div

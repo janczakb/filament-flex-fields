@@ -3,7 +3,7 @@ title: "ItemCardGroup"
 description: Grouped list surface for multiple ItemCard rows with shared containers, headers, and row separators.
 ---
 
-![ItemCardGroup](/art/sc-7.png)
+![ItemCardGroup](/art/sc-7.webp)
 
 [← Back to Table of Contents](/docs/index)
 

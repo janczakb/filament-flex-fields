@@ -87,7 +87,11 @@ export function createElement(tagName) {
         classList: createClassList(),
         parentElement: null,
         dataset: {},
+        style: {},
         id: '',
+        get isConnected() {
+            return this.parentElement !== null
+        },
         appendChild(child) {
             child.parentElement = element
             element.children.push(child)
@@ -95,11 +99,20 @@ export function createElement(tagName) {
             return child
         },
         closest(selector) {
-            if (selector === '.fi-modal' && this.classList.contains('fi-modal')) {
-                return this
+            let node = this
+            const selectors = String(selector).split(',').map((part) => part.trim()).filter(Boolean)
+
+            while (node) {
+                for (const candidate of selectors) {
+                    if (node.matches?.(candidate)) {
+                        return node
+                    }
+                }
+
+                node = node.parentElement
             }
 
-            return this.parentElement?.closest?.(selector) ?? null
+            return null
         },
         querySelector(selector) {
             return this.querySelectorAll(selector)[0] ?? null
@@ -142,6 +155,28 @@ export function createElement(tagName) {
                 return this.hasAttribute?.('data-fff-asset-batch') ?? false
             }
 
+            if (selector === '[data-fff-asset-consumer]') {
+                return Boolean(this.dataset?.fffAssetConsumer ?? this.attributes?.['data-fff-asset-consumer'])
+            }
+
+            if (selector === '[data-fff-lazy-alpine-mount]') {
+                return this.hasAttribute?.('data-fff-lazy-alpine-mount') ?? false
+            }
+
+            if (selector.startsWith('.')) {
+                for (const className of selector.split(/[\s,]+/).filter(Boolean)) {
+                    if (! className.startsWith('.')) {
+                        continue
+                    }
+
+                    if (! this.classList?.contains?.(className.slice(1))) {
+                        return false
+                    }
+                }
+
+                return selector.split(/[\s,]+/).some((token) => token.startsWith('.'))
+            }
+
             if (selector === '[data-fff-segment-overflow]' || selector.startsWith('[data-fff-segment-overflow]:not(')) {
                 if (! this.hasAttribute('data-fff-segment-overflow')) {
                     return false
@@ -167,6 +202,9 @@ export function createElement(tagName) {
         setAttribute(name, value) {
             this.attributes[name] = value
         },
+        removeAttribute(name) {
+            delete this.attributes[name]
+        },
         getAttribute(name) {
             return this.attributes?.[name] ?? null
         },
@@ -184,6 +222,7 @@ export function createElement(tagName) {
 
             this.parentElement = null
         },
+        dispatchEvent() {},
         contains(node) {
             const walk = (parent) => {
                 for (const child of parent.children ?? []) {
@@ -206,12 +245,42 @@ export function createElement(tagName) {
     return element
 }
 
-export function createAssetBatch(stylesheets, chunks = []) {
+export function createAssetBatch(stylesheets, chunks = [], { consumerComponent = null, livewireKey = 'test.consumer' } = {}) {
     const batch = createElement('span')
     batch.attributes = {
         'data-fff-asset-batch': '',
         'data-fff-stylesheets': JSON.stringify(stylesheets),
         'data-fff-chunks': JSON.stringify(chunks),
+    }
+
+    const resolvedComponent = consumerComponent ?? (() => {
+        for (const href of stylesheets) {
+            const match = String(href).match(/flex-fields-([^./]+)\.css/)
+
+            if (match?.[1]) {
+                return match[1]
+            }
+        }
+
+        for (const href of chunks) {
+            const match = String(href).match(/flex-fields-([^.]+)\.js/)
+
+            if (match?.[1]) {
+                return match[1]
+            }
+        }
+
+        return null
+    })()
+
+    const componentForCrg = resolvedComponent
+        ?? ((stylesheets.length > 0 || chunks.length > 0) ? 'flex-asset-batch' : null)
+
+    if (componentForCrg && livewireKey) {
+        batch.attributes['data-fff-asset-consumer'] = componentForCrg
+        batch.attributes['data-fff-asset-consumer-id'] = livewireKey
+        batch.dataset.fffAssetConsumer = componentForCrg
+        batch.dataset.fffAssetConsumerId = livewireKey
     }
 
     return batch
@@ -391,9 +460,13 @@ export function createDom() {
                     pushMatch(node)
                 }
 
-                if (selector === '[data-fff-asset-batch]' && node.hasAttribute?.('data-fff-asset-batch')) {
-                    pushMatch(node)
-                }
+            if (selector === '[data-fff-asset-batch]' && node.hasAttribute?.('data-fff-asset-batch')) {
+                pushMatch(node)
+            }
+
+            if (selector === '[data-fff-asset-consumer]' && node.dataset?.fffAssetConsumer) {
+                pushMatch(node)
+            }
             }
 
             const walk = (node) => {
@@ -424,6 +497,9 @@ export function createDom() {
         addEventListener() {},
         setTimeout(fn, ms) {
             return globalThis.setTimeout(fn, ms)
+        },
+        clearTimeout(id) {
+            return globalThis.clearTimeout(id)
         },
         location: {
             pathname: '/admin/flex-fields-playground/file-upload',

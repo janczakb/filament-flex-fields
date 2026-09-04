@@ -3,7 +3,7 @@ title: "IconPickerField"
 description: Searchable blade-icons picker with lazy SVG rendering, set filters, and virtual scrolling.
 ---
 
-![IconPickerField](/art/sc-32.png)
+![IconPickerField](/art/sc-32.webp)
 
 [← Back to Table of Contents](/docs/index)
 

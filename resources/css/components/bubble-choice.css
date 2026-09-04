@@ -1,0 +1,368 @@
+/* BubbleChoiceField — layout shell mirrors library scroll structure */
+
+.fff-bubble-choice {
+    --fff-bubble-choice-bg: var(--fff-bubble-choice-arena-color, #ebebec);
+    --fff-bubble-choice-idle: var(--primary-800, #1e40af);
+    --fff-bubble-choice-idle-text: #f8fafc;
+    --fff-bubble-choice-selected: var(--primary-200, #bfdbfe);
+    --fff-bubble-choice-selected-text: #0f172a;
+    --fff-bubble-choice-mask: rgb(0 0 0 / 0.5);
+    /* Fallbacks — Blade overrides with url(#fff-bubble-choice-clip-*) against in-document SVG defs */
+    --fff-bubble-choice-clip-circle: circle(49.5% at 50% 50%);
+    --fff-bubble-choice-clip-scallop: circle(49.5% at 50% 50%);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: var(--fff-bubble-choice-arena-height, 500px);
+    overflow: hidden !important;
+    border: 0;
+    border-radius: 24px;
+    background: var(--fff-bubble-choice-bg);
+    box-shadow:
+        0 2px 4px 0 #0000000a,
+        0 1px 2px 0 #0000000f,
+        0 0 1px 0 #0000000f;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.fff-bubble-choice-field--soft .fff-bubble-choice {
+    --fff-bubble-choice-idle: var(--primary-800, #1e40af);
+    --fff-bubble-choice-selected: var(--primary-200, #bfdbfe);
+}
+
+.fff-bubble-choice-field--solid .fff-bubble-choice {
+    --fff-bubble-choice-idle: var(--primary-900, #1e3a8a);
+    --fff-bubble-choice-selected: var(--primary-300, #93c5fd);
+}
+
+.fff-bubble-choice__container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Hard-hide while scroll pins; single fade-in once settled (no multi-flash). */
+.fff-bubble-choice__scrollable {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    overflow: scroll !important;
+    scroll-padding: 100px 0 0 100px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    overflow-anchor: none;
+    scroll-behavior: auto;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.fff-bubble-choice:not(.is-scroll-settled) .fff-bubble-choice__scrollable {
+    transition: none;
+}
+
+.fff-bubble-choice.is-scroll-settled .fff-bubble-choice__scrollable {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fff-bubble-choice__scrollable::-webkit-scrollbar {
+    display: none;
+}
+
+.fff-bubble-choice__spacer {
+    position: relative;
+    /* Prefer root CSS vars (Blade) so padding exists before Alpine :style binds */
+    height: var(--fff-bubble-choice-v-pad, 0);
+    width: 100%;
+}
+
+.fff-bubble-choice__rows {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-left: var(--fff-bubble-choice-h-pad, 0);
+    padding-right: var(--fff-bubble-choice-h-pad, 0);
+    box-sizing: content-box;
+}
+
+.fff-bubble-choice__row {
+    display: flex;
+    flex-direction: row;
+}
+
+.fff-bubble-choice__cell {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-anchor: none;
+}
+
+.fff-bubble-choice__cell.is-pad {
+    pointer-events: none;
+}
+
+.fff-bubble-choice__clip-defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.fff-bubble-choice__bubble {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100% !important;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    container-type: size;
+    background-color: var(--fff-bubble-choice-color, var(--fff-bubble-choice-idle));
+    background-image: none;
+    background-size: cover;
+    background-position: center;
+    color: var(--fff-bubble-choice-text, var(--fff-bubble-choice-idle-text));
+    cursor: pointer;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    clip-path: var(--fff-bubble-choice-clip-circle);
+    transition:
+        background-color 0.28s ease,
+        color 0.28s ease,
+        filter 0.28s ease,
+        transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Keep transform/hover transitions off until scroll pin unlocks — is-laid-out alone
+   re-enabled them mid-fade and the center magnification tweened into place (reload jump). */
+.fff-bubble-choice:not(.is-scroll-settled) .fff-bubble-choice__bubble,
+.fff-bubble-choice:not(.is-scroll-settled) .fff-bubble-choice__cell {
+    transition: none !important;
+}
+
+.fff-bubble-choice__bubble:hover:not(:disabled):not(.is-selected) {
+    background-color: color-mix(
+        in srgb,
+        var(--fff-bubble-choice-color, var(--fff-bubble-choice-idle)) 84%,
+        #000
+    );
+}
+
+.fff-bubble-choice__bubble.has-image-bg:hover:not(:disabled):not(.is-selected) {
+    filter: none;
+}
+
+.fff-bubble-choice__bubble > .fff-bubble-choice__inner {
+    width: 100% !important;
+    height: 100%;
+}
+
+.fff-bubble-choice__bubble.has-image-bg {
+    /* Image lives on ::before so hover can scale the photo without scaling label text. */
+    background-image: none;
+    color: #ffffff;
+}
+
+.fff-bubble-choice__bubble.has-image-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: var(--fff-bubble-choice-image);
+    background-size: cover;
+    background-position: center;
+    transform: scale(1);
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.fff-bubble-choice__bubble.has-image-bg:hover:not(:disabled):not(.is-selected)::before {
+    transform: scale(1.07);
+}
+
+.fff-bubble-choice__bubble.has-image-bg.is-selected {
+    color: #ffffff;
+    /* Keep photo layer — selected fill would flash under the image. */
+    background-color: transparent;
+}
+
+.fff-bubble-choice__bubble.has-image-bg.is-selected::before {
+    /* Avoid hover-scale snapping off on click (1.07 → 1). */
+    transform: scale(1.03);
+}
+
+.fff-bubble-choice__selection-stroke {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+    color: var(--fff-bubble-choice-selected-color, var(--fff-bubble-choice-selected));
+    /* transform is driven continuously from morph progress — no is-active snap. */
+}
+
+.fff-bubble-choice__selection-stroke[x-cloak] {
+    display: none !important;
+}
+
+.fff-bubble-choice__selection-stroke-path {
+    /* Keep stroke width in viewBox units; avoid vector-effect fighting Alpine width anim. */
+    vector-effect: none;
+}
+
+.fff-bubble-choice__bubble.has-image-bg .fff-bubble-choice__mask {
+    transition: background-color 0.28s ease, opacity 0.28s ease;
+}
+
+.fff-bubble-choice__bubble.has-image-bg.is-selected .fff-bubble-choice__mask {
+    background: rgb(0 0 0 / 0.42);
+}
+
+.fff-bubble-choice__bubble.has-image-bg .fff-bubble-choice__label,
+.fff-bubble-choice__bubble.has-image-bg .fff-bubble-choice__desc {
+    color: #ffffff;
+}
+
+.fff-bubble-choice__bubble.is-selected {
+    z-index: 2;
+    will-change: transform;
+    background-color: var(--fff-bubble-choice-selected-color, var(--fff-bubble-choice-selected));
+    color: var(--fff-bubble-choice-selected-text-resolved, var(--fff-bubble-choice-selected-text));
+    /* Clip morph is owned by Alpine (avoids CSS scallop snap → JS circle restart flash). */
+    transform: scale(1.02);
+}
+
+.fff-bubble-choice-field--shape-grow .fff-bubble-choice__bubble.is-selected,
+.fff-bubble-choice-field--shape-circle .fff-bubble-choice__bubble.is-selected {
+    clip-path: var(--fff-bubble-choice-clip-circle);
+    transform: scale(1.06);
+}
+
+/* Image bubbles: keep label/desc optically stable while the face scales. */
+.fff-bubble-choice__bubble.has-image-bg.is-selected .fff-bubble-choice__inner {
+    transform: scale(calc(1 / 1.02));
+}
+
+.fff-bubble-choice-field--shape-grow .fff-bubble-choice__bubble.has-image-bg.is-selected .fff-bubble-choice__inner,
+.fff-bubble-choice-field--shape-circle .fff-bubble-choice__bubble.has-image-bg.is-selected .fff-bubble-choice__inner {
+    transform: scale(calc(1 / 1.06));
+}
+
+.fff-bubble-choice__inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    opacity: 1;
+    transition: opacity 0.1s ease, transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    padding: 8%;
+    box-sizing: border-box;
+    transform: scale(1);
+    transform-origin: center center;
+}
+
+.fff-bubble-choice__inner.is-faded {
+    opacity: 0;
+}
+
+.fff-bubble-choice__icon {
+    width: 28%;
+    max-width: 52px;
+    aspect-ratio: 1;
+    margin-bottom: 8px;
+    border-radius: 50%;
+    background-color: rgb(255 255 255 / 0.18);
+    background-image: var(--fff-bubble-choice-image);
+    background-size: cover;
+    background-position: center;
+    flex: 0 0 auto;
+}
+
+.fff-bubble-choice__label {
+    margin: 0 0 4px;
+    max-width: 90%;
+    font-size: clamp(0.65rem, 9cqi, 0.9rem);
+    font-weight: 800;
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.fff-bubble-choice__desc {
+    margin: 0;
+    max-width: 85%;
+    font-size: clamp(0.6rem, 8cqi, 0.82rem);
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    color: currentColor;
+    opacity: 1;
+    overflow-wrap: anywhere;
+}
+
+.fff-bubble-choice__mask {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--fff-bubble-choice-mask, rgb(0 0 0 / 0.5));
+    pointer-events: none;
+    transition: background-color 0.28s ease, opacity 0.28s ease;
+}
+
+.fff-bubble-choice__bubble:not(.has-image-bg) .fff-bubble-choice__mask {
+    display: none;
+}
+
+.fff-bubble-choice__bubble.has-image-bg:hover:not(:disabled):not(.is-selected) .fff-bubble-choice__mask {
+    background: rgb(0 0 0 / 0.56);
+}
+
+.fff-bubble-choice__bubble.is-disabled {
+    cursor: not-allowed;
+    opacity: 0.42;
+}
+
+.fff-bubble-choice.is-disabled .fff-bubble-choice__bubble {
+    cursor: not-allowed;
+}
+
+.dark .fff-bubble-choice {
+    --fff-bubble-choice-bg: var(--fff-bubble-choice-arena-color, #2a2a2c);
+    --fff-bubble-choice-idle: var(--primary-600, #2563eb);
+    --fff-bubble-choice-selected: var(--primary-300, #93c5fd);
+}
+
+.dark .fff-bubble-choice-field--soft .fff-bubble-choice {
+    --fff-bubble-choice-idle: var(--primary-600, #2563eb);
+    --fff-bubble-choice-selected: var(--primary-300, #93c5fd);
+}
+
+.dark .fff-bubble-choice-field--solid .fff-bubble-choice {
+    --fff-bubble-choice-idle: var(--primary-500, #3b82f6);
+    --fff-bubble-choice-selected: var(--primary-200, #bfdbfe);
+}

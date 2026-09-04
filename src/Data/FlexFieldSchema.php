@@ -76,11 +76,13 @@ class FlexFieldSchema
      */
     public function getSections(): array
     {
-        return collect($this->sections)
-            ->filter(fn (FlexFieldSection $section): bool => $section->isActive)
-            ->sortBy('sort')
-            ->values()
-            ->all();
+        return array_values(
+            collect($this->sections)
+                ->filter(fn (FlexFieldSection $section): bool => $section->isActive)
+                ->sortBy('sort')
+                ->values()
+                ->all(),
+        );
     }
 
     /**

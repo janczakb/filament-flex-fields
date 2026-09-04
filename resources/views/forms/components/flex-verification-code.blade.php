@@ -30,7 +30,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-verification-code'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-verification-code',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div @class(['fff-verification-code-layout' => $hasLayoutChrome])>
         @if ($hasHeaderContent())
             <div class="fff-verification-code-layout__header">

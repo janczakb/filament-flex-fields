@@ -79,6 +79,7 @@ All methods accept `Closure` unless noted.
 | `defaultCountry(string\|Closure\|null $countryCode)` | Setup | `'PL'` | Fallback ISO code |
 | `browserLocaleDefault(bool\|Closure $condition = true)` | Setup | `false` | Pre-select from browser locale |
 | `browserLocaleSortFirst(bool\|Closure $condition = true)` | Setup | `false` | Sort browser country to top of list |
+| `locale(string\|Closure\|null $locale)` | Setup | `app()->getLocale()` | Language for country names (`en` → Poland, `pl` → Polska) |
 | `showCountryCode(bool\|Closure $condition = true)` | Setup | `false` | Show ISO code (e.g. `PL`) next to name |
 | `showDialCode(bool\|Closure $condition = true)` | Setup | `false` | Show international dial code (e.g. `+48`) |
 | `searchable(bool\|Closure $condition = true)` | Setup | `true` | Show search input in dropdown |
@@ -124,7 +125,12 @@ public static function form(Form $form): Form
 
 #### Multi-language support
 
-Country names are automatically translated based on the application locale using the package's built-in translation files.
+Country names follow `app()->getLocale()` by default (`Poland` / `Polska`) from the package country translations. Pin a language per field with `locale()`, independently of the panel locale:
+
+```php
+CountryField::make('country')->locale('pl');
+CountryField::make('country')->locale(fn (): string => auth()->user()->locale);
+```
 
 ---
 

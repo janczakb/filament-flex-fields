@@ -31,7 +31,9 @@
     }
 @endphp
 
-@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'cover-card'])
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'cover-card',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
 <div
     {{

@@ -26,6 +26,19 @@ it('exposes country field configuration api', function () {
         ->and($field->shouldShowDialCode())->toBeTrue();
 });
 
+it('localizes country names independently of the app locale', function () {
+    app()->setLocale('en');
+
+    $english = CountryField::make('country')->countries(['PL'])->locale('en');
+    $polish = CountryField::make('country')->countries(['PL'])->locale('pl');
+
+    expect($english->getLocale())->toBe('en')
+        ->and($polish->getLocale())->toBe('pl')
+        ->and($english->getCountriesMetadata()[0]['name'])->toBe('Poland')
+        ->and($polish->getCountriesMetadata()[0]['name'])->toBe('Polska')
+        ->and($english->getCountriesMetadata()[0]['code'])->toBe('PL');
+});
+
 it('supports browser locale defaults and sorting', function () {
     $field = CountryField::make('country')
         ->countries(['PL', 'US'])

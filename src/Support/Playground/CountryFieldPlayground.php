@@ -22,6 +22,8 @@ class CountryFieldPlayground
             'country__limited' => 'DE',
             'country__codes' => 'US',
             'country__browser_locale' => null,
+            'country__locale_pl' => 'PL',
+            'country__locale_en' => 'PL',
             'country__sm' => 'FR',
             'country__soft' => 'PL',
             'country__lg' => 'GB',
@@ -65,6 +67,16 @@ class CountryFieldPlayground
                                 ->browserLocaleDefault()
                                 ->browserLocaleSortFirst()
                                 ->helperText('Defaults and sorts by Accept-Language header.'),
+                            CountryField::make('country__locale_pl')
+                                ->label('Polish labels')
+                                ->countries(['PL', 'US', 'DE'])
+                                ->locale('pl')
+                                ->helperText('Country names via locale(pl): Polska.'),
+                            CountryField::make('country__locale_en')
+                                ->label('English labels')
+                                ->countries(['PL', 'US', 'DE'])
+                                ->locale('en')
+                                ->helperText('Country names via locale(en): Poland.'),
                         ]),
                     Grid::make(['default' => 1, 'sm' => 2, 'lg' => 4])
                         ->extraAttributes(['class' => 'fff-playground-variants'])

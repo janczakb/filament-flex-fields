@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
 use Bjanczak\FilamentFlexFields\Tests\Support\TestableTranslatableForm;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Livewire\Livewire;
 
@@ -36,6 +37,9 @@ it('renders headless combobox shell for static select fields by default', functi
     expect($html)
         ->toContain('fffHeadlessSelectField')
         ->toContain('fff-select-field__shell--headless')
+        ->toContain('id="form.status"')
+        ->toContain('id="form.status-listbox"')
+        ->toContain('id="form.technologies-search"')
         ->toMatch('/statePath["\']?\s*:\s*["\']data\.status["\']?/')
         ->toMatch('/statePath["\']?\s*:\s*["\']data\.technologies["\']?/')
         ->toMatch('/statePath["\']?\s*:\s*["\']data\.theme["\']?/')
@@ -211,4 +215,63 @@ it('fetches playground dynamic options through callSchemaComponentMethod', funct
         ->toContain('hasDynamicSearchResults: false')
         ->toContain('select__dynamic_options')
         ->not->toContain('componentKey: null');
+});
+
+it('resolves dependsOn options from a live sibling through getOptionsForJs', function (): void {
+    TestableTranslatableForm::$formSchema = [
+        Grid::make(['default' => 1, 'lg' => 2])->schema([
+            SelectField::make('select__cascade_country')
+                ->options([
+                    'us' => 'United States',
+                    'pl' => 'Poland',
+                ])
+                ->live()
+                ->searchable(),
+            SelectField::make('select__cascade_region')
+                ->dependsOn('select__cascade_country', fn (?string $country): array => match ($country) {
+                    'us' => [
+                        'ca' => 'California',
+                        'tx' => 'Texas',
+                    ],
+                    'pl' => [
+                        'mz' => 'Mazowieckie',
+                    ],
+                    default => [],
+                })
+                ->searchable()
+                ->placeholder('Pick a country first'),
+        ]),
+    ];
+
+    $livewire = Livewire::test(TestableTranslatableForm::class)
+        ->fillForm([
+            'select__cascade_country' => 'us',
+            'select__cascade_region' => null,
+        ]);
+
+    $region = $livewire->instance()
+        ->getSchema('form')
+        ->getComponentByStatePath('select__cascade_region');
+
+    expect($region)->toBeInstanceOf(SelectField::class)
+        ->and($region->hasDynamicOptions())->toBeTrue()
+        ->and($region->hasClientSideOptionList())->toBeFalse();
+
+    $empty = $livewire->instance()->callSchemaComponentMethod($region->getKey(), 'getOptionsForJs');
+
+    expect(collect($empty)->pluck('value')->all())->toContain('ca', 'tx')
+        ->and(collect($empty)->pluck('value')->all())->not->toContain('mz');
+
+    $livewire->fillForm(['select__cascade_country' => 'pl']);
+
+    $poland = $livewire->instance()->callSchemaComponentMethod($region->getKey(), 'getOptionsForJs');
+
+    expect(collect($poland)->pluck('value')->all())->toContain('mz')
+        ->and(collect($poland)->pluck('value')->all())->not->toContain('ca');
+
+    $html = $livewire->html(false);
+
+    expect($html)
+        ->toContain('hasDynamicOptions: true')
+        ->toContain('select__cascade_region');
 });

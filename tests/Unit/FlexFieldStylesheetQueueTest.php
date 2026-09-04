@@ -14,7 +14,7 @@ beforeEach(function () {
 
 it('deduplicates stylesheet links across multiple fields on one request', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('country-field'))
         ->toBe(['country-field'])
         ->and(FlexFieldStylesheetQueue::has('flex-text-input'))->toBeTrue()
@@ -25,7 +25,7 @@ it('deduplicates stylesheet links across multiple fields on one request', functi
 
 it('deduplicates repeated enqueue calls for the same component', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
         ->toBe([]);
 });
@@ -39,7 +39,7 @@ it('deduplicates emoji picker stylesheet across flex text input and textarea fie
 
 it('resolves stylesheet dependencies without duplication inside one component', function () {
     expect(FlexFieldAssets::stylesheetsFor('phone-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field']);
 });
 
 it('loads flex text input styles before date time field stylesheet', function () {
@@ -54,7 +54,7 @@ it('resolves playground slug aliases to lazy stylesheet component ids', function
         ->toBe('flex-date-time-field')
         ->and(FlexFieldAssets::shouldLoadStylesheetsFor('date-time-fields'))->toBeTrue()
         ->and(FlexFieldAssets::playgroundStylesheetsFor('date-time-fields'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field', 'teleported-menu', 'flex-time-segments'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field', 'overlay-runtime', 'teleported-menu', 'flex-time-segments'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('date-time-fields'))
         ->toBe(['emoji-picker', 'flex-text-input', 'flex-date-time-field']);
 });
@@ -165,9 +165,12 @@ it('shows skeleton overlays for pending modal and inline morph targets', functio
         ->toContain('.fff-flex-fields-assets-pending:not(.fi-modal)')
         ->toContain('.fff-flex-fields-assets-ready:not(.fi-modal)')
         ->toContain('fff-flex-fields-assets-skeleton')
-        ->toContain('.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after')
-        ->toContain('inset: 0')
-        ->not->toContain('inset: 1.5rem');
+        ->toContain('fff-flex-fields-assets-skeleton__bone')
+        ->toContain('--fff-assets-skeleton-radius: 20px')
+        ->toContain('fff-flex-fields-assets-skeleton-shimmer')
+        ->toContain('mix-blend-mode: overlay')
+        ->not->toContain('inset: 1.5rem')
+        ->not->toContain('linear-gradient(180deg, rgb(252 252 253)');
 });
 
 it('emits pending assets inline when a field registers stylesheets', function () {
@@ -194,15 +197,15 @@ it('emits pending assets from a single queued-stylesheets injector', function ()
 
 it('tracks emitted stylesheets separately from registration', function () {
     expect(FlexFieldStylesheetQueue::enqueueFor('phone-field'))
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field'])
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field'])
         ->and(FlexFieldStylesheetQueue::pending())
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field']);
 
-    FlexFieldStylesheetQueue::markStylesheetsEmitted(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+    FlexFieldStylesheetQueue::markStylesheetsEmitted(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field']);
 
     expect(FlexFieldStylesheetQueue::pending())->toBe([])
         ->and(FlexFieldStylesheetQueue::registered())
-        ->toBe(['emoji-picker', 'flex-text-input', 'teleported-menu', 'phone-field']);
+        ->toBe(['emoji-picker', 'flex-text-input', 'overlay-runtime', 'teleported-menu', 'phone-field']);
 });
 
 it('simulates the multi-field asset audit without duplicate emissions', function () {
@@ -228,7 +231,7 @@ it('simulates the multi-field asset audit without duplicate emissions', function
 
     expect($log[0]['stylesheets'])->toBe(['emoji-picker', 'flex-text-input'])
         ->and($log[1]['stylesheets'])->toBe([])
-        ->and($log[2]['stylesheets'])->toBe(['teleported-menu', 'phone-field'])
+        ->and($log[2]['stylesheets'])->toBe(['overlay-runtime', 'teleported-menu', 'phone-field'])
         ->and($log[3]['stylesheets'])->toBe([])
         ->and($log[4]['stylesheets'])->toBe(['switch', 'timezone-field', 'flex-time-segments', 'schedule-field']);
 
@@ -236,11 +239,11 @@ it('simulates the multi-field asset audit without duplicate emissions', function
 
     expect($firstPass)
         ->toContain('data-fff-asset-batch')
-        ->toContain('rel="stylesheet"')
-        ->toContain('data-fff-stylesheet=')
+        ->toContain('data-fff-asset-consumer')
         ->toContain('flex-fields-flex-text-input')
         ->toContain('flex-fields-teleported-menu')
-        ->toContain('flex-fields-schedule-field');
+        ->toContain('flex-fields-schedule-field')
+        ->not->toContain('data-fff-stylesheet=');
 
     $secondPass = view('filament-flex-fields::partials.queued-stylesheets')->render();
 
@@ -273,9 +276,12 @@ it('registers unified asset injector script for livewire, spa, and modal flows',
         ->toContain('normalizeAssetUrl')
         ->toContain('inflightRequests')
         ->toContain('closest(\'.fi-modal\')')
-        ->toContain('data-fff-playground-bundle')
-        ->toContain('data-fff-stylesheet')
-        ->toContain('data-fff-alpine-chunk');
+        ->toContain('createConsumerGraph')
+        ->toContain('createPrefetchEngine')
+        ->toContain('flex-fff-load-directive')
+        ->toContain('data-fff-managed-asset')
+        ->not->toContain('pageRetainedUrls')
+        ->not->toContain('batch-consumer-bridge');
 });
 
 it('registers playground skeleton demo script separately from the core injector', function () {
@@ -293,16 +299,14 @@ it('registers playground skeleton demo script separately from the core injector'
         ->not->toContain('morph.updating');
 });
 
-it('emits blocking head assets as inline links and keeps asset batches for injector flows', function () {
+it('emits batch-only asset markers for injector and CRG consumer tracking', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/partials/emit-assets.blade.php');
 
     expect($blade)
-        ->not->toContain("@push('styles')")
-        ->not->toContain('Livewire::isLivewireRequest()')
         ->toContain('data-fff-asset-batch')
-        ->toContain('rel="stylesheet"')
-        ->toContain('data-fff-stylesheet')
-        ->toContain('data-fff-alpine-chunk');
+        ->toContain('consumerAttributesFor')
+        ->not->toContain('rel="stylesheet"')
+        ->not->toContain('data-fff-stylesheet=');
 });
 
 it('loads flex text input and map picker dropdown before address autocomplete stylesheet', function () {
@@ -321,9 +325,9 @@ it('loads map picker dropdown before map picker stylesheet', function () {
 
 it('loads select field, tag chips, and user display stylesheets before user select stylesheet', function () {
     expect(FlexFieldAssets::stylesheetsFor('user-select'))
-        ->toBe(['teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select'])
+        ->toBe(['overlay-runtime', 'teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select'])
         ->and(FlexFieldStylesheetQueue::enqueueFor('user-select'))
-        ->toBe(['teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select']);
+        ->toBe(['overlay-runtime', 'teleported-menu', 'select-field', 'tag-chips', 'user-display', 'user-select']);
 });
 
 it('loads user display stylesheet before user column stylesheet', function () {
@@ -488,7 +492,7 @@ it('renders queued playground component stylesheets in the page push block', fun
     $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
 
     expect($stylesPartial)
-        ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain('playgroundStylesheetHrefsForRequest()')
         ->toContain('suppressForPlaygroundBundle')
         ->toContain('playgroundStylesheetsFor($playgroundSlug)')
         ->toContain("@push('styles')")
@@ -498,6 +502,7 @@ it('renders queued playground component stylesheets in the page push block', fun
 
 it('does not enqueue lazy stylesheets already bundled on playground slug pages', function () {
     FlexFieldStylesheetQueue::suppressForPlaygroundBundle([
+        'overlay-runtime',
         'teleported-menu',
         'select-field',
         'icon-picker-field',
@@ -506,7 +511,7 @@ it('does not enqueue lazy stylesheets already bundled on playground slug pages',
     expect(FlexFieldStylesheetQueue::enqueueFor('icon-picker-field'))->toBe([]);
 });
 
-it('preloads teleported menu only when the stylesheet queue needs it', function () {
+it('preloads overlay runtime and teleported menu when select family pickers queue CSS', function () {
     app()->instance('request', Request::create('/admin/resources/posts/edit', 'GET'));
 
     expect(FlexFieldAssets::criticalPreloadStylesheets())->toBe([]);
@@ -514,15 +519,25 @@ it('preloads teleported menu only when the stylesheet queue needs it', function 
     FlexFieldStylesheetQueue::enqueueFor('select-field');
 
     expect(FlexFieldAssets::criticalPreloadStylesheets())
-        ->toBe(['teleported-menu']);
+        ->toBe(['overlay-runtime', 'teleported-menu']);
 });
 
-it('tracks teleported menu in the stylesheet queue', function () {
-    expect(FlexFieldStylesheetQueue::hasQueuedTeleportedMenu())->toBeFalse();
+it('preloads overlay runtime and teleported menu when icon picker queues CSS', function () {
+    app()->instance('request', Request::create('/admin/resources/posts/edit', 'GET'));
+
+    FlexFieldStylesheetQueue::enqueueFor('icon-picker-field');
+
+    expect(FlexFieldAssets::criticalPreloadStylesheets())
+        ->toBe(['overlay-runtime', 'teleported-menu']);
+});
+
+it('does not preload overlay CSS for teleported menu consumers outside the select family', function () {
+    app()->instance('request', Request::create('/admin/resources/posts/edit', 'GET'));
 
     FlexFieldStylesheetQueue::enqueueFor('phone-field');
 
-    expect(FlexFieldStylesheetQueue::hasQueuedTeleportedMenu())->toBeTrue();
+    expect(FlexFieldStylesheetQueue::hasQueuedTeleportedMenu())->toBeTrue()
+        ->and(FlexFieldAssets::criticalPreloadStylesheets())->toBe([]);
 });
 
 it('scopes critical stylesheet preloads to the active playground slug', function () {

@@ -140,7 +140,7 @@ trait InteractsWithSelectTriggerPresentation
             $state = null;
         }
 
-        if ($state === null || ($state === '' && ! is_array($state))) {
+        if ($state === null || $state === '') {
             return $this->getDefaultState();
         }
 
@@ -235,6 +235,7 @@ trait InteractsWithSelectTriggerPresentation
 
     /**
      * @param  array<string | int, string | array<string, mixed>>  $options
+     * @return array<string, mixed>|string|null
      */
     protected function findOptionLabel(array $options, mixed $state): array|string|null
     {

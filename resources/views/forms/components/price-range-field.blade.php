@@ -18,7 +18,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'price-range'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'price-range',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('price-range', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

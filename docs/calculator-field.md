@@ -3,7 +3,7 @@ title: "CalculatorField"
 description: Numeric input with a shared iOS-style calculator panel, per-field session memory, and full numeric constraints.
 ---
 
-![CalculatorField](/art/sc-34.png)
+![CalculatorField](/art/sc-34.webp)
 
 [← Back to Table of Contents](/docs/index)
 

@@ -144,7 +144,19 @@ return [
         'management_page_enabled' => env('FLEX_FIELDS_SCHEMA_MANAGEMENT_PAGE', true),
         'management_navigation_sort' => (int) env('FLEX_FIELDS_SCHEMA_MANAGEMENT_NAV_SORT', 89),
         /*
-         * Entity discovery for the management hub and target_type pickers.
+         * Entity discovery for Flex Field Studio tabs and target_type pickers.
+         *
+         * Cookbook (pick one or combine):
+         * 1) Filament resources — set from_filament_resources true; any Resource whose
+         *    model uses HasFlexFields appears automatically.
+         * 2) Manual registry — list models under entities (fastest for headless apps):
+         *    'entities' => [
+         *        App\Models\Lead::class => ['label' => 'Leads', 'icon' => 'heroicon-o-user', 'sort' => 0],
+         *    ],
+         * 3) Path scan — point paths at a models directory and set namespace:
+         *    'paths' => [app_path('Models')],
+         *    'namespace' => 'App\\Models',
+         *    Classes must use HasFlexFields to be included.
          */
         'entity_discovery' => [
             'from_filament_resources' => env('FLEX_FIELDS_ENTITY_DISCOVERY_RESOURCES', true),
@@ -152,7 +164,7 @@ return [
             'namespace' => null,
         ],
         'entities' => [
-            // 'App\\Models\\Lead' => ['label' => 'Leads', 'icon' => 'heroicon-o-user', 'sort' => 0],
+            // App\Models\Lead::class => ['label' => 'Leads', 'icon' => 'heroicon-o-user', 'sort' => 0],
         ],
     ],
 

@@ -20,7 +20,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'calculator-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'calculator-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     <div
         wire:ignore

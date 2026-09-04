@@ -18,6 +18,7 @@
         ? (\Filament\Support\generate_icon_html(GravityIcon::Magnifier, size: IconSize::Large)?->toHtml() ?? '')
         : '';
     $headlessSearchClearIconHtml = \Filament\Support\generate_icon_html(GravityIcon::CircleXmarkFill, size: IconSize::Small)?->toHtml() ?? '';
+    $headlessSmartCreateIconHtml = \Filament\Support\generate_icon_html(GravityIcon::Plus, size: IconSize::Small)?->toHtml() ?? '';
     $headlessInitialOptionsForJs = ($isUserSelectField && method_exists($field, 'getInitialOptionsForJs'))
         ? $field->getInitialOptionsForJs()
         : (method_exists($field, 'getHeadlessInitialOptionsForJs')
@@ -27,7 +28,11 @@
     $headlessInitialState = $state;
     $headlessInitialOptionLabels = ($skipInitialOptionLabels ?? false)
         ? []
-        : ((filled($state) && $isMultiple) ? $getOptionLabelsForJs() : []);
+        : ($isUserSelectField
+            ? ((filled($state) && $isMultiple) ? $getOptionLabelsForJs() : [])
+            : ((filled($state) && $isMultiple && method_exists($field, 'getHeadlessInitialOptionLabelsForJs'))
+                ? $field->getHeadlessInitialOptionLabelsForJs()
+                : []));
     $headlessMinSearchLength = ($isUserSelectField && method_exists($field, 'getMinSearchLength'))
         ? $field->getMinSearchLength()
         : 0;
@@ -37,16 +42,14 @@
         ? ($isInitialTriggerPlaceholder ? '' : strip_tags($initialTriggerLabel))
         : null;
     $shouldDeferHeadlessAlpine = false;
+    $showHeadlessStaticTriggerLabel = ! $isUserSelectField
+        && ! ($isInlineSearch && $isSearchable && ! $isMultiple);
+    $headlessTriggerHasClearableValue = $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled;
+    $headlessUsesInlineSearchControl = $isInlineSearch && $isSearchable;
+    $headlessListboxId = $id.'-listbox';
+    $headlessSearchId = $id.'-search';
+    $headlessMenuDomId = $id.'-fff-headless-menu';
 @endphp
-
-@once
-    <link
-        rel="modulepreload"
-        href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
-        as="script"
-        crossorigin
-    />
-@endonce
 
 <div
     wire:ignore
@@ -65,12 +68,6 @@
         'fi-select-input',
     ])
 >
-    <x-filament-flex-fields::lazy-alpine-mount
-        :eager="! $shouldDeferHeadlessAlpine"
-        :mount-immediately="! $shouldDeferHeadlessAlpine"
-        :mount-on-interaction="$shouldDeferHeadlessAlpine"
-        :wrap-slot="false"
-    >
     @if ($isItemCardVariant && ($itemCardInitialTriggerLabel ?? null) !== null)
         <div
             class="fff-select-item-card-ssr"
@@ -110,9 +107,11 @@
                         <input
                             type="text"
                             class="fi-input"
+                            id="{{ $id }}-ssr-search"
                             readonly
                             tabindex="-1"
                             aria-hidden="true"
+                            autocomplete="off"
                             @if (filled($headlessTriggerDir))
                                 dir="{{ $headlessTriggerDir }}"
                             @endif
@@ -129,7 +128,13 @@
                                     @foreach ($initialTriggerBadges as $badge)
                                         <span class="fi-badge fi-size-md">
                                             <span class="fi-badge-label-ctn">
-                                                <span class="fi-badge-label">{{ $badge['label'] }}</span>
+                                                <span class="fi-badge-label">
+                                                    @if ($isHtmlAllowed)
+                                                        {!! $badge['label'] !!}
+                                                    @else
+                                                        {{ $badge['label'] }}
+                                                    @endif
+                                                </span>
                                             </span>
                                             <span class="fi-badge-delete-btn" aria-hidden="true">
                                                 {!! $chipRemoveIconHtml !!}
@@ -169,6 +174,12 @@
         </div>
     @endif
 
+    <x-filament-flex-fields::lazy-alpine-mount
+        :eager="! $shouldDeferHeadlessAlpine"
+        :mount-immediately="! $shouldDeferHeadlessAlpine"
+        :mount-on-interaction="$shouldDeferHeadlessAlpine"
+        :wrap-slot="false"
+    >
     @if ($shouldDeferHeadlessAlpine)
         <template x-if="shouldMount">
             <div>
@@ -182,12 +193,13 @@
             initialState: @js($headlessInitialState),
             statePath: @js($statePath),
             componentKey: @js($headlessComponentKey),
+            menuDomId: @js($headlessMenuDomId),
             multiple: @js($isMultiple),
             searchable: @js($isSearchable),
             options: @js($headlessInitialOptionsForJs),
             placeholder: @js($getPlaceholder()),
             disabled: @js($isDisabled),
-            clearable: @js($field->isClearable()),
+            clearable: @js($field->isClearableInUi()),
             keepSelectedOptionsInDropdown: @js($field->shouldKeepSelectedOptionsInDropdown()),
             isHtmlAllowed: @js($isHtmlAllowed),
             isGridLayout: @js($isGridLayout),
@@ -201,6 +213,12 @@
             hasInitialNoOptionsMessage: @js($hasInitialNoOptionsMessage),
             searchDebounce: @js($getSearchDebounce()),
             minSearchLength: @js($headlessMinSearchLength),
+            optionsLimit: @js($getOptionsLimit()),
+            searchableOptionFields: @js($field->getSearchableOptionFields()),
+            livewireId: @js($this->getId()),
+            maxItems: @js($getMaxItems()),
+            maxItemsMessage: @js($getMaxItemsMessage()),
+            position: @js($field->getPosition()),
             @php($headlessSelectMessages = $field->getSelectMessagesForJs())
             loadingMessage: @js($headlessSelectMessages['loading']),
             searchingMessage: @js($headlessSelectMessages['searching']),
@@ -238,30 +256,43 @@
         })"
             x-init="init()"
             x-on:keydown.escape.stop="comboboxOpen && comboboxCloseMenu()"
-            x-on:click.outside="if ($refs.headlessMenu?.contains($event.target)) { return }; comboboxCloseMenu()"
+            x-on:click.outside="if ((typeof resolveMenuElement === 'function' ? resolveMenuElement() : $refs.headlessMenu)?.contains($event.target)) { return }; comboboxCloseMenu()"
             @class([
                 'fff-select-field__interactive',
             ])
             {{
                 $attributes
+                    ->except(['id'])
                     ->merge($getExtraAlpineAttributes(), escape: false)
             }}
         >
         <div
             @class([
                 'fi-select-input-ctn',
-                'fi-select-input-ctn-clearable' => $field->isClearable() && ! $isMultiple && ! $isDisabled,
+                'fi-select-input-ctn-clearable' => $headlessTriggerHasClearableValue,
                 'fi-select-input-ctn-option-labels-not-wrapped' => ! $canOptionLabelsWrap,
             ])
             x-ref="headlessTriggerCtn"
+            @if ($field->isClearable() && ! $isMultiple && ! $isDisabled)
+                x-bind:class="{
+                    'fi-select-input-ctn-clearable': clearable && isTriggerLabelSelected(),
+                }"
+            @endif
         >
             <button
                 type="button"
                 class="fi-select-input-btn"
                 x-ref="headlessTrigger"
+                @if (! $headlessUsesInlineSearchControl)
+                    id="{{ $id }}"
+                @endif
                 x-bind:disabled="disabled"
                 x-bind:aria-expanded="comboboxOpen ? 'true' : 'false'"
                 aria-haspopup="listbox"
+                aria-controls="{{ $headlessListboxId }}"
+                @if ($isAutofocused && ! $headlessUsesInlineSearchControl)
+                    autofocus
+                @endif
                 x-bind:class="{ 'fi-select-input-btn--search-active': inlineSearch && searchable && comboboxOpen, 'is-loading': shouldShowHeadlessTriggerLoading() }"
                 x-on:click="onHeadlessTriggerClick($event)"
                 x-on:keydown.down.prevent="disabled ? null : (comboboxOpen ? comboboxMoveHighlight(1) : comboboxOpenMenu())"
@@ -342,24 +373,30 @@
                         </span>
                     </template>
 
-                    <template x-if="! isUserSelectField && (! multiple || selectedChips().length === 0) && ! (inlineSearch && searchable && ! multiple)">
+                    @if ($showHeadlessStaticTriggerLabel)
                         <span
+                            @class([
+                                'fi-select-input-value-label' => ! $isInitialTriggerPlaceholder,
+                                'fi-select-input-placeholder' => $isInitialTriggerPlaceholder,
+                            ])
+                            x-show="! isUserSelectField && (! multiple || selectedChips().length === 0)"
                             x-bind:class="{
                                 'fi-select-input-value-label': isTriggerLabelSelected(),
                                 'fi-select-input-placeholder': ! isTriggerLabelSelected(),
                             }"
+                            @if ($isHtmlAllowed)
+                                x-html="triggerLabelHtml()"
+                            @else
+                                x-text="triggerLabelHtml()"
+                            @endif
                         >
-                            <template x-if="isHtmlAllowed && isTriggerLabelSelected()">
-                                <span x-html="triggerLabelHtml()"></span>
-                            </template>
-                            <template x-if="isHtmlAllowed && ! isTriggerLabelSelected()">
-                                <span x-text="triggerLabelHtml()"></span>
-                            </template>
-                            <template x-if="! isHtmlAllowed">
-                                <span x-text="triggerLabelHtml()"></span>
-                            </template>
+                            @if ($isHtmlAllowed && ! $isInitialTriggerPlaceholder)
+                                {!! $initialTriggerLabel !!}
+                            @else
+                                {{ $initialTriggerLabel }}
+                            @endif
                         </span>
-                    </template>
+                    @endif
 
                     <template x-if="isUserSelectField && isTriggerLabelSelected() && ! (inlineSearch && searchable && ! multiple)">
                         <span class="fi-select-input-value-label" x-html="triggerLabelHtml()"></span>
@@ -377,6 +414,12 @@
                             role="combobox"
                             autocomplete="off"
                             class="fi-input"
+                            id="{{ $id }}"
+                            aria-controls="{{ $headlessListboxId }}"
+                            aria-autocomplete="list"
+                            @if ($isAutofocused)
+                                autofocus
+                            @endif
                             @if (filled($headlessTriggerDir))
                                 dir="{{ $headlessTriggerDir }}"
                             @endif
@@ -428,6 +471,8 @@
         <template x-teleport="body">
             <div
                 x-ref="headlessMenu"
+                id="{{ $headlessMenuDomId }}"
+                data-fff-select-menu-owner="{{ $headlessComponentKey }}"
                 x-show="comboboxOpen"
                 x-cloak
                 x-on:click.stop
@@ -440,12 +485,12 @@
                     'fff-select-dropdown-panel--below',
                     'fff-teleported-menu',
                     'fff-select-dropdown-panel--dropdown-fixed',
+                    'fff-select-dropdown-panel--overlay-scroll',
                     'fff-select-dropdown-panel--layout-' . ($isUserSelectField ? 'list' : ($useRichListDropdownLayout ? 'list' : ($isGridLayout ? 'grid' : 'plain'))),
                     'fff-select-dropdown-panel--user-select' => $isUserSelectField,
                     'fi-select-input-ctn-option-labels-not-wrapped' => ! $canOptionLabelsWrap,
                     'fi-width-none' => $isGridLayout && ! $isUserSelectField,
                 ])
-                role="listbox"
                 x-bind:aria-label="{{ json_encode($fieldLabel ?? $statePath) }}"
             >
                 @if ($isSearchable && ! $isInlineSearch)
@@ -453,6 +498,10 @@
                         <input
                             type="search"
                             class="fi-input fi-select-input-search-input"
+                            id="{{ $headlessSearchId }}"
+                            autocomplete="off"
+                            aria-controls="{{ $headlessListboxId }}"
+                            aria-autocomplete="list"
                             x-model="comboboxQuery"
                             x-ref="headlessSearchInput"
                             x-on:input="comboboxSetQuery($event.target.value)"
@@ -475,13 +524,17 @@
                     </div>
                 @endif
 
+                <div class="fff-select-dropdown-scroller">
                 <div
                     @class([
                         'fi-select-input-options-ctn',
                         'fi-dropdown-list' => $isGridLayout,
                     ])
+                    id="{{ $headlessListboxId }}"
+                    role="listbox"
                     x-ref="headlessOptionsList"
                     x-on:scroll.passive="onHeadlessOptionsScroll($event)"
+                    x-bind:aria-label="{{ json_encode($fieldLabel ?? $statePath) }}"
                 >
                     <div x-show="shouldShowHeadlessDropdownOptions()" class="fff-select-headless-options-shell">
                         <div
@@ -489,13 +542,17 @@
                             x-bind:class="{ 'fff-select-headless-options-root--with-separators': optionGroupSeparators }"
                             x-bind:style="comboboxVirtualListStyle()"
                         >
-                            <template x-for="row in comboboxFilteredDropdownRows()" :key="row.key">
+                            <template x-for="row in comboboxFilteredDropdownRows()" :key="row.key + ':' + (comboboxQuery ?? '')">
                                 <div
                                     class="fff-select-headless-dropdown-row"
                                     x-bind:data-row-type="row.type"
                                 >
-                                    <template x-if="row.type === 'section'">
-                                        <div class="fi-dropdown-header fff-select-smart-section" x-text="row.label"></div>
+                                    <template x-if="row.type === 'section' || row.type === 'group-header'">
+                                        <div
+                                            class="fi-dropdown-header"
+                                            x-bind:class="{ 'fff-select-smart-section': row.type === 'section' }"
+                                            x-text="row.label"
+                                        ></div>
                                     </template>
 
                                     <template x-if="row.type === 'separator'">
@@ -506,29 +563,32 @@
                                         <button
                                             type="button"
                                             class="fi-select-input-option fff-select-smart-create"
-                                            x-on:click="selectCreateOption(row.value)"
-                                            x-text="row.label"
-                                        ></button>
-                                    </template>
-
-                                    <template x-if="row.type === 'group'">
-                                        <div class="fi-select-input-option-group" role="presentation">
-                                            <div class="fi-dropdown-header" x-text="row.label"></div>
-                                            <div class="fi-dropdown-list" x-show="! row.virtualHeaderOnly">
-                                                <template x-for="option in row.options" :key="headlessOptionValue(option)">
-                                                    @include('filament-flex-fields::forms.components.partials.select-field-headless-option')
-                                                </template>
-                                            </div>
-                                        </div>
+                                            role="option"
+                                            x-on:click="selectCreateOption(String(comboboxQuery ?? '').trim() || row.value)"
+                                        >
+                                            <span>
+                                                <span class="fff-select-smart-create__content">
+                                                    <span class="fff-select-smart-create__icon" aria-hidden="true">{!! $headlessSmartCreateIconHtml !!}</span>
+                                                    <span class="fff-select-headless-option-label fff-select-smart-create__label" x-html="smartCreateRowHtml()"></span>
+                                                </span>
+                                            </span>
+                                        </button>
                                     </template>
 
                                     <template x-if="row.type === 'option'">
-                                        <template x-for="option in [row.option]" :key="headlessOptionValue(option)">
-                                            @include('filament-flex-fields::forms.components.partials.select-field-headless-option')
-                                        </template>
+                                        @include('filament-flex-fields::forms.components.partials.select-field-headless-option')
                                     </template>
                                 </div>
                             </template>
+
+                            <div
+                                x-show="shouldShowMaxItemsMessage()"
+                                x-cloak
+                                class="fff-select-max-items-message"
+                                role="status"
+                                aria-live="polite"
+                                x-text="maxItemsMessage"
+                            ></div>
 
                             <div
                                 x-ref="headlessLoadMoreSentinel"
@@ -548,6 +608,9 @@
                                 <span class="fff-select-load-more__label" x-text="headlessLoadMoreLabel()"></span>
                             </div>
                         </div>
+
+                        {{-- Outside the virtualized root so end inset is not mixed into virtual paddingBottom. --}}
+                        <div class="fff-select-dropdown-list-end-spacer" aria-hidden="true"></div>
                     </div>
 
                     @if ($isUserSelectField)
@@ -609,6 +672,15 @@
                             <span class="fff-select-dropdown-empty-hint" x-text="headlessSelectEmptyHint()"></span>
                         </div>
                     @endif
+                </div>
+                    <div
+                        class="fff-select-dropdown-scrollbar"
+                        data-visible="false"
+                        data-active="false"
+                        aria-hidden="true"
+                    >
+                        <div class="fff-select-dropdown-scrollbar__thumb"></div>
+                    </div>
                 </div>
             </div>
         </template>

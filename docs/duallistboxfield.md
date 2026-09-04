@@ -3,7 +3,7 @@ title: "DualListboxField"
 description: Dual-pane selection tool with search, reordering, and virtual scrolling.
 ---
 
-![DualListboxField](/art/sc-8.png)
+![DualListboxField](/art/sc-8.webp)
 
 [← Back to Table of Contents](/docs/index)
 
@@ -35,6 +35,15 @@ DualListboxField::make('roles')
         'viewer' => 'Viewer',
     ])
     ->searchable();
+```
+
+#### Locked options
+Mark keys that must stay put — they still appear in the list, but cannot be transferred between panes. Locked items already in Selected can still be reordered.
+
+```php
+DualListboxField::make('permissions')
+    ->options($permissions)
+    ->disabledOptions(['users.view', 'users.delete']);
 ```
 
 #### Custom labels and height
@@ -76,6 +85,12 @@ When the number of options exceeds **100**, the component automatically enables 
 #### Double-click Transfer
 Users can double-click any item to instantly move it to the other pane. This can be disabled via `moveOnDoubleClick(false)`.
 
+#### Reorder selected items
+Drag items in the Selected pane to change order, including locked (`disabledOptions`) rows. Those rows cannot be moved to Available. Arrow buttons remain as an accessible fallback. Disable both with `reorderable(false)`. On stacked (narrow) layouts, transfer arrows point up and down.
+
+#### Multi-select on touch
+On phones and tablets, scroll the list normally. Hold one item still for a moment to pick it up — a stacked preview follows that thumb, with a count badge when more than one item is held. Tap more items with another finger to add them to the stack. After you drop the group, the highlight is cleared. Drop on the Selected list to insert before or after a row (upper vs lower half), or on Available to remove items from Selected. Transfer buttons still move the whole selection. On desktop, hold Cmd/Ctrl (or Shift for a range) and use drag-and-drop in the Selected pane.
+
 #### Custom Icons
 Every button and search icon can be customized to match your UI.
 
@@ -101,14 +116,14 @@ All methods accept `Closure` unless noted.
 | `variant(string\|Closure $variant)` | Setup | `'bordered'` | `bordered`, `flat`, `faded` |
 | `listHeight(string\|Closure $h)` | Setup | `'16rem'` | Height of the list panes |
 | `searchable(bool\|Closure $cond)` | Setup | `true` | Enable search inputs |
-| `reorderable(bool\|Closure $cond)` | Setup | `true` | Enable drag-and-drop reordering |
+| `reorderable(bool\|Closure $cond)` | Setup | `true` | Drag selected items to change order (arrow buttons remain) |
 | `moveOnDoubleClick(bool\|Closure $c)`| Setup | `true` | Transfer on double-click |
 | `showTransferButtons(bool\|Closure $c)`| Setup | `true` | Show central action buttons |
 | `availableLabel(string\|Closure $l)` | Setup | (trans) | Label for the left pane |
 | `selectedLabel(string\|Closure $l)`  | Setup | (trans) | Label for the right pane |
 | `minItems(int\|Closure $count)`      | Setup | `null` | Minimum selection count |
 | `maxItems(int\|Closure $count)`      | Setup | `null` | Maximum selection count |
-| `size(string\|Closure $size)`         | Setup | `'md'` | `sm`, `md`, `lg` |
+| `size(string\|Closure $size)`         | Setup | `'md'` | `sm`, `md`, `lg` (padding and list labels; search uses the sm control height) |
 | `rounding(string\|Closure $round)`    | Setup | config | Border radius token |
 
 ---
@@ -132,6 +147,8 @@ DualListboxField::make('permissions')
 ### Playground
 
 `/admin/flex-fields-playground/dual-listbox`
+
+The playground includes a **Locked options** demo (`disabledOptions()`).
 
 See [Playground](/docs/index#playground) for setup.
 

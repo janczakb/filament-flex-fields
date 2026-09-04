@@ -10,6 +10,18 @@ const distRoot = path.join(packageRoot, 'resources/dist/components');
 
 const SEMANTIC_CHUNK_RULES = [
     {
+        slug: 'flex-fields-theme-utils',
+        matches: (modules) => modules.includes('core/theme-utils.js'),
+    },
+    {
+        slug: 'flex-fields-search-normalize',
+        matches: (modules) => modules.includes('core/search-normalize.js'),
+    },
+    {
+        slug: 'flex-fields-combobox-engine',
+        matches: (modules) => modules.includes('core/combobox-engine.js'),
+    },
+    {
         slug: 'flex-fields-emoji',
         matches: (modules) => modules.includes('core/shared-emoji-picker.js'),
     },
@@ -31,12 +43,36 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (modules) => modules.includes('support/mapbox-geocoding.js'),
     },
     {
+        slug: 'flex-fields-select-trigger',
+        matches: (modules) => modules.some((modulePath) => (
+            modulePath.includes('select-field/headless-select-state.js')
+            || modulePath.includes('select-field/headless-inline-search.js')
+            || modulePath.includes('select-field/select-field-trigger-labels.js')
+        )),
+    },
+    {
+        slug: 'flex-fields-entity-mention',
+        matches: (modules) => modules.includes('core/entity-mention.js'),
+    },
+    {
+        slug: 'flex-fields-headless-user-select',
+        matches: (modules) => modules.includes('select-field/headless-user-select.js'),
+    },
+    {
+        slug: 'flex-fields-headless-livewire',
+        matches: (modules) => modules.includes('select-field/headless-combobox-livewire.js'),
+    },
+    {
         slug: 'flex-fields-select-menu',
         matches: (modules) => modules.includes('core/searchable-select-menu.js'),
     },
     {
         slug: 'flex-fields-virtualized-list',
         matches: (modules) => modules.includes('core/virtualized-list.js'),
+    },
+    {
+        slug: 'flex-fields-overlay-scrollbar',
+        matches: (modules) => modules.includes('core/overlay-scrollbar.js'),
     },
     {
         slug: 'flex-fields-country-registry',
@@ -236,6 +272,52 @@ function extractChunkImports(source) {
     ].map((match) => match[1]);
 }
 
+function expandTransitiveChunkImports(chunks) {
+    const expanded = new Set(chunks);
+    let foundNewImports = true;
+
+    while (foundNewImports) {
+        foundNewImports = false;
+
+        for (const chunk of [...expanded]) {
+            const chunkPath = path.join(distRoot, chunk);
+
+            if (! fs.existsSync(chunkPath)) {
+                continue;
+            }
+
+            const imports = extractChunkImports(fs.readFileSync(chunkPath, 'utf8'));
+
+            for (const importedChunk of imports) {
+                if (! expanded.has(importedChunk)) {
+                    expanded.add(importedChunk);
+                    foundNewImports = true;
+                }
+            }
+        }
+    }
+
+    return [...expanded];
+}
+
+function buildChunkImportGraph() {
+    const graph = {};
+
+    for (const file of fs.readdirSync(distRoot)) {
+        if (! file.endsWith('.js') || file === 'alpine-manifest.json') {
+            continue;
+        }
+
+        const imports = extractChunkImports(fs.readFileSync(path.join(distRoot, file), 'utf8'));
+
+        if (imports.length > 0) {
+            graph[file] = [...new Set(imports)].sort();
+        }
+    }
+
+    return graph;
+}
+
 const chunkModules = buildChunkModules(combinedMetafile);
 const { semanticChunkModules } = renameChunksToSemanticNames(chunkModules);
 
@@ -252,7 +334,7 @@ for (const entry of allEntryNames) {
 
     const source = fs.readFileSync(outputPath, 'utf8');
 
-    manifest[entry] = [...new Set(extractChunkImports(source))];
+    manifest[entry] = [...expandTransitiveChunkImports(extractChunkImports(source))].sort();
 }
 
 const sharedChunks = new Set();
@@ -285,7 +367,11 @@ while (newChunksFound) {
     }
 }
 
+manifest.__entries__ = allEntryNames
+    .filter((entry) => fs.existsSync(path.join(distRoot, `${entry}.js`)))
+    .sort()
 manifest.__shared_chunks__ = [...sharedChunks].sort();
+manifest.__chunk_imports__ = buildChunkImportGraph();
 manifest.__chunk_modules__ = semanticChunkModules;
 
 const referencedOutputs = new Set([

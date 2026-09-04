@@ -11,6 +11,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\TipTapExten
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor\Plugins\Contracts\HasToolbarButtons;
 use Filament\Forms\Components\RichEditor\Plugins\Contracts\RichContentPlugin;
@@ -58,7 +59,7 @@ class FlexRichEditorYoutubePlugin implements HasToolbarButtons, RichContentPlugi
     {
         return [
             FlexRichEditorTool::make('youtube')
-                ->label(__('filament-flex-fields::default.rich_editor.youtube.tool'))
+                ->label(Translations::get('filament-flex-fields::default.rich_editor.youtube.tool'))
                 ->action(arguments: '{}')
                 ->activeKey('youtube')
                 ->icon(RichEditorGravityIcons::icon('youtube'))

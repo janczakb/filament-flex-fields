@@ -3,7 +3,7 @@ title: "AudioField"
 description: Compact audio player with waveform visualization, play/pause control, optional loop, and optional client-side Whisper speech-to-text.
 ---
 
-![AudioField](/art/sc-12.png)
+![AudioField](/art/sc-12.webp)
 
 [← Back to Table of Contents](/docs/index)
 

@@ -26,7 +26,9 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'map-picker'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'map-picker',
+        'livewireKey' => $getLivewireKey(),
+    ])
         <div
             x-load
             x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('map-picker', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

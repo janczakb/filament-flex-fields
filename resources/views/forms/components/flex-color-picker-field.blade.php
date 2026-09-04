@@ -15,7 +15,9 @@
             ->class($field->getWrapperClasses())
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-color-picker'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-color-picker',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $field->getLayout(), $field->getVariant(), $field->getFormat(), $field->isAlphaEnabled(), $field->isEyedropperEnabled(), $field->getGridColumns(), $field->getGridRows()])), 0, 64) }}"

@@ -2,7 +2,7 @@
 title: "SocialLinksField"
 ---
 
-![SocialLinksField](/art/sc-29.png)
+![SocialLinksField](/art/sc-29.webp)
 
 [← Back to Table of Contents](/docs/index)
 

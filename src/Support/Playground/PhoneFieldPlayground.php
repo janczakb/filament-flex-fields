@@ -73,6 +73,16 @@ class PhoneFieldPlayground
                 'national' => '',
                 'e164' => '',
             ],
+            'phone__locale_pl' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__locale_en' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
         ];
     }
 
@@ -114,6 +124,16 @@ class PhoneFieldPlayground
                                 ->browserLocaleDefault()
                                 ->browserLocaleSortFirst()
                                 ->helperText('Defaults country from Accept-Language and puts it first in the dropdown.'),
+                            PhoneField::make('phone__locale_pl')
+                                ->label('Polish country names')
+                                ->countries(['PL', 'US', 'DE'])
+                                ->locale('pl')
+                                ->helperText('Dropdown labels via locale(pl): Polska.'),
+                            PhoneField::make('phone__locale_en')
+                                ->label('English country names')
+                                ->countries(['PL', 'US', 'DE'])
+                                ->locale('en')
+                                ->helperText('Dropdown labels via locale(en): Poland.'),
                             PhoneField::make('phone__mobile_only')
                                 ->label('Mobile only')
                                 ->defaultCountry('PL')

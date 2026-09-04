@@ -2,7 +2,7 @@
 title: "ScheduleField"
 ---
 
-![ScheduleField](/art/sc-27.png)
+![ScheduleField](/art/sc-27.webp)
 
 [← Back to Table of Contents](/docs/index)
 

@@ -29,7 +29,9 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
-        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'voice-note-recorder-field'])
+        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'voice-note-recorder-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
         <div
             x-load

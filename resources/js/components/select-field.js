@@ -1,9 +1,5 @@
 /**
- * SelectField Alpine entry — first-party headless combobox only (v3).
- *
- * Legacy Filament selectFormComponent patches live in
- * `select-field/select-field-legacy.js` for historical unit/e2e fixtures only
- * and are NOT registered on alpine:init from this production entry.
+ * SelectField Alpine entry — headless combobox (v3+ / FFART).
  */
 export {
     findTriggerLabelInOptions,
@@ -11,7 +7,10 @@ export {
     resolveTriggerLabel,
 } from './select-field/select-field-trigger-labels.js';
 
+import { getAlpineLoadGate } from '../core/flex-alpine-load-gate.js';
 import headlessComboboxAlpine from './select-field/headless-combobox-alpine.js';
+
+const gate = getAlpineLoadGate();
 
 export function markSelectFieldShellAttached(shell, attached) {
     if (! shell) {
@@ -27,12 +26,8 @@ export function fffHeadlessSelectField(config = {}) {
 
 export default fffHeadlessSelectField;
 
-if (typeof document !== 'undefined') {
-    document.addEventListener('alpine:init', () => {
-        if (typeof Alpine === 'undefined') {
-            return;
-        }
+gate.registerAlpineData('fffHeadlessSelectField', (config) => fffHeadlessSelectField(config));
 
-        Alpine.data('fffHeadlessSelectField', (config) => fffHeadlessSelectField(config));
-    });
+if (typeof window !== 'undefined') {
+    window.__fffSelectFieldModuleLoaded = true;
 }

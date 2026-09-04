@@ -82,27 +82,6 @@ export function updateOverlayPanelPosition(id) {
 
 /**
  * @param {string} id
- * @deprecated Prefer claimOverlayExclusive / openOverlayPanel.
- */
-export function emitOverlayOpenTelemetry(id) {
-    const runtime = ensureOverlayRuntimeBridge()
-
-    runtime?.notifyOpen?.(id)
-}
-
-/**
- * @param {string} id
- * @param {number} [durationMs]
- * @deprecated Prefer releaseOverlayExclusive / closeOverlayPanel.
- */
-export function emitOverlayCloseTelemetry(id, durationMs = 0) {
-    const runtime = ensureOverlayRuntimeBridge()
-
-    runtime?.notifyClose?.(id, durationMs)
-}
-
-/**
- * @param {string} id
  * @param {number} openLatencyMs
  */
 export function emitOverlayOpenLatency(id, openLatencyMs) {

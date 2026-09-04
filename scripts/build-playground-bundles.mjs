@@ -27,7 +27,7 @@ const bundleMetrics = {};
 
 for (const [slug, stylesheets] of Object.entries(bundleMap)) {
     const output = path.join(distRoot, `playground-${slug}.css`);
-    const chunks = [fs.readFileSync(playgroundCssPath, 'utf8')];
+    const chunks = [];
 
     for (const stylesheet of stylesheets) {
         const stylesheetPath = path.join(distRoot, `${stylesheet}.css`);

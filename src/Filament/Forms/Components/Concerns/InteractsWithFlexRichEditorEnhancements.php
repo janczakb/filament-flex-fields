@@ -9,9 +9,11 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexRichCon
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorBlockImagePlugin;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorPasteCleanupPlugin;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Plugins\FlexRichEditorYoutubePlugin;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\ToolbarButtonGroup;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -296,13 +298,13 @@ trait InteractsWithFlexRichEditorEnhancements
 
         $record = $this->getRecord();
 
-        if ($record !== null && $record->getKey() !== null) {
+        if ($record instanceof Model && $record->getKey() !== null) {
             $segments[] = $record->getMorphClass().':'.$record->getKey();
         } else {
             $segments[] = 'create';
         }
 
-        $userId = auth()->id();
+        $userId = Auth::id();
 
         if ($userId !== null) {
             $segments[] = 'user:'.$userId;
@@ -426,7 +428,7 @@ trait InteractsWithFlexRichEditorEnhancements
 
     public function getReadingTimeLabelTemplate(): string
     {
-        $line = __('filament-flex-fields::default.rich_editor.reading_time.line');
+        $line = Translations::get('filament-flex-fields::default.rich_editor.reading_time.line');
 
         return str_replace(':minutes', '__MINUTES__', $line);
     }
@@ -438,7 +440,7 @@ trait InteractsWithFlexRichEditorEnhancements
             : (string) config('filament.default_filesystem_disk', 'public');
 
         $visibility = isset($this->container)
-            ? ($this->getFileAttachmentsVisibility() ?? ($disk === 'public' ? 'public' : 'private'))
+            ? $this->getFileAttachmentsVisibility()
             : ($disk === 'public' ? 'public' : 'private');
 
         $renderer = FlexRichContentRenderer::make($content)
@@ -484,18 +486,9 @@ trait InteractsWithFlexRichEditorEnhancements
         }
 
         return array_values(array_filter(array_map(
-            function (array|string|ToolbarButtonGroup $group) use ($disabled): array|string|\Filament\Forms\Components\RichEditor\ToolbarButtonGroup|null {
+            function (array|string $group) use ($disabled): array|string|null {
                 if (is_string($group)) {
                     return in_array($group, $disabled, true) ? null : $group;
-                }
-
-                if ($group instanceof ToolbarButtonGroup) {
-                    // Let the group handle its own filtering internally if needed
-                    return $group;
-                }
-
-                if (! is_array($group)) {
-                    return $group;
                 }
 
                 $filtered = array_values(array_filter(
@@ -578,7 +571,6 @@ trait InteractsWithFlexRichEditorEnhancements
      */
     public function getLengthValidationRules(): array
     {
-        /** @var RichEditor $this */
         $rules = parent::getLengthValidationRules();
 
         if (filled($maxCharacters = $this->getMaxCharacters())) {

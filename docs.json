@@ -14,7 +14,8 @@
       "pages": [
         "docs/index",
         "docs/shared-concepts",
-        "docs/flex-field-groups"
+        "docs/flex-field-groups",
+        "docs/focus-outline"
       ],
       "icon": "rocket"
     },
@@ -23,6 +24,9 @@
       "pages": [
         "docs/form-layout-patterns",
         "docs/layout-components-quick-comparison",
+        "docs/schema-conditions",
+        "docs/field-intelligence",
+        "docs/admin-columns",
         "docs/deprecated-class-aliases"
       ],
       "icon": "book-open"
@@ -72,7 +76,8 @@
         "docs/selectfield",
         "docs/icon-picker-field",
         "docs/userselect",
-        "docs/duallistboxfield"
+        "docs/duallistboxfield",
+        "docs/bubblechoicefield"
       ],
       "icon": "check-square"
     },
@@ -90,7 +95,6 @@
         "docs/colorswatchfield",
         "docs/flexcolorpickerfield",
         "docs/flexfileupload-and-fleximageupload",
-        "docs/media-capture-os",
         "docs/videofield",
         "docs/audiofield",
         "docs/voicenoterecorderfield",
@@ -111,6 +115,18 @@
         "docs/usercolumn"
       ],
       "icon": "star"
+    },
+    {
+      "group": "Actions & Enterprise",
+      "pages": [
+        "docs/hold-confirm-action",
+        "docs/compliance-pack",
+        "docs/media-capture-os",
+        "docs/upgrade-v2-to-v3",
+        "docs/sre-runbook",
+        "docs/COMPATIBILITY"
+      ],
+      "icon": "shield"
     },
     {
       "group": "Layout & Display (Schemas)",

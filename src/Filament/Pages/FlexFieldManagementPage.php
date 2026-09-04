@@ -7,7 +7,9 @@ namespace Bjanczak\FilamentFlexFields\Filament\Pages;
 use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
+use Bjanczak\FilamentFlexFields\Support\Enterprise\SchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
+use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldEntityDiscovery;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldEntityRegistry;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
 use Filament\Actions\Action;
@@ -39,6 +41,10 @@ class FlexFieldManagementPage extends Page
     /** @var list<FlexFieldGroup> */
     public array $groups = [];
 
+    public bool $entityDiscoveryEmpty = false;
+
+    public string $entityDiscoveryHint = '';
+
     public static function shouldRegisterNavigation(): bool
     {
         return FlexFieldsConfig::isSchemaManagementPageEnabled();
@@ -67,7 +73,13 @@ class FlexFieldManagementPage extends Page
 
     public function mount(?string $entity = null): void
     {
+        $discovery = app(FlexFieldEntityDiscovery::class);
         $entities = app(FlexFieldEntityRegistry::class)->all();
+
+        $this->entityDiscoveryEmpty = $entities === [];
+        $this->entityDiscoveryHint = $this->entityDiscoveryEmpty
+            ? $discovery->emptyStateHint()
+            : '';
 
         if ($entities === []) {
             $this->entity = FlexFieldsConfig::getSchemaDefaultTargetType();
@@ -149,5 +161,25 @@ class FlexFieldManagementPage extends Page
                     ->orWhere('tenant_id', '');
             })
             ->orderBy('order');
+    }
+
+    /**
+     * @return array{version: int, state: string}|null
+     */
+    public function latestRegistryVersion(FlexFieldGroup $group): ?array
+    {
+        $versions = SchemaRegistry::versions($group->registrySchemaId());
+
+        if ($versions === []) {
+            return null;
+        }
+
+        /** @var array{version: int, state: string} $latest */
+        $latest = collect($versions)->sortByDesc('version')->first();
+
+        return [
+            'version' => (int) $latest['version'],
+            'state' => (string) $latest['state'],
+        ];
     }
 }

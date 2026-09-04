@@ -103,12 +103,12 @@ export function sortCountriesWithPreferred(countries, preferredCode) {
     ]
 }
 
-function expandCountry(compact) {
+function expandCountry(compact, name = null) {
     const dialCode = compact.d ?? ''
 
     return {
         code: compact.c,
-        name: compact.n,
+        name: name ?? compact.n,
         dial_code: dialCode !== '' ? dialCode : null,
         flag_url: compact.f,
     }
@@ -120,9 +120,13 @@ export async function resolveCountriesFromRegistry({
     countryFilterKey = null,
     preferredCountryCode = null,
     sortPreferredFirst = false,
+    locale = null,
 }) {
     const registry = await ensureCountryRegistry()
     const poolData = registry.pools?.[pool] ?? {}
+    const nameMap = locale && locale !== registry.locale
+        ? (registry.locale_names?.[locale]?.[pool] ?? {})
+        : {}
     let codes
 
     if (countryFilterKey && Array.isArray(registry.filters?.[countryFilterKey])) {
@@ -139,7 +143,7 @@ export async function resolveCountriesFromRegistry({
         const compact = poolData[code]
 
         if (compact) {
-            countries.push(expandCountry(compact))
+            countries.push(expandCountry(compact, nameMap[code] ?? null))
         }
     }
 

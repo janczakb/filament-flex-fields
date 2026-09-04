@@ -2,8 +2,11 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 
 import {
+    hasHeadlessInitialSelection,
+    isHeadlessWireStateEmpty,
     normalizeInitialSelectedValues,
     resolveHeadlessBoundState,
+    shouldIgnoreEmptyHeadlessWireSync,
 } from '../../resources/js/components/select-field/headless-select-state.js'
 
 describe('headless-select-state', () => {
@@ -31,5 +34,32 @@ describe('headless-select-state', () => {
         const resolved = resolveHeadlessBoundState([], ['jane', 'john'], true, { fallbackToInitial: false })
 
         assert.deepEqual(normalizeInitialSelectedValues(resolved, true), [])
+    })
+
+    it('ignores a late empty livewire sync while default state is still seeded', () => {
+        assert.equal(
+            shouldIgnoreEmptyHeadlessWireSync(null, 'published', false, false),
+            true,
+        )
+        assert.equal(
+            shouldIgnoreEmptyHeadlessWireSync([], ['jane', 'john'], true, false),
+            true,
+        )
+    })
+
+    it('accepts an empty livewire sync after the user clears the field', () => {
+        assert.equal(
+            shouldIgnoreEmptyHeadlessWireSync(null, 'published', false, true),
+            false,
+        )
+    })
+
+    it('does not treat intentionally empty defaults as restorable', () => {
+        assert.equal(hasHeadlessInitialSelection(null, false), false)
+        assert.equal(isHeadlessWireStateEmpty(null, false), true)
+        assert.equal(
+            shouldIgnoreEmptyHeadlessWireSync(null, null, false, false),
+            false,
+        )
     })
 })

@@ -1,4 +1,4 @@
-const DEMO_DELAY_MS = 1800
+const DEMO_DELAY_MS = 300
 const STORAGE_KEY = 'fff-skeleton-demo'
 
 function parseJsonAttribute(element, attribute) {

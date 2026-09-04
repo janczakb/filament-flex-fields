@@ -35,6 +35,7 @@ class CompositionRecipesPlayground
     public function components(): array
     {
         return [
+            PlaygroundRelatedHubs::view('composition-recipes'),
             Section::make('Composition recipes')
                 ->description('Certified nesting: TranslatableFields locale tabs wrapping SegmentTabs with per-tab inputs — a common CMS / listing pattern.')
                 ->extraAttributes(['class' => 'fff-playground-section'])

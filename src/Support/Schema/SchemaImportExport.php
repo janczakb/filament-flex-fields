@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\Schema;
 
 use Bjanczak\FilamentFlexFields\Enums\FieldType;
+use Bjanczak\FilamentFlexFields\Support\Intelligence\FormulaEngine;
 use JsonException;
 
 final class SchemaImportExport
@@ -73,6 +74,9 @@ final class SchemaImportExport
         if (! isset($schema['fields']) || ! is_array($schema['fields'])) {
             $errors[] = 'Schema fields must be an array.';
         } else {
+            $sectionIds = $this->collectSectionIds($schema['sections'] ?? []);
+            $formulas = [];
+
             foreach ($schema['fields'] as $index => $field) {
                 if (! is_array($field)) {
                     $errors[] = "Field at index {$index} must be an object.";
@@ -103,6 +107,54 @@ final class SchemaImportExport
                 if (FieldType::tryFrom($type) === null) {
                     $errors[] = "Field at index {$index} uses unknown type \"{$type}\".";
                 }
+
+                $sectionId = $field['section_id'] ?? null;
+
+                if (is_string($sectionId) && filled($sectionId) && ! isset($sectionIds[$sectionId])) {
+                    $errors[] = "Field at index {$index} references unknown section \"{$sectionId}\".";
+                }
+
+                if (is_string($slug) && filled($slug)) {
+                    $formula = $field['formula'] ?? $field['calculated'] ?? null;
+
+                    if (is_string($formula) && trim($formula) !== '') {
+                        $formulas[$slug] = trim($formula);
+                    }
+                }
+            }
+
+            if ($formulas !== [] && FormulaEngine::detectCycle($formulas) !== []) {
+                $errors[] = 'Field formulas contain a circular dependency.';
+            }
+        }
+
+        if (isset($schema['sections']) && ! is_array($schema['sections'])) {
+            $errors[] = 'Schema sections must be an array when provided.';
+        } elseif (is_array($schema['sections'] ?? null)) {
+            $seenSectionIds = [];
+
+            foreach ($schema['sections'] as $index => $section) {
+                if (! is_array($section)) {
+                    $errors[] = "Section at index {$index} must be an object.";
+
+                    continue;
+                }
+
+                $sectionId = $section['id'] ?? null;
+
+                if (! is_string($sectionId) || trim($sectionId) === '') {
+                    $errors[] = "Section at index {$index} is missing an id.";
+
+                    continue;
+                }
+
+                if (isset($seenSectionIds[$sectionId])) {
+                    $errors[] = "Duplicate section id \"{$sectionId}\".";
+
+                    continue;
+                }
+
+                $seenSectionIds[$sectionId] = true;
             }
         }
 
@@ -110,6 +162,29 @@ final class SchemaImportExport
             'ok' => $errors === [],
             'errors' => $errors,
         ];
+    }
+
+    /**
+     * @param  array<int, mixed>  $sections
+     * @return array<string, true>
+     */
+    private function collectSectionIds(array $sections): array
+    {
+        $ids = [];
+
+        foreach ($sections as $section) {
+            if (! is_array($section)) {
+                continue;
+            }
+
+            $id = $section['id'] ?? null;
+
+            if (is_string($id) && filled($id)) {
+                $ids[$id] = true;
+            }
+        }
+
+        return $ids;
     }
 
     /**

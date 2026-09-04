@@ -70,8 +70,8 @@
             <div class="fff-playground-toolbar__info">
                 <p class="fff-playground-toolbar__title">{{ $this->getTitle() }}</p>
                 <p class="fff-playground-toolbar__text">
-                    Component playground preview. Use the left sub-navigation to switch between demos.
-                    Press <kbd class="fff-playground-kbd">⌘K</kbd> / <kbd class="fff-playground-kbd">Ctrl+K</kbd> for the field command palette.
+                    Component playground preview. Use the grouped sub-navigation to switch between demos.
+                    Press <kbd class="fff-playground-kbd">⌘K</kbd> / <kbd class="fff-playground-kbd">Ctrl+K</kbd> for the command palette.
                 </p>
             </div>
 

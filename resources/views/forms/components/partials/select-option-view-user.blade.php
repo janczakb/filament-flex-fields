@@ -2,9 +2,13 @@
     use Filament\Support\Enums\IconSize;
 
     $layout = $layout ?? 'list';
+    $avatarName = (string) ($label ?? 'User');
+    // Deterministic colour — `background=random` remounted on every Alpine x-html
+    // pass and looked like the selected option was swapping to someone else.
+    $avatarBackground = substr(hash('crc32b', $avatarName), 0, 6);
     $avatarUrl = filled($image ?? null)
         ? $image
-        : 'https://ui-avatars.com/api/?name='.urlencode($label).'&background=random&size=64';
+        : 'https://ui-avatars.com/api/?name='.urlencode($avatarName).'&background='.$avatarBackground.'&color=fff&size=64';
 @endphp
 
 @if ($layout === 'trigger' || $layout === 'chip')

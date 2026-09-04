@@ -3,7 +3,7 @@ title: "ProgressBar"
 description: Linear progress indicator with determinate, indeterminate, segmented delivery tracker, and pill-style variants.
 ---
 
-![ProgressBar](/art/sc-4.png)
+![ProgressBar](/art/sc-4.webp)
 
 [← Back to Table of Contents](/docs/index)
 

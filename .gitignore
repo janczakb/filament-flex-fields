@@ -77,3 +77,4 @@ pnpm-debug.log*
 /composer.lock
 
 .cursor/
+.tmp/

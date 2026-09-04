@@ -52,7 +52,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'social-links-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'social-links-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     <div
         wire:ignore

@@ -10,12 +10,21 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
 use Filament\Facades\Filament;
 use Filament\Resources\Resource;
 use Illuminate\Support\Str;
-use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 use Throwable;
 
 final class FlexFieldEntityDiscovery
 {
+    public function emptyStateHint(): string
+    {
+        return __('filament-flex-fields::default.schema.entity_discovery_empty');
+    }
+
+    public function isEmpty(): bool
+    {
+        return $this->discover() === [];
+    }
+
     /**
      * @return list<FlexFieldEntity>
      */

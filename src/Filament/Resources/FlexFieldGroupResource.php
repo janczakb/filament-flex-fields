@@ -31,8 +31,8 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Validation\Rules\Unique;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Unique;
 
 class FlexFieldGroupResource extends Resource
 {
@@ -166,6 +166,12 @@ class FlexFieldGroupResource extends Resource
                                 TextInput::make('description')
                                     ->maxLength(500)
                                     ->columnSpanFull(),
+                                VisibilityRuleBuilder::make(
+                                    'visible_when',
+                                    fn (Get $get): array => self::flexFieldSlugOptions($get, '../../fields'),
+                                    fn (Get $get): array => app(FlexFieldEntityRegistry::class)
+                                        ->modelAttributeOptionsFor((string) ($get('../../target_type') ?? '')),
+                                )->columnSpanFull(),
                             ])
                             ->columns(2)
                             ->collapsible()
@@ -225,15 +231,29 @@ class FlexFieldGroupResource extends Resource
                                 TextInput::make('placeholder')
                                     ->maxLength(255)
                                     ->columnSpanFull(),
+                                TextInput::make('formula')
+                                    ->label(__('filament-flex-fields::default.schema.formula'))
+                                    ->helperText(__('filament-flex-fields::default.schema.formula_help'))
+                                    ->maxLength(2000)
+                                    ->columnSpanFull(),
                                 VisibilityRuleBuilder::make(
                                     'visible_when',
-                                    fn (Get $get): array => collect($get('../../fields') ?? [])
-                                        ->filter(fn ($field): bool => is_array($field) && filled($field['slug'] ?? null))
-                                        ->mapWithKeys(fn (array $field): array => [(string) $field['slug'] => (string) ($field['label'] ?? $field['slug'])])
-                                        ->all(),
+                                    fn (Get $get): array => self::flexFieldSlugOptions($get, '../../fields'),
+                                    fn (Get $get): array => app(FlexFieldEntityRegistry::class)
+                                        ->modelAttributeOptionsFor((string) ($get('../../target_type') ?? '')),
                                 )->columnSpanFull(),
-                                VisibilityRuleBuilder::make('required_when')->columnSpanFull(),
-                                VisibilityRuleBuilder::make('disabled_when')->columnSpanFull(),
+                                VisibilityRuleBuilder::make(
+                                    'required_when',
+                                    fn (Get $get): array => self::flexFieldSlugOptions($get, '../../fields'),
+                                    fn (Get $get): array => app(FlexFieldEntityRegistry::class)
+                                        ->modelAttributeOptionsFor((string) ($get('../../target_type') ?? '')),
+                                )->columnSpanFull(),
+                                VisibilityRuleBuilder::make(
+                                    'disabled_when',
+                                    fn (Get $get): array => self::flexFieldSlugOptions($get, '../../fields'),
+                                    fn (Get $get): array => app(FlexFieldEntityRegistry::class)
+                                        ->modelAttributeOptionsFor((string) ($get('../../target_type') ?? '')),
+                                )->columnSpanFull(),
                             ])
                             ->columns(2)
                             ->collapsible()
@@ -317,5 +337,18 @@ class FlexFieldGroupResource extends Resource
         }
 
         return $options;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected static function flexFieldSlugOptions(Get $get, string $fieldsPath): array
+    {
+        return collect($get($fieldsPath) ?? [])
+            ->filter(fn ($field): bool => is_array($field) && filled($field['slug'] ?? null))
+            ->mapWithKeys(fn (array $field): array => [
+                (string) $field['slug'] => (string) ($field['label'] ?? $field['slug']),
+            ])
+            ->all();
     }
 }

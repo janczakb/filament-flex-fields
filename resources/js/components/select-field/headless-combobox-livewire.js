@@ -1,6 +1,16 @@
 import { emitObservabilityEvent } from '../../core/observability.js'
 import { createRelationshipSearchAdapter } from '../../core/combobox-engine.js'
-import { flattenHeadlessOptions } from './headless-select-options.js'
+import { findHeadlessOptionRecord, flattenHeadlessOptions, headlessOptionValue } from './headless-select-options.js'
+
+/**
+ * Livewire commit `succeed` often runs after the awaited schema call resolves.
+ * A 0ms guard races that callback and re-enters fetchDynamicOptions forever
+ * (Region dependsOn: Loading spinner resets many times per second).
+ */
+export const DYNAMIC_OPTIONS_FETCH_GUARD_MS = 150
+
+/** Collapse Livewire remorph storms into a single soft refresh. */
+export const DYNAMIC_OPTIONS_INVALIDATION_DEBOUNCE_MS = 75
 
 /**
  * Livewire-backed search, dynamic options, and label resolution for headless SelectField.
@@ -26,6 +36,9 @@ export function createHeadlessComboboxLivewireMixin({
     initialOptionLabel = null,
     initialOptionLabels = [],
     multiple = false,
+    livewireId = null,
+    statePath = null,
+    optionsLimit = 50,
 } = {}) {
     return {
         componentKey,
@@ -44,6 +57,8 @@ export function createHeadlessComboboxLivewireMixin({
         noSearchResultsMessage,
         searchPrompt,
         selectEmptyStateHints,
+        livewireId,
+        optionsLimit,
 
         searchPending: false,
         optionsLoading: false,
@@ -58,9 +73,12 @@ export function createHeadlessComboboxLivewireMixin({
         _loadMoreRequestId: 0,
         _relationshipAdapter: null,
         _loadMoreObserver: null,
+        _refreshOptionLabelListener: null,
 
         initLivewireIntegration() {
             this.seedLabelRepository()
+            this.bindSelectedOptionLabelRefreshListener()
+            this.bindDynamicOptionsInvalidation()
 
             if (this.hasDynamicSearchResults) {
                 this._relationshipAdapter = createRelationshipSearchAdapter({
@@ -91,6 +109,238 @@ export function createHeadlessComboboxLivewireMixin({
                     this.scheduleAsyncSearch(query)
                 }
             })
+        },
+
+        bindDynamicOptionsInvalidation() {
+            if (! this.hasDynamicOptions || this._dynamicOptionsInvalidationBound) {
+                return
+            }
+
+            if (typeof Livewire === 'undefined' || typeof Livewire.hook !== 'function') {
+                return
+            }
+
+            this._dynamicOptionsInvalidationBound = true
+
+            // Parent ->live() / dependsOn updates remorph the Livewire component while
+            // this shell stays wire:ignore. Invalidate the cached list — but never on
+            // commits caused by our own getOptionsForJs fetch (that loops forever and
+            // leaves the dropdown stuck flickering Loading…).
+            this._dynamicOptionsCommitHook = Livewire.hook('commit', ({ component, succeed }) => {
+                if (! this.hasDynamicOptions) {
+                    return
+                }
+
+                if (livewireId && component?.id && component.id !== livewireId) {
+                    return
+                }
+
+                succeed(() => {
+                    // Always re-assert SSR handoff — parent live() remorphs can
+                    // strip `.is-replaced` and freeze the trigger under CSS.
+                    this.ensureHeadlessSsrHandoff?.()
+
+                    if (this.shouldIgnoreDynamicOptionsCommitInvalidation()) {
+                        return
+                    }
+
+                    this.invalidateDynamicOptionsCache({
+                        // Keep painted options so the next open is soft (no hard
+                        // Loading freeze while getOptionsForJs waits on Livewire).
+                        clearStaleOptions: false,
+                    })
+
+                    if (this.comboboxOpen) {
+                        // Parent ->live() changed while open — hard refresh, no stale list.
+                        this.scheduleDynamicOptionsRefresh({ soft: false })
+                    }
+                    // Closed: do NOT prefetch. A background getOptionsForJs rides the
+                    // same Livewire pipeline as Country ->live() and freezes sibling
+                    // triggers under wire:loading / main-thread morph for seconds.
+                })
+            })
+        },
+
+        /**
+         * @deprecated No-op. Background option prefetch blocked Region clicks via
+         * Livewire loading; options load when the menu opens instead.
+         */
+        scheduleIdleDynamicOptionsPrefetch() {
+            if (this._dynamicOptionsIdlePrefetchTimer) {
+                clearTimeout(this._dynamicOptionsIdlePrefetchTimer)
+                this._dynamicOptionsIdlePrefetchTimer = null
+            }
+        },
+
+        /**
+         * Mark the client option cache stale. When the menu is closed, drop the
+         * painted list so a later open cannot flash the previous parent’s options
+         * (Country USA → Poland) and never kick off a Livewire fetch in the
+         * background — that blocks the trigger for seconds via wire:loading.
+         */
+        invalidateDynamicOptionsCache({ clearStaleOptions = false } = {}) {
+            this.dynamicOptionsLoaded = false
+
+            if (
+                clearStaleOptions
+                && Array.isArray(this.flatOptions)
+                && this.flatOptions.length > 0
+            ) {
+                this.applyRemoteOptions([])
+            }
+        },
+
+        shouldIgnoreDynamicOptionsCommitInvalidation() {
+            if (
+                this._suppressDynamicOptionsInvalidation
+                || this.optionsLoading
+                || this._dynamicOptionsFetchInFlight
+            ) {
+                return true
+            }
+
+            if ((this._skipDynamicOptionsInvalidations ?? 0) > 0) {
+                this._skipDynamicOptionsInvalidations -= 1
+
+                return true
+            }
+
+            return false
+        },
+
+        scheduleDynamicOptionsRefresh({ soft = true } = {}) {
+            if (! this.hasDynamicOptions) {
+                return
+            }
+
+            if (this._dynamicOptionsRefreshTimer) {
+                clearTimeout(this._dynamicOptionsRefreshTimer)
+            }
+
+            this._dynamicOptionsRefreshTimer = setTimeout(() => {
+                this._dynamicOptionsRefreshTimer = null
+
+                if (
+                    ! this.comboboxOpen
+                    || this.optionsLoading
+                    || this._dynamicOptionsFetchInFlight
+                    || this._suppressDynamicOptionsInvalidation
+                ) {
+                    return
+                }
+
+                if (this.dynamicOptionsLoaded) {
+                    return
+                }
+
+                this.fetchDynamicOptions({ soft })
+            }, DYNAMIC_OPTIONS_INVALIDATION_DEBOUNCE_MS)
+        },
+
+        teardownDynamicOptionsInvalidation() {
+            if (typeof this._dynamicOptionsCommitHook === 'function') {
+                this._dynamicOptionsCommitHook()
+                this._dynamicOptionsCommitHook = null
+            }
+
+            if (this._dynamicOptionsRefreshTimer) {
+                clearTimeout(this._dynamicOptionsRefreshTimer)
+                this._dynamicOptionsRefreshTimer = null
+            }
+
+            if (this._dynamicOptionsIdlePrefetchTimer) {
+                clearTimeout(this._dynamicOptionsIdlePrefetchTimer)
+                this._dynamicOptionsIdlePrefetchTimer = null
+            }
+
+            if (this._dynamicOptionsFetchGuardTimer) {
+                clearTimeout(this._dynamicOptionsFetchGuardTimer)
+                this._dynamicOptionsFetchGuardTimer = null
+            }
+
+            this._dynamicOptionsInvalidationBound = false
+            this._suppressDynamicOptionsInvalidation = false
+            this._skipDynamicOptionsInvalidations = 0
+        },
+
+        beginDynamicOptionsFetchGuard() {
+            this._suppressDynamicOptionsInvalidation = true
+
+            if (this._dynamicOptionsFetchGuardTimer) {
+                clearTimeout(this._dynamicOptionsFetchGuardTimer)
+                this._dynamicOptionsFetchGuardTimer = null
+            }
+        },
+
+        endDynamicOptionsFetchGuard() {
+            if (this._dynamicOptionsFetchGuardTimer) {
+                clearTimeout(this._dynamicOptionsFetchGuardTimer)
+            }
+
+            // Skip the next commit succeed(s) from our own getOptionsForJs round-trip
+            // even if they arrive after the timed suppress window.
+            this._skipDynamicOptionsInvalidations = Math.max(
+                this._skipDynamicOptionsInvalidations ?? 0,
+                2,
+            )
+
+            this._dynamicOptionsFetchGuardTimer = setTimeout(() => {
+                this._dynamicOptionsFetchGuardTimer = null
+                this._suppressDynamicOptionsInvalidation = false
+            }, DYNAMIC_OPTIONS_FETCH_GUARD_MS)
+        },
+
+        bindSelectedOptionLabelRefreshListener() {
+            if (this._refreshOptionLabelListener || ! livewireId || ! statePath) {
+                return
+            }
+
+            this._refreshOptionLabelListener = async (event) => {
+                if (event?.detail?.livewireId !== livewireId || event?.detail?.statePath !== statePath) {
+                    return
+                }
+
+                this.ensureHeadlessSsrHandoff?.()
+
+                // Never start another Livewire round-trip while the menu is closed.
+                // Parent Country ->live() already owns the request; concurrent
+                // getOptionLabel / getOptionsForJs calls freeze Region clicks.
+                if (! this.comboboxOpen) {
+                    if (this.hasDynamicOptions) {
+                        this.invalidateDynamicOptionsCache({ clearStaleOptions: false })
+                    }
+
+                    this._pendingSelectedLabelRefresh = true
+
+                    return
+                }
+
+                await this.resolveSelectedLabelsFromServer()
+
+                if (! this.hasDynamicOptions) {
+                    return
+                }
+
+                this.invalidateDynamicOptionsCache({ clearStaleOptions: false })
+                await this.fetchDynamicOptions({ soft: true })
+            }
+
+            window.addEventListener(
+                'filament-forms::select.refreshSelectedOptionLabel',
+                this._refreshOptionLabelListener,
+            )
+        },
+
+        teardownSelectedOptionLabelRefreshListener() {
+            if (! this._refreshOptionLabelListener) {
+                return
+            }
+
+            window.removeEventListener(
+                'filament-forms::select.refreshSelectedOptionLabel',
+                this._refreshOptionLabelListener,
+            )
+            this._refreshOptionLabelListener = null
         },
 
         seedLabelRepository() {
@@ -183,8 +433,18 @@ export function createHeadlessComboboxLivewireMixin({
         labelEntry(value) {
             const key = String(value)
 
-            return this.labelRepository[key]
-                ?? this.optionRecord(value)
+            if (this.labelRepository[key]) {
+                return this.labelRepository[key]
+            }
+
+            const fromKnown = this._knownLabelEntries?.get(key)
+
+            if (fromKnown) {
+                return fromKnown
+            }
+
+            return findHeadlessOptionRecord(this.options, key)
+                ?? findHeadlessOptionRecord(this.flatOptions, key)
                 ?? null
         },
 
@@ -242,17 +502,39 @@ export function createHeadlessComboboxLivewireMixin({
             return null
         },
 
-        async fetchDynamicOptions() {
-            if (! this.hasDynamicOptions || this.optionsLoading) {
+        async fetchDynamicOptions({ soft = false } = {}) {
+            if (! this.hasDynamicOptions) {
                 return false
             }
 
-            this.optionsLoading = true
+            if (this.optionsLoading || this._dynamicOptionsFetchInFlight) {
+                this._fetchDynamicOptionsQueued = true
+
+                // Once anything requests a hard refresh, keep hard for the follow-up.
+                if (! soft) {
+                    this._fetchDynamicOptionsQueuedSoft = false
+                } else if (this._fetchDynamicOptionsQueuedSoft === undefined) {
+                    this._fetchDynamicOptionsQueuedSoft = true
+                }
+
+                return false
+            }
+
+            // Soft refresh keeps existing options painted so commit storms cannot
+            // flicker Loading ↔ value. Hard loading only when the list is empty.
+            const hasPaintedOptions = Array.isArray(this.flatOptions) && this.flatOptions.length > 0
+            const useSoftLoading = soft || hasPaintedOptions
+
+            this._dynamicOptionsFetchInFlight = true
+            this.optionsLoading = ! useSoftLoading
+            this.beginDynamicOptionsFetchGuard()
 
             try {
                 const results = await this.callSchemaMethod('getOptionsForJs')
 
                 if (results === null) {
+                    this.applyRemoteOptions([])
+
                     return false
                 }
 
@@ -266,6 +548,15 @@ export function createHeadlessComboboxLivewireMixin({
                 return false
             } finally {
                 this.optionsLoading = false
+                this._dynamicOptionsFetchInFlight = false
+                this.endDynamicOptionsFetchGuard()
+
+                if (this._fetchDynamicOptionsQueued) {
+                    const queuedSoft = this._fetchDynamicOptionsQueuedSoft !== false
+                    this._fetchDynamicOptionsQueued = false
+                    this._fetchDynamicOptionsQueuedSoft = undefined
+                    await this.fetchDynamicOptions({ soft: queuedSoft })
+                }
             }
         },
 
@@ -382,11 +673,17 @@ export function createHeadlessComboboxLivewireMixin({
                 if (append) {
                     if (requestId === this._loadMoreRequestId) {
                         this.loadingMore = false
-                        this.$nextTick?.(() => this.observeHeadlessLoadMore?.())
+                        this.$nextTick?.(() => {
+                            this.observeHeadlessLoadMore?.()
+                            this.syncDropdownOverflowChrome?.()
+                        })
                     }
                 } else if (requestId === this._searchRequestId) {
                     this.searchPending = false
-                    this.$nextTick?.(() => this.observeHeadlessLoadMore?.())
+                    this.$nextTick?.(() => {
+                        this.observeHeadlessLoadMore?.()
+                        this.syncDropdownOverflowChrome?.()
+                    })
                 }
             }
         },
@@ -527,20 +824,42 @@ export function createHeadlessComboboxLivewireMixin({
         },
 
         applyRemoteOptions(nextOptions) {
-            this.options = nextOptions
-            this.flatOptions = flattenHeadlessOptions(nextOptions)
-            this._engine?.setOptions(this.getEngineOptions())
+            const normalized = Array.isArray(nextOptions) ? nextOptions : []
+
+            this.options = normalized
+            this.flatOptions = flattenHeadlessOptions(normalized)
+            this._engineOptionsFingerprint = this.fingerprintHeadlessOptions?.(this.flatOptions) ?? null
+            this._virtualFlatRows = []
+            this.virtualScrollTick = (this.virtualScrollTick ?? 0) + 1
+            this._engine?.setOptions(this.flatOptions)
+
+            if (this.hasDynamicOptions && ! this.hasDynamicSearchResults) {
+                const allowed = new Set(this.flatOptions.map((option) => String(headlessOptionValue(option))))
+                const nextSelected = this.comboboxSelectedValues.filter((value) => allowed.has(String(value)))
+
+                if (nextSelected.length !== this.comboboxSelectedValues.length) {
+                    this._engine?.setSelectedValues(nextSelected)
+                }
+            }
+
             this._syncFromEngine()
 
             this.$nextTick(() => {
                 this.markKnownOptionChecksVisible?.()
                 this.scheduleMenuPositionAfterLayout?.()
+                this.syncDropdownOverflowChrome?.()
             })
         },
 
         async onHeadlessMenuOpenedForLivewire() {
-            if (this.hasDynamicOptions && ! this.dynamicOptionsLoaded) {
-                const loaded = await this.fetchDynamicOptions()
+            this.ensureHeadlessSsrHandoff?.()
+
+            // Always re-fetch dynamic / dependsOn option closures — parent live()
+            // updates must not leave a stale empty list behind wire:ignore.
+            if (this.hasDynamicOptions) {
+                this.dynamicOptionsLoaded = false
+                const soft = Array.isArray(this.flatOptions) && this.flatOptions.length > 0
+                const loaded = await this.fetchDynamicOptions({ soft })
 
                 if (! loaded) {
                     this.dynamicOptionsLoaded = false
@@ -552,6 +871,7 @@ export function createHeadlessComboboxLivewireMixin({
                 && this.isPreloaded
                 && this.comboboxQuery.trim() === ''
                 && this.flatOptions.length === 0
+                && ! this.hasDynamicOptions
             ) {
                 await this.fetchDynamicOptions()
             }
@@ -565,7 +885,8 @@ export function createHeadlessComboboxLivewireMixin({
                 await this.fetchSearchResults(this.comboboxQuery.trim(), this.comboboxQuery.trim(), { append: false })
             }
 
-            if (this.hasMissingSelectedLabels()) {
+            if (this._pendingSelectedLabelRefresh || this.hasMissingSelectedLabels()) {
+                this._pendingSelectedLabelRefresh = false
                 await this.resolveSelectedLabelsFromServer()
             }
         },
@@ -603,129 +924,6 @@ export function createHeadlessComboboxLivewireMixin({
             }
 
             return this.noSearchResultsMessage
-        },
-
-        headlessSelectDropdownState() {
-            if (this.isUserSelectField) {
-                return null
-            }
-
-            if (this.optionsLoading) {
-                return 'loading'
-            }
-
-            if (this.searchPending) {
-                return 'searching'
-            }
-
-            if (this.comboboxOpen && this.hasDynamicOptions && ! this.dynamicOptionsLoaded) {
-                return 'loading'
-            }
-
-            const query = String(this.comboboxQuery ?? '').trim()
-            const visibleOptionCount = this.getEngineOptions().length
-
-            if (this.hasDynamicSearchResults && query.length < this.minSearchLength) {
-                return visibleOptionCount > 0 ? null : 'prompt'
-            }
-
-            if (visibleOptionCount > 0) {
-                return null
-            }
-
-            if (this.hasDynamicSearchResults && query.length >= this.minSearchLength) {
-                return 'search'
-            }
-
-            if (query.length > 0) {
-                return 'search'
-            }
-
-            return 'options'
-        },
-
-        shouldShowHeadlessDropdownOptions() {
-            if (this.isUserSelectField) {
-                return ! this.shouldShowHeadlessUserSelectSkeleton()
-                    && ! this.shouldShowHeadlessUserSelectEmptyState()
-            }
-
-            return ! this.shouldShowHeadlessSelectEmptyState()
-        },
-
-        shouldShowHeadlessSelectEmptyState() {
-            const state = this.headlessSelectDropdownState()
-
-            return state === 'prompt' || state === 'search' || state === 'options'
-        },
-
-        shouldShowHeadlessSelectSkeleton() {
-            if (this.isUserSelectField) {
-                return false
-            }
-
-            const state = this.headlessSelectDropdownState()
-
-            return state === 'loading' || state === 'searching'
-        },
-
-        headlessSelectSkeletonAriaLabel() {
-            const state = this.headlessSelectDropdownState()
-
-            if (state === 'searching') {
-                return this.searchingMessage
-            }
-
-            return this.loadingMessage
-        },
-
-        headlessSelectSkeletonRows() {
-            return [0, 1, 2]
-        },
-
-        headlessSelectEmptyIconHtml() {
-            const state = this.headlessSelectDropdownState()
-
-            if (state === 'search' || state === 'prompt') {
-                return this.selectNoResultsIconHtml
-            }
-
-            return this.selectNoOptionsIconHtml
-        },
-
-        headlessSelectEmptyTitle() {
-            const state = this.headlessSelectDropdownState()
-
-            if (state === 'prompt') {
-                return this.searchPrompt
-            }
-
-            if (state === 'search') {
-                return this.noSearchResultsMessage
-            }
-
-            return this.noOptionsMessage
-        },
-
-        headlessSelectEmptyHint() {
-            const hints = this.selectEmptyStateHints ?? {}
-            const state = this.headlessSelectDropdownState()
-
-            if (state === 'loading' || state === 'searching') {
-                return hints.pleaseWait ?? ''
-            }
-
-            if (state === 'prompt') {
-                return Number(this.minSearchLength ?? 0) > 0
-                    ? (hints.minSearchLength ?? '')
-                    : (hints.filterList ?? '')
-            }
-
-            if (state === 'search') {
-                return hints.tryDifferentSearch ?? ''
-            }
-
-            return hints.noOptionsAvailable ?? ''
         },
 
         shouldShowHeadlessDropdownMessage() {

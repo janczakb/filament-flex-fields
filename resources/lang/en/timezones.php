@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Optional overrides for IANA timezone display names.
+ * Optional overrides for IANA timezone display labels (full "City, Country" string).
  *
  * Keys replace "/" with "__" (Europe/Warsaw → Europe__Warsaw).
- * Missing keys use PHP Intl for the active locale, then a humanized identifier.
+ * Missing keys use ICU exemplar city + localized country (Warsaw, Poland).
  */
 return [
 ];

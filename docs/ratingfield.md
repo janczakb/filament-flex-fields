@@ -3,7 +3,7 @@ title: "RatingField"
 description: Star or custom icon rating input with hover preview, semantic colors, and fractional read-only display.
 ---
 
-![RatingField](/art/sc-20.png)
+![RatingField](/art/sc-20.webp)
 
 [← Back to Table of Contents](/docs/index)
 

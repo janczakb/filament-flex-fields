@@ -30,7 +30,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'link-preview-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'link-preview-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     <div
         wire:ignore

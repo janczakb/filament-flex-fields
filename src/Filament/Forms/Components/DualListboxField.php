@@ -8,6 +8,7 @@ use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Field;
 use Filament\Schemas\Components\StateCasts\Contracts\StateCast;
@@ -473,7 +474,7 @@ class DualListboxField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.dual_listbox.available');
+            : Translations::get('filament-flex-fields::default.dual_listbox.available');
     }
 
     public function getSelectedLabel(): string
@@ -482,7 +483,7 @@ class DualListboxField extends Field
 
         return filled($label)
             ? (string) $label
-            : __('filament-flex-fields::default.dual_listbox.selected');
+            : Translations::get('filament-flex-fields::default.dual_listbox.selected');
     }
 
     public function getMinItems(): ?int
@@ -549,7 +550,7 @@ class DualListboxField extends Field
     }
 
     /**
-     * @return list<array{value: string, label: string, description: ?string, disabled: bool}>
+     * @return list<array{value: string, label: string, description?: ?string, disabled?: bool}>
      */
     public function getOptionsForJs(): array
     {
@@ -584,25 +585,27 @@ class DualListboxField extends Field
      */
     public function formatOptionsForJs(array $options, bool $lean = false): array
     {
-        return collect($options)
-            ->map(function (array $option, string $value) use ($lean): array {
-                $formatted = [
-                    'value' => $value,
-                    'label' => $option['label'],
-                ];
+        return array_values(
+            collect($options)
+                ->map(function (array $option, string $value) use ($lean): array {
+                    $formatted = [
+                        'value' => $value,
+                        'label' => $option['label'],
+                    ];
 
-                if ($lean) {
-                    return $formatted;
-                }
+                    if ($lean) {
+                        return $formatted;
+                    }
 
-                return [
-                    ...$formatted,
-                    'description' => $option['description'],
-                    'disabled' => $option['disabled'],
-                ];
-            })
-            ->values()
-            ->all();
+                    return [
+                        ...$formatted,
+                        'description' => $option['description'],
+                        'disabled' => $option['disabled'],
+                    ];
+                })
+                ->values()
+                ->all(),
+        );
     }
 
     /**
@@ -610,15 +613,17 @@ class DualListboxField extends Field
      */
     protected function getFullOptionsForJs(): array
     {
-        return collect($this->getNormalizedOptions())
-            ->map(fn (array $option, string $value): array => [
-                'value' => $value,
-                'label' => $option['label'],
-                'description' => $option['description'],
-                'disabled' => $option['disabled'],
-            ])
-            ->values()
-            ->all();
+        return array_values(
+            collect($this->getNormalizedOptions())
+                ->map(fn (array $option, string $value): array => [
+                    'value' => $value,
+                    'label' => $option['label'],
+                    'description' => $option['description'],
+                    'disabled' => $option['disabled'],
+                ])
+                ->values()
+                ->all(),
+        );
     }
 
     /**
@@ -645,10 +650,6 @@ class DualListboxField extends Field
                 continue;
             }
 
-            if ($this->getNormalizedOptions()[$key]['disabled'] ?? false) {
-                continue;
-            }
-
             if (in_array($key, $normalized, true)) {
                 continue;
             }
@@ -665,7 +666,7 @@ class DualListboxField extends Field
     }
 
     /**
-     * @return array<string, string>
+     * @return list<string>
      */
     public function getWrapperClasses(): array
     {

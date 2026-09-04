@@ -38,9 +38,13 @@
         \Filament\Support\prepare_inherited_attributes($getExtraAttributeBag())
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-file-upload'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'flex-file-upload',
+        'livewireKey' => $getLivewireKey(),
+    ])
     @if ($hasUploadSourceTabs)
-        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control'])
+        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control',
+        'livewireKey' => $getLivewireKey(),
+    ])
     @endif
     <x-filament-flex-fields::lazy-alpine-mount :mount-immediately="$isDisabled">
     <div

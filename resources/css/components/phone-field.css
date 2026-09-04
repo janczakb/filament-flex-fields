@@ -114,7 +114,9 @@
     --fff-phone-field-menu-text: rgb(24 24 27);
     --fff-phone-field-menu-muted: rgb(113 113 122);
     visibility: hidden;
-    min-width: 12rem;
+    min-width: 18rem;
+    width: 18rem;
+    height: 15rem;
     max-height: 15rem;
     --tw-ring-shadow: 0 0 #0000 !important;
     --tw-ring-color: transparent !important;
@@ -139,6 +141,25 @@
 
 .fff-phone-field__country-menu.is-positioned {
     visibility: visible;
+}
+
+/* Opacity-only open — scale/translate makes the panel look like it resizes on every open. */
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel),
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel).fff-teleported-menu--below:not(.is-open),
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel).fff-teleported-menu--above:not(.is-open),
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel).is-open,
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel).is-closing {
+    transform: none;
+}
+
+.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel) {
+    transition: opacity 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fff-phone-field__country-menu .fff-phone-field__flag {
+    /* Fixed flag slot already reserves space — avoid staggered fade looking like reflow. */
+    opacity: 1;
+    transition: none;
 }
 
 .fff-phone-field__country-list {

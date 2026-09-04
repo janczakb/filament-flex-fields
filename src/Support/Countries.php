@@ -73,17 +73,17 @@ class Countries
         return PhoneCountries::flagUrl($countryCode);
     }
 
-    public static function name(string $countryCode): string
+    public static function name(string $countryCode, ?string $locale = null): string
     {
         $code = strtoupper($countryCode);
-        $locale = app()->getLocale();
+        $locale ??= app()->getLocale();
 
         if (isset(self::$nameCache[$locale][$code])) {
             return self::$nameCache[$locale][$code];
         }
 
         $translationKey = "filament-flex-fields::countries.{$code}";
-        $translated = __($translationKey);
+        $translated = trans($translationKey, [], $locale);
 
         if (is_string($translated) && $translated !== $translationKey) {
             return self::$nameCache[$locale][$code] = $translated;
@@ -246,9 +246,9 @@ class Countries
      * @param  list<string>  $except
      * @return list<array{code: string, name: string, dial_code: string|null, flag_url: string}>
      */
-    public static function metadata(?array $only = null, array $except = []): array
+    public static function metadata(?array $only = null, array $except = [], ?string $locale = null): array
     {
-        $locale = app()->getLocale();
+        $locale ??= app()->getLocale();
 
         if (! isset(self::$metadataCache[$locale])) {
             self::$metadataCache[$locale] = [];
@@ -261,7 +261,7 @@ class Countries
             if (! isset(self::$metadataCache[$locale][$code])) {
                 self::$metadataCache[$locale][$code] = [
                     'code' => $code,
-                    'name' => self::name($code),
+                    'name' => self::name($code, $locale),
                     'dial_code' => self::dialCode($code),
                     'flag_url' => self::flagUrl($code),
                 ];
@@ -278,11 +278,11 @@ class Countries
      * @param  list<string>  $except
      * @return array<string, array{label: string, image: string, description: string}>
      */
-    public static function selectOptions(?array $only = null, array $except = []): array
+    public static function selectOptions(?array $only = null, array $except = [], ?string $locale = null): array
     {
         $options = [];
 
-        foreach (self::metadata($only, $except) as $country) {
+        foreach (self::metadata($only, $except, $locale) as $country) {
             $options[$country['code']] = [
                 'label' => $country['name'],
                 'image' => $country['flag_url'],

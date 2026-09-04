@@ -3,7 +3,7 @@ title: "PriceRangeField"
 description: Dual-handle price range slider with histogram backdrop, min/max numeric inputs, and currency prefix.
 ---
 
-![PriceRangeField](/art/sc-9.png)
+![PriceRangeField](/art/sc-9.webp)
 
 [← Back to Table of Contents](/docs/index)
 

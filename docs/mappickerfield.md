@@ -3,7 +3,7 @@ title: "MapPickerField"
 description: Mapbox-powered address picker with geocoding search, draggable pin, and configurable stored fields.
 ---
 
-![MapPickerField](/art/sc-6.png)
+![MapPickerField](/art/sc-6.webp)
 
 [← Back to Table of Contents](/docs/index)
 

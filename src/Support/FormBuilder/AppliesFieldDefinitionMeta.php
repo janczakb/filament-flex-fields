@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
+use Bjanczak\FilamentFlexFields\Enums\FlexFieldWidth;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexSlider;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexSliderFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\Intelligence\FormulaEngine;
@@ -59,7 +60,7 @@ trait AppliesFieldDefinitionMeta
             $this->applyFormulaMeta($field, $definition, $statePathPrefix);
         }
 
-        $this->applyFieldConditions($field, $definition);
+        $this->applyFieldConditions($field, $definition, $statePathPrefix);
 
         return $field;
     }
@@ -177,17 +178,17 @@ trait AppliesFieldDefinitionMeta
         );
     }
 
-    protected function applyFieldConditions(Component $field, FlexFieldDefinition $definition): void
+    protected function applyFieldConditions(Component $field, FlexFieldDefinition $definition, string $statePathPrefix = ''): void
     {
         if ($definition->visibleWhen !== null) {
             $field->visible(JsonFieldConditions::compileVisibleWhen($definition->visibleWhen, $statePathPrefix));
         }
 
-        if ($definition->disabledWhen !== null && method_exists($field, 'disabled')) {
+        if ($definition->disabledWhen !== null) {
             $field->disabled(JsonFieldConditions::compileDisabledWhen($definition->disabledWhen, $statePathPrefix));
         }
 
-        if ($definition->width !== \Bjanczak\FilamentFlexFields\Enums\FlexFieldWidth::Full) {
+        if ($definition->width !== FlexFieldWidth::Full) {
             $field->columnSpan($definition->width->columnSpan());
         }
 
@@ -205,7 +206,7 @@ trait AppliesFieldDefinitionMeta
         $requiredWhen = JsonFieldConditions::compileRequiredWhen($definition->requiredWhen);
 
         if ($definition->isRequired) {
-            $field->required(fn (Get $get): bool => $definition->isRequired || $requiredWhen($get));
+            $field->required();
 
             return;
         }

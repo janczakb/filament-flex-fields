@@ -40,18 +40,24 @@ final class SchemaBlueprintPacks
             'label' => 'CRM contact profile',
             'target' => 'App\\Models\\Contact',
             'version' => 1,
+            'sections' => [
+                ['id' => 'company', 'label' => 'Company', 'type' => 'section', 'sort' => 0],
+                ['id' => 'pipeline', 'label' => 'Pipeline', 'type' => 'section', 'sort' => 1],
+            ],
             'fields' => [
                 [
                     'slug' => 'company_name',
                     'label' => 'Company name',
                     'type' => 'single_line_text',
                     'sort' => 0,
+                    'section_id' => 'company',
                 ],
                 [
                     'slug' => 'deal_stage',
                     'label' => 'Deal stage',
                     'type' => 'select',
                     'sort' => 1,
+                    'section_id' => 'pipeline',
                     'config' => [
                         'options' => [
                             'lead' => 'Lead',
@@ -65,6 +71,7 @@ final class SchemaBlueprintPacks
                     'label' => 'Lead source',
                     'type' => 'single_line_text',
                     'sort' => 2,
+                    'section_id' => 'pipeline',
                 ],
             ],
         ];
@@ -204,6 +211,10 @@ final class SchemaBlueprintPacks
             'label' => 'Support ticket',
             'target' => 'App\\Models\\SupportTicket',
             'version' => 1,
+            'sections' => [
+                ['id' => 'summary', 'label' => 'Summary', 'type' => 'section', 'sort' => 0],
+                ['id' => 'details', 'label' => 'Details', 'type' => 'section', 'sort' => 1],
+            ],
             'fields' => [
                 [
                     'slug' => 'subject',
@@ -211,12 +222,14 @@ final class SchemaBlueprintPacks
                     'type' => 'single_line_text',
                     'sort' => 0,
                     'required' => true,
+                    'section_id' => 'summary',
                 ],
                 [
                     'slug' => 'priority',
                     'label' => 'Priority',
                     'type' => 'select',
                     'sort' => 1,
+                    'section_id' => 'summary',
                     'config' => [
                         'options' => [
                             'low' => 'Low',
@@ -231,6 +244,7 @@ final class SchemaBlueprintPacks
                     'label' => 'Channel',
                     'type' => 'select',
                     'sort' => 2,
+                    'section_id' => 'details',
                     'config' => [
                         'options' => [
                             'email' => 'Email',
@@ -244,6 +258,7 @@ final class SchemaBlueprintPacks
                     'label' => 'Description',
                     'type' => 'multi_line_text',
                     'sort' => 3,
+                    'section_id' => 'details',
                 ],
             ],
         ];

@@ -5,9 +5,8 @@
 /* Match Filament's class-based dark mode strategy — see core.css for why. */
 @variant dark (&:where(.dark, .dark *));
 
-@source "../../src/Support/Playground/**/*.php";
 @source "../views/partials/playground/**/*.blade.php";
-@source "../views/pages/flex-fields-playground.blade.php";
+@source "../views/pages/flex-fields-playground-component.blade.php";
 
 @import "./playground/playground.css";
 @import "./playground/user-column-playground.css";

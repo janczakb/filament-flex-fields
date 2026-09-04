@@ -14,6 +14,9 @@ class CountryRegistryQueue
     /** @var array<string, list<string>> */
     protected array $filters = [];
 
+    /** @var array<string, true> */
+    protected array $locales = [];
+
     protected bool $scriptRendered = false;
 
     public function queuePool(string $pool): bool
@@ -66,6 +69,26 @@ class CountryRegistryQueue
         return $key;
     }
 
+    public function queueLocale(string $locale): bool
+    {
+        if ($locale === '' || isset($this->locales[$locale])) {
+            return false;
+        }
+
+        $this->locales[$locale] = true;
+        $this->scriptRendered = false;
+
+        return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function queuedLocales(): array
+    {
+        return array_keys($this->locales);
+    }
+
     public function renderScriptMarkup(): string
     {
         if ($this->scriptRendered || $this->pools === []) {
@@ -77,6 +100,7 @@ class CountryRegistryQueue
         return View::make('filament-flex-fields::partials.country-registry-data', [
             'pools' => $this->queuedPools(),
             'filters' => $this->registeredFilters(),
+            'extraLocales' => $this->queuedLocales(),
         ])->render();
     }
 
@@ -84,6 +108,7 @@ class CountryRegistryQueue
     {
         $this->pools = [];
         $this->filters = [];
+        $this->locales = [];
         $this->scriptRendered = false;
     }
 
@@ -103,6 +128,11 @@ class CountryRegistryQueue
     public static function registerCountryFilter(array $codes): string
     {
         return app(self::class)->queueCountryFilter($codes);
+    }
+
+    public static function registerLocale(string $locale): bool
+    {
+        return app(self::class)->queueLocale($locale);
     }
 
     public static function renderScriptOnce(): string

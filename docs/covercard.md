@@ -3,7 +3,7 @@ title: "CoverCard"
 description: Media card for hero banners, product tiles, and CTA blocks with background images and gradients.
 ---
 
-![CoverCard](/art/sc-18.png)
+![CoverCard](/art/sc-18.webp)
 
 [← Back to Table of Contents](/docs/index)
 

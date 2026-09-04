@@ -2,7 +2,7 @@
     use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
     use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 
-    $playgroundStylesheetHref = FlexFieldAssets::playgroundStylesheetHrefForRequest();
+    $playgroundStylesheetHrefs = FlexFieldAssets::playgroundStylesheetHrefsForRequest();
     $playgroundSlug = FlexFieldAssets::resolvePlaygroundSlugFromRequest();
 
     if (
@@ -15,16 +15,18 @@
     }
 @endphp
 
-@if (filled($playgroundStylesheetHref))
-    @push('styles')
-        <link
-            rel="stylesheet"
-            href="{{ $playgroundStylesheetHref }}"
-            data-navigate-track
-            data-fff-playground-bundle
-            @if (filled($playgroundSlug))
-                data-fff-playground-slug="{{ $playgroundSlug }}"
-            @endif
-        />
-    @endpush
-@endif
+@foreach ($playgroundStylesheetHrefs as $playgroundStylesheetHref)
+    @if (filled($playgroundStylesheetHref))
+        @push('styles')
+            <link
+                rel="stylesheet"
+                href="{{ $playgroundStylesheetHref }}"
+                data-navigate-track
+                data-fff-playground-bundle
+                @if (filled($playgroundSlug))
+                    data-fff-playground-slug="{{ $playgroundSlug }}"
+                @endif
+            />
+        @endpush
+    @endif
+@endforeach

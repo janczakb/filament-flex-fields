@@ -17,7 +17,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'matrix-choice-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'matrix-choice-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('matrix-choice-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

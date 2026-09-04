@@ -22,7 +22,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'segment-control',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('segment-control', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"

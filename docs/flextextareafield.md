@@ -3,7 +3,7 @@ title: "FlexTextareaField"
 description: Smart auto-sizing textarea with character counters, speech dictation, and emoji support.
 ---
 
-![FlexTextareaField](/art/sc-3.png)
+![FlexTextareaField](/art/sc-3.webp)
 
 [← Back to Table of Contents](/docs/index)
 

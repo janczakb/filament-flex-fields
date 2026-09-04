@@ -3,7 +3,7 @@ title: "CurrencyField"
 description: Revolut-style currency input with locale-aware formatting, digit animations, optional currency picker, and minor-unit storage.
 ---
 
-![CurrencyField](/art/sc-5.png)
+![CurrencyField](/art/sc-5.webp)
 
 [← Back to Table of Contents](/docs/index)
 

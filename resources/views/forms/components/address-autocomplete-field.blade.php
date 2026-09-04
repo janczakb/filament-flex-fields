@@ -22,7 +22,9 @@
             ->class($field->getWrapperClasses())
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'address-autocomplete'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'address-autocomplete',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $field->getFields(), $field->getStoreFormat(), $field->getSize(), $field->getVariant(), filled($accessToken)])), 0, 64) }}"

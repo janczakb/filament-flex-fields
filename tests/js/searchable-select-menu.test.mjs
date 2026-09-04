@@ -277,6 +277,161 @@ describe('searchable select menu scroll reposition', () => {
         assert.equal(component.menuReady, true)
     })
 
+    it('defers menuReady on first open until nextTick/rAF settles', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'menuOpen',
+            menuRef: 'menuMenu',
+            triggerRef: 'menuTrigger',
+            minMenuWidth: 288,
+            matchTriggerWidth: false,
+        })
+
+        const trigger = {
+            getBoundingClientRect: () => ({
+                top: 40,
+                bottom: 72,
+                left: 40,
+                right: 240,
+                width: 200,
+                height: 32,
+            }),
+        }
+
+        const menu = {
+            style: {
+                width: '',
+                setProperty() {},
+                removeProperty(name) {
+                    if (name === 'width') {
+                        this.width = ''
+                    }
+                },
+            },
+            classList: {
+                add() {},
+                remove() {},
+                toggle() {},
+                contains: () => false,
+            },
+            getBoundingClientRect: () => ({
+                top: 100,
+                bottom: 300,
+                left: 40,
+                right: 328,
+                width: 288,
+                height: 200,
+            }),
+        }
+
+        let runNextTick = null
+
+        const component = {
+            ...mixin,
+            menuOpen: true,
+            menuReady: false,
+            $nextTick(callback) {
+                runNextTick = callback
+            },
+            $refs: {
+                menuTrigger: trigger,
+                menuMenu: menu,
+            },
+        }
+
+        component.scheduleMenuPosition()
+
+        assert.equal(component.menuReady, false)
+        assert.equal(menu.style.width, '288px')
+        assert.equal(typeof runNextTick, 'function')
+
+        const frames = []
+        const originalRaf = globalThis.requestAnimationFrame
+        globalThis.requestAnimationFrame = (cb) => {
+            frames.push(cb)
+
+            return frames.length
+        }
+
+        try {
+            runNextTick()
+            assert.equal(component.menuReady, false)
+            assert.ok(frames.length >= 1)
+            frames.shift()()
+            // First-open reveal path schedules a second rAF before ready.
+            if (frames.length > 0) {
+                assert.equal(component.menuReady, false)
+                frames.shift()()
+            }
+            assert.equal(component.menuReady, true)
+            assert.equal(menu.__fffHasBeenPositioned, true)
+        } finally {
+            globalThis.requestAnimationFrame = originalRaf
+        }
+    })
+
+    it('sets menuReady synchronously on re-anchor when already positioned', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'menuOpen',
+            menuRef: 'menuMenu',
+            triggerRef: 'menuTrigger',
+        })
+
+        const trigger = {
+            getBoundingClientRect: () => ({
+                top: 40,
+                bottom: 72,
+                left: 40,
+                right: 240,
+                width: 200,
+                height: 32,
+            }),
+        }
+
+        const menu = {
+            __fffHasBeenPositioned: true,
+            style: {
+                setProperty() {},
+                removeProperty() {},
+            },
+            classList: {
+                add() {},
+                remove() {},
+                toggle() {},
+                contains: () => false,
+            },
+            getBoundingClientRect: () => ({
+                top: 100,
+                bottom: 300,
+                left: 40,
+                right: 340,
+                width: 300,
+                height: 200,
+            }),
+        }
+
+        let nextTickScheduled = false
+
+        const component = {
+            ...mixin,
+            menuOpen: true,
+            menuReady: false,
+            $nextTick(callback) {
+                nextTickScheduled = true
+                // Intentionally do not run — sync unlock must happen first.
+            },
+            $refs: {
+                menuTrigger: trigger,
+                menuMenu: menu,
+            },
+        }
+
+        component.scheduleMenuPosition()
+
+        assert.equal(component.menuReady, true)
+        assert.equal(menu.__fffHasBeenPositioned, true)
+        assert.equal(nextTickScheduled, true)
+    })
+
     it('claims overlay exclusive lock on open and displaces the previous menu', () => {
         const runtime = createOverlayRuntime({
             document: globalThis.document,
@@ -419,5 +574,122 @@ describe('searchable select menu scroll reposition', () => {
 
         runtime.destroy()
         delete globalThis.window.FffOverlayRuntime
+    })
+
+    it('assigns a unique overlay id per select component key', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            ownerIdPrefix: 'fff-headless-select',
+        })
+
+        const first = {
+            ...mixin,
+            componentKey: 'data.select__cascade_region',
+            statePath: 'select__cascade_region',
+        }
+        const second = {
+            ...mixin,
+            componentKey: 'data.select__status',
+            statePath: 'select__status',
+        }
+
+        const firstId = first.resolveMenuOverlayId()
+        const secondId = second.resolveMenuOverlayId()
+
+        assert.notEqual(firstId, secondId)
+        assert.match(firstId, /select__cascade_region/)
+        assert.match(secondId, /select__status/)
+        assert.equal(first.resolveMenuOverlayId(), firstId)
+        assert.equal(
+            createSearchableSelectMenuMixin({ ownerIdPrefix: 'fff-headless-select' }).resolveMenuOverlayId.call({}),
+            'fff-headless-select-menu',
+        )
+    })
+
+    it('resolves the menu panel by DOM id when $refs point at another select', async () => {
+        const { resolveSearchableSelectMenuElement, forceHideForeignSelectMenus } = await import(
+            '../../resources/js/core/searchable-select-menu.js'
+        )
+
+        const foreign = {
+            id: 'foreign-menu',
+            classList: {
+                contains: () => true,
+                add() {},
+                remove() {},
+            },
+            getAttribute: () => 'data.select__cascade_country',
+            hasAttribute: (name) => name === 'data-fff-select-menu-owner',
+        }
+        const own = {
+            id: 'own-menu',
+            classList: {
+                contains: () => false,
+                add() {},
+                remove() {},
+            },
+            getAttribute: () => 'data.select__scale_10k',
+            hasAttribute: (name) => name === 'data-fff-select-menu-owner',
+        }
+
+        const elementsById = {
+            'own-menu': own,
+            'foreign-menu': foreign,
+        }
+
+        globalThis.document.getElementById = (id) => elementsById[id] ?? null
+        globalThis.document.querySelector = () => null
+        globalThis.document.querySelectorAll = () => [foreign, own]
+
+        const resolved = resolveSearchableSelectMenuElement({
+            $refs: { headlessMenu: foreign },
+            menuDomId: 'own-menu',
+            componentKey: 'data.select__scale_10k',
+        }, 'headlessMenu')
+
+        assert.equal(resolved, own)
+
+        forceHideForeignSelectMenus(own)
+        // foreign loses is-open/is-closing; own is skipped
+        assert.equal(typeof foreign.classList.remove, 'function')
+    })
+
+    it('closes exclusive sibling immediately without waiting for glass exit', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+        })
+
+        const menu = {
+            classList: {
+                classes: new Set(['is-open']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle() {},
+            },
+        }
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            menuDomId: 'menu-a',
+            componentKey: 'data.select__a',
+            $refs: { headlessMenu: menu },
+        }
+
+        component.closeTeleportedMenuImmediate()
+
+        assert.equal(component.comboboxOpen, false)
+        assert.equal(menu.classList.contains('is-open'), false)
+        assert.equal(menu.classList.contains('is-closing'), false)
     })
 })

@@ -10,12 +10,38 @@ use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @phpstan-type NormalizedUserSelectOption array{
+ *     value: string|int,
+ *     label: string,
+ *     description: ?string,
+ *     icon: string|BackedEnum|Htmlable|null,
+ *     image: ?string,
+ *     badge: ?string,
+ *     badge_color: ?string,
+ *     chip_label: ?string,
+ *     disabled: bool,
+ *     isDisabled: bool,
+ *     verified: bool,
+ * }
+ * @phpstan-type NormalizedSelectOption array{
+ *     value: string|int,
+ *     label: string,
+ *     description: ?string,
+ *     icon: string|BackedEnum|Htmlable|null,
+ *     image: ?string,
+ *     badge: ?string,
+ *     badge_color: ?string,
+ *     chip_label: ?string,
+ *     disabled: bool,
+ *     isDisabled: bool,
+ * }
+ *
  * @mixin UserSelect
  */
 trait InteractsWithUserSelectPresentation
 {
     /**
-     * @return array<string, string>
+     * @return array<int|string, bool|string>
      */
     public function getWrapperClasses(): array
     {
@@ -197,17 +223,7 @@ trait InteractsWithUserSelectPresentation
     }
 
     /**
-     * @return array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     disabled: bool,
-     *     verified: bool,
-     * }
+     * @return NormalizedUserSelectOption
      */
     protected function normalizeOption(string|int $value, array|string $label): array
     {
@@ -223,17 +239,7 @@ trait InteractsWithUserSelectPresentation
     }
 
     /**
-     * @param  array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     disabled: bool,
-     *     verified: bool,
-     * }  $option
+     * @param  NormalizedSelectOption  $option
      */
     protected function renderRichOptionLabel(array $option, string $layout = 'list'): string
     {
@@ -241,22 +247,12 @@ trait InteractsWithUserSelectPresentation
             'label' => $option['label'],
             'description' => $option['description'],
             'image' => $option['image'],
-            'verified' => $option['verified'],
+            'verified' => (bool) ($option['verified'] ?? false),
         ], layout: $layout);
     }
 
     /**
-     * @param  array{
-     *     value: string|int,
-     *     label: string,
-     *     description: ?string,
-     *     icon: string|BackedEnum|Htmlable|null,
-     *     image: ?string,
-     *     badge: ?string,
-     *     badge_color: ?string,
-     *     disabled: bool,
-     *     verified: bool,
-     * }  $option
+     * @param  NormalizedSelectOption  $option
      */
     protected function formatOptionLabelForJs(array $option, bool $compact = false): string
     {
@@ -265,7 +261,7 @@ trait InteractsWithUserSelectPresentation
                 'label' => $option['label'],
                 'description' => $option['description'],
                 'image' => $option['image'],
-                'verified' => $option['verified'],
+                'verified' => (bool) ($option['verified'] ?? false),
             ], layout: 'list');
         }
 

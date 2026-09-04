@@ -32,7 +32,9 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'signature-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'signature-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
         @if ($field->requiresLegalInk())
             <div class="fff-signature__legal-banner" role="note">
                 {{ __('filament-flex-fields::default.signature.legal_acknowledgment') }}

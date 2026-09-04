@@ -15,6 +15,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\ConfiguresSlu
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\GeneratesSlugFromSource;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWithSlugTranslatableTitle;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\ResolvesSlugStatePaths;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasPlaceholder;
@@ -228,18 +229,18 @@ class SlugField extends Field
     public function getUiLabels(): array
     {
         return [
-            'auto' => __('filament-flex-fields::default.slug.badge_auto'),
-            'custom' => __('filament-flex-fields::default.slug.badge_custom'),
+            'auto' => Translations::get('filament-flex-fields::default.slug.badge_auto'),
+            'custom' => Translations::get('filament-flex-fields::default.slug.badge_custom'),
             'permalink' => $this->getPermalinkLabel(),
-            'edit' => __('filament-flex-fields::default.slug.edit'),
-            'confirm' => __('filament-flex-fields::default.slug.confirm'),
-            'cancel' => __('filament-flex-fields::default.slug.cancel'),
-            'reset' => __('filament-flex-fields::default.slug.reset'),
-            'regenerate' => __('filament-flex-fields::default.slug.regenerate'),
-            'copy' => __('filament-flex-fields::default.slug.copy'),
-            'copied' => __('filament-flex-fields::default.slug.copied'),
+            'edit' => Translations::get('filament-flex-fields::default.slug.edit'),
+            'confirm' => Translations::get('filament-flex-fields::default.slug.confirm'),
+            'cancel' => Translations::get('filament-flex-fields::default.slug.cancel'),
+            'reset' => Translations::get('filament-flex-fields::default.slug.reset'),
+            'regenerate' => Translations::get('filament-flex-fields::default.slug.regenerate'),
+            'copy' => Translations::get('filament-flex-fields::default.slug.copy'),
+            'copied' => Translations::get('filament-flex-fields::default.slug.copied'),
             'visit' => $this->getVisitLinkLabel(),
-            'changed' => __('filament-flex-fields::default.slug.changed'),
+            'changed' => Translations::get('filament-flex-fields::default.slug.changed'),
         ];
     }
 

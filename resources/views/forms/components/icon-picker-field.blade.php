@@ -37,9 +37,15 @@
     :field="$field"
     class="fi-fo-select-wrp fff-select-field-wrapper fi-fixed-positioning-context"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'icon-picker-field'])
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'select-field'])
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'teleported-menu'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'icon-picker-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'select-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'teleported-menu',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     @once
         <link

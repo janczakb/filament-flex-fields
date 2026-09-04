@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\Actions;
 
 use Bjanczak\FilamentFlexFields\Support\RichEditor\YoutubeEmbedUrlResolver;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Filament\Actions\Action;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\EditorCommand;
@@ -16,15 +17,15 @@ class YoutubeAction
     public static function make(): Action
     {
         return Action::make('youtube')
-            ->label(__('filament-flex-fields::default.rich_editor.youtube.tool'))
-            ->modalHeading(__('filament-flex-fields::default.rich_editor.youtube.modal.heading'))
+            ->label(Translations::get('filament-flex-fields::default.rich_editor.youtube.tool'))
+            ->modalHeading(Translations::get('filament-flex-fields::default.rich_editor.youtube.modal.heading'))
             ->modalWidth(Width::Large)
             ->fillForm(fn (array $arguments): array => [
                 'url' => $arguments['src'] ?? null,
             ])
             ->schema([
                 TextInput::make('url')
-                    ->label(__('filament-flex-fields::default.rich_editor.youtube.modal.url'))
+                    ->label(Translations::get('filament-flex-fields::default.rich_editor.youtube.modal.url'))
                     ->inputMode('url')
                     ->placeholder('https://www.youtube.com/watch?v=...')
                     ->required(),

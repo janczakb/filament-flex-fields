@@ -23,7 +23,9 @@ import {
 } from './helpers/flex-field-asset-injector-dom.mjs'
 
 function retainedHas(injector, document, href) {
-    return injector.collectRetainedAssetUrls().has(normalizeAssetUrl(href, document.baseURI))
+    const url = normalizeAssetUrl(href, document.baseURI)
+
+    return injector.getConsumerGraph().getRefCount(url) > 0
 }
 
 async function ensurePage(injector, head, document) {
@@ -637,31 +639,23 @@ test('logic: playground bundle survives uninstallUnretainedAssets', async () => 
     bundle.sheet = {}
     head.appendChild(bundle)
 
-    injector.claimAssetUrls('modal:x', [normalizeAssetUrl(css('switch'), document.baseURI)])
-    injector.releaseModalOwnership('modal:x')
     injector.uninstallUnretainedAssets()
 
     assert.equal(head.children.includes(bundle), true)
 })
 
-test('logic: protected inline emit stylesheet is never dropped as a dedupe false-positive', async () => {
-    const { document, window, head } = createDom()
+test('logic: consumer-marked batch and managed loader dedupe to one stylesheet link', async () => {
+    const { document, window, head, body } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
     const href = normalizeAssetUrl(css('emoji-picker'), document.baseURI)
 
-    const emit = createLink({
-        href,
-        attributes: { 'data-fff-stylesheet': '' },
-    })
-    emit.sheet = {}
-    head.appendChild(emit)
+    body.appendChild(createAssetBatch([href], [], { consumerComponent: 'emoji-picker' }))
 
-    const inject = injector.loadStylesheet(href)
+    const pending = injector.ensureAssets(document, { pageOnly: true })
     await flushAssetLoads(head)
-    await inject
+    await pending
 
-    await injector.ensureAssets(document, { pageOnly: true })
-    assert.ok(head.children.some((child) => child.hasAttribute?.('data-fff-stylesheet')))
+    assert.equal(headCount(head, 'emoji-picker'), 1)
 })
 
 test('logic: pageOnly ensure after modal open does not sticky-retain modal-only URLs onto page', async () => {
@@ -1024,22 +1018,24 @@ test('logic: realistic Video tab + action modal + nested confirm modal lifecycle
     assert.equal(headHas(head, 'switch'), false)
 })
 
-test('logic: claimAssetUrls page cannot be wiped by releaseModalOwnership or stack pop', async () => {
-    const { document, window, head } = createDom()
+test('logic: detached batch retention survives modal ownership cleanup', async () => {
+    const { document, window, head, body } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
-    const href = normalizeAssetUrl(css('cover-card'), document.baseURI)
 
-    injector.claimAssetUrls('page', [href])
-    injector.claimAssetUrls('modal:tmp', [href])
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([css('cover-card')]))
+    body.appendChild(page)
 
-    const link = createLink({ href })
+    const ensure = injector.ensureAssets(document, { pageOnly: true })
+    await flushAssetLoads(head)
+    await ensure
+
+    const link = createLink({ href: normalizeAssetUrl(css('cover-card'), document.baseURI) })
     link.sheet = {}
+    link.dataset.fffInjectedStylesheet = 'true'
+    link.dataset.fffManagedAsset = 'true'
     head.appendChild(link)
     injector.resyncLoadedAssetsFromDocument()
-
-    injector.releaseModalOwnership('modal:tmp')
-    injector.uninstallUnretainedAssets()
-    assert.equal(head.children.includes(link), true)
 
     await injector.cleanupClosedModalPendingState({ detail: { id: 'tmp' } })
     assert.equal(head.children.includes(link), true)
@@ -1076,22 +1072,25 @@ test('logic: rapid open/close x10 same modal never leaves duplicate links or sta
     }
 })
 
-test('logic: uninstall never removes server-emitted data-fff-stylesheet links', async () => {
-    const { document, window, head } = createDom()
+test('logic: uninstall never removes managed assets while CRG refCount is positive', async () => {
+    const { document, window, head, body } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })
-    const href = normalizeAssetUrl(css('item-card'), document.baseURI)
+    const href = css('item-card')
 
-    const emit = createLink({
-        href,
-        attributes: { 'data-fff-stylesheet': 'item-card' },
-    })
-    emit.sheet = {}
-    head.appendChild(emit)
+    const page = createElement('form')
+    page.appendChild(createAssetBatch([href]))
+    body.appendChild(page)
 
-    // Empty retain + modal close must not strip server emit CSS.
+    const pending = injector.ensureAssets(document, { pageOnly: true })
+    await flushAssetLoads(head)
+    await pending
+
+    const managed = head.children.find((child) => child.href?.includes('item-card'))
+    assert.ok(managed)
+
     await injector.cleanupClosedModalPendingState({ detail: { id: 'ghost' } })
 
-    assert.equal(head.children.includes(emit), true)
+    assert.equal(head.children.includes(managed), true)
     assert.equal(injector.isStylesheetLoaded(href), true)
 })
 

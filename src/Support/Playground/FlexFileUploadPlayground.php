@@ -56,7 +56,7 @@ class FlexFileUploadPlayground
                             ->icon('heroicon-m-sparkles')
                             ->modalHeading('Skeleton loading demo')
                             ->modalDescription('Heavy flex fields not bundled on this page (schedule + barcode scanner). Enable slow CSS demo first, then open without hovering this button.')
-                            ->form([
+                            ->schema([
                                 ScheduleField::make('skeleton_demo_schedule')
                                     ->label('Schedule field')
                                     ->timezone('UTC'),
@@ -71,7 +71,7 @@ class FlexFileUploadPlayground
                             ->slideOver()
                             ->modalHeading('Skeleton loading demo (slide-over)')
                             ->modalDescription('Same lazy-loaded fields as the modal demo, rendered in a Filament slide-over panel.')
-                            ->form([
+                            ->schema([
                                 ScheduleField::make('skeleton_slide_over_schedule')
                                     ->label('Schedule field')
                                     ->timezone('UTC'),
@@ -83,7 +83,7 @@ class FlexFileUploadPlayground
                             ->label('Quick modal CSS test')
                             ->color('gray')
                             ->icon('heroicon-m-beaker')
-                            ->form([
+                            ->schema([
                                 SegmentControl::make('test_segment')
                                     ->options([
                                         'option_1' => 'Option 1',

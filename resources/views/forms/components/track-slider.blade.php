@@ -18,7 +18,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'track-slider'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'track-slider',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-data="{
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},

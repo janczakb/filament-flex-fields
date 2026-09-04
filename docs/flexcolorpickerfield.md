@@ -3,7 +3,7 @@ title: "FlexColorPickerField"
 description: Full-featured color picker with advanced HSV panel, eyedropper, and preset grid layouts.
 ---
 
-![FlexColorPickerField](/art/sc-11.png)
+![FlexColorPickerField](/art/sc-11.webp)
 
 [← Back to Table of Contents](/docs/index)
 

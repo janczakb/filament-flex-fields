@@ -1,4 +1,10 @@
-@keyframes fff-flex-fields-assets-skeleton {
+@keyframes fff-flex-fields-assets-skeleton-shimmer {
+    100% {
+        transform: translateX(200%);
+    }
+}
+
+@keyframes fff-flex-fields-assets-skeleton-inline {
     0% {
         background-position: 200% 0;
     }
@@ -8,48 +14,105 @@
     }
 }
 
-/* Modal: keep the shell and backdrop visible; skeleton overlay while lazy assets load */
+/*
+ * Modal pending: hide live content; bones are real DOM nodes injected by the
+ * asset injector (rounded rects + one synchronized shimmer pass).
+ */
 .fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window {
     position: relative;
-    overflow: hidden;
+    overflow: clip;
+    isolation: isolate;
 }
 
-.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window > * {
-    opacity: 0;
+.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window > *:not(.fff-flex-fields-assets-skeleton) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.fff-flex-fields-assets-skeleton {
+    --fff-assets-skeleton-bone: rgb(228 228 231 / 0.92);
+    --fff-assets-skeleton-radius: 20px;
+    position: absolute;
+    inset: 0;
+    z-index: 30;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.5rem;
+    margin: 0;
     pointer-events: none;
+    overflow: hidden;
+    border-radius: inherit;
+    background: transparent;
 }
 
-.fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after {
+.fff-flex-fields-assets-skeleton::before {
     content: '';
     position: absolute;
     inset: 0;
-    z-index: 5;
+    z-index: 2;
     pointer-events: none;
-    border-radius: inherit;
-    background-color: rgb(244 244 245);
-    background-image: linear-gradient(
+    transform: translateX(-100%);
+    background: linear-gradient(
         90deg,
-        rgb(228 228 231 / 0) 0%,
-        rgb(228 228 231 / 0.65) 50%,
-        rgb(228 228 231 / 0) 100%
+        transparent 0%,
+        rgb(255 255 255 / 0.55) 50%,
+        transparent 100%
     );
-    background-size: 200% 100%;
-    animation: fff-flex-fields-assets-skeleton 1.4s ease-in-out infinite;
+    mix-blend-mode: overlay;
+    animation: fff-flex-fields-assets-skeleton-shimmer 2s linear infinite;
 }
 
-.dark .fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after {
-    background-color: rgb(39 39 42);
-    background-image: linear-gradient(
+.fff-flex-fields-assets-skeleton__bone {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+    background-color: var(--fff-assets-skeleton-bone);
+    border-radius: var(--fff-assets-skeleton-radius);
+    overflow: hidden;
+}
+
+.fff-flex-fields-assets-skeleton__bone--label {
+    height: 0.75rem;
+    width: 5.5rem;
+    max-width: 40%;
+    border-radius: 0.5rem;
+}
+
+.fff-flex-fields-assets-skeleton__bone--field {
+    height: 2.5rem;
+    width: 100%;
+    border-radius: var(--fff-assets-skeleton-radius);
+    margin-bottom: 0.35rem;
+}
+
+.fff-flex-fields-assets-skeleton__bone--field:last-child {
+    margin-bottom: 0;
+}
+
+html.dark .fff-flex-fields-assets-skeleton,
+.dark .fff-flex-fields-assets-skeleton {
+    --fff-assets-skeleton-bone: rgb(63 63 70 / 0.85);
+}
+
+html.dark .fff-flex-fields-assets-skeleton::before,
+.dark .fff-flex-fields-assets-skeleton::before {
+    background: linear-gradient(
         90deg,
-        rgb(63 63 70 / 0) 0%,
-        rgb(63 63 70 / 0.55) 50%,
-        rgb(63 63 70 / 0) 100%
+        transparent 0%,
+        rgb(255 255 255 / 0.14) 50%,
+        transparent 100%
     );
 }
 
-.fi-modal.fff-flex-fields-assets-ready > .fi-modal-window-ctn > .fi-modal-window > * {
+.fi-modal.fff-flex-fields-assets-ready > .fi-modal-window-ctn > .fi-modal-window > *:not(.fff-flex-fields-assets-skeleton) {
     opacity: 1;
     pointer-events: auto;
+}
+
+.fi-modal.fff-flex-fields-assets-ready .fff-flex-fields-assets-skeleton {
+    display: none !important;
 }
 
 /* Inline / non-modal morph targets */
@@ -58,52 +121,40 @@
     min-height: 2.5rem;
 }
 
-.fff-flex-fields-assets-pending:not(.fi-modal) > * {
+.fff-flex-fields-assets-pending:not(.fi-modal) > *:not(.fff-flex-fields-assets-skeleton) {
     opacity: 0;
     pointer-events: none;
 }
 
-.fff-flex-fields-assets-pending:not(.fi-modal)::after {
-    content: '';
+.fff-flex-fields-assets-pending:not(.fi-modal) > .fff-flex-fields-assets-skeleton {
     position: absolute;
     inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    border-radius: 0.5rem;
-    background-color: rgb(244 244 245);
-    background-image: linear-gradient(
-        90deg,
-        rgb(228 228 231 / 0) 0%,
-        rgb(228 228 231 / 0.65) 50%,
-        rgb(228 228 231 / 0) 100%
-    );
-    background-size: 200% 100%;
-    animation: fff-flex-fields-assets-skeleton 1.4s ease-in-out infinite;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: var(--fff-assets-skeleton-radius, 20px);
+    overflow: hidden;
 }
 
-.dark .fff-flex-fields-assets-pending:not(.fi-modal)::after {
-    background-color: rgb(39 39 42);
-    background-image: linear-gradient(
-        90deg,
-        rgb(63 63 70 / 0) 0%,
-        rgb(63 63 70 / 0.55) 50%,
-        rgb(63 63 70 / 0) 100%
-    );
+.fff-flex-fields-assets-pending:not(.fi-modal)::after {
+    content: none;
 }
 
-.fff-flex-fields-assets-ready:not(.fi-modal) > * {
+.fff-flex-fields-assets-ready:not(.fi-modal) > *:not(.fff-flex-fields-assets-skeleton) {
     opacity: 1;
     pointer-events: auto;
 }
 
-.fff-flex-fields-assets-ready:not(.fi-modal)::after {
-    content: none;
+.fff-flex-fields-assets-ready:not(.fi-modal) > .fff-flex-fields-assets-skeleton {
+    display: none !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fi-modal.fff-flex-fields-assets-pending > .fi-modal-window-ctn > .fi-modal-window::after,
-    .fff-flex-fields-assets-pending:not(.fi-modal)::after {
+    .fff-flex-fields-assets-skeleton::before {
         animation: none;
-        background-image: none;
+        opacity: 0;
     }
 }

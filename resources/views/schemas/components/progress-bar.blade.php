@@ -42,7 +42,9 @@
     }
 @endphp
 
-@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'progress-bar'])
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'progress-bar',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
 <div
     {{

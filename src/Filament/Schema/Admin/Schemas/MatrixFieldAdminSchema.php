@@ -12,6 +12,9 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Utilities\Get;
 
+/**
+ * @internal Legacy grouped admin schema — superseded by FieldTypeAutoAdminSchema. Not referenced at runtime.
+ */
 final class MatrixFieldAdminSchema
 {
     use BuildsCommonAdminFields;

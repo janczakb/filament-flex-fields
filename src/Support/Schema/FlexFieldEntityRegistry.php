@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support\Schema;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldEntity;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsConfig;
+use Illuminate\Support\Str;
 
 final class FlexFieldEntityRegistry
 {
@@ -106,5 +107,46 @@ final class FlexFieldEntityRegistry
         }
 
         return FlexFieldsConfig::getSchemaDefaultTargetType();
+    }
+
+    /**
+     * @return array<string, string> attribute => label
+     */
+    public function modelAttributeOptionsFor(string $modelClass): array
+    {
+        if (! class_exists($modelClass)) {
+            return [];
+        }
+
+        try {
+            $model = app($modelClass);
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $attributes = [];
+
+        if (method_exists($model, 'getFillable')) {
+            $attributes = array_values(array_filter(
+                $model->getFillable(),
+                fn (mixed $attribute): bool => is_string($attribute) && filled($attribute),
+            ));
+        }
+
+        if ($attributes === [] && property_exists($model, 'fillable') && is_array($model->fillable)) {
+            $attributes = $model->fillable;
+        }
+
+        $options = [];
+
+        foreach ($attributes as $attribute) {
+            if (! is_string($attribute) || ! filled($attribute)) {
+                continue;
+            }
+
+            $options[$attribute] = Str::headline($attribute);
+        }
+
+        return $options;
     }
 }

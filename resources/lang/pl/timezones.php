@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Opcjonalne nadpisania nazw stref IANA.
+ * Opcjonalne nadpisania etykiet stref IANA (pełny string „Miasto, Kraj”).
  *
  * Klucze zamieniaja "/" na "__" (Europe/Warsaw → Europe__Warsaw).
- * Brakujace klucze korzystaja z PHP Intl (locale aplikacji), potem z czytelnego identyfikatora.
+ * Brakujace klucze: miasto ICU + zlokalizowany kraj (Warszawa, Polska).
  */
 return [
 ];

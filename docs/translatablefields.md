@@ -2,7 +2,7 @@
 title: "TranslatableFields"
 ---
 
-![TranslatableFields](/art/sc-22.png)
+![TranslatableFields](/art/sc-22.webp)
 
 [← Back to Table of Contents](/docs/index)
 

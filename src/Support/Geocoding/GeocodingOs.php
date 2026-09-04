@@ -10,6 +10,9 @@ final class GeocodingOs
 {
     private static ?GeocodingProviderContract $provider = null;
 
+    /**
+     * @param  array<string, mixed>|null  $config
+     */
     public static function bootFromConfig(?array $config = null): void
     {
         $config ??= config('filament-flex-fields.geocoding', []);

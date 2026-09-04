@@ -76,12 +76,26 @@
     :field="$field"
     :label-sr-only="$showInlineFieldLabel || $isLabelHidden()"
     class="fi-fo-select-wrp fff-select-field-wrapper fi-fixed-positioning-context"
+    data-fff-lazy-alpine-mount="select-field"
 >
     @if (! $isNative)
-        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'select-field'])
+        @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'select-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
+
+        @once
+            <link
+                rel="modulepreload"
+                href="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('select-field', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
+                as="script"
+                crossorigin
+            />
+        @endonce
 
         @if ($isUserSelectField)
-            @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'user-select'])
+            @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'user-select',
+        'livewireKey' => $getLivewireKey(),
+    ])
         @endif
     @endif
     <x-filament::input.wrapper

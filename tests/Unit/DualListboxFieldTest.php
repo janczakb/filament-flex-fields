@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\DualListboxField;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Playground\DualListboxPlayground;
 
 it('exposes dual listbox styling and behavior api', function () {
     $field = DualListboxField::make('permissions')
@@ -66,6 +67,22 @@ it('allows overriding dual listbox icons with heroicon or any icon set', functio
         ->and($field->getSwapIcon())->toBe(GravityIcon::ArrowRightArrowLeft);
 });
 
+it('keeps disabled options in state and marks them for js', function () {
+    $field = DualListboxField::make('permissions')
+        ->options([
+            'read' => 'Read access',
+            'write' => 'Write access',
+            'admin' => 'Administration',
+        ])
+        ->disabledOptions(['admin'])
+        ->default(['write', 'admin']);
+
+    $options = $field->getOptionsForJs();
+
+    expect($field->normalizeState(['write', 'admin', 'ghost']))->toBe(['write', 'admin'])
+        ->and(collect($options)->firstWhere('value', 'admin')['disabled'])->toBeTrue();
+});
+
 it('normalizes rich options for js', function () {
     $field = DualListboxField::make('permissions')
         ->options([
@@ -117,7 +134,7 @@ it('formats lean options via formatOptionsForJs helper', function () {
     ]);
 });
 
-it('normalizes state by removing invalid disabled and duplicate values', function () {
+it('normalizes state by removing unknown and duplicate values', function () {
     $field = DualListboxField::make('permissions')
         ->options([
             'read' => 'Read access',
@@ -130,7 +147,7 @@ it('normalizes state by removing invalid disabled and duplicate values', functio
         ->disabledOptions(['legacy']);
 
     expect($field->normalizeState(['read', 'write', 'read', 'missing', 'admin', 'legacy']))
-        ->toBe(['read', 'write']);
+        ->toBe(['read', 'write', 'admin']);
 });
 
 it('rejects unsupported dual listbox variants', function () {
@@ -195,4 +212,40 @@ it('caches normalized options and evaluates closure only once', function () {
     $options2 = $field->getNormalizedOptions();
     expect($evaluations)->toBe(1)
         ->and($options2)->toBe($options1);
+});
+
+it('uses stacked transfer icons on narrow layouts and has no drag-handle markup', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/dual-listbox-field.blade.php');
+
+    expect($blade)
+        ->toContain('fff-dual-listbox__transfer-icon--stacked')
+        ->toContain('GravityIcon::ArrowChevronDown')
+        ->toContain('GravityIcon::ArrowUpArrowDown')
+        ->toContain('onAvailablePointerDown')
+        ->toContain('onSelectedPointerDown')
+        ->toContain('data-fff-dual-listbox-pane="selected"')
+        ->not->toContain('fff-dual-listbox__drag-handle');
+});
+
+it('matches flex text input tokens on dual listbox search fields', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/dual-listbox.css');
+
+    expect($css)
+        ->toContain('.fff-dual-listbox__search-input')
+        ->toContain('font-size: var(--fff-text-md);')
+        ->toContain('height: var(--fff-dual-listbox-search-h);')
+        ->toContain('--fff-dual-listbox-search-h: var(--fff-track-h-sm);')
+        ->toContain('border: var(--fff-field-border-width, 1px) solid var(--fff-field-border, #e5e7eb);')
+        ->toContain('outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);')
+        ->toContain('outline-offset: 0;');
+});
+
+it('includes a playground demo for locked options', function () {
+    $playground = new DualListboxPlayground;
+
+    expect($playground->defaultState()['dual_listbox__locked'])->toBe(['users.view', 'posts.edit']);
+
+    $source = file_get_contents(__DIR__.'/../../src/Support/Playground/DualListboxPlayground.php');
+
+    expect($source)->toContain("disabledOptions(['users.view', 'users.delete'])");
 });

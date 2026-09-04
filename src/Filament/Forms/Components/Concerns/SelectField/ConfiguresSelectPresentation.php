@@ -268,7 +268,7 @@ trait ConfiguresSelectPresentation
     }
 
     /**
-     * @return array<string, string>
+     * @return array<int|string, bool|string>
      */
     public function getWrapperClasses(): array
     {
@@ -297,7 +297,7 @@ trait ConfiguresSelectPresentation
             $classes['fff-select-field--multiple'] = true;
         }
 
-        if (! $this->isClearable()) {
+        if (! $this->isClearableInUi()) {
             $classes['fff-select-field--not-clearable'] = true;
         } elseif ($this->hasSelectedValueForClearButton() && ! $this->isLocallyDisabled()) {
             $classes['fff-select-field--clearable-has-value'] = true;

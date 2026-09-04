@@ -9,6 +9,9 @@ use Bjanczak\FilamentFlexFields\Filament\Schema\Admin\Concerns\BuildsCommonAdmin
 use Bjanczak\FilamentFlexFields\Filament\Schema\Admin\Concerns\InteractsWithFieldTypeAdminContext;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTypeSettingsStorage;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
@@ -248,12 +251,10 @@ final class FieldTypeAutoAdminSchema
      * @var list<string>
      */
     private const JSON_ARRAY_KEYS = [
-        'disable_cell_when',
         'disable_row_when',
         'column_icons',
         'options',
         'submit_action',
-        'toolbar_selects',
         'toolbar_select',
         'slug_unique_parameters',
         'custom_properties',
@@ -267,13 +268,16 @@ final class FieldTypeAutoAdminSchema
         $components = [];
 
         foreach (FieldType::cases() as $type) {
-            $schema = self::schemaForType($type);
+            $schema = array_merge(
+                self::schemaForType($type),
+                self::passthroughTypeHelp($type),
+            );
 
             if ($schema === []) {
                 continue;
             }
 
-            $components[] = Fieldset::make('type_settings_'.$type->value)
+            $fieldset = Fieldset::make('type_settings_'.$type->value)
                 ->label(__('filament-flex-fields::default.schema.type_settings_for', [
                     'type' => Str::headline(str_replace('_', ' ', $type->value)),
                 ]))
@@ -281,6 +285,8 @@ final class FieldTypeAutoAdminSchema
                 ->columns(3)
                 ->columnSpanFull()
                 ->visible(fn (Get $get): bool => self::selectedType($get) === $type);
+
+            $components[] = $fieldset;
         }
 
         return $components;
@@ -300,16 +306,28 @@ final class FieldTypeAutoAdminSchema
                 continue;
             }
 
-            $schema[] = self::componentForKey($key, $default);
+            $schema[] = self::componentForKey($key, $default, $type);
         }
 
         return $schema;
     }
 
-    private static function componentForKey(string $key, mixed $default): Component
+    private static function componentForKey(string $key, mixed $default, FieldType $type): Component
     {
         $path = self::settingsPath($key);
         $label = Str::headline(str_replace('_', ' ', $key));
+
+        if ($key === 'disable_cell_when') {
+            return self::matrixDisableCellWhenRepeater($path);
+        }
+
+        if ($key === 'toolbar_selects') {
+            return self::flexTextareaToolbarSelectsRepeater($path);
+        }
+
+        if ($key === 'options' && $type === FieldType::Nps) {
+            return self::npsOptionsRepeater($path);
+        }
 
         if (in_array($key, self::COLOR_KEYS, true)) {
             return ColorPicker::make($path)
@@ -365,9 +383,19 @@ final class FieldTypeAutoAdminSchema
         }
 
         if (is_int($default) || is_float($default)) {
-            return TextInput::make($path)
+            $input = TextInput::make($path)
                 ->label($label)
                 ->numeric();
+
+            if ($key === 'min_items') {
+                $input->helperText(__('filament-flex-fields::default.schema.settings.min_items_help'));
+            }
+
+            if ($key === 'max_items') {
+                $input->helperText(__('filament-flex-fields::default.schema.settings.max_items_help'));
+            }
+
+            return $input;
         }
 
         if (is_array($default)) {
@@ -377,6 +405,94 @@ final class FieldTypeAutoAdminSchema
 
         return TextInput::make($path)
             ->label($label);
+    }
+
+    private static function matrixDisableCellWhenRepeater(string $path): Repeater
+    {
+        return Repeater::make($path)
+            ->label(__('filament-flex-fields::default.schema.settings.disable_cell_when'))
+            ->helperText(__('filament-flex-fields::default.schema.settings.disable_cell_when_help'))
+            ->schema([
+                TextInput::make('row')
+                    ->label(__('filament-flex-fields::default.schema.settings.rule_row'))
+                    ->required(),
+                TextInput::make('column')
+                    ->label(__('filament-flex-fields::default.schema.settings.rule_column')),
+                TextInput::make('when_row')
+                    ->label(__('filament-flex-fields::default.schema.settings.rule_when_row'))
+                    ->required(),
+                TextInput::make('when_columns')
+                    ->label(__('filament-flex-fields::default.schema.settings.rule_when_columns'))
+                    ->helperText(__('filament-flex-fields::default.schema.settings.rule_when_columns_help')),
+            ])
+            ->columns(2)
+            ->defaultItems(0)
+            ->collapsible()
+            ->columnSpanFull();
+    }
+
+    private static function flexTextareaToolbarSelectsRepeater(string $path): Repeater
+    {
+        return Repeater::make($path)
+            ->label(__('filament-flex-fields::default.schema.settings.toolbar_selects'))
+            ->helperText(__('filament-flex-fields::default.schema.settings.toolbar_selects_help'))
+            ->schema([
+                TextInput::make('state_path')
+                    ->label(__('filament-flex-fields::default.schema.settings.toolbar_state_path'))
+                    ->required(),
+                KeyValue::make('options')
+                    ->label(__('filament-flex-fields::default.schema.settings.toolbar_options'))
+                    ->keyLabel(__('filament-flex-fields::default.schema.field_option_value'))
+                    ->valueLabel(__('filament-flex-fields::default.schema.field_option_label'))
+                    ->reorderable(),
+                TextInput::make('icon')
+                    ->label(__('filament-flex-fields::default.schema.settings.toolbar_icon'))
+                    ->placeholder('heroicon-o-sparkles'),
+                TextInput::make('placeholder')
+                    ->label(__('filament-flex-fields::default.schema.settings.toolbar_placeholder')),
+            ])
+            ->defaultItems(0)
+            ->collapsible()
+            ->columnSpanFull();
+    }
+
+    private static function npsOptionsRepeater(string $path): Repeater
+    {
+        return Repeater::make($path)
+            ->label(__('filament-flex-fields::default.schema.settings.nps_options'))
+            ->helperText(__('filament-flex-fields::default.schema.settings.nps_options_help'))
+            ->schema([
+                TextInput::make('value')
+                    ->label(__('filament-flex-fields::default.schema.field_option_value'))
+                    ->required(),
+                TextInput::make('label')
+                    ->label(__('filament-flex-fields::default.schema.field_option_label'))
+                    ->required(),
+            ])
+            ->defaultItems(1)
+            ->reorderable()
+            ->collapsible()
+            ->columnSpanFull();
+    }
+
+    /**
+     * @return list<Component>
+     */
+    private static function passthroughTypeHelp(FieldType $type): array
+    {
+        return match ($type) {
+            FieldType::KeyValue => [
+                Placeholder::make('type_settings_key_value_help')
+                    ->label('')
+                    ->content(__('filament-flex-fields::default.schema.settings.key_value_help')),
+            ],
+            FieldType::Repeater => [
+                Placeholder::make('type_settings_repeater_help')
+                    ->label('')
+                    ->content(__('filament-flex-fields::default.schema.settings.repeater_help')),
+            ],
+            default => [],
+        };
     }
 
     /**

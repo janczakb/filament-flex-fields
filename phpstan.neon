@@ -10,6 +10,8 @@ parameters:
     treatPhpDocTypesAsCertain: false
     bootstrapFiles:
         - tests/phpstan-bootstrap.php
+        - tests/phpstan-stubs/intervention-image.php
+        - tests/phpstan-stubs/znck-eloquent.php
     ignoreErrors:
         -
             message: '#^Trait Bjanczak\\FilamentFlexFields\\Concerns\\HasFlexFields is used zero times#'

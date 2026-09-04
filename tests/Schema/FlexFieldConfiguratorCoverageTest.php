@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Enums\FieldType;
 use Bjanczak\FilamentFlexFields\Filament\Schema\Admin\FieldTypeAutoAdminSchema;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTypeSettingsStorage;
+use Filament\Forms\Components\Repeater;
 
 /**
  * @var array<string, list<string>> $typeToConfigurators
@@ -43,6 +44,7 @@ $typeToConfigurators = [
     'select' => ['SelectFieldConfigurator'],
     'user_select' => ['UserSelectFieldConfigurator'],
     'dual_listbox' => ['DualListboxFieldConfigurator'],
+    'bubble_choice' => ['BubbleChoiceFieldConfigurator'],
     'tags' => ['TagsFieldConfigurator'],
     'rating' => ['RatingFieldConfigurator'],
     'nps' => ['NpsFieldConfigurator'],
@@ -168,7 +170,39 @@ it('delegates optionable and matrix keys to dedicated repeaters', function (): v
     expect(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::Select))
         ->not->toContain('options')
         ->and(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::MatrixChoice))
-        ->not->toContain('rows', 'columns');
+        ->not->toContain('rows', 'columns')
+        ->and(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::MatrixChoice))
+        ->toContain('disable_cell_when')
+        ->and(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::FlexTextarea))
+        ->toContain('toolbar_selects')
+        ->and(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::Nps))
+        ->toContain('options');
+});
+
+it('builds structured repeaters for matrix rules, textarea toolbar, and nps scale', function (): void {
+    $matrixComponents = FieldTypeAutoAdminSchema::schemaComponentsFor(FieldType::MatrixChoice);
+    $matrixRepeater = collect($matrixComponents)->first(
+        fn ($component): bool => $component instanceof Repeater
+            && $component->getName() === 'type_settings.disable_cell_when',
+    );
+
+    expect($matrixRepeater)->not->toBeNull();
+
+    $textareaComponents = FieldTypeAutoAdminSchema::schemaComponentsFor(FieldType::FlexTextarea);
+    $toolbarRepeater = collect($textareaComponents)->first(
+        fn ($component): bool => $component instanceof Repeater
+            && $component->getName() === 'type_settings.toolbar_selects',
+    );
+
+    expect($toolbarRepeater)->not->toBeNull();
+
+    $npsComponents = FieldTypeAutoAdminSchema::schemaComponentsFor(FieldType::Nps);
+    $npsRepeater = collect($npsComponents)->first(
+        fn ($component): bool => $component instanceof Repeater
+            && $component->getName() === 'type_settings.options',
+    );
+
+    expect($npsRepeater)->not->toBeNull();
 });
 
 it('covers signature extended settings in registry and admin', function (): void {
@@ -187,4 +221,12 @@ it('keeps reserved option keys out of type settings storage', function (): void 
             expect($adminKeys)->not->toContain($key);
         }
     }
+});
+
+it('documents passthrough key_value and repeater types in admin', function (): void {
+    expect(FieldTypeAutoAdminSchema::schemaComponentsFor(FieldType::KeyValue))->toBe([])
+        ->and(FieldTypeAutoAdminSchema::schemaComponentsFor(FieldType::Repeater))
+        ->toHaveCount(2)
+        ->and(FieldTypeAutoAdminSchema::configurableKeysFor(FieldType::Repeater))
+        ->toContain('min_items', 'max_items');
 });

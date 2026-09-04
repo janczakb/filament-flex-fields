@@ -81,15 +81,47 @@ export function flattenHeadlessOptions(options) {
  * @param {Array<unknown>} options
  * @param {string} normalizedQuery
  * @param {(option: Record<string, unknown>) => string} getOptionLabel
+ * @param {string[]} searchableOptionFields
  */
-function optionMatchesQuery(option, normalizedQuery, getOptionLabel) {
+function optionMatchesQuery(
+    option,
+    normalizedQuery,
+    getOptionLabel,
+    searchableOptionFields = ['label'],
+) {
     if (normalizedQuery === '') {
         return true
     }
 
-    const label = normalizeSearchQuery(getOptionLabel(option))
+    const fields = Array.isArray(searchableOptionFields) && searchableOptionFields.length > 0
+        ? searchableOptionFields
+        : ['label']
 
-    return label.includes(normalizedQuery)
+    if (fields.includes('label')) {
+        const label = normalizeSearchQuery(getOptionLabel(option))
+
+        if (label.includes(normalizedQuery)) {
+            return true
+        }
+    }
+
+    if (fields.includes('description')) {
+        const description = normalizeSearchQuery(String(option?.description ?? ''))
+
+        if (description.includes(normalizedQuery)) {
+            return true
+        }
+    }
+
+    if (fields.includes('value')) {
+        const value = normalizeSearchQuery(String(headlessOptionValue(option) ?? ''))
+
+        if (value.includes(normalizedQuery)) {
+            return true
+        }
+    }
+
+    return false
 }
 
 /**
@@ -98,8 +130,14 @@ function optionMatchesQuery(option, normalizedQuery, getOptionLabel) {
  * @param {Array<unknown>} options
  * @param {string} query
  * @param {(option: Record<string, unknown>) => string} getOptionLabel
+ * @param {string[]} searchableOptionFields
  */
-export function filterHeadlessOptionTree(options, query, getOptionLabel = headlessOptionLabelHtml) {
+export function filterHeadlessOptionTree(
+    options,
+    query,
+    getOptionLabel = headlessOptionLabelHtml,
+    searchableOptionFields = ['label'],
+) {
     const normalizedQuery = normalizeSearchQuery(String(query ?? '').trim())
 
     if (normalizedQuery === '') {
@@ -110,7 +148,20 @@ export function filterHeadlessOptionTree(options, query, getOptionLabel = headle
 
     for (const option of options ?? []) {
         if (isHeadlessOptionGroup(option)) {
-            const groupOptions = filterHeadlessOptionTree(option.options ?? [], query, getOptionLabel)
+            const groupLabelMatches = optionMatchesQuery(
+                option,
+                normalizedQuery,
+                getOptionLabel,
+                searchableOptionFields,
+            )
+            const groupOptions = groupLabelMatches
+                ? (Array.isArray(option.options) ? option.options.slice() : [])
+                : filterHeadlessOptionTree(
+                    option.options ?? [],
+                    query,
+                    getOptionLabel,
+                    searchableOptionFields,
+                )
 
             if (groupOptions.length === 0) {
                 continue
@@ -124,7 +175,7 @@ export function filterHeadlessOptionTree(options, query, getOptionLabel = headle
             continue
         }
 
-        if (optionMatchesQuery(option, normalizedQuery, getOptionLabel)) {
+        if (optionMatchesQuery(option, normalizedQuery, getOptionLabel, searchableOptionFields)) {
             filtered.push(option)
         }
     }
@@ -132,12 +183,58 @@ export function filterHeadlessOptionTree(options, query, getOptionLabel = headle
     return filtered
 }
 
+/**
+ * Cap leaf options for Filament `optionsLimit()` parity (groups preserved).
+ *
+ * @param {Array<unknown>} options
+ * @param {number} limit
+ */
+export function limitHeadlessOptionTree(options, limit) {
+    const max = Number(limit)
+
+    if (! Array.isArray(options) || ! Number.isFinite(max) || max <= 0) {
+        return Array.isArray(options) ? options : []
+    }
+
+    let remaining = max
+    /** @type {Array<unknown>} */
+    const limited = []
+
+    for (const option of options) {
+        if (remaining <= 0) {
+            break
+        }
+
+        if (isHeadlessOptionGroup(option)) {
+            const groupOptions = Array.isArray(option.options) ? option.options : []
+            const sliced = groupOptions.slice(0, remaining)
+
+            if (sliced.length === 0) {
+                continue
+            }
+
+            remaining -= sliced.length
+            limited.push({
+                ...option,
+                options: sliced,
+            })
+
+            continue
+        }
+
+        limited.push(option)
+        remaining -= 1
+    }
+
+    return limited
+}
+
 export const HEADLESS_DROPDOWN_ROW_HEIGHTS = {
     option: 36,
     create: 36,
-    section: 28,
-    'group-header': 28,
-    separator: 9,
+    section: 24,
+    'group-header': 24,
+    separator: 17,
 }
 
 /**
@@ -185,7 +282,7 @@ export function buildHeadlessDropdownRows(options, {
                 type: 'group',
                 label: String(node.label ?? ''),
                 options: groupOptions,
-                key: `group:${String(node.label ?? '')}`,
+                key: `group:${String(node.label ?? '')}:${groupOptions.map((option) => headlessOptionValue(option)).join('|')}`,
             })
 
             continue

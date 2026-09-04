@@ -3,7 +3,7 @@ title: "FlexTextInput"
 description: Single-line text input with pill layout, grouped action buttons, and optional toolbar features.
 ---
 
-![FlexTextInput](/art/sc-25.png)
+![FlexTextInput](/art/sc-25.webp)
 
 [← Back to Table of Contents](/docs/index)
 

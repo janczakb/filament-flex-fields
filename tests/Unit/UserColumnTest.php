@@ -286,7 +286,7 @@ it('queues user column stylesheets for the playground page styles before hook', 
     $themePartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-theme.blade.php');
 
     expect($stylesPartial)
-        ->toContain('playgroundStylesheetHrefForRequest()')
+        ->toContain('playgroundStylesheetHrefsForRequest()')
         ->toContain("@push('styles')")
         ->toContain('rel="stylesheet"')
         ->toContain('data-fff-playground-bundle')

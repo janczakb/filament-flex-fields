@@ -3,6 +3,8 @@
 
     $stylesheets = $stylesheets ?? [];
     $chunks = $chunks ?? [];
+    $consumerComponent = $consumerComponent ?? null;
+    $livewireKey = $livewireKey ?? null;
     $stylesheetHrefs = array_map(
         static fn (string $stylesheet): string => FlexFieldAssets::stylesheetHref($stylesheet),
         $stylesheets,
@@ -11,31 +13,20 @@
         static fn (string $chunk): string => FlexFieldAssets::alpineChunkSrc($chunk),
         $chunks,
     );
+    $consumerAttributes = ($consumerComponent && filled($livewireKey))
+        ? FlexFieldAssets::consumerAttributesFor($livewireKey, $consumerComponent)
+        : [];
 @endphp
 
 @if (count($stylesheets) > 0 || count($chunks) > 0)
     <span
         hidden
+        aria-hidden="true"
         data-fff-asset-batch
         data-fff-stylesheets='@json($stylesheetHrefs)'
         data-fff-chunks='@json($chunkHrefs)'
+        @foreach ($consumerAttributes as $attribute => $value)
+            {{ $attribute }}="{{ $value }}"
+        @endforeach
     ></span>
-
-    @foreach ($stylesheets as $stylesheet)
-        <link
-            rel="stylesheet"
-            href="{{ FlexFieldAssets::stylesheetHref($stylesheet) }}"
-            data-navigate-track
-            data-fff-stylesheet="{{ $stylesheet }}"
-        />
-    @endforeach
-
-    @foreach ($chunks as $chunk)
-        <link
-            rel="modulepreload"
-            href="{{ FlexFieldAssets::alpineChunkSrc($chunk) }}"
-            data-navigate-track
-            data-fff-alpine-chunk="{{ $chunk }}"
-        />
-    @endforeach
 @endif

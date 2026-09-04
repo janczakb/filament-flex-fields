@@ -143,6 +143,96 @@
 }
 
 /* Playground variant rows */
+.fff-playground-related-hubs {
+    margin-bottom: 1.25rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.75rem;
+    background: rgb(249 250 251);
+}
+
+.dark .fff-playground-related-hubs {
+    border-color: rgb(255 255 255 / 0.1);
+    background: rgb(39 39 42);
+}
+
+.fff-playground-related-hubs__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(17 24 39);
+}
+
+.dark .fff-playground-related-hubs__title {
+    color: rgb(255 255 255);
+}
+
+.fff-playground-related-hubs__text {
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+    color: rgb(107 114 128);
+}
+
+.dark .fff-playground-related-hubs__text {
+    color: rgb(156 163 175);
+}
+
+.fff-playground-related-hubs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.fff-playground-related-hubs__link {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 8rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid rgb(209 213 219);
+    border-radius: 0.5rem;
+    background: #fff;
+    text-decoration: none;
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+.fff-playground-related-hubs__link:hover {
+    border-color: rgb(99 102 241);
+    background: rgb(238 242 255);
+}
+
+.dark .fff-playground-related-hubs__link {
+    border-color: rgb(63 63 70);
+    background: rgb(24 24 27);
+}
+
+.dark .fff-playground-related-hubs__link:hover {
+    border-color: rgb(129 140 248);
+    background: rgb(39 39 42);
+}
+
+.fff-playground-related-hubs__link-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: rgb(17 24 39);
+}
+
+.dark .fff-playground-related-hubs__link-label {
+    color: rgb(255 255 255);
+}
+
+.fff-playground-related-hubs__link-slug {
+    font-size: 0.6875rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    color: rgb(107 114 128);
+}
+
+.dark .fff-playground-related-hubs__link-slug {
+    color: rgb(161 161 170);
+}
+
 .fff-playground-section {
     margin-bottom: 0.5rem;
 }

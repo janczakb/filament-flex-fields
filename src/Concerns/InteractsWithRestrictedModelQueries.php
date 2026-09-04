@@ -8,6 +8,12 @@ use Illuminate\Database\Eloquent\Builder;
 
 trait InteractsWithRestrictedModelQueries
 {
+    /**
+     * @template TModel of \Illuminate\Database\Eloquent\Model
+     *
+     * @param  Builder<TModel>  $query
+     * @return Builder<TModel>
+     */
     protected function restrictRelationshipQueryColumns(Builder $query): Builder
     {
         if ($this->hasOptionLabelFromRecordUsingCallback()) {
@@ -19,11 +25,11 @@ trait InteractsWithRestrictedModelQueries
             fn (?string $column): bool => filled($column),
         )));
 
-        if ($columns === []) {
-            return $query;
+        if ($columns !== []) {
+            $query->select($columns);
         }
 
-        return $query->select($columns);
+        return $query;
     }
 
     /**
@@ -36,6 +42,11 @@ trait InteractsWithRestrictedModelQueries
         }
 
         $relationship = $this->getRelationship();
+
+        if ($relationship === null) {
+            return [];
+        }
+
         $related = $relationship->getRelated();
         $columns = [$related->getQualifiedKeyName()];
 
@@ -61,6 +72,10 @@ trait InteractsWithRestrictedModelQueries
         }
 
         $relationship = $this->getRelationship();
+
+        if ($relationship === null) {
+            return $column;
+        }
 
         return $relationship->getRelated()->qualifyColumn($column);
     }

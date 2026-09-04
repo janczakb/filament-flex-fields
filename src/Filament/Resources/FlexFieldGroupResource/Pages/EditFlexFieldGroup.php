@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource\Pages;
 
 use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource;
-use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource\Concerns\PreparesFlexFieldGroupFormData;
 use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource\Concerns\ManagesFlexFieldGroupSchemaActions;
+use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource\Concerns\ManagesFlexFieldValueCsvActions;
+use Bjanczak\FilamentFlexFields\Filament\Resources\FlexFieldGroupResource\Concerns\PreparesFlexFieldGroupFormData;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\SchemaRegistry;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupRegistrySync;
 use Filament\Actions\Action;
@@ -18,6 +19,7 @@ use Filament\Resources\Pages\EditRecord;
 class EditFlexFieldGroup extends EditRecord
 {
     use ManagesFlexFieldGroupSchemaActions;
+    use ManagesFlexFieldValueCsvActions;
     use PreparesFlexFieldGroupFormData;
 
     protected static string $resource = FlexFieldGroupResource::class;
@@ -28,11 +30,12 @@ class EditFlexFieldGroup extends EditRecord
 
         return [
             ...$this->flexFieldGroupSchemaActions($record),
+            ...$this->flexFieldValueCsvActions($record),
             Action::make('rollbackRegistryVersion')
                 ->label(__('filament-flex-fields::default.schema.rollback_version'))
                 ->icon('heroicon-o-arrow-uturn-left')
                 ->authorize('rollback')
-                ->form([
+                ->schema([
                     Select::make('version')
                         ->label(__('filament-flex-fields::default.schema.rollback_version_select'))
                         ->options(function (): array {

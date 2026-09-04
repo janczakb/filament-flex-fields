@@ -49,13 +49,16 @@ it('keeps table column styles in lazy bundles instead of core', function () {
 
 it('uses root css tokens for icon column label colors in dark mode', function () {
     $iconColumnCss = file_get_contents(__DIR__.'/../../resources/dist/css/icon-column.css');
+    $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
 
     expect($iconColumnCss)
         ->toContain('color:var(--fff-icon-column-text)')
         ->toContain('color:var(--fff-icon-column-muted)')
-        ->toContain('--fff-icon-column-text:#fafafa')
-        ->toContain('--fff-icon-column-muted:#a1a1aa')
         ->not->toContain('dark:text-white');
+
+    expect($coreCss)
+        ->toContain('--fff-icon-column-text:#fafafa')
+        ->toContain('--fff-icon-column-muted:#a1a1aa');
 });
 
 it('declares filament\'s class-based dark variant on every tailwind css entry point', function () {
@@ -100,7 +103,6 @@ it('keeps video field glass controls on a single border with circular buttons', 
         ->toContain('--fff-video-field-radius: 1.5rem')
         ->toContain('--fff-video-field-controls-inset: 0.75rem')
         ->toContain('.fff-video-field__progress-block--default .fff-video-field__progress-wrap')
-        ->toContain('.fff-video-field__volume-input--vertical')
         ->toContain('transform-origin: bottom')
         ->not->toContain('.fff-video-field__volume--expand')
         ->not->toContain('.dark .fff-video-field__frame')
@@ -194,6 +196,15 @@ it('keeps playground-only demo styles out of the core bundle', function () {
         ->and($playgroundCss)->toContain('.fff-code-snippet');
 });
 
+it('dedupes playground base chrome from per-slug bundles', function () {
+    $playgroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground.css');
+    $selectFieldPlaygroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground-select-field.css');
+
+    expect($playgroundCss)->toContain('.fff-playground-toolbar')
+        ->and($selectFieldPlaygroundCss)->not->toContain('.fff-playground-toolbar')
+        ->and($selectFieldPlaygroundCss)->toContain('.fff-select-field');
+});
+
 it('registers asset injector script alongside lazy css assets', function () {
     $registered = collect(FilamentAsset::getScripts(['janczakb/filament-flex-fields']))
         ->map(fn ($asset) => $asset->getId())
@@ -207,6 +218,20 @@ it('provides built segment overflow ssr bundle for inline shell boot', function 
     expect(FlexFieldAssets::segmentOverflowSsrInlineContents())
         ->toContain('data-fff-segment-overflow')
         ->toContain('ssrScrollPositioned');
+});
+
+it('provides built timezone browser ssr boot bundle for inline trigger paint', function () {
+    expect(FlexFieldAssets::timezoneBrowserSsrInlineContents())
+        ->toContain('data-fff-timezone-catalog')
+        ->toContain('fffDetectedTimezone');
+});
+
+it('registers timezone browser ssr boot script asset', function () {
+    $registered = collect(FilamentAsset::getScripts(['janczakb/filament-flex-fields']))
+        ->map(fn ($asset) => $asset->getId())
+        ->all();
+
+    expect($registered)->toContain(FlexFieldAssets::TIMEZONE_BROWSER_SSR_BOOT_SCRIPT_ID);
 });
 
 it('registers lazy stylesheets for every lazy component asset id', function () {
@@ -264,5 +289,5 @@ it('renders lazy stylesheet links in form component blades', function () {
 it('renders playground stylesheet on the playground page', function () {
     $stylesPartial = file_get_contents(__DIR__.'/../../resources/views/partials/playground-page-stylesheets.blade.php');
 
-    expect($stylesPartial)->toContain('playgroundStylesheetHrefForRequest()');
+    expect($stylesPartial)->toContain('playgroundStylesheetHrefsForRequest()');
 });

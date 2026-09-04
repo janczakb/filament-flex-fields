@@ -18,7 +18,7 @@ use Livewire\Attributes\Renderless;
 trait InteractsWithSelectAsyncSearch
 {
     /**
-     * @var array<string, array<int|string, string>>
+     * @var array<string, mixed>
      */
     protected array $searchResultsCache = [];
 
@@ -73,7 +73,13 @@ trait InteractsWithSelectAsyncSearch
     public function getSearchResultsForJs(string $search): array
     {
         if ($this->hasPaginatedSearchResults()) {
-            return $this->getSearchResultsPageForJs($search)['items'];
+            return array_map(
+                fn (array $item): array => [
+                    'label' => (string) ($item['label'] ?? ''),
+                    'value' => (string) ($item['value'] ?? ''),
+                ],
+                $this->getSearchResultsPageForJs($search)['items'],
+            );
         }
 
         return parent::getSearchResultsForJs($this->resolveEntityMentionSearchQuery($search));
@@ -156,6 +162,7 @@ trait InteractsWithSelectAsyncSearch
             $cached = $this->searchResultsCache[$cacheKey];
 
             if (is_array($cached) && array_key_exists('items', $cached)) {
+                /** @var array{items: list<array<string, mixed>>, cursor: ?string, hasMore: bool} $cached */
                 return $cached;
             }
         }
@@ -183,7 +190,7 @@ trait InteractsWithSelectAsyncSearch
         $nextOffset = $offset + count($items);
 
         return $this->searchResultsCache[$cacheKey] = [
-            'items' => $items,
+            'items' => array_values($items),
             'cursor' => $nextOffset < count($allResults) ? (string) $nextOffset : null,
             'hasMore' => $nextOffset < count($allResults),
         ];
@@ -196,15 +203,35 @@ trait InteractsWithSelectAsyncSearch
     protected function normalizeSearchResultsPagePayload(array $payload): array
     {
         if (array_is_list($payload)) {
+            /** @var list<array<string, mixed>> $items */
+            $items = array_values(array_filter(
+                $payload,
+                fn (mixed $item): bool => is_array($item),
+            ));
+
             return [
-                'items' => $payload,
+                'items' => $items,
                 'cursor' => null,
                 'hasMore' => false,
             ];
         }
 
-        $items = array_values($payload['items'] ?? []);
-        $cursor = isset($payload['cursor']) ? (is_string($payload['cursor']) ? $payload['cursor'] : (string) $payload['cursor']) : null;
+        $rawItems = $payload['items'] ?? [];
+        /** @var list<array<string, mixed>> $items */
+        $items = array_values(array_filter(
+            is_array($rawItems) ? $rawItems : [],
+            fn (mixed $item): bool => is_array($item),
+        ));
+        $cursor = null;
+
+        if (isset($payload['cursor'])) {
+            if (is_string($payload['cursor'])) {
+                $cursor = $payload['cursor'];
+            } elseif (is_int($payload['cursor']) || is_float($payload['cursor'])) {
+                $cursor = (string) $payload['cursor'];
+            }
+        }
+
         $hasMore = (bool) ($payload['hasMore'] ?? ($cursor !== null && $cursor !== ''));
 
         if ($cursor === '') {
@@ -235,6 +262,6 @@ trait InteractsWithSelectAsyncSearch
 
     protected function searchCacheKey(?string $search): string
     {
-        return md5(($this->getName() ?? 'select').'|'.trim((string) $search));
+        return md5($this->getName().'|'.trim((string) $search));
     }
 }

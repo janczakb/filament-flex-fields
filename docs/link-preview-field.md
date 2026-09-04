@@ -2,7 +2,7 @@
 title: "LinkPreviewField"
 ---
 
-![LinkPreviewField](/art/sc-28.png)
+![LinkPreviewField](/art/sc-28.webp)
 
 [← Back to Table of Contents](/docs/index)
 

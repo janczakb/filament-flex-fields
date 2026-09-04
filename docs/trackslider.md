@@ -3,7 +3,7 @@ title: "TrackSlider"
 description: Minimalist track-based range slider with optional live value output.
 ---
 
-![TrackSlider](/art/sc-16.png)
+![TrackSlider](/art/sc-16.webp)
 
 [← Back to Table of Contents](/docs/index)
 

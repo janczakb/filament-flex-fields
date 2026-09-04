@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Closure;
 use Filament\Forms\Components\Field;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Support\Str;
 
 trait ConfiguresSlugTitleField
@@ -106,7 +108,7 @@ trait ConfiguresSlugTitleField
             ->statePath($titlePath)
             ->live();
 
-        if ($this->isTitleReadOnly()) {
+        if ($this->isTitleReadOnly() && ($field instanceof FlexTextInput || $field instanceof TextInput)) {
             $field->readOnly();
         }
 

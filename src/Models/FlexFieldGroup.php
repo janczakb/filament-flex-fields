@@ -180,6 +180,10 @@ class FlexFieldGroup extends Model
         if (is_array($fields)) {
             $this->fields = array_values($fields);
 
+            if (isset($schema['sections']) && is_array($schema['sections'])) {
+                $this->sections = array_values($schema['sections']);
+            }
+
             if (isset($schema['label']) && is_string($schema['label']) && $schema['label'] !== '') {
                 $this->name = $schema['label'];
             }

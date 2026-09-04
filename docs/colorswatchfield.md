@@ -3,7 +3,7 @@ title: "ColorSwatchField"
 description: Preset color picker: horizontal swatch pills with optional section header and tooltips.
 ---
 
-![ColorSwatchField](/art/sc-24.png)
+![ColorSwatchField](/art/sc-24.webp)
 
 [← Back to Table of Contents](/docs/index)
 

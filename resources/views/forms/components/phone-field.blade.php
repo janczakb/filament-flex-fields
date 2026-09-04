@@ -21,6 +21,7 @@
     $initialInputValue = PhoneCountries::formatNationalDisplay($initialNational, $initialCountryCode);
     $initialDialPrefix = PhoneCountries::dialCode($initialCountryCode);
     $livewireKey = $getLivewireKey();
+    \Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue::registerLocale($field->getLocale());
 @endphp
 
 <x-dynamic-component
@@ -31,7 +32,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'phone-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'phone-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize()])), 0, 64) }}"
@@ -53,6 +56,7 @@
             searchable: @js($isSearchable()),
             searchPlaceholder: @js(__('filament-flex-fields::default.phone.search_countries')),
             countryLabel: @js(__('filament-flex-fields::default.phone.country')),
+            locale: @js($field->getLocale()),
         })"
         x-init="init()"
         x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeCountryMenu()"
@@ -183,8 +187,9 @@
                                                     x-bind:src="entry.item.flag_url"
                                                     x-bind:alt="entry.item.name"
                                                     alt=""
-                                                    loading="lazy"
+                                                    loading="eager"
                                                     decoding="async"
+                                                    x-bind:class="{ 'is-loaded': true }"
                                                     x-init="if ($el.complete) { $el.classList.add('is-loaded') }"
                                                     x-on:load="$el.classList.add('is-loaded')"
                                                     x-on:error="$el.classList.remove('is-loaded')"

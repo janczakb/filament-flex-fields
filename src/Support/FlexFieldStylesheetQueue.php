@@ -122,4 +122,14 @@ class FlexFieldStylesheetQueue
     {
         return app(self::class)->needsTeleportedMenu();
     }
+
+    public function needsSelectFamilyPicker(): bool
+    {
+        return $this->hasKey('select-field') || $this->hasKey('icon-picker-field');
+    }
+
+    public static function hasQueuedSelectFamilyPicker(): bool
+    {
+        return app(self::class)->needsSelectFamilyPicker();
+    }
 }

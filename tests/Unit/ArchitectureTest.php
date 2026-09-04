@@ -13,3 +13,14 @@ test('globals')
 test('concerns are traits')
     ->expect('Bjanczak\FilamentFlexFields\Concerns')
     ->toBeTraits();
+
+test('playground enums are backed enums')
+    ->expect([
+        'Bjanczak\FilamentFlexFields\Enums\PlaygroundCategory',
+        'Bjanczak\FilamentFlexFields\Enums\FieldCategory',
+    ])
+    ->toBeEnums();
+
+test('playground registry definitions include categories')
+    ->expect('Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry')
+    ->toHaveMethod('categoryForSlug');

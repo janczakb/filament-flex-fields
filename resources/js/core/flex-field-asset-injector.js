@@ -1,9 +1,23 @@
 const STYLESHEET_SELECTOR = 'link[rel="stylesheet"][href*="filament-flex-fields"]'
 const CHUNK_SELECTOR = 'link[rel="modulepreload"][href*="filament-flex-fields"]'
 
+/** Hard cap for pending skeleton visibility (modal / morph). Assets may still load after. */
+export const MAX_PENDING_VISIBLE_MS = 300
+
+const ASSETS_SKELETON_CLASS = 'fff-flex-fields-assets-skeleton'
+
+import { createConsumerGraph } from './flex-field-consumer-graph.js'
+import { createPrefetchEngine } from './flex-field-prefetch-engine.js'
 import { bootSegmentOverflowElements } from './segment-overflow-position.js'
+import { bootTimezoneBrowserSsrDefaults } from './timezone-browser-ssr-boot.js'
+import './flex-fff-load-directive.js'
+
+const embeddedAssetRegistry = typeof __FFF_EMBEDDED_ASSET_REGISTRY__ !== 'undefined'
+    ? __FFF_EMBEDDED_ASSET_REGISTRY__
+    : {}
 
 export { bootSegmentOverflowElements }
+export { bootTimezoneBrowserSsrDefaults }
 
 export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined' ? document.baseURI : 'http://localhost/') {
     if (!url) {
@@ -17,6 +31,36 @@ export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined'
     }
 }
 
+export function prefersReducedMotion(windowRef = typeof window !== 'undefined' ? window : undefined) {
+    try {
+        return windowRef?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches === true
+    } catch {
+        return false
+    }
+}
+
+export function connectionSaveDataEnabled(windowRef = typeof window !== 'undefined' ? window : undefined) {
+    try {
+        const navigatorRef = windowRef?.navigator
+
+        if (!navigatorRef) {
+            return false
+        }
+
+        const connection = navigatorRef.connection
+            ?? navigatorRef.mozConnection
+            ?? navigatorRef.webkitConnection
+
+        return connection?.saveData === true
+    } catch {
+        return false
+    }
+}
+
+export function shouldDeferBackgroundAssetPreload(windowRef = typeof window !== 'undefined' ? window : undefined) {
+    return prefersReducedMotion(windowRef) || connectionSaveDataEnabled(windowRef)
+}
+
 export function createFlexFieldAssetInjector({ document, window } = {}) {
     if (!document || !window) {
         throw new Error('FlexField asset injector requires document and window.')
@@ -28,11 +72,9 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const stylesheetIndex = new Map()
     const chunkIndex = new Map()
     const pendingMorphTargets = new WeakSet()
+    /** @type {WeakMap<object, number>} */
+    const pendingMaxReleaseTimers = new WeakMap()
 
-    /** URLs required by the non-modal page (forms, resource tabs, etc.). */
-    const pageRetainedUrls = new Set()
-    /** modalOwnerKey → Set of asset URLs claimed while that modal was open. */
-    const modalOwnedUrls = new Map()
     /**
      * Open Filament modal stack (nested actions). Parent stays retained even when
      * Filament temporarily drops `fi-modal-open` while a child modal is visible.
@@ -40,6 +82,32 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     const modalOpenStack = []
     const anonymousModalKeys = new WeakMap()
     let anonymousModalSequence = 0
+    let criticalPreloadsInjected = false
+
+    /** Select-family pickers that benefit from overlay-runtime + teleported-menu preloads (L5). */
+    const SELECT_FAMILY_COMPONENTS = new Set([
+        'select-field',
+        'user-select',
+        'icon-picker-field',
+        'country-field',
+        'timezone-field',
+        'currency-field',
+        'phone-field',
+    ])
+
+    const CRITICAL_PRELOAD_COMPONENTS = ['overlay-runtime', 'teleported-menu']
+
+    const markFff = (name, detail = undefined) => {
+        if (typeof window?.performance?.mark !== 'function') {
+            return
+        }
+
+        try {
+            window.performance.mark(name, detail ? { detail } : undefined)
+        } catch {
+            // ignore unsupported detail payloads
+        }
+    }
 
     const injectorHooks = {
         shouldBatchTriggerPending(batch, defaultCheck) {
@@ -50,18 +118,12 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             return 0
         },
         shouldSkipBackgroundPreload() {
-            return false
+            return shouldDeferBackgroundAssetPreload(window)
         },
     }
 
     const registerInjectorHooks = (partial = {}) => {
         Object.assign(injectorHooks, partial)
-    }
-
-    const isProtectedLink = (link) => {
-        return link?.hasAttribute?.('data-fff-playground-bundle')
-            || link?.hasAttribute?.('data-fff-stylesheet')
-            || link?.hasAttribute?.('data-fff-alpine-chunk')
     }
 
     const isInlineEmitAssetLink = (link) => {
@@ -398,7 +460,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         inflightRequests.clear()
     }
 
-    const loadAsset = (href, type, loadedSet, index, selector, buildElement) => {
+    const loadAsset = (href, type, loadedSet, index, selector, buildElement, { priority = 'auto' } = {}) => {
         const url = normalizeAssetUrl(href, document.baseURI)
 
         if (!url) {
@@ -432,11 +494,20 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         }
 
         const promise = new Promise((resolve, reject) => {
+            markFff('fff:load', { url, type })
+
+            dropStalePreloadForUrl(url)
+
             const link = buildElement(url)
             link.setAttribute('data-navigate-track', '')
 
+            if (priority === 'high' && 'fetchPriority' in link) {
+                link.fetchPriority = 'high'
+            }
+
             link.addEventListener('load', () => {
                 rememberLoadedLink(link, loadedSet, index)
+                ensureRefZeroHandler(url)
                 resolve()
             }, { once: true })
 
@@ -454,26 +525,40 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         return promise
     }
 
-    const loadStylesheet = (href) => {
+    const loadStylesheet = (href, componentId = null, { priority = 'auto' } = {}) => {
         return loadAsset(href, 'stylesheet', loadedStylesheets, stylesheetIndex, STYLESHEET_SELECTOR, (url) => {
             const link = document.createElement('link')
             link.rel = 'stylesheet'
             link.href = url
             link.dataset.fffInjectedStylesheet = 'true'
+            link.dataset.fffManagedAsset = 'true'
+
+            if (componentId) {
+                link.dataset.fffComponent = componentId
+            }
+
+            ensureRefZeroHandler(url)
 
             return link
-        })
+        }, { priority })
     }
 
-    const loadChunk = (href) => {
+    const loadChunk = (href, componentId = null, { priority = 'auto' } = {}) => {
         return loadAsset(href, 'chunk', loadedChunks, chunkIndex, CHUNK_SELECTOR, (url) => {
             const link = document.createElement('link')
             link.rel = 'modulepreload'
             link.href = url
             link.dataset.fffInjectedChunk = 'true'
+            link.dataset.fffManagedAsset = 'true'
+
+            if (componentId) {
+                link.dataset.fffComponent = componentId
+            }
+
+            ensureRefZeroHandler(url)
 
             return link
-        })
+        }, { priority })
     }
 
     const dedupeLinks = (selector, index, loadedSet) => {
@@ -592,37 +677,158 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         return 'page'
     }
 
-    const claimAssetUrls = (ownerKey, urls) => {
-        if (!ownerKey || !urls?.length) {
+    const dropStalePreloadForUrl = (url) => {
+        if (!document?.querySelectorAll) {
             return
         }
 
-        if (ownerKey === 'page') {
-            for (const url of urls) {
-                pageRetainedUrls.add(url)
+        for (const link of document.querySelectorAll('link[rel="preload"][as="style"]')) {
+            if (normalizeAssetUrl(link.href, document.baseURI) === url) {
+                link.remove()
             }
-
-            return
-        }
-
-        let owned = modalOwnedUrls.get(ownerKey)
-
-        if (!owned) {
-            owned = new Set()
-            modalOwnedUrls.set(ownerKey, owned)
-        }
-
-        for (const url of urls) {
-            owned.add(url)
         }
     }
 
-    const releaseModalOwnership = (ownerKey) => {
-        if (!ownerKey || ownerKey === 'page') {
+    const isStylesheetUrl = (url) => /\.css(?:\?|#|$)/i.test(String(url ?? ''))
+
+    const loadAcquiredUrls = (componentId, urls) => {
+        const loads = []
+
+        for (const href of urls) {
+            const url = normalizeAssetUrl(href, document.baseURI)
+
+            if (!url) {
+                continue
+            }
+
+            if (isStylesheetUrl(url)) {
+                loads.push(loadStylesheet(url, componentId, { priority: 'high' }))
+            } else {
+                loads.push(loadChunk(url, componentId, { priority: 'high' }))
+            }
+        }
+
+        if (loads.length === 0) {
+            return Promise.resolve()
+        }
+
+        return Promise.allSettled(loads)
+    }
+    const injectCriticalPreloadsForSelectFamily = () => {
+        if (criticalPreloadsInjected) {
+            return Promise.resolve()
+        }
+
+        criticalPreloadsInjected = true
+
+        const loads = []
+
+        for (const componentId of CRITICAL_PRELOAD_COMPONENTS) {
+            const bundle = embeddedAssetRegistry[componentId]
+
+            if (!bundle?.stylesheets?.length) {
+                continue
+            }
+
+            for (const href of bundle.stylesheets) {
+                loads.push(loadStylesheet(href, componentId, { priority: 'high' }))
+            }
+        }
+
+        if (loads.length === 0) {
+            return Promise.resolve()
+        }
+
+        return Promise.allSettled(loads)
+    }
+
+    const crg = createConsumerGraph({
+        registry: embeddedAssetRegistry,
+        normalizeUrl: (url) => normalizeAssetUrl(url, document.baseURI),
+        resolveSurfaceKey: resolveAssetOwnerKey,
+        onAcquire: (_instanceId, componentId, urls) => {
+            for (const url of urls) {
+                markFff('fff:acquire', { url })
+            }
+
+            if (SELECT_FAMILY_COMPONENTS.has(componentId)) {
+                void injectCriticalPreloadsForSelectFamily()
+            }
+
+            void loadAcquiredUrls(componentId, urls)
+        },
+        onRelease: (_instanceId, _componentId, urls) => {
+            for (const url of urls) {
+                markFff('fff:release', { url })
+            }
+        },
+        isConsumerActive: (el) => {
+            if (el?.isConnected === false) {
+                return false
+            }
+
+            const modal = el?.closest?.('.fi-modal')
+
+            if (!modal) {
+                return true
+            }
+
+            // Modal ownership follows the LIFO open stack — not fi-modal-open alone.
+            // Parent modals lose fi-modal-open while a child is open but stay retained via stack.
+            // LIFO close pops the owner before Filament always removes fi-modal-open.
+            return modalOpenStack.includes(resolveModalOwnerKey(modal))
+        },
+    })
+
+    let resyncDomRaf = null
+
+    const scheduleResyncFromDom = (root = document, { excludeModals = false } = {}) => {
+        if (typeof window.requestAnimationFrame !== 'function') {
+            crg.resyncFromDom(root)
+
             return
         }
 
-        modalOwnedUrls.delete(ownerKey)
+        if (resyncDomRaf) {
+            window.cancelAnimationFrame(resyncDomRaf)
+        }
+
+        resyncDomRaf = window.requestAnimationFrame(() => {
+            resyncDomRaf = null
+            crg.resyncFromDom(root)
+        })
+    }
+
+    const refZeroHandlersRegistered = new Set()
+
+    const ensureRefZeroHandler = (url) => {
+        const normalized = normalizeAssetUrl(url, document.baseURI)
+
+        if (!normalized || refZeroHandlersRegistered.has(normalized)) {
+            return
+        }
+
+        refZeroHandlersRegistered.add(normalized)
+        crg.onRefZero(normalized, () => {
+            uninstallUnretainedAssets()
+        })
+    }
+
+    const isCoreStylesheetLink = (link) => {
+        const url = normalizeAssetUrl(link?.href, document.baseURI)
+
+        return url.includes('flex-fields-core.css')
+    }
+
+    const isProtectedLink = (link) => {
+        return link?.hasAttribute?.('data-fff-playground-bundle')
+            || isCoreStylesheetLink(link)
+    }
+
+    const isManagedAssetLink = (link) => {
+        return link?.hasAttribute?.('data-fff-managed-asset')
+            || link?.dataset?.fffInjectedStylesheet === 'true'
+            || link?.dataset?.fffInjectedChunk === 'true'
     }
 
     const pushModalOpenStack = (ownerKey) => {
@@ -653,59 +859,31 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
                 modalOpenStack.splice(index, 1)
             }
 
-            releaseModalOwnership(ownerKey)
-
             return ownerKey
         }
 
         const top = modalOpenStack.pop()
 
-        if (top) {
-            releaseModalOwnership(top)
-        }
-
         return top ?? null
     }
 
-    const collectRetainedAssetUrls = () => {
-        const retained = new Set(pageRetainedUrls)
-
-        for (const urls of modalOwnedUrls.values()) {
-            for (const url of urls) {
-                retained.add(url)
-            }
-        }
-
-        return retained
-    }
-
     /**
-     * Remove Flex Fields CSS/JS that no page or open modal still retains.
+     * Remove Flex Fields CSS/JS that no consumer still retains.
      * Shared assets used by the main form/tab survive modal teardown.
      */
     const uninstallUnretainedAssets = () => {
-        const retained = collectRetainedAssetUrls()
-
         for (const link of [...document.querySelectorAll(`${STYLESHEET_SELECTOR}, ${CHUNK_SELECTOR}`)]) {
-            // Never tear down server-emitted / playground links. Ownership cleanup
-            // only targets injector-created orphans (`data-fff-injected-*`).
-            if (!isLinkConnected(link) || isProtectedLink(link)) {
-                continue
-            }
-
-            const isInjectorCreated = link.dataset?.fffInjectedStylesheet === 'true'
-                || link.dataset?.fffInjectedChunk === 'true'
-
-            if (!isInjectorCreated) {
+            if (!isLinkConnected(link) || isProtectedLink(link) || !isManagedAssetLink(link)) {
                 continue
             }
 
             const url = normalizeAssetUrl(link.href, document.baseURI)
 
-            if (!url || retained.has(url)) {
+            if (!url || crg.getRefCount(url) > 0) {
                 continue
             }
 
+            markFff('fff:uninstall', { url })
             forgetLoadedAsset(link)
             link.remove()
         }
@@ -779,6 +957,11 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
             stylesheets.push(...parseJsonAttribute(batch, 'data-fff-stylesheets'))
             chunks.push(...parseJsonAttribute(batch, 'data-fff-chunks'))
+
+            if (batch.dataset?.fffAssetConsumer) {
+                return
+            }
+
             batch.remove()
         })
 
@@ -793,6 +976,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             return
         }
 
+        markFff('fff:barrier', { count: inflightRequests.size })
         await Promise.allSettled([...inflightRequests.values()])
     }
 
@@ -861,15 +1045,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         const ownerKey = pageOnly ? 'page' : resolveAssetOwnerKey(scope)
         const excludeModals = pageOnly || ownerKey === 'page'
 
-        const peeked = peekBatchAssets(scope, { excludeModals })
-        // Claim emit URLs only while links are still under a concrete scope
-        // (modal / field root). Scanning whole `document` would sticky-retain
-        // modal CSS that was already moved into <head>.
-        const inlineUrls = scope === document
-            ? []
-            : collectInlineEmitUrls(scope, { excludeModals })
-        const claimedUrls = [...peeked.stylesheets, ...peeked.chunks, ...inlineUrls]
-        claimAssetUrls(ownerKey, claimedUrls)
+        crg.resyncFromDom(document)
 
         const { stylesheets, chunks } = collectBatchAssets(scope, { excludeModals })
 
@@ -878,43 +1054,92 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
                 ...stylesheets.map((href) => loadStylesheet(href)),
                 ...chunks.map((href) => loadChunk(href)),
             ])
-            // Re-claim the exact URLs that were loaded in this pass (covers any
-            // normalization drift between peek and collect).
-            claimAssetUrls(ownerKey, [...stylesheets, ...chunks])
         }
 
         await awaitInlineEmitAssetsIn(scope)
         await awaitInflightAssetLoads()
         dedupeDocumentAssets()
         bootSegmentOverflowElements(scope === document ? document : scope)
+        bootTimezoneBrowserSsrDefaults(scope === document ? document : scope)
+        crg.resyncFromDom(document)
+        scheduleResyncFromDom(document, { excludeModals })
     }
 
     const handleLivewireNavigated = async () => {
-        // Snapshot before clear: boot() may already have consumed batches before
-        // Livewire's synthetic first `livewire:navigated` fires after paint.
-        const previousPageRetain = [...pageRetainedUrls]
-        const bodyBatches = peekBatchAssets(document, { excludeModals: true })
-        const bodyEmitUrls = collectInlineEmitUrlsFromBody()
-
-        modalOwnedUrls.clear()
         modalOpenStack.length = 0
-        pageRetainedUrls.clear()
+
         resyncLoadedAssetsFromDocument()
         await ensureAssets(document, { pageOnly: true })
-
-        claimAssetUrls('page', [
-            ...bodyBatches.stylesheets,
-            ...bodyBatches.chunks,
-            ...bodyEmitUrls,
-        ])
-
-        // Synthetic first navigated after boot: restore page retain when the new
-        // document no longer exposes batch markers (already consumed).
-        if (pageRetainedUrls.size === 0 && previousPageRetain.length > 0) {
-            claimAssetUrls('page', previousPageRetain)
-        }
+        scheduleResyncFromDom(document, { excludeModals: true })
+        uninstallUnretainedAssets()
 
         void preloadVisibleBatchesIn(document)
+        prefetchEngine.scheduleIdlePrefetch()
+    }
+
+    const inferComponentIdFromBatchElement = (batch) => {
+        if (batch?.dataset?.fffAssetConsumer) {
+            return batch.dataset.fffAssetConsumer
+        }
+
+        const stylesheets = parseJsonAttribute(batch, 'data-fff-stylesheets')
+
+        for (const href of stylesheets) {
+            const match = String(href).match(/flex-fields-([^./]+)\.css/)
+
+            if (match?.[1]) {
+                return match[1]
+            }
+        }
+
+        return 'unknown-batch'
+    }
+
+    const awaitBundleReady = async (componentId) => {
+        const canonical = crg.resolveCanonicalComponent(componentId)
+        const bundle = crg.bundleFor(canonical)
+        const hasRegistryBundle = (bundle.stylesheets?.length ?? 0) > 0
+            || (bundle.chunks?.length ?? 0) > 0
+            || Boolean(bundle.entry)
+
+        if (hasRegistryBundle) {
+            await Promise.allSettled([
+                ...(bundle.stylesheets ?? []).map((href) => loadStylesheet(href, canonical)),
+                ...(bundle.chunks ?? []).map((href) => loadChunk(href, canonical)),
+            ])
+
+            if (bundle.entry) {
+                await loadChunk(bundle.entry, canonical)
+            }
+
+            scheduleResyncFromDom(document)
+
+            return
+        }
+
+        if (!document?.querySelectorAll) {
+            return
+        }
+
+        for (const batch of document.querySelectorAll('[data-fff-asset-batch]')) {
+            const batchComponent = inferComponentIdFromBatchElement(batch)
+
+            if (batchComponent !== canonical && crg.resolveCanonicalComponent(batchComponent) !== canonical) {
+                continue
+            }
+
+            const stylesheets = parseJsonAttribute(batch, 'data-fff-stylesheets')
+            const chunks = parseJsonAttribute(batch, 'data-fff-chunks')
+
+            await Promise.allSettled([
+                ...stylesheets.map((href) => loadStylesheet(href, canonical)),
+                ...chunks.map((href) => loadChunk(href, canonical)),
+            ])
+
+            scheduleResyncFromDom(document)
+
+            return
+        }
     }
 
     const resolvePendingTarget = (element) => {
@@ -993,6 +1218,10 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
     }
 
     const preloadVisibleBatchesIn = async (root = document) => {
+        if (injectorHooks.shouldSkipBackgroundPreload()) {
+            return
+        }
+
         const batches = collectVisibleAssetBatches(root)
 
         if (batches.length === 0) {
@@ -1052,6 +1281,94 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         await Promise.allSettled(promises)
     }
 
+    const clearPendingMaxReleaseTimer = (target) => {
+        if (! target) {
+            return
+        }
+
+        const timer = pendingMaxReleaseTimers.get(target)
+
+        if (timer != null) {
+            window.clearTimeout?.(timer)
+            pendingMaxReleaseTimers.delete(target)
+        }
+    }
+
+    const removeAssetsSkeletonOverlay = (root) => {
+        if (! root?.querySelectorAll) {
+            return
+        }
+
+        for (const node of root.querySelectorAll(`.${ASSETS_SKELETON_CLASS}`)) {
+            node.remove()
+        }
+    }
+
+    const mountAssetsSkeletonOverlay = (target) => {
+        if (! target || typeof document?.createElement !== 'function') {
+            return
+        }
+
+        const host = target.classList?.contains('fi-modal')
+            ? (target.querySelector?.('.fi-modal-window') ?? null)
+            : target
+
+        if (! host || typeof host.appendChild !== 'function') {
+            return
+        }
+
+        removeAssetsSkeletonOverlay(host)
+
+        const overlay = document.createElement('div')
+        overlay.className = ASSETS_SKELETON_CLASS
+        overlay.setAttribute('aria-hidden', 'true')
+
+        const bones = [
+            ['fff-flex-fields-assets-skeleton__bone fff-flex-fields-assets-skeleton__bone--label', '5.5rem'],
+            ['fff-flex-fields-assets-skeleton__bone fff-flex-fields-assets-skeleton__bone--field', null],
+            ['fff-flex-fields-assets-skeleton__bone fff-flex-fields-assets-skeleton__bone--label', '7rem'],
+            ['fff-flex-fields-assets-skeleton__bone fff-flex-fields-assets-skeleton__bone--field', null],
+        ]
+
+        for (const [className, width] of bones) {
+            const bone = document.createElement('div')
+            bone.className = className
+
+            if (width) {
+                if (! bone.style) {
+                    bone.style = {}
+                }
+
+                bone.style.width = width
+            }
+
+            overlay.appendChild(bone)
+        }
+
+        host.appendChild(overlay)
+    }
+
+    const schedulePendingMaxRelease = (target) => {
+        if (! target) {
+            return
+        }
+
+        clearPendingMaxReleaseTimer(target)
+
+        const timer = window.setTimeout(() => {
+            pendingMaxReleaseTimers.delete(target)
+
+            if (! target.classList?.contains('fff-flex-fields-assets-pending')) {
+                return
+            }
+
+            // Soft reveal after the cap — CSS/JS may still be arriving.
+            void releasePendingState(target, { force: true })
+        }, MAX_PENDING_VISIBLE_MS)
+
+        pendingMaxReleaseTimers.set(target, timer)
+    }
+
     const applyPendingState = (element) => {
         const target = resolvePendingTarget(element)
 
@@ -1062,6 +1379,10 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         target.classList.add('fff-flex-fields-assets-pending')
         target.classList.remove('fff-flex-fields-assets-ready')
 
+        if (target.dataset) {
+            target.dataset.fffPendingStartedAt = String(Date.now())
+        }
+
         injectorHooks.markPendingStarted(target)
 
         pendingMorphTargets.add(target)
@@ -1070,12 +1391,17 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             pendingMorphTargets.add(element)
         }
 
+        mountAssetsSkeletonOverlay(target)
+        schedulePendingMaxRelease(target)
+
         return target
     }
 
     const releasePendingState = async (element, { force = false } = {}) => {
         const target = resolvePendingTarget(element)
         const nodes = new Set([target, element].filter(Boolean))
+
+        clearPendingMaxReleaseTimer(target)
 
         if (!force && target) {
             const delayMs = await Promise.resolve(injectorHooks.getPendingReleaseDelayMs(target, {
@@ -1084,9 +1410,15 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
                 awaitInflightAssetLoads,
             }))
 
-            if (delayMs > 0) {
+            // Never hold the skeleton longer than the production hard cap.
+            const remainingCap = target.dataset?.fffPendingStartedAt
+                ? Math.max(0, MAX_PENDING_VISIBLE_MS - (Date.now() - Number(target.dataset.fffPendingStartedAt)))
+                : 0
+            const waitMs = Math.min(Math.max(0, delayMs), remainingCap)
+
+            if (waitMs > 0) {
                 await new Promise((resolve) => {
-                    window.setTimeout(resolve, delayMs)
+                    window.setTimeout(resolve, waitMs)
                 })
             }
         }
@@ -1094,6 +1426,8 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         if (target?.dataset?.fffPendingStartedAt) {
             delete target.dataset.fffPendingStartedAt
         }
+
+        removeAssetsSkeletonOverlay(target)
 
         for (const node of nodes) {
             if (!node?.classList) {
@@ -1103,6 +1437,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             node.classList.remove('fff-flex-fields-assets-pending')
             node.classList.add('fff-flex-fields-assets-ready')
             pendingMorphTargets.delete(node)
+            removeAssetsSkeletonOverlay(node)
         }
     }
 
@@ -1208,13 +1543,27 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             return Promise.resolve()
         }
 
+        const finish = () => {
+            const excludeModals = resolveAssetOwnerKey(el) === 'page'
+            scheduleResyncFromDom(document, { excludeModals })
+        }
+
         if (hasPendingState(el)) {
             return ensureAssets(el).finally(async () => {
                 await releasePendingState(el)
+                finish()
             })
         }
 
-        return ensureAssets(el).then(() => preloadBatchesIn(el))
+        return ensureAssets(el).then(() => {
+            finish()
+
+            if (injectorHooks.shouldSkipBackgroundPreload()) {
+                return
+            }
+
+            return preloadBatchesIn(el)
+        })
     }
 
     const registerLivewireHooks = () => {
@@ -1224,42 +1573,6 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
         window.Livewire.hook('morph.updating', handleMorphUpdating)
         window.Livewire.hook('morph.updated', handleMorphUpdated)
-    }
-
-    const registerHoverPreload = () => {
-        let hoverPreloadTimer = null
-
-        document.addEventListener('mouseover', (event) => {
-            if (injectorHooks.shouldSkipBackgroundPreload()) {
-                return
-            }
-
-            if (!event.target?.closest) {
-                return
-            }
-
-            const trigger = event.target.closest('button, a[href], [role="button"], [wire\\:click]')
-
-            if (!trigger) {
-                return
-            }
-
-            if (hoverPreloadTimer) {
-                clearTimeout(hoverPreloadTimer)
-            }
-
-            hoverPreloadTimer = setTimeout(() => {
-                hoverPreloadTimer = null
-
-                const scope = resolveHoverPreloadScope(trigger)
-
-                if (!scope) {
-                    return
-                }
-
-                void preloadBatchesIn(scope)
-            }, 48)
-        }, { passive: true })
     }
 
     const cleanupClosedModalPendingState = async (event) => {
@@ -1274,14 +1587,19 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
             if (modal) {
                 await releasePendingState(modal, { force: true })
-                popModalOpenStack(resolveModalOwnerKey(modal))
+                const ownerKey = resolveModalOwnerKey(modal)
+                popModalOpenStack(ownerKey)
             } else {
                 popModalOpenStack(`modal:${modalId}`)
             }
         } else {
             // No detail.id — pop the topmost stacked modal only (LIFO), mirroring
             // Filament's nested close order. Do not wipe sibling/parent owners.
-            popModalOpenStack(null)
+            const popped = popModalOpenStack(null)
+
+            if (popped) {
+                // LIFO modal stack pop only — CRG resync handles consumer release.
+            }
 
             for (const modal of document.querySelectorAll('.fi-modal.fff-flex-fields-assets-pending')) {
                 if (!modal.classList.contains('fi-modal-open')) {
@@ -1294,9 +1612,40 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
             await releasePendingState(stray, { force: true })
         }
 
-        // Drop only assets that neither the page nor any still-retained modal owns.
+        scheduleResyncFromDom(document)
+        crg.resyncFromDom(document)
         uninstallUnretainedAssets()
     }
+
+    const prefetchEngine = createPrefetchEngine({
+        window,
+        document,
+        shouldSkipBackgroundPreload: () => injectorHooks.shouldSkipBackgroundPreload(),
+        preloadBatchesIn,
+        preloadVisibleBatchesIn,
+        resolveHoverPreloadScope,
+        acquireTempPrefetch: (instanceId, componentId) => {
+            if (!crg.getActiveConsumerIds().includes(instanceId)) {
+                crg.acquire(instanceId, componentId)
+            }
+        },
+        releaseTempPrefetch: (instanceId) => {
+            if (crg.getActiveConsumerIds().includes(instanceId)) {
+                crg.release(instanceId)
+            }
+        },
+        resolveTempPrefetchInstanceId: (scope) => `prefetch-hover::${resolveAssetOwnerKey(scope)}::${scope?.tagName ?? 'scope'}`,
+        resolveComponentIdFromScope: (scope) => {
+            const batch = scope?.querySelector?.('[data-fff-asset-batch][data-fff-asset-consumer]')
+                ?? scope?.closest?.('[data-fff-asset-batch][data-fff-asset-consumer]')
+
+            if (batch) {
+                return inferComponentIdFromBatchElement(batch)
+            }
+
+            return 'prefetch'
+        },
+    })
 
     const boot = () => {
         void ensureAssets(document, { pageOnly: true })
@@ -1307,7 +1656,7 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
         window.addEventListener('x-modal-opened', prepareModal)
         window.addEventListener('modal-closed', cleanupClosedModalPendingState)
-        registerHoverPreload()
+        prefetchEngine.boot()
 
         if (window.Livewire?.hook) {
             registerLivewireHooks()
@@ -1318,6 +1667,9 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
 
     return {
         normalizeAssetUrl: (url) => normalizeAssetUrl(url, document.baseURI),
+        prefersReducedMotion: () => prefersReducedMotion(window),
+        connectionSaveDataEnabled: () => connectionSaveDataEnabled(window),
+        shouldDeferBackgroundAssetPreload: () => shouldDeferBackgroundAssetPreload(window),
         isStylesheetLoaded,
         isChunkLoaded,
         loadStylesheet,
@@ -1341,16 +1693,19 @@ export function createFlexFieldAssetInjector({ document, window } = {}) {
         registerInjectorHooks,
         isModalPendingTarget,
         cleanupClosedModalPendingState,
-        claimAssetUrls,
-        releaseModalOwnership,
-        collectRetainedAssetUrls,
+        getConsumerGraph: () => crg,
+        scheduleResyncFromDom,
+        awaitBundleReady,
         getModalOpenStack: () => [...modalOpenStack],
+        getInflightUrls: () => [...inflightRequests.keys()],
+        injectCriticalPreloadsForSelectFamily,
         uninstallUnretainedAssets,
         stripInlineEmitAssets,
         purgeLazyAssets,
         resyncLoadedAssetsFromDocument,
         handleLivewireNavigated,
         bootSegmentOverflowElements,
+        bootTimezoneBrowserSsrDefaults,
         boot,
     }
 }

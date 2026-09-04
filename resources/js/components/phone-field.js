@@ -116,6 +116,7 @@ export default function phoneFieldFormComponent({
     searchable,
     searchPlaceholder,
     countryLabel,
+    locale = null,
 }) {
     return {
         state,
@@ -132,6 +133,7 @@ export default function phoneFieldFormComponent({
         searchable,
         searchPlaceholder,
         countryLabel,
+        locale,
         countries: [],
         countriesLoaded: false,
         countriesLoading: false,
@@ -159,6 +161,11 @@ export default function phoneFieldFormComponent({
             this.syncInputFromState()
             this.preloadSelectedCountryFlag()
             this.bindSelectMenuLifecycle()
+
+            // Warm the country registry so the first open does not wait on network
+            // before Alpine can paint a full-height list for positioning.
+            this.ensureCountriesLoaded()
+            this.ensurePhoneLibLoaded()
 
             this.$watch('state.country', () => {
                 this.ensurePhoneState()
@@ -205,6 +212,7 @@ export default function phoneFieldFormComponent({
                     countryFilterKey: this.countryFilterKey,
                     preferredCountryCode: this.preferredCountryCode,
                     sortPreferredFirst: this.sortPreferredFirst,
+                    locale: this.locale,
                 })
 
                 if (this.countries.length === 0) {
@@ -215,6 +223,7 @@ export default function phoneFieldFormComponent({
                         countryFilterKey: this.countryFilterKey,
                         preferredCountryCode: this.preferredCountryCode,
                         sortPreferredFirst: this.sortPreferredFirst,
+                        locale: this.locale,
                     })
                 }
 

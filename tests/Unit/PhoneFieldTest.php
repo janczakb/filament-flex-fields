@@ -29,6 +29,18 @@ it('exposes phone field configuration api', function () {
         ->and($field->isMobileOnly())->toBeTrue();
 });
 
+it('localizes phone country names independently of the app locale', function () {
+    app()->setLocale('en');
+
+    $english = PhoneField::make('phone')->countries(['PL'])->locale('en');
+    $polish = PhoneField::make('phone')->countries(['PL'])->locale('pl');
+
+    expect($english->getLocale())->toBe('en')
+        ->and($polish->getLocale())->toBe('pl')
+        ->and($english->getCountriesMetadata()[0]['name'])->toBe('Poland')
+        ->and($polish->getCountriesMetadata()[0]['name'])->toBe('Polska');
+});
+
 it('accepts custom suffix icons from any icon set', function () {
     $field = PhoneField::make('phone')->suffixIcon('ri-phone-line');
 

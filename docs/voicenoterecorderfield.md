@@ -3,7 +3,7 @@ title: "VoiceNoteRecorderField"
 description: In-browser voice recorder with real-time visualizer, inline playback, and Filament storage integration.
 ---
 
-![VoiceNoteRecorderField](/art/sc-12.png)
+![VoiceNoteRecorderField](/art/sc-12.webp)
 
 [← Back to Table of Contents](/docs/index)
 
@@ -17,7 +17,7 @@ In-browser voice recorder featuring a real-time frequency visualizer, inline pla
 | **State type** | `string\|null` — stored path on disk after save |
 | **FieldType** | *(use the class directly)* |
 | **Extends** | `FlexFileUpload` → `Filament\Forms\Components\FileUpload` |
-| **Playground** | `audio-field` slug in Flex Fields playground |
+| **Playground** | `voice-note-recorder-field` slug in Flex Fields playground |
 
 ---
 
@@ -132,7 +132,9 @@ VoiceNoteRecorderField::make('private_note')
 
 ### Playground
 
-`/admin/flex-fields-playground/audio-field`
+Slug: **`voice-note-recorder-field`**
+
+`/admin/flex-fields-playground/voice-note-recorder-field`
 
 See [Playground](/docs/index#playground) for setup.
 

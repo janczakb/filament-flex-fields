@@ -2,7 +2,7 @@
 title: "SlugField & TitleSlugField"
 ---
 
-![SlugField](/art/sc-22.png)
+![SlugField](/art/sc-22.webp)
 
 [← Back to Table of Contents](/docs/index)
 

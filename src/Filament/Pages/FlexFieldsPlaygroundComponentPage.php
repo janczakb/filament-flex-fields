@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Pages;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 use Bjanczak\FilamentFlexFields\Support\Playground\Contracts\PlaygroundWithPersistence;
 use Bjanczak\FilamentFlexFields\Support\Playground\FlexFieldsPlaygroundStore;
+use Bjanczak\FilamentFlexFields\Support\Playground\PlaygroundCodeSnippet;
 use Bjanczak\FilamentFlexFields\Support\Wow\CommandPaletteCatalog;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -91,8 +92,17 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
         /** @var object{components(): list<Component>} $playground */
         $playground = app($definition['playground']);
 
+        $components = $playground->components();
+
+        if (! PlaygroundCodeSnippet::playgroundDeclaresSnippet($definition['playground'])) {
+            $components[] = PlaygroundCodeSnippet::forHub(
+                (string) ($definition['slug'] ?? $this->getPlaygroundSlug() ?? 'hub'),
+                $definition['playground'],
+            );
+        }
+
         return $schema
-            ->components($playground->components())
+            ->components($components)
             ->statePath('data');
     }
 
@@ -107,7 +117,7 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
      * Built in PHP because Livewire compiles Blade as a closure — `use`
      * statements inside `@php` are a parse error.
      *
-     * @return list<array{id: string, label: string, playground_slug: string|null, url: string|null}>
+     * @return list<array{id: string, label: string, playground_slug: string|null, kind?: string, url: string|null}>
      */
     public function commandPaletteEntries(): array
     {

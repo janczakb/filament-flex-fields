@@ -1,0 +1,1 @@
+function o(n,e={},i={}){let t=i.window??(typeof window<"u"?window:null);!t||typeof t.CustomEvent!="function"||t.dispatchEvent(new t.CustomEvent("fff:observability",{detail:{event:n,...e}}))}export{o as a};

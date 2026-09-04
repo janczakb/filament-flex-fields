@@ -31,7 +31,9 @@
     }
 @endphp
 
-@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'progress-circle'])
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'progress-circle',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
 <div
     {{

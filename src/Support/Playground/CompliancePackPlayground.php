@@ -9,6 +9,9 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\View;
 
+/**
+ * @internal Maintainer-only compliance report preview — not registered in playground nav.
+ */
 class CompliancePackPlayground
 {
     /**

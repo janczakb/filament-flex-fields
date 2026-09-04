@@ -39,16 +39,20 @@ it('resolves micro interaction recipes by id', function (): void {
         ->and(MicroInteractionCookbook::find('unknown-recipe'))->toBeNull();
 });
 
-it('indexes every field type for the command palette catalog', function (): void {
+it('indexes field types and playground hubs for the command palette catalog', function (): void {
     $entries = CommandPaletteCatalog::all();
+    $registryCount = count(FlexFieldsPlaygroundRegistry::definitions());
 
-    expect($entries)->toHaveCount(count(FieldType::cases()));
+    expect($entries)->not->toBeEmpty()
+        ->and(count($entries))->toBeGreaterThanOrEqual(count(FieldType::cases()))
+        ->and(count($entries))->toBeGreaterThanOrEqual($registryCount);
 
     foreach ($entries as $entry) {
         expect($entry)
-            ->toHaveKeys(['id', 'label', 'playground_slug'])
+            ->toHaveKeys(['id', 'label', 'playground_slug', 'kind'])
             ->and($entry['id'])->toBeString()->not->toBeEmpty()
-            ->and($entry['label'])->toBeString()->not->toBeEmpty();
+            ->and($entry['label'])->toBeString()->not->toBeEmpty()
+            ->and($entry['kind'])->toBeIn(['field', 'hub']);
     }
 });
 
@@ -67,7 +71,15 @@ it('searches the command palette catalog by id label and slug', function (): voi
         ->not->toBeEmpty()
         ->and(CommandPaletteCatalog::search('phone-field')[0]['playground_slug'])->toBe('phone-field');
 
-    expect(CommandPaletteCatalog::search(''))->toHaveCount(count(FieldType::cases()));
+    expect(CommandPaletteCatalog::search(''))->toHaveCount(count(CommandPaletteCatalog::all()));
+});
+
+it('includes layout and meta playground hubs in the command palette catalog', function (): void {
+    $ids = collect(CommandPaletteCatalog::all())->pluck('id');
+
+    expect($ids)->toContain('form-layouts')
+        ->and($ids)->toContain('schema-conditions')
+        ->and($ids)->toContain('hold-confirm');
 });
 
 it('only returns playground slugs that exist in the registry', function (): void {

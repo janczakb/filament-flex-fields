@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Handlers;
 
 use Bjanczak\FilamentFlexFields\Data\FlexFieldDefinition;
 use Bjanczak\FilamentFlexFields\Enums\FieldType;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\BubbleChoiceField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCards;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\ChoiceCheckboxCards;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\DualListboxField;
@@ -20,9 +21,12 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieTagsField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SwitchField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TagsField;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\TodoListField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\BubbleChoiceFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\ChoiceCardsFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\ChoiceCheckboxCardsFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\DualListboxFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexChecklistFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexRadiolistFieldConfigurator;
@@ -34,7 +38,7 @@ use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SegmentControl
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SelectFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SwitchFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TagsFieldConfigurator;
-use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\TodoListFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\UserSelectFieldConfigurator;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
@@ -58,6 +62,8 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
         private readonly SelectFieldConfigurator $select = new SelectFieldConfigurator,
         private readonly UserSelectFieldConfigurator $userSelect = new UserSelectFieldConfigurator,
         private readonly DualListboxFieldConfigurator $dualListbox = new DualListboxFieldConfigurator,
+        private readonly BubbleChoiceFieldConfigurator $bubbleChoice = new BubbleChoiceFieldConfigurator,
+        private readonly TodoListFieldConfigurator $todoList = new TodoListFieldConfigurator,
         private readonly TagsFieldConfigurator $tags = new TagsFieldConfigurator,
         private readonly RatingFieldConfigurator $rating = new RatingFieldConfigurator,
         private readonly NpsFieldConfigurator $nps = new NpsFieldConfigurator,
@@ -80,6 +86,8 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Select,
             FieldType::UserSelect,
             FieldType::DualListbox,
+            FieldType::BubbleChoice,
+            FieldType::TodoList,
             FieldType::Tags,
             FieldType::Rating,
             FieldType::Nps,
@@ -105,6 +113,8 @@ final class ChoiceFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Select => $this->select->configure(SelectField::make($statePath), $config),
             FieldType::UserSelect => $this->userSelect->configure(UserSelect::make($statePath), $config),
             FieldType::DualListbox => $this->dualListbox->configure(DualListboxField::make($statePath), $config),
+            FieldType::BubbleChoice => $this->bubbleChoice->configure(BubbleChoiceField::make($statePath), $config),
+            FieldType::TodoList => $this->todoList->configure(TodoListField::make($statePath), $config),
             FieldType::Tags => $this->tags->configure(
                 (($config['use_spatie_tags'] ?? false) && class_exists(Tag::class))
                     ? FlexSpatieTagsField::make($statePath)

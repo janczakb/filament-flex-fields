@@ -59,6 +59,7 @@ class ItemCardGroupPlayground
         ];
 
         return [
+            PlaygroundRelatedHubs::view('item-card-group'),
             Section::make('Standalone Variants')
                 ->description('Self-contained surfaces with variant styling when used outside ItemCardGroup.')
                 ->extraAttributes(['class' => 'fff-playground-section'])

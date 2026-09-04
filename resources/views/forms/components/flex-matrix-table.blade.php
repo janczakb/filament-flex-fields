@@ -26,7 +26,9 @@
     :component="$getFieldWrapperView()"
     :field="$field"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'matrix-choice-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'matrix-choice-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     
     <div
         @class([

@@ -42,7 +42,24 @@ it('documents a non-empty release checklist', function (): void {
     expect($checklist)->toBeArray()
         ->not->toBeEmpty()
         ->and($checklist)->each->toBeString()
-        ->and(implode("\n", $checklist))->toContain('fff:assets:export-registry');
+        ->and(implode("\n", $checklist))->toContain('fff:assets:export-registry')
+        ->and(implode("\n", $checklist))->toContain('audit:components')
+        ->and(implode("\n", $checklist))->toContain('prune:phpstan-baseline');
+});
+
+it('requires a feature render test file for every quality-gate render spec', function (): void {
+    $featureDir = dirname(__DIR__).'/Feature';
+
+    foreach (QualityGates::requiredFeatureRenderTests() as $filename) {
+        $path = $featureDir.'/'.$filename;
+
+        expect($path)
+            ->toBeFile("Missing feature render test [{$filename}] required by QualityGates.");
+    }
+});
+
+it('includes calculator field render coverage in required feature render tests', function (): void {
+    expect(QualityGates::requiredFeatureRenderTests())->toContain('CalculatorFieldRenderTest.php');
 });
 
 it('defines v3 upgrade spot-check hub order', function (): void {

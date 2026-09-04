@@ -434,18 +434,15 @@ export function patchSelectFieldSelectionUx(select, {
 
             if (check?.getAttribute('data-visible') === 'true') {
                 this.__fffCheckExitToken = (this.__fffCheckExitToken ?? 0) + 1
-                const token = this.__fffCheckExitToken
-
                 this.__fffCancelCheckExit?.()
-                this.__fffCancelCheckExit = runAfterSelectedCheckExit(check, () => {
-                    if (token !== this.__fffCheckExitToken) {
-                        return
-                    }
 
+                // Fire check exit independently — never delay state/chips on it.
+                this.__fffCancelCheckExit = runAfterSelectedCheckExit(check, () => {
                     this.__fffCancelCheckExit = null
-                    originalSelectOption(value)
-                    pruneKnownSelectedToState(this)
                 })
+
+                originalSelectOption(value)
+                pruneKnownSelectedToState(this)
 
                 return
             }

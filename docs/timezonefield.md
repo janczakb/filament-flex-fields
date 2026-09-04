@@ -7,7 +7,7 @@ description: Searchable IANA timezone picker with browser detection and UTC offs
 
 ### Summary
 
-Searchable IANA timezone picker with a **Gravity UI clock** icon on the trigger and in menu rows. Stores a single timezone identifier string.
+Searchable IANA timezone picker with a **Gravity UI clock** icon on the trigger and in menu rows. Stores a single timezone identifier string. Display labels are **city, country** (`Warsaw, Poland` / `Warszawa, Polska`), not generic names like “Poland Time”.
 
 | | |
 |---|---|
@@ -49,11 +49,13 @@ TimezoneField::make('timezone')
 
 #### Stored value
 
-State is a single **IANA identifier string**.
+State is a single **IANA identifier string** — never the display label.
 
 ```php
 $record->timezone; // string|null — e.g. "Europe/Warsaw"
 ```
+
+The picker shows **city, country** (`Warsaw, Poland` / `Warszawa, Polska`) plus a UTC offset badge (`UTC+02:00`). Generic names like “Poland Time” are not used.
 
 #### Validation rules
 
@@ -74,10 +76,12 @@ All methods accept `Closure` unless noted.
 |--------|------|---------|-------------|
 | `timezones(array\|Closure\|null $timezones)` | Setup | `null` | Whitelist of IANA identifiers |
 | `exceptTimezones(array\|Closure $timezones)` | Setup | `[]` | Blacklist of IANA identifiers |
+| `includeUtc(bool\|Closure $condition = true)` | Setup | `true` | Keep canonical `UTC` in the full IANA list |
 | `defaultTimezone(string\|Closure\|null $timezone)` | Setup | `null` | Fallback IANA identifier |
 | `browserTimezoneDefault(bool\|Closure $condition = true)` | Setup | `false` | Pre-select from browser settings |
 | `browserTimezoneSortFirst(bool\|Closure $condition = true)` | Setup | `false` | Sort browser timezone to top of list |
 | `showOffset(bool\|Closure $condition = true)` | Setup | `true` | Show UTC offset badge (e.g. `UTC+02:00`) |
+| `locale(string\|Closure\|null $locale)` | Setup | `app()->getLocale()` | Language for city and country labels (`en` → Warsaw, Poland) |
 | `searchable(bool\|Closure $condition = true)` | Setup | `true` | Show search input in dropdown |
 | `prefixIcon(...)` | Setup | `Clock` | Custom leading icon |
 | `variant(string\|Closure $variant)` | Setup | `'primary'` | Visual style: `primary`, `secondary`, `flat`, `soft` |
@@ -94,6 +98,13 @@ TimezoneField::make('timezone')
     ->exceptTimezones(['GMT']);
 ```
 
+`UTC` stays in the default IANA list (servers, logs, APIs). It is optional, not required:
+
+```php
+TimezoneField::make('timezone')->includeUtc(false);
+TimezoneField::make('timezone')->exceptTimezones(['UTC']);
+```
+
 #### `browserTimezoneDefault()`
 
 When enabled and state is empty, it attempts to detect the user's timezone via Alpine/JS.
@@ -101,6 +112,27 @@ When enabled and state is empty, it attempts to detect the user's timezone via A
 ```php
 TimezoneField::make('timezone')->browserTimezoneDefault();
 ```
+
+#### `locale()`
+
+City and country labels follow `app()->getLocale()` by default (`Warsaw, Poland` / `Warszawa, Polska`). Pin a language per field, independently of the panel locale:
+
+```php
+TimezoneField::make('timezone')->locale('pl');
+TimezoneField::make('timezone')->locale(fn (): string => auth()->user()->locale);
+```
+
+Override the **full** display string in `lang/{locale}/timezones.php` (publish the package lang files). Keys use `__` instead of `/`:
+
+```php
+// lang/pl/vendor/filament-flex-fields/timezones.php
+return [
+    'Europe__Warsaw' => 'Warszawa, Polska',
+    'America__New_York' => 'Nowy Jork, Stany Zjednoczone',
+];
+```
+
+Stored state is still the IANA id (`Europe/Warsaw`), never the translated label.
 
 ---
 

@@ -2,7 +2,7 @@
 title: "FlexFileUpload & FlexImageUpload"
 ---
 
-![FlexFileUpload](/art/sc-31.png)
+![FlexFileUpload](/art/sc-31.webp)
 
 [← Back to Table of Contents](/docs/index)
 

@@ -54,6 +54,7 @@ return [
         'select' => 'Select',
         'user_select' => 'User select',
         'dual_listbox' => 'Dual listbox',
+        'todo_list' => 'Todo list',
         'tags' => 'Tags',
         'date' => 'Date',
         'time' => 'Time',

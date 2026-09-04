@@ -180,6 +180,38 @@ it('deduplicates shared country filters in the registry payload', function () {
         ->and($html)->toContain('"DE"');
 });
 
+it('includes extra locale names in the country registry payload', function () {
+    app()->setLocale('en');
+
+    $payload = CountryRegistry::payload(
+        [CountryRegistry::POOL_ISO],
+        extraLocales: ['pl'],
+    );
+
+    expect($payload['locale'])->toBe('en')
+        ->and($payload['pools'][CountryRegistry::POOL_ISO]['PL']['n'])->toBe('Poland')
+        ->and($payload['locale_names']['pl'][CountryRegistry::POOL_ISO]['PL'])->toBe('Polska')
+        ->and($payload['locale_names'])->not->toHaveKey('en');
+});
+
+it('re-renders the country registry when an extra locale is queued', function () {
+    app()->setLocale('en');
+    CountryRegistryQueue::reset();
+    CountryRegistryQueue::enqueue(CountryRegistry::POOL_ISO);
+
+    $first = CountryRegistryQueue::renderScriptOnce();
+
+    expect($first)->not->toContain('"locale_names"');
+
+    CountryRegistryQueue::registerLocale('pl');
+
+    $second = CountryRegistryQueue::renderScriptOnce();
+
+    expect($second)
+        ->toContain('"locale_names"')
+        ->toContain('"Polska"');
+});
+
 it('exposes country filter helpers on both fields', function () {
     expect(CountryField::make('country')->hasCustomCountryCodeFilter())->toBeFalse()
         ->and(CountryField::make('country')->getCountryFilterKey())->toBeNull()

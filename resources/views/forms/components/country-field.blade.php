@@ -11,6 +11,7 @@
     $hasError = filled($statePath) && $errors->has($statePath);
     $livewireKey = $getLivewireKey();
     $selectedCode = filled($getState()) ? strtoupper((string) $getState()) : null;
+    \Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue::registerLocale($field->getLocale());
 @endphp
 
 <x-dynamic-component
@@ -21,7 +22,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'country-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'country-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         wire:ignore
         wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $shouldShowCountryCode(), $shouldShowDialCode()])), 0, 64) }}"
@@ -46,6 +49,7 @@
             browserLocaleDefault: @js($shouldUseBrowserLocaleDefault()),
             languageCountryMap: @js(\Bjanczak\FilamentFlexFields\Support\Countries::browserLanguageCountryMap()),
             initialState: @js($selectedCode),
+            locale: @js($field->getLocale()),
         })"
         x-init="init()"
         x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeMenu()"

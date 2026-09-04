@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Playground;
 
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\View;
 use Illuminate\Support\HtmlString;
 
@@ -266,5 +267,56 @@ final class PlaygroundCodeSnippet
         }
 
         return 'php';
+    }
+
+    /**
+     * Starter snippet for hubs that do not ship a hand-written example block.
+     */
+    public static function forHub(string $slug, string $playgroundClass): View
+    {
+        $playgroundClass = str_replace('\\', '\\\\', $playgroundClass);
+
+        return self::make(<<<PHP
+// Playground hub: {$slug}
+// See {$playgroundClass} for the full demo schema.
+
+use Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry;
+
+\$definition = FlexFieldsPlaygroundRegistry::find('{$slug}');
+\$playground = app(\$definition['playground']);
+
+// Reuse the same components() array rendered on this page:
+\$components = \$playground->components();
+PHP, filename: "{$slug}-usage.php");
+    }
+
+    /**
+     * @param  list<Component>  $components
+     */
+    public static function componentsIncludeSnippet(array $components): bool
+    {
+        foreach ($components as $component) {
+            if ($component instanceof View) {
+                $view = method_exists($component, 'getView') ? $component->getView() : null;
+
+                if ($view === 'filament-flex-fields::partials.playground.code-snippet') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function playgroundDeclaresSnippet(string $playgroundClass): bool
+    {
+        if (! class_exists($playgroundClass)) {
+            return false;
+        }
+
+        $reflection = new \ReflectionClass($playgroundClass);
+        $source = file_get_contents($reflection->getFileName());
+
+        return is_string($source) && str_contains($source, 'PlaygroundCodeSnippet::');
     }
 }

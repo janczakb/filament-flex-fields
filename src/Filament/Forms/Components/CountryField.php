@@ -52,6 +52,8 @@ class CountryField extends Field
 
     protected bool|Closure $browserLocaleSortFirst = false;
 
+    protected string|Closure|null $locale = null;
+
     public function variant(string|Closure $variant): static
     {
         $this->variant = $variant;
@@ -151,6 +153,20 @@ class CountryField extends Field
         $this->browserLocaleSortFirst = $condition;
 
         return $this;
+    }
+
+    public function locale(string|Closure|null $locale): static
+    {
+        $this->locale = $locale;
+
+        return $this;
+    }
+
+    public function getLocale(): string
+    {
+        $locale = $this->evaluate($this->locale);
+
+        return filled($locale) ? (string) $locale : app()->getLocale();
     }
 
     public function showCountryCode(bool|Closure $condition = true): static
@@ -302,7 +318,7 @@ class CountryField extends Field
             return null;
         }
 
-        $metadata = Countries::metadata([$selectedCode], $this->getExceptCountryCodes());
+        $metadata = Countries::metadata([$selectedCode], $this->getExceptCountryCodes(), $this->getLocale());
 
         return $metadata[0] ?? null;
     }
@@ -318,6 +334,7 @@ class CountryField extends Field
         $metadata = Countries::metadata(
             $this->getAllowedCountryCodes(),
             $this->getExceptCountryCodes(),
+            $this->getLocale(),
         );
 
         if ($this->shouldSortCountriesByBrowserLocale()) {
@@ -338,6 +355,7 @@ class CountryField extends Field
         return Countries::selectOptions(
             $this->getAllowedCountryCodes(),
             $this->getExceptCountryCodes(),
+            $this->getLocale(),
         );
     }
 

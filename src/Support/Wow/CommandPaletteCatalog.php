@@ -9,7 +9,9 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 
 /**
- * Searchable FieldType catalog for playground command palette (⌘K).
+ * Searchable catalog for playground command palette (⌘K).
+ *
+ * Indexes FieldType entries and every registered playground hub slug.
  */
 final class CommandPaletteCatalog
 {
@@ -18,18 +20,42 @@ final class CommandPaletteCatalog
      *     id: string,
      *     label: string,
      *     playground_slug: string|null,
+     *     kind: 'field'|'hub',
      * }>
      */
     public static function all(): array
     {
         $entries = [];
+        $indexedSlugs = [];
 
         foreach (FieldType::cases() as $type) {
+            $playgroundSlug = self::playgroundSlugFor($type);
+
             $entries[] = [
                 'id' => $type->value,
                 'label' => $type->label(),
-                'playground_slug' => self::playgroundSlugFor($type),
+                'playground_slug' => $playgroundSlug,
+                'kind' => 'field',
             ];
+
+            if ($playgroundSlug !== null) {
+                $indexedSlugs[$playgroundSlug] = true;
+            }
+        }
+
+        foreach (FlexFieldsPlaygroundRegistry::definitions() as $slug => $definition) {
+            if (isset($indexedSlugs[$slug])) {
+                continue;
+            }
+
+            $entries[] = [
+                'id' => $slug,
+                'label' => $definition['label'],
+                'playground_slug' => $slug,
+                'kind' => 'hub',
+            ];
+
+            $indexedSlugs[$slug] = true;
         }
 
         return $entries;
@@ -40,6 +66,7 @@ final class CommandPaletteCatalog
      *     id: string,
      *     label: string,
      *     playground_slug: string|null,
+     *     kind: 'field'|'hub',
      * }>
      */
     public static function search(string $query): array
@@ -65,6 +92,7 @@ final class CommandPaletteCatalog
      *     id: string,
      *     label: string,
      *     playground_slug: string|null,
+     *     kind: 'field'|'hub',
      * }|null
      */
     public static function find(string $id): ?array

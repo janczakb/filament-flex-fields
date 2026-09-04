@@ -13,6 +13,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\InteractsWith
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexRichEditorTool;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\RichEditor\FlexToolbarButtonGroup;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\RichEditor\RichEditorTool;
@@ -64,12 +65,12 @@ class FlexRichEditor extends RichEditor
     {
         return [
             FlexRichEditorTool::make('clearFormatting')
-                ->label(__('filament-forms::components.rich_editor.tools.clear_formatting'))
+                ->label(Translations::get('filament-forms::components.rich_editor.tools.clear_formatting'))
                 ->jsHandler('$getEditor()?.chain().focus().clearNodes().unsetAllMarks().run()')
                 ->icon(RichEditorGravityIcons::icon('clear_formatting'))
                 ->iconAlias('filament-flex-fields::flex-rich-editor.toolbar.clear-formatting'),
             FlexRichEditorTool::make('clearContent')
-                ->label(__('filament-flex-fields::default.rich_editor.clear_content'))
+                ->label(Translations::get('filament-flex-fields::default.rich_editor.clear_content'))
                 ->jsHandler('$getEditor()?.chain().focus().clearContent().run()')
                 ->icon(RichEditorGravityIcons::icon('clear_content'))
                 ->iconAlias('filament-flex-fields::flex-rich-editor.toolbar.clear-content'),
@@ -98,7 +99,7 @@ class FlexRichEditor extends RichEditor
 
         if ($this->shouldEnableRichEditorFullscreen()) {
             $flexTools['flexFullscreen'] = FlexRichEditorTool::make('flexFullscreen')
-                ->label(__('filament-flex-fields::default.rich_editor.fullscreen.toggle'))
+                ->label(Translations::get('filament-flex-fields::default.rich_editor.fullscreen.toggle'))
                 ->jsHandler('toggleRichEditorFullscreen()')
                 ->icon(RichEditorGravityIcons::icon('fullscreen'))
                 ->iconAlias('filament-flex-fields::flex-rich-editor.toolbar.fullscreen')
@@ -110,7 +111,7 @@ class FlexRichEditor extends RichEditor
     }
 
     /**
-     * @return array<array<string | ToolbarButtonGroup>>
+     * @return array<int, string|array<int, string|ToolbarButtonGroup>>
      */
     public function getToolbarButtons(): array
     {
@@ -148,6 +149,9 @@ class FlexRichEditor extends RichEditor
         return $groups;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getWrapperClasses(): array
     {
         $classes = [
@@ -225,7 +229,7 @@ class FlexRichEditor extends RichEditor
     {
         return [
             RichEditorTool::make('clearContent')
-                ->label(__('filament-flex-fields::default.rich_editor.clear_content'))
+                ->label(Translations::get('filament-flex-fields::default.rich_editor.clear_content'))
                 ->jsHandler('$getEditor()?.chain().focus().clearContent().run()')
                 ->icon(Heroicon::Trash),
         ];
@@ -241,20 +245,20 @@ class FlexRichEditor extends RichEditor
             ['bold', 'italic', 'underline', 'strike', 'code'],
             [
                 ToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
                     ['h1', 'h2', 'h3'],
                 ),
             ],
             [
                 ToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
                     ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'],
                 ),
             ],
             ['blockquote', 'codeBlock'],
             [
                 ToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
                     ['bulletList', 'orderedList'],
                 ),
             ],
@@ -273,20 +277,20 @@ class FlexRichEditor extends RichEditor
             ['bold', 'italic', 'underline', 'strike', 'code'],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
                     ['h1', 'h2', 'h3'],
                 ),
             ],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
                     ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'],
                 ),
             ],
             ['blockquote', 'codeBlock'],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
                     ['bulletList', 'orderedList'],
                 ),
             ],
@@ -305,20 +309,20 @@ class FlexRichEditor extends RichEditor
             ['bold', 'italic', 'underline', 'strike', 'code'],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.heading'),
                     ['h1', 'h2', 'h3'],
                 ),
             ],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.alignment'),
                     ['alignStart', 'alignCenter', 'alignEnd', 'alignJustify'],
                 ),
             ],
             ['blockquote', 'codeBlock'],
             [
                 FlexToolbarButtonGroup::make(
-                    __('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
+                    Translations::get('filament-flex-fields::default.rich_editor.toolbar_groups.lists'),
                     ['bulletList', 'orderedList'],
                 ),
             ],
@@ -345,17 +349,17 @@ class FlexRichEditor extends RichEditor
 
     public function getJsonBadgeLabel(): string
     {
-        return __('filament-flex-fields::default.field_types.json');
+        return Translations::get('filament-flex-fields::default.field_types.json');
     }
 
     public function getWordCountEmptyLabel(): string
     {
-        return __('filament-flex-fields::default.rich_editor.word_count.empty');
+        return Translations::get('filament-flex-fields::default.rich_editor.word_count.empty');
     }
 
     public function getWordCountLineTemplate(): string
     {
-        $line = __('filament-flex-fields::default.rich_editor.word_count.line');
+        $line = Translations::get('filament-flex-fields::default.rich_editor.word_count.line');
 
         return str_replace(
             [':characters', ':words'],

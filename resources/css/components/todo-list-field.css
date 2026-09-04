@@ -1,0 +1,1051 @@
+@property --text-line-scale {
+    syntax: '<number>';
+    inherits: true;
+    initial-value: 0;
+}
+
+@property --text-x {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 0px;
+}
+
+@property --checkbox-tick-offset {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 40px;
+}
+
+@property --checkbox-lines-offset {
+    syntax: '<length>';
+    inherits: true;
+    initial-value: 13.5px;
+}
+
+.fff-todo-list-field [x-cloak] {
+    display: none !important;
+}
+
+.fff-todo-list-field {
+    --fff-todo-list-accent: var(--primary-500, #6e7bf2);
+    --fff-todo-list-border: rgb(228 228 231);
+    --fff-todo-list-bg: rgb(250 250 250);
+    --fff-todo-list-row-hover: #ebebec;
+    --fff-todo-list-row-flash: color-mix(in srgb, var(--fff-todo-list-accent) 12%, var(--fff-todo-list-bg));
+    --fff-todo-list-label: rgb(24 24 27);
+    --fff-todo-list-muted: rgb(113 113 122);
+    --fff-todo-list-settled: #626268;
+    --fff-todo-list-check-border: #a1a1aa;
+    --fff-todo-list-check-border-hover: #52525b;
+    --fff-todo-list-check-fill-mask: #f4f4f5;
+    --fff-todo-list-delete: rgb(113 113 122);
+    --fff-todo-list-delete-hover: rgb(239 68 68);
+    /* Match Select dropdown search (.fi-select-input-search-ctn .fi-input) */
+    --fff-todo-list-search-bg: #ebebec;
+    --fff-todo-list-search-placeholder: #52525b;
+    --fff-todo-list-search-text: rgb(24 24 27);
+    --fff-todo-list-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='%2371717a' fill-rule='evenodd' d='M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-.82 4.74a6 6 0 1 1 1.06-1.06l2.79 2.79a.75.75 0 1 1-1.06 1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    --fff-todo-list-input-border: rgb(228 228 231);
+    --fff-todo-list-radius: 24px;
+    --fff-todo-list-item-radius: 16px;
+    --fff-todo-list-item-bg: transparent;
+    --fff-todo-list-item-bg-hover: #ebebec;
+    --fff-todo-list-row-py: 6px;
+    --fff-todo-list-row-px: 8px;
+    /* Checkbox already pads 10px end — keep flex gap at 0 */
+    --fff-todo-list-item-gap: 0px;
+    --fff-todo-list-list-gap: 4px;
+    --fff-todo-list-shell-pad: 4px;
+    --fff-todo-list-action-slot: 1.75rem;
+    --fff-todo-list-action-gap: 0.125rem;
+    --fff-todo-list-gap: 0.75rem;
+    --fff-todo-list-label-size: 0.875rem;
+    --fff-todo-list-body-size: 0.75rem;
+    /* Matches .checkbox: padding 2px 10px 2px 2px + 18px input */
+    --fff-todo-list-check-column: calc(2px + 18px + 10px);
+    --checkbox-active: var(--fff-todo-list-accent);
+    --active-tick: #ffffff;
+    --border-default: var(--fff-todo-list-check-border);
+    --border-hover: var(--fff-todo-list-check-border-hover);
+
+    @apply relative flex w-full flex-col;
+    gap: 0.75rem;
+}
+
+/* TagsField-style SSR → live swap (no Blade <style>, no empty→fill jump).
+   Search lives outside __body so it does not remount on hydrate. */
+.fff-todo-list-field__body {
+    position: relative;
+    width: 100%;
+}
+
+.fff-todo-list-field__ssr {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.fff-todo-list-field.is-hydrated .fff-todo-list-field__ssr {
+    display: none;
+}
+
+.fff-todo-list-field:not(.is-hydrated) .fff-todo-list-field__live {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fff-todo-list-field.is-hydrated .fff-todo-list-field__live {
+    position: relative;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.fff-todo-list-field__live {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.dark .fff-todo-list-field {
+    --fff-todo-list-border: rgb(63 63 70);
+    --fff-todo-list-bg: rgb(39 39 42);
+    --fff-todo-list-row-hover: rgb(39 39 42);
+    --fff-todo-list-item-bg: transparent;
+    --fff-todo-list-item-bg-hover: rgb(39 39 42);
+    --fff-todo-list-row-flash: color-mix(in srgb, var(--fff-todo-list-accent) 18%, var(--fff-todo-list-bg));
+    --fff-todo-list-label: #fff;
+    --fff-todo-list-muted: rgb(161 161 170);
+    --fff-todo-list-settled: #626268;
+    --fff-todo-list-check-border: #7f7f85;
+    --fff-todo-list-check-border-hover: #e4e4e7;
+    --fff-todo-list-check-fill-mask: #2c2c31;
+    --fff-todo-list-delete: rgb(161 161 170);
+    --fff-todo-list-delete-hover: rgb(248 113 113);
+    --fff-todo-list-search-bg: #40404573;
+    --fff-todo-list-search-placeholder: rgb(161 161 170);
+    --fff-todo-list-search-text: rgb(244 244 245);
+    --fff-todo-list-search-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 16 16'%3E%3Cpath fill='%23a1a1aa' fill-rule='evenodd' d='M11.5 7a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0m-.82 4.74a6 6 0 1 1 1.06-1.06l2.79 2.79a.75.75 0 1 1-1.06 1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+    --fff-todo-list-input-border: rgb(63 63 70);
+    --fff-todo-list-overlay-scrollbar: rgb(255 255 255 / 0.28);
+}
+
+.dark .fff-todo-list-field__create-dock {
+    box-shadow: 0 -8px 16px -12px rgb(0 0 0 / 0.45);
+}
+
+.fff-todo-list-field.fi-color-primary { --fff-todo-list-accent: var(--primary-500, #6e7bf2); }
+.fff-todo-list-field.fi-color-secondary { --fff-todo-list-accent: var(--secondary-500, #64748b); }
+.fff-todo-list-field.fi-color-success { --fff-todo-list-accent: var(--success-500, #22c55e); }
+.fff-todo-list-field.fi-color-warning { --fff-todo-list-accent: var(--warning-500, #f59e0b); }
+.fff-todo-list-field.fi-color-danger { --fff-todo-list-accent: var(--danger-500, #ef4444); }
+
+.fff-todo-list-field__search { @apply relative w-full; }
+
+/* Exact Select dropdown search look (.fi-dropdown-panel … .fi-select-input-search-ctn .fi-input) */
+.fff-todo-list-field__search-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 2.375rem;
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--fff-todo-list-search-bg);
+    background-image: var(--fff-todo-list-search-icon);
+    background-repeat: no-repeat;
+    background-position: 0.75rem center;
+    background-size: 1rem 1rem;
+    padding: 0.5rem 2.375rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: inherit;
+    color: var(--fff-todo-list-search-text);
+    outline: none;
+    box-shadow: none;
+}
+
+.fff-todo-list-field__search-input::-webkit-search-decoration,
+.fff-todo-list-field__search-input::-webkit-search-cancel-button {
+    display: none;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.fff-todo-list-field__search-input::placeholder {
+    color: var(--fff-todo-list-search-placeholder);
+    opacity: 1;
+}
+
+.fff-todo-list-field__search-input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.fff-todo-list-field__search-input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.dark .fff-todo-list-field__search-input {
+    -webkit-backdrop-filter: blur(15px) saturate(2.5);
+    backdrop-filter: blur(15px) saturate(2.5);
+}
+
+.fff-todo-list-field[dir='rtl'] .fff-todo-list-field__search-input,
+.fff-todo-list-field__search:dir(rtl) .fff-todo-list-field__search-input {
+    background-position: right 0.75rem center;
+}
+
+.fff-todo-list-field__shell {
+    position: relative;
+    overflow: clip;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    border: 0;
+    border-radius: var(--fff-todo-list-radius, 24px);
+    background: var(--fff-todo-list-bg);
+    box-shadow:
+        0 2px 4px 0 #0000000a,
+        0 1px 2px 0 #0000000f,
+        0 0 1px 0 #0000000f;
+    --fff-todo-list-overlay-scrollbar-size: 6px;
+    --fff-todo-list-overlay-scrollbar-inset: 3px;
+    --fff-todo-list-overlay-scrollbar: rgb(161 161 170 / 0.55);
+}
+
+.fff-todo-list-field__scroll-pane {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    padding-inline: var(--fff-todo-list-shell-pad, 4px);
+}
+
+.fff-todo-list-field__viewport {
+    @apply relative w-full overflow-y-auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: min(28rem, 70vh);
+    /* Overlay scroll: never reserve a gutter — rows stay full-bleed */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.fff-todo-list-field__viewport::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.fff-todo-list-field__viewport.is-virtual,
+.fff-todo-list-field__viewport.is-infinite {
+    height: min(28rem, 70vh);
+}
+
+.fff-todo-list-field__row.is-create-busy {
+    pointer-events: none;
+    opacity: 0.72;
+}
+
+.fff-todo-list-field__scrollbar {
+    position: absolute;
+    inset-block: 4px;
+    inset-inline-end: var(--fff-todo-list-overlay-scrollbar-inset, 3px);
+    z-index: 5;
+    width: var(--fff-todo-list-overlay-scrollbar-size, 6px);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.fff-todo-list-field__scrollbar[data-visible='true'] {
+    pointer-events: auto;
+}
+
+.fff-todo-list-field__scrollbar[data-active='true'] {
+    opacity: 1;
+}
+
+.fff-todo-list-field__scrollbar-thumb {
+    position: absolute;
+    inset-inline: 0;
+    width: 100%;
+    border-radius: 9999px;
+    background: var(--fff-todo-list-overlay-scrollbar, rgb(161 161 170 / 0.55));
+    will-change: transform;
+}
+
+.fff-todo-list-field__create-dock {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 4;
+    margin: 0;
+    padding-inline: var(--fff-todo-list-shell-pad, 4px);
+    padding-bottom: var(--fff-todo-list-shell-pad, 4px);
+    background: var(--fff-todo-list-bg);
+    border-top: 1px solid color-mix(in srgb, var(--fff-todo-list-border) 70%, transparent);
+    box-shadow: 0 -8px 16px -12px rgb(24 24 27 / 0.18);
+}
+
+.fff-todo-list-field__list {
+    @apply flex w-full flex-col;
+    position: relative;
+}
+
+/* Every option (including the first) gets the same top gap */
+.fff-todo-list-field__list > * {
+    margin-top: var(--fff-todo-list-list-gap, 4px);
+}
+
+.fff-todo-list-field__list > *:last-child {
+    margin-bottom: 6px;
+}
+
+.fff-todo-list-field__substack > * + * {
+    margin-top: var(--fff-todo-list-list-gap, 4px);
+}
+
+.fff-todo-list-field__celebration {
+    @apply pointer-events-none absolute z-20;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 0;
+}
+
+.fff-todo-list-field__celebration.is-anchored {
+    inset: auto;
+    overflow: clip;
+    border-radius: var(--fff-todo-list-item-radius, 16px);
+}
+
+.fff-todo-list-field__celebration--fullscreen {
+    position: fixed !important;
+    inset: 0 !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: 9999 !important;
+    background: transparent !important;
+}
+
+.fff-todo-list-field__row {
+    --text-color: var(--fff-todo-list-label);
+    --text-line-scale: 0;
+    --text-x: 0px;
+    --checkbox-lines-offset: 13.5px;
+    --checkbox-active: var(--fff-todo-list-accent);
+    --border-default: var(--fff-todo-list-check-border);
+    --border-hover: var(--fff-todo-list-check-border-hover);
+
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 36px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--fff-todo-list-item-gap, 0px);
+    padding-block: var(--fff-todo-list-row-py, 6px);
+    padding-inline: var(--fff-todo-list-row-px, 8px);
+    border: 0;
+    border-radius: var(--fff-todo-list-item-radius, 16px);
+    background: var(--fff-todo-list-item-bg, transparent);
+    color: var(--text-color);
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+    outline-style: none;
+    --tw-outline-style: none;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1),
+        box-shadow 0.15s cubic-bezier(0, 0, 0.2, 1),
+        background 0.15s linear,
+        color 0.25s ease;
+}
+
+/*
+ * Checkbox chrome is driven by .is-done / .is-settled ONLY.
+ * Native :checked can lag after parent→children cascade (Alpine keeps input.checked
+ * true while item.done is already false) — never style from :checked alone.
+ */
+.fff-todo-list-field__row.is-done .fff-todo-list-field__checkbox-svg,
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__checkbox-svg {
+    --checkbox-tick-offset: 0;
+    --background: var(--checkbox-active);
+    --border: var(--checkbox-active);
+}
+
+.fff-todo-list-field__row.is-done:not(.is-settled) .fff-todo-list-field__checkbox-svg {
+    --checkbox-tick-duration: 0.2s;
+    --checkbox-tick-easing: cubic-bezier(0, 0.45, 1, 0.5);
+}
+
+.fff-todo-list-field__row.is-done .fff-todo-list-field__checkbox-svg .fff-todo-list-field__tick-fill,
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__checkbox-svg .fff-todo-list-field__tick-fill {
+    opacity: 1;
+    fill: #ffffff;
+}
+
+/* Settled: snap full tip (SSR + post-animation). Live check-on keeps dash draw via --checkbox-tick-offset. */
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__tick:not(.mask) {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    transition: none;
+    stroke: var(--checkbox-active);
+    color: var(--checkbox-active);
+}
+
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__tick.mask,
+.fff-todo-list-field__row.is-done .fff-todo-list-field__tick.mask {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    transition: none;
+}
+
+.fff-todo-list-field__row.is-done:not(.is-settled) .fff-todo-list-field__tick:not(.mask) {
+    stroke: var(--checkbox-active);
+    color: var(--checkbox-active);
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled) .fff-todo-list-field__checkbox-svg {
+    --background: transparent;
+    --border: var(--border-default);
+    --checkbox-tick-offset: 40px;
+    --checkbox-tick-duration: 0s;
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled) .fff-todo-list-field__shape {
+    fill: transparent;
+    stroke: var(--border-default);
+    transition: none;
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled) .fff-todo-list-field__tick {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40px;
+    transition: none;
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled) .fff-todo-list-field__tick-fill {
+    opacity: 0;
+    transition: none;
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled):hover:not(.is-disabled) .fff-todo-list-field__checkbox-svg {
+    --border: var(--border-hover);
+}
+
+.fff-todo-list-field__row:not(.is-done):not(.is-settled):hover:not(.is-disabled) .fff-todo-list-field__shape {
+    stroke: var(--border-hover);
+}
+
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__row.is-done {
+    --text-line-scale: 1;
+    --text-x: 0px;
+}
+
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__checkbox-svg,
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__shape,
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__tick,
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__tick-fill,
+.fff-todo-list-field:not(.is-motion-ready) .fff-todo-list-field__strike path {
+    transition: none !important;
+}
+
+.fff-todo-list-field__drag {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0 0.25rem 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: var(--fff-todo-list-muted);
+    cursor: grab;
+    touch-action: none;
+}
+
+.fff-todo-list-field__drag:active {
+    cursor: grabbing;
+}
+
+.fff-todo-list-field__drag.is-locked,
+.fff-todo-list-field__drag:disabled {
+    visibility: hidden;
+    pointer-events: none;
+    cursor: default;
+}
+
+.fff-todo-list-field__drag-icon {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    color: inherit;
+}
+
+.fff-todo-list-field__group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.fff-todo-list-field__group.fi-sortable-ghost,
+.fff-todo-list-field__group.sortable-ghost,
+.fff-todo-list-field__row.fi-sortable-ghost,
+.fff-todo-list-field__row.sortable-ghost {
+    opacity: 0.55;
+    background: var(--fff-todo-list-row-hover);
+}
+
+.fff-todo-list-field.is-motion-ready .fff-todo-list-field__row {
+    transition:
+        transform 0.25s cubic-bezier(0.165, 0.84, 0.44, 1),
+        box-shadow 0.15s cubic-bezier(0, 0, 0.2, 1),
+        background 0.15s linear,
+        color 0.25s ease;
+}
+
+.fff-todo-list-field__substack {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-top: var(--fff-todo-list-list-gap, 4px);
+    border-top: 0;
+}
+
+/*
+ * Child checkbox starts under the parent label (one check-column indent).
+ */
+.fff-todo-list-field__row.fff-todo-list-field__row--child {
+    padding-left: calc(var(--fff-todo-list-row-px, 8px) + var(--fff-todo-list-check-column));
+    padding-inline-start: calc(var(--fff-todo-list-row-px, 8px) + var(--fff-todo-list-check-column));
+}
+
+/* Drag handle: 1.25rem width + 0.25rem margin-inline-end */
+.fff-todo-list-field--reorderable .fff-todo-list-field__row.fff-todo-list-field__row--child {
+    padding-left: calc(var(--fff-todo-list-row-px, 8px) + 1.5rem + var(--fff-todo-list-check-column));
+    padding-inline-start: calc(var(--fff-todo-list-row-px, 8px) + 1.5rem + var(--fff-todo-list-check-column));
+}
+
+.fff-todo-list-field__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.625rem 0.875rem;
+    margin-top: 0.375rem;
+}
+
+.fff-todo-list-field__meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: var(--fff-todo-list-body-size);
+    line-height: 1.25;
+    color: var(--fff-todo-list-muted);
+}
+
+.fff-todo-list-field__meta-icon {
+    display: block;
+    flex-shrink: 0;
+    width: 0.875rem;
+    height: 0.875rem;
+    color: inherit;
+}
+
+/* Create dock owns the separator — compact padding, same height idle + editing */
+.fff-todo-list-field__row--create {
+    --fff-todo-list-create-control-height: 1.75rem;
+    --fff-todo-list-create-row-py: 0.375rem;
+    border-top: 0;
+    padding-top: var(--fff-todo-list-create-row-py);
+    padding-bottom: var(--fff-todo-list-create-row-py);
+    min-height: calc(var(--fff-todo-list-create-control-height) + (2 * var(--fff-todo-list-create-row-py)));
+    background: transparent;
+}
+
+.fff-todo-list-field__row--create .fff-todo-list-field__content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: var(--fff-todo-list-create-control-height);
+}
+
+.fff-todo-list-field__row--create.is-creating .fff-todo-list-field__content {
+    align-items: stretch;
+}
+
+.fff-todo-list-field__row--create .fff-todo-list-field__label {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    max-width: 100%;
+    min-height: var(--fff-todo-list-create-control-height);
+    text-align: left;
+    line-height: 1.25;
+    font-size: calc(var(--fff-todo-list-label-size) * 1.07);
+}
+
+.fff-todo-list-field__row--create .fff-todo-list-field__create-input {
+    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+}
+
+.fff-todo-list-field__create-fields {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Title + description: stacked on mobile, two columns from sm up */
+.fff-todo-list-field__row--create.is-create-with-description.is-creating .fff-todo-list-field__create-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.375rem;
+}
+
+@media (min-width: 640px) {
+    .fff-todo-list-field__row--create.is-create-with-description.is-creating .fff-todo-list-field__create-fields {
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .fff-todo-list-field__row--create.is-creating.is-create-with-description {
+        min-height: calc(var(--fff-todo-list-create-control-height) + (2 * var(--fff-todo-list-create-row-py)));
+    }
+
+    .fff-todo-list-field__row--create.is-creating.is-create-with-description .fff-todo-list-field__content {
+        min-height: var(--fff-todo-list-create-control-height);
+    }
+}
+
+@media (max-width: 639.98px) {
+    .fff-todo-list-field__row--create.is-creating.is-create-with-description {
+        min-height: calc(
+            (2 * var(--fff-todo-list-create-control-height))
+            + 0.375rem
+            + (2 * var(--fff-todo-list-create-row-py))
+        );
+    }
+
+    .fff-todo-list-field__row--create.is-creating.is-create-with-description .fff-todo-list-field__content {
+        min-height: calc((2 * var(--fff-todo-list-create-control-height)) + 0.375rem);
+    }
+}
+
+.fff-todo-list-field__row:not(.is-settled):not(.fff-todo-list-field__row--create):hover:not(.is-disabled):not(.is-create-disabled),
+.fff-todo-list-field__row:not(.is-settled):not(.fff-todo-list-field__row--create):focus-visible:not(.is-disabled) {
+    background: var(--fff-todo-list-item-bg-hover, #ebebec);
+}
+
+.fff-todo-list-field__row--create,
+.fff-todo-list-field__row--create:hover,
+.fff-todo-list-field__row--create:focus-visible {
+    background: transparent;
+}
+
+.fff-todo-list-field__row:focus-visible {
+    box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--fff-todo-list-accent) 45%, transparent);
+}
+
+.fff-todo-list-field__row.is-disabled { @apply cursor-not-allowed opacity-55; }
+
+.fff-todo-list-field__row.is-settled {
+    --checkbox-active: #444449;
+    --text-color: var(--fff-todo-list-settled);
+}
+
+.fff-todo-list-field__row.is-entering {
+    animation: fff-todo-list-enter 380ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    background: var(--fff-todo-list-row-flash);
+}
+
+.fff-todo-list-field__row.is-exiting {
+    animation: fff-todo-list-exit 320ms cubic-bezier(0.4, 0, 1, 1) both;
+    pointer-events: none;
+}
+
+/* —— Checkbox SVG (draw-on tick via :checked + dashoffset, mask punch through border) —— */
+.fff-todo-list-field__checkbox {
+    --active-tick: #ffffff;
+    display: block;
+    position: relative;
+    flex-shrink: 0;
+    padding: 2px 10px 2px 2px;
+    cursor: pointer;
+    overflow: visible;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.fff-todo-list-field__checkbox-input {
+    display: block;
+    outline: none;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+}
+
+.fff-todo-list-field__checkbox-svg {
+    --checkbox-tick-offset: 40px;
+    --checkbox-tick-duration: 0.15s;
+    --checkbox-tick-easing: ease;
+    --border: var(--border-default);
+    /* `transparent` — not `none` (none via var() can leave a stuck previous fill). */
+    --background: transparent;
+    display: block;
+    position: absolute;
+    width: 21px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    color: var(--checkbox-active);
+    overflow: visible;
+    transition: color 0.25s linear;
+}
+
+.fff-todo-list-field__shape {
+    stroke-width: 1.5px;
+    stroke: var(--border);
+    fill: var(--background);
+    transition: fill 0.25s linear, stroke 0.25s linear;
+}
+
+.fff-todo-list-field__tick {
+    fill: none;
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    /* Path length ≈ 24 — keep headroom so the tip is never clipped when offset hits 0. */
+    stroke-dasharray: 40;
+    stroke-dashoffset: var(--checkbox-tick-offset);
+    transition: stroke-dashoffset var(--checkbox-tick-duration) var(--checkbox-tick-easing);
+}
+
+.fff-todo-list-field__tick.mask {
+    stroke: var(--active-tick);
+}
+
+.fff-todo-list-field__tick-fill {
+    fill: var(--fff-todo-list-check-fill-mask);
+    opacity: 0;
+}
+
+/* Checked chrome lives on .is-done / .is-settled — never from input:checked. */
+
+/* Spark lines. */
+.fff-todo-list-field__lines {
+    display: block;
+    position: absolute;
+    width: 11px;
+    height: 11px;
+    fill: none;
+    stroke: var(--checkbox-active);
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    top: -4px;
+    right: -2px;
+    stroke-dasharray: 4.5px;
+    stroke-dashoffset: var(--checkbox-lines-offset);
+    pointer-events: none;
+}
+
+/* —— Title + strike sized to the text (not the row) —— */
+.fff-todo-list-field__content {
+    position: relative;
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.fff-todo-list-field__title-wrap {
+    position: relative;
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    align-self: flex-start;
+    transform: translateX(var(--text-x)) translateZ(0);
+    color: var(--text-color);
+    line-height: 1.2;
+}
+
+.fff-todo-list-field.is-motion-ready .fff-todo-list-field__title-wrap {
+    transition: color 0.25s ease;
+}
+
+.fff-todo-list-field__label {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    font-weight: 500;
+    line-height: 1.2;
+    font-size: var(--fff-todo-list-label-size);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Strike host covers the title; JS places one SVG per text line. */
+.fff-todo-list-field__strikes {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: visible;
+}
+
+/* Width/top/left: single-line uses 100%+4px (no JS undershoot). Multi-line set in JS.
+   Left inset must stay 0 when hidden — negative left left a 1–2px stub. */
+.fff-todo-list-field__strike {
+    pointer-events: none;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: calc(100% + 4px);
+    max-width: none;
+    height: 0.62em;
+    transform: translateY(-50%);
+    overflow: hidden;
+    opacity: 1;
+    clip-path: inset(-3px calc((1 - var(--text-line-scale)) * 100%) -3px 0);
+}
+
+.fff-todo-list-field__description {
+    display: block;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+    line-height: 1.2;
+    font-size: var(--fff-todo-list-body-size);
+    color: var(--fff-todo-list-muted);
+    opacity: 1;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+/* Enable desc color transitions only after first hydrated paint (no reload tween) */
+.fff-todo-list-field.is-motion-ready .fff-todo-list-field__description {
+    transition: color 0.25s ease, opacity 0.25s ease;
+}
+
+/* Fade desc only with settle (grey strike/title) — not on immediate is-done */
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__description,
+.fff-todo-list-field__description.is-complete {
+    color: var(--fff-todo-list-settled);
+    opacity: 0.55;
+}
+
+.fff-todo-list-field__strike path {
+    fill: none;
+    stroke: var(--checkbox-active);
+    stroke-width: 2.15;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    transition: stroke 0.35s ease;
+}
+
+.fff-todo-list-field__row.is-settled .fff-todo-list-field__strike path {
+    stroke: var(--fff-todo-list-settled);
+}
+
+.fff-todo-list-field--strike-straight .fff-todo-list-field__strike path {
+    d: path('M0 4 L100 4');
+    stroke-width: 2.15;
+}
+
+.fff-todo-list-field__actions {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--fff-todo-list-action-gap, 0.125rem);
+    margin: 0;
+    margin-inline-start: auto;
+    padding: 0;
+}
+
+.fff-todo-list-field__action-slot {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: var(--fff-todo-list-action-slot, 1.75rem);
+    height: var(--fff-todo-list-action-slot, 1.75rem);
+}
+
+.fff-todo-list-field__action {
+    @apply inline-flex shrink-0 items-center justify-center rounded-md;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-top: 0;
+    color: var(--fff-todo-list-delete);
+    opacity: 0;
+    transform: translateX(0.35rem) scale(0.9);
+    pointer-events: none;
+    transition:
+        opacity 0.15s ease,
+        transform 0.2s cubic-bezier(0.165, 0.84, 0.44, 1),
+        background 0.15s ease,
+        color 0.15s ease;
+}
+
+.fff-todo-list-field__row:hover .fff-todo-list-field__action,
+.fff-todo-list-field__row:focus-within .fff-todo-list-field__action {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: auto;
+}
+
+.fff-todo-list-field__edit {
+    color: var(--fff-todo-list-muted);
+}
+
+.fff-todo-list-field__edit:hover,
+.fff-todo-list-field__edit:focus-visible {
+    color: var(--fff-todo-list-accent);
+    background: color-mix(in srgb, var(--fff-todo-list-accent) 12%, transparent);
+}
+
+.fff-todo-list-field__delete:hover,
+.fff-todo-list-field__delete:focus-visible {
+    color: var(--fff-todo-list-delete-hover);
+    background: color-mix(in srgb, var(--fff-todo-list-delete-hover) 12%, transparent);
+}
+
+.fff-todo-list-field__action-icon {
+    display: block;
+}
+
+.fff-todo-list-field__create-icon {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-start;
+    width: var(--fff-todo-list-check-size, 1.25rem);
+    height: var(--fff-todo-list-check-size, 1.25rem);
+    margin: 0 10px 0 2px;
+    color: var(--fff-todo-list-accent);
+    line-height: 0;
+}
+
+.fff-todo-list-field__plus {
+    display: block;
+    width: var(--fff-todo-list-check-size, 1.25rem);
+    height: var(--fff-todo-list-check-size, 1.25rem);
+    color: inherit;
+    transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fff-todo-list-field__row.is-creating .fff-todo-list-field__plus {
+    transform: rotate(45deg);
+}
+
+/*
+ * Create fields — same shell language as FlexTextInput (field tokens + focus ring),
+ * only height stays compact for the todo dock.
+ */
+.fff-todo-list-field__create-input,
+.fff-todo-list-field__create-description {
+    @apply w-full outline-none;
+    box-sizing: border-box;
+    min-width: 0;
+    height: var(--fff-todo-list-create-control-height, 1.75rem);
+    min-height: var(--fff-todo-list-create-control-height, 1.75rem);
+    padding-block: 0;
+    padding-inline: 0.5rem;
+    border-radius: var(--fff-todo-list-radius, var(--fff-global-radius, 0.75rem));
+    border: var(--fff-field-border-width, 1px) solid var(--fff-field-border, var(--fff-todo-list-input-border));
+    background: var(--fff-field-bg, var(--fff-todo-list-bg));
+    box-shadow: var(--fff-field-shadow, none);
+    font-size: var(--fff-todo-list-label-size, 0.875rem);
+    line-height: 1.2;
+    color: var(--fff-todo-list-label);
+    transition: border-color 200ms ease-out, box-shadow 200ms ease-out, outline-color 200ms ease-out;
+}
+
+.fff-todo-list-field__create-input:focus,
+.fff-todo-list-field__create-description:focus {
+    border-color: var(--fff-field-focus-border, var(--fff-todo-list-accent));
+    box-shadow: var(--fff-field-shadow, none);
+    outline: var(--fff-field-focus-ring-width, 3px) solid var(--fff-field-focus-ring, color-mix(in srgb, var(--fff-todo-list-accent) 28%, transparent));
+    outline-offset: 0;
+    color: var(--fff-todo-list-label);
+}
+
+.fff-todo-list-field__create-input::placeholder,
+.fff-todo-list-field__create-description::placeholder {
+    color: rgb(161 161 170);
+}
+
+.dark .fff-todo-list-field__create-input::placeholder,
+.dark .fff-todo-list-field__create-description::placeholder {
+    color: rgb(161 161 170);
+}
+
+.fff-todo-list-field__row.is-create-disabled { @apply cursor-not-allowed opacity-50; }
+
+.fff-todo-list-field__load-more {
+    @apply flex items-center justify-center px-3 py-2 text-sm;
+    color: var(--fff-todo-list-muted);
+}
+
+.fff-todo-list-field__load-more-btn {
+    @apply rounded-lg border px-3 py-1.5 text-sm transition;
+    border-color: var(--fff-todo-list-border);
+    background: var(--fff-todo-list-bg);
+    color: var(--fff-todo-list-label);
+}
+
+.fff-todo-list-field__load-more-btn:disabled { @apply cursor-not-allowed opacity-40; }
+
+@keyframes fff-todo-list-enter {
+    0% { opacity: 0; transform: translateY(-0.5rem); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fff-todo-list-exit {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(0.75rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-todo-list-field__row,
+    .fff-todo-list-field__tick,
+    .fff-todo-list-field__lines,
+    .fff-todo-list-field__title-wrap,
+    .fff-todo-list-field__description,
+    .fff-todo-list-field__strike path {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -13,22 +13,41 @@ class CountryRegistry
     /**
      * @param  list<string>  $pools
      * @param  array<string, list<string>>  $filters
-     * @return array{locale: string, pools: array<string, array<string, array{c: string, n: string, d: string, f: string}>>, filters?: array<string, list<string>>}
+     * @param  list<string>  $extraLocales
+     * @return array{locale: string, pools: array<string, array<string, array{c: string, n: string, d: string, f: string}>>, filters?: array<string, list<string>>, locale_names?: array<string, array<string, array<string, string>>>}
      */
-    public static function payload(array $pools, ?string $locale = null, array $filters = []): array
+    public static function payload(array $pools, ?string $locale = null, array $filters = [], array $extraLocales = []): array
     {
         $locale ??= app()->getLocale();
+        $pools = array_values(array_unique($pools));
         $payload = [
             'locale' => $locale,
             'pools' => [],
         ];
 
-        foreach (array_values(array_unique($pools)) as $pool) {
-            $payload['pools'][$pool] = self::poolMetadata($pool);
+        foreach ($pools as $pool) {
+            $payload['pools'][$pool] = self::poolMetadata($pool, $locale);
         }
 
         if ($filters !== []) {
             $payload['filters'] = $filters;
+        }
+
+        $extraLocales = array_values(array_unique(array_filter(
+            $extraLocales,
+            static fn (string $extraLocale): bool => $extraLocale !== '' && $extraLocale !== $locale,
+        )));
+
+        if ($extraLocales !== []) {
+            $payload['locale_names'] = [];
+
+            foreach ($extraLocales as $extraLocale) {
+                $payload['locale_names'][$extraLocale] = [];
+
+                foreach ($pools as $pool) {
+                    $payload['locale_names'][$extraLocale][$pool] = self::poolNames($pool, $extraLocale);
+                }
+            }
         }
 
         return $payload;
@@ -37,13 +56,29 @@ class CountryRegistry
     /**
      * @return array<string, array{c: string, n: string, d: string, f: string}>
      */
-    public static function poolMetadata(string $pool): array
+    public static function poolMetadata(string $pool, ?string $locale = null): array
     {
+        $locale ??= app()->getLocale();
+
         return match ($pool) {
-            self::POOL_ISO => self::isoPoolMetadata(),
-            self::POOL_PHONE => self::phonePoolMetadata(),
+            self::POOL_ISO => self::isoPoolMetadata($locale),
+            self::POOL_PHONE => self::phonePoolMetadata($locale),
             default => [],
         };
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function poolNames(string $pool, string $locale): array
+    {
+        $names = [];
+
+        foreach (self::poolMetadata($pool, $locale) as $code => $country) {
+            $names[$code] = $country['n'];
+        }
+
+        return $names;
     }
 
     /**
@@ -79,11 +114,11 @@ class CountryRegistry
     /**
      * @return array<string, array{c: string, n: string, d: string, f: string}>
      */
-    protected static function isoPoolMetadata(): array
+    protected static function isoPoolMetadata(string $locale): array
     {
         $map = [];
 
-        foreach (Countries::metadata() as $country) {
+        foreach (Countries::metadata(locale: $locale) as $country) {
             $map[$country['code']] = self::compact($country);
         }
 
@@ -93,11 +128,11 @@ class CountryRegistry
     /**
      * @return array<string, array{c: string, n: string, d: string, f: string}>
      */
-    protected static function phonePoolMetadata(): array
+    protected static function phonePoolMetadata(string $locale): array
     {
         $map = [];
 
-        foreach (PhoneCountries::metadata() as $country) {
+        foreach (PhoneCountries::metadata(locale: $locale) as $country) {
             $map[$country['code']] = self::compact([
                 'code' => $country['code'],
                 'name' => $country['name'],

@@ -74,6 +74,10 @@ final class FlexFieldTableBuilder
             return null;
         }
 
+        if ($definition->isEncrypted || FlexFieldEncryption::isEncryptedPayload($value)) {
+            return '••••••••';
+        }
+
         if (in_array($definition->type->value, ['select', 'single_select', 'select_field'], true)) {
             $options = $definition->config['options'] ?? [];
 

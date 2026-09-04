@@ -67,7 +67,9 @@
     }
 @endphp
 
-@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'item-card'])
+@include('filament-flex-fields::partials.load-stylesheet', ['component' => 'item-card',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
 <{{ $tag }} {{ $attributes }} data-slot="item-card">
     @if (filled($image))

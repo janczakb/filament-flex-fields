@@ -21,11 +21,19 @@ const DOCS = path.join(ROOT, 'docs');
 
 const SKIP_COMPONENTS = new Set(['TranslatableTabs', 'TitleSlugField']);
 
+const PHP_ONLY_DISPLAY_COLUMNS = new Set([
+    'ProgressColumn',
+    'MapPinColumn',
+    'SignaturePreviewColumn',
+    'StatusChipColumn',
+]);
+
 const CSS_ONLY_STYLESHEETS = new Set([
     'teleported-menu', 'tag-chips', 'user-display', 'emoji-picker', 'switch',
     'item-card', 'track-slider', 'progress-bar', 'progress-circle', 'color-swatch',
     'cover-card', 'choice-cards', 'rich-editor-field', 'user-column', 'rating-column',
     'icon-column', 'map-picker-dropdown', 'matrix-choice-field',
+    'progress-column', 'status-chip-column', 'signature-preview-column', 'map-pin-column',
 ]);
 
 const STYLESHEET_ALPINE_ENTRY_ALIASES = {
@@ -56,6 +64,8 @@ const STYLESHEET_BY_CLASS = {
     FlexTextareaField: 'flex-textarea',
     PriceRangeField: 'price-range',
     DualListboxField: 'dual-listbox',
+    BubbleChoiceField: 'bubble-choice',
+    TodoListField: 'todo-list-field',
     MapPickerField: 'map-picker',
     AddressAutocompleteField: 'address-autocomplete',
     CreditCardField: 'credit-card',
@@ -84,6 +94,7 @@ const STYLESHEET_BY_CLASS = {
     FlexTimeSegmentsField: 'flex-time-segments',
     FlexChecklist: 'flex-checklist',
     MatrixChoiceField: 'matrix-choice-field',
+    FlexMatrixTable: 'matrix-choice-field',
     ColorSwatchField: 'color-swatch',
     NumberStepper: 'number-stepper',
     SegmentControl: 'segment-control',
@@ -120,6 +131,7 @@ const STYLESHEET_BY_CLASS = {
 
 const LOAD_STYLESHEET_BY_CLASS = {
     FlexRadiolist: ['flex-radiolist'],
+    FlexMatrixTable: ['matrix-choice-field'],
     TranslatableFields: ['segment-tabs'],
     SegmentTabs: ['segment-tabs'],
     UserSelect: ['select-field', 'user-select'],
@@ -347,6 +359,8 @@ const DOC_FILE_BY_CLASS = {
     SlugField: 'slugfield-and-titleslugfield.md',
     AddressAutocompleteField: 'addressautocompletefield.md',
     NumberStepper: 'numberstepper.md',
+    NpsField: 'nps-field.md',
+    FlexMatrixTable: 'flex-matrix-table.md',
     CurrencyField: 'currencyfield.md',
     FlexSlider: 'flexslider.md',
     TrackSlider: 'trackslider.md',
@@ -364,6 +378,8 @@ const DOC_FILE_BY_CLASS = {
     MatrixChoiceField: 'matrixchoicefield.md',
     SelectField: 'selectfield.md',
     DualListboxField: 'duallistboxfield.md',
+    BubbleChoiceField: 'bubblechoicefield.md',
+    PriceRangeField: 'pricerangefield.md',
     TagsField: 'tags-field.md',
     FlexSpatieTagsField: 'tags-field.md',
     FlexDateField: 'date-and-time-fields.md',
@@ -409,6 +425,10 @@ function docExpected(name, componentsMdListed) {
 }
 
 function auditComponent(name, ctx) {
+    if (PHP_ONLY_DISPLAY_COLUMNS.has(name)) {
+        return auditPhpOnlyDisplayColumn(name, ctx);
+    }
+
     const { lazyList, deps, manifest, componentsMdListed, viewMap } = ctx;
     const issues = [];
     const warnings = [];
@@ -526,6 +546,58 @@ function auditComponent(name, ctx) {
         status,
         stylesheet,
         bundles: bundles.join('+') || '—',
+    };
+}
+
+function auditPhpOnlyDisplayColumn(name, ctx) {
+    const { lazyList, componentsMdListed } = ctx;
+    const issues = [];
+    const warnings = [];
+    const checks = {};
+
+    const phpPath = findPhpPath(name);
+    const phpLines = phpPath ? lineCount(phpPath) : 0;
+    checks.php = phpPath && fs.existsSync(phpPath) ? 'ok' : 'fail';
+    if (checks.php === 'fail') issues.push('brak pliku PHP');
+    checks.phpLines = phpLines > PHP_LIMIT ? 'warn' : 'ok';
+    if (checks.phpLines === 'warn') warnings.push(`PHP ${phpLines} linii (limit ${PHP_LIMIT})`);
+
+    const stylesheet = STYLESHEET_BY_CLASS[name] ?? name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    checks.blade = 'n/a';
+    checks.bladeStylesheet = 'n/a';
+    checks.lazyRegistry = lazyList.includes(stylesheet) ? 'ok' : 'fail';
+    if (checks.lazyRegistry === 'fail') issues.push(`stylesheet ${stylesheet} poza LAZY/DEPS`);
+    checks.cssEntry = 'n/a';
+    checks.cssDist = fs.existsSync(path.join(DIST_CSS, `${stylesheet}.css`)) ? 'ok' : 'fail';
+    if (checks.cssDist === 'fail') issues.push(`brak dist CSS: ${stylesheet}`);
+    checks.cssBaseline = 'n/a';
+    checks.alpine = 'n/a';
+    checks.js = 'n/a';
+    checks.jsLines = 'n/a';
+    checks.jsDist = 'n/a';
+    checks.intersect = 'n/a';
+
+    const docPath = DOC_FILE_BY_CLASS[name] ? path.join(DOCS, DOC_FILE_BY_CLASS[name]) : null;
+    const docExists = docPath && fs.existsSync(docPath);
+    if (docExpected(name, componentsMdListed)) {
+        checks.doc = docExists ? 'ok' : 'fail';
+        if (!docExists) issues.push(`brak docs/${DOC_FILE_BY_CLASS[name] ?? '?'}`);
+    } else {
+        checks.doc = 'n/a';
+    }
+
+    const status = issues.length ? 'FAIL' : warnings.length ? 'WARN' : 'OK';
+
+    return {
+        name,
+        phpLines,
+        jsLines: '—',
+        checks,
+        issues,
+        warnings,
+        status,
+        stylesheet,
+        bundles: stylesheet,
     };
 }
 

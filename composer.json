@@ -95,6 +95,16 @@
     "scripts": {
         "test": "pest",
         "analyse": "phpstan analyse --memory-limit=512M",
+        "prune:phpstan-baseline": "node scripts/prune-phpstan-baseline.mjs",
+        "audit:components": "node scripts/audit-components.mjs",
+        "check:budgets": "node scripts/check-bundle-budgets.mjs",
+        "quality": [
+            "@test",
+            "@analyse",
+            "@prune:phpstan-baseline",
+            "@audit:components",
+            "@check:budgets"
+        ],
         "build:css": "npm run build:css",
         "build:js": "npm run build:js",
         "build:assets": "npm run build",

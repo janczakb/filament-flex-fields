@@ -2,7 +2,7 @@
 title: "SignatureField"
 ---
 
-![SignatureField](/art/sc-1.png)
+![SignatureField](/art/sc-1.webp)
 
 [← Back to Table of Contents](/docs/index)
 

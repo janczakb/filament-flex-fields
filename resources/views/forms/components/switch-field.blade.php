@@ -62,7 +62,9 @@
     :field="$field"
     :inline-label-vertical-alignment="VerticalAlignment::Center"
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'switch'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'switch',
+        'livewireKey' => $getLivewireKey(),
+    ])
     @if ($isInlineToggle && $showsInlineFieldLabel)
         @if ($labelPosition === 'end')
             <x-slot name="labelSuffix">

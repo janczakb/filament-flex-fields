@@ -3,7 +3,7 @@ title: "SegmentControl"
 description: IOS-style single-select segmented control with sliding indicators, icons, and animated label expansion.
 ---
 
-![SegmentControl](/art/sc-17.png)
+![SegmentControl](/art/sc-17.webp)
 
 [← Back to Table of Contents](/docs/index)
 

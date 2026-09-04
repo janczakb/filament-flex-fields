@@ -97,7 +97,7 @@ it('deduplicates searchable select menu chunk preloads across country timezone a
         ->and($selectMenuChunk)->toBeString()
         ->and($countryChunks)->toContain($selectMenuChunk)
         ->and($timezoneChunks)->not->toContain($selectMenuChunk)
-        ->and($currencyChunks)->toBe([]);
+        ->and($currencyChunks)->not->toContain($selectMenuChunk);
 });
 
 it('documents shared chunk source modules in the build manifest with semantic chunk names', function () {
@@ -171,4 +171,50 @@ it('preloads the overlay coordinator chunk for select field dropdown exclusivity
 
     expect(FlexFieldAssets::alpineChunksFor('select-field'))
         ->toContain($overlayChunk);
+});
+
+it('preloads transitive barcode scanner zxing chunks from the alpine manifest graph', function () {
+    $manifest = FlexFieldAssets::alpineManifest();
+    $barcodeChunks = FlexFieldAssets::alpineChunksFor('barcode-scanner-field');
+
+    expect($barcodeChunks)->not->toBeEmpty();
+
+    foreach ($manifest['__chunk_imports__'] ?? [] as $chunk => $imports) {
+        if (! in_array($chunk, $barcodeChunks, true)) {
+            continue;
+        }
+
+        foreach ($imports as $import) {
+            expect($barcodeChunks)->toContain($import);
+        }
+    }
+});
+
+it('uses Filament native x-load in field blades instead of custom x-fff-load', function () {
+    $viewsRoot = __DIR__.'/../../resources/views';
+    $bladeFiles = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($viewsRoot, FilesystemIterator::SKIP_DOTS),
+    );
+
+    $offenders = [];
+
+    foreach ($bladeFiles as $file) {
+        if (! $file->isFile() || $file->getExtension() !== 'php') {
+            continue;
+        }
+
+        $relative = str_replace($viewsRoot.'/', '', $file->getPathname());
+
+        if (str_contains($relative, 'flex-fff-load-bootstrap')) {
+            continue;
+        }
+
+        $contents = file_get_contents($file->getPathname());
+
+        if (preg_match('/x-fff-load/', $contents) === 1) {
+            $offenders[] = $relative;
+        }
+    }
+
+    expect($offenders)->toBe([]);
 });

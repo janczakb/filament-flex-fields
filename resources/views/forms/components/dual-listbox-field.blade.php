@@ -13,6 +13,11 @@
     $swapIconHtml = \Filament\Support\generate_icon_html($field->getSwapIcon(), size: $toolbarIconSize)?->toHtml() ?? '';
     $moveLeftIconHtml = \Filament\Support\generate_icon_html($field->getMoveLeftIcon(), size: $toolbarIconSize)?->toHtml() ?? '';
     $moveAllLeftIconHtml = \Filament\Support\generate_icon_html($field->getMoveAllLeftIcon(), size: $toolbarIconSize)?->toHtml() ?? '';
+    $moveAllDownIconHtml = \Filament\Support\generate_icon_html(\Bjanczak\FilamentFlexFields\Support\GravityIcon::ArrowChevronDown, size: $toolbarIconSize)?->toHtml() ?? '';
+    $moveDownTransferIconHtml = \Filament\Support\generate_icon_html(\Bjanczak\FilamentFlexFields\Support\GravityIcon::ArrowDown, size: $toolbarIconSize)?->toHtml() ?? '';
+    $swapStackedIconHtml = \Filament\Support\generate_icon_html(\Bjanczak\FilamentFlexFields\Support\GravityIcon::ArrowUpArrowDown, size: $toolbarIconSize)?->toHtml() ?? '';
+    $moveUpTransferIconHtml = \Filament\Support\generate_icon_html(\Bjanczak\FilamentFlexFields\Support\GravityIcon::ArrowUp, size: $toolbarIconSize)?->toHtml() ?? '';
+    $moveAllUpIconHtml = \Filament\Support\generate_icon_html(\Bjanczak\FilamentFlexFields\Support\GravityIcon::ArrowChevronUp, size: $toolbarIconSize)?->toHtml() ?? '';
     $moveUpIconHtml = \Filament\Support\generate_icon_html($field->getMoveUpIcon(), size: IconSize::ExtraSmall)?->toHtml() ?? '';
     $moveDownIconHtml = \Filament\Support\generate_icon_html($field->getMoveDownIcon(), size: IconSize::ExtraSmall)?->toHtml() ?? '';
 @endphp
@@ -25,7 +30,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'dual-listbox'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'dual-listbox',
+        'livewireKey' => $getLivewireKey(),
+    ])
     <div
         x-load
         x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('dual-listbox', \Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin::PACKAGE_NAME) }}"
@@ -47,13 +54,17 @@
             'fff-dual-listbox',
             'is-disabled' => $isDisabled,
         ])
+        :class="{ 'is-pointer-dragging': pointerDragActive }"
         style="--fff-dual-listbox-height: {{ $listHeight }}"
         role="group"
         aria-label="{{ $getLabel() }}"
     >
         <div class="fff-dual-listbox__layout">
             {{-- Available panel --}}
-            <div class="fff-dual-listbox__panel">
+            <div
+                class="fff-dual-listbox__panel"
+                :class="{ 'is-drop-pane': pointerDragActive && dropPane === 'available' && touchHoldPane === 'selected' }"
+            >
                 <div class="fff-dual-listbox__panel-header">
                     <span class="fff-dual-listbox__panel-title">{{ $getAvailableLabel() }}</span>
                     <span class="fff-dual-listbox__panel-count" x-text="availableItems.length"></span>
@@ -77,6 +88,7 @@
 
                 <ul
                     class="fff-dual-listbox__list"
+                    data-fff-dual-listbox-pane="available"
                     role="listbox"
                     aria-multiselectable="true"
                     :aria-label="@js($getAvailableLabel())"
@@ -97,12 +109,18 @@
                             :aria-selected="isAvailableSelected(item.value)"
                             :aria-disabled="item.disabled"
                             @click="toggleAvailableSelection(item.value, $event)"
+                            @pointerdown="onAvailablePointerDown(item.value, $event)"
+                            @pointerup="onPointerUp($event)"
+                            @pointercancel="onPointerUp($event)"
                             @dblclick.prevent="handleAvailableDoubleClick(item.value)"
                             :class="{
                                 'is-selected': isAvailableSelected(item.value),
                                 'is-disabled': item.disabled,
+                                'is-dragging': isPointerDraggingValue(item.value),
                             }"
                             class="fff-dual-listbox__item"
+                            data-fff-dual-listbox-item="true"
+                            :data-fff-value="item.value"
                         >
                             <span class="fff-dual-listbox__item-content">
                                 <span class="fff-dual-listbox__item-label" x-text="item.label"></span>
@@ -141,7 +159,8 @@
                         :disabled="disabled || ! canMoveAllToSelected()"
                         title="{{ __('filament-flex-fields::default.dual_listbox.move_all_right') }}"
                     >
-                        {!! $moveAllRightIconHtml !!}
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--inline">{!! $moveAllRightIconHtml !!}</span>
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--stacked">{!! $moveAllDownIconHtml !!}</span>
                     </button>
                     <button
                         type="button"
@@ -150,7 +169,8 @@
                         :disabled="disabled || availableSelection.length === 0"
                         title="{{ __('filament-flex-fields::default.dual_listbox.move_selected_right') }}"
                     >
-                        {!! $moveRightIconHtml !!}
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--inline">{!! $moveRightIconHtml !!}</span>
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--stacked">{!! $moveDownTransferIconHtml !!}</span>
                     </button>
                     <button
                         type="button"
@@ -159,7 +179,8 @@
                         :disabled="disabled || ! canSwapLists()"
                         title="{{ __('filament-flex-fields::default.dual_listbox.swap_lists') }}"
                     >
-                        {!! $swapIconHtml !!}
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--inline">{!! $swapIconHtml !!}</span>
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--stacked">{!! $swapStackedIconHtml !!}</span>
                     </button>
                     <button
                         type="button"
@@ -168,7 +189,8 @@
                         :disabled="disabled || selectedSelection.length === 0"
                         title="{{ __('filament-flex-fields::default.dual_listbox.move_selected_left') }}"
                     >
-                        {!! $moveLeftIconHtml !!}
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--inline">{!! $moveLeftIconHtml !!}</span>
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--stacked">{!! $moveUpTransferIconHtml !!}</span>
                     </button>
                     <button
                         type="button"
@@ -177,13 +199,17 @@
                         :disabled="disabled || (state?.length ?? 0) === 0"
                         title="{{ __('filament-flex-fields::default.dual_listbox.move_all_left') }}"
                     >
-                        {!! $moveAllLeftIconHtml !!}
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--inline">{!! $moveAllLeftIconHtml !!}</span>
+                        <span class="fff-dual-listbox__transfer-icon fff-dual-listbox__transfer-icon--stacked">{!! $moveAllUpIconHtml !!}</span>
                     </button>
                 </div>
             @endif
 
             {{-- Selected panel --}}
-            <div class="fff-dual-listbox__panel">
+            <div
+                class="fff-dual-listbox__panel"
+                :class="{ 'is-drop-pane': pointerDragActive && dropPane === 'selected' }"
+            >
                 <div class="fff-dual-listbox__panel-header">
                     <span class="fff-dual-listbox__panel-title">{{ $getSelectedLabel() }}</span>
                     <span class="fff-dual-listbox__panel-count" x-text="(state?.length ?? 0)"></span>
@@ -207,6 +233,7 @@
 
                 <ul
                     class="fff-dual-listbox__list"
+                    data-fff-dual-listbox-pane="selected"
                     role="listbox"
                     aria-multiselectable="true"
                     :aria-label="@js($getSelectedLabel())"
@@ -226,9 +253,31 @@
                             role="option"
                             :aria-selected="isSelectedSelected(item.value)"
                             @click="toggleSelectedSelection(item.value, $event)"
+                            @pointerdown="onSelectedPointerDown(item.value, $event)"
+                            @pointerup="onPointerUp($event)"
+                            @pointercancel="onPointerUp($event)"
                             @dblclick.prevent="handleSelectedDoubleClick(item.value)"
-                            :class="{ 'is-selected': isSelectedSelected(item.value) }"
+                            @if ($isReorderable())
+                                :draggable="canReorderSelected() && html5DragEnabled"
+                                @dragstart="startSelectedDrag(item.value, $event)"
+                                @dragover.prevent="markSelectedDropTarget(item.value)"
+                                @drop.prevent="dropSelectedAt(item.value, $event)"
+                                @dragend="clearSelectedDrag()"
+                            @endif
+                            :class="{
+                                'is-selected': isSelectedSelected(item.value),
+                                'is-disabled': item.disabled,
+                                'is-dragging': isPointerDraggingValue(item.value) || draggingSelectedValues.includes(item.value) || draggingSelectedValue === item.value,
+                                'is-drop-target': isSelectedDropTarget(item.value) && ! dropAfter,
+                                'is-drop-after': isSelectedDropTarget(item.value) && dropAfter,
+                                'is-reorderable': canReorderSelected(),
+                            }"
                             class="fff-dual-listbox__item"
+                            data-fff-dual-listbox-item="true"
+                            :data-fff-value="item.value"
+                            @if ($isReorderable())
+                                :title="canReorderSelected() ? @js(__('filament-flex-fields::default.dual_listbox.reorder')) : null"
+                            @endif
                         >
                             <span class="fff-dual-listbox__item-content">
                                 <span class="fff-dual-listbox__item-label" x-text="item.label"></span>
@@ -240,10 +289,15 @@
                             </span>
 
                             @if ($isReorderable())
-                                <span class="fff-dual-listbox__reorder" @click.stop>
+                                <span
+                                    class="fff-dual-listbox__reorder"
+                                    @click.stop
+                                    @pointerdown.stop
+                                >
                                     <button
                                         type="button"
                                         class="fff-dual-listbox__reorder-btn"
+                                        draggable="false"
                                         @click="moveSelectedUp(item.value)"
                                         :disabled="disabled"
                                         title="{{ __('filament-flex-fields::default.dual_listbox.move_up') }}"
@@ -253,6 +307,7 @@
                                     <button
                                         type="button"
                                         class="fff-dual-listbox__reorder-btn"
+                                        draggable="false"
                                         @click="moveSelectedDown(item.value)"
                                         :disabled="disabled"
                                         title="{{ __('filament-flex-fields::default.dual_listbox.move_down') }}"
@@ -281,5 +336,32 @@
                 </ul>
             </div>
         </div>
+
+        <template x-teleport="body">
+            <div
+                class="fff-dual-listbox__ghost"
+                x-show="pointerDragActive"
+                x-cloak
+                :style="ghostStyle"
+                data-fff-dual-listbox-ghost="true"
+                aria-hidden="true"
+            >
+                <div class="fff-dual-listbox__ghost-stack">
+                    <template x-for="card in ghostStack" :key="card.value">
+                        <div
+                            class="fff-dual-listbox__ghost-card"
+                            :style="ghostCardStyle(card.depth)"
+                        >
+                            <span class="fff-dual-listbox__ghost-label" x-text="card.label"></span>
+                        </div>
+                    </template>
+                </div>
+                <span
+                    class="fff-dual-listbox__ghost-badge"
+                    x-show="ghostCount > 1"
+                    x-text="ghostCount"
+                ></span>
+            </div>
+        </template>
     </div>
 </x-dynamic-component>

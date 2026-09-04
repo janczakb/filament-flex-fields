@@ -129,7 +129,7 @@ class FilamentFlexFieldsPlugin implements Plugin
 
     public function getNavigationGroup(): ?string
     {
-        return $this->navigationGroup ?? config('filament-flex-fields.navigation.group');
+        return $this->navigationGroup ?? config('filament-flex-fields.schema.navigation_group');
     }
 
     public function navigationSort(?int $sort): static
@@ -141,7 +141,7 @@ class FilamentFlexFieldsPlugin implements Plugin
 
     public function getNavigationSort(): ?int
     {
-        return $this->navigationSort ?? config('filament-flex-fields.navigation.sort');
+        return $this->navigationSort ?? config('filament-flex-fields.schema.navigation_sort');
     }
 
     public function navigationLabel(?string $label): static
@@ -153,7 +153,7 @@ class FilamentFlexFieldsPlugin implements Plugin
 
     public function getNavigationLabel(): ?string
     {
-        return $this->navigationLabel ?? config('filament-flex-fields.navigation.label');
+        return $this->navigationLabel;
     }
 
     public function navigationIcon(?string $icon): static
@@ -165,6 +165,6 @@ class FilamentFlexFieldsPlugin implements Plugin
 
     public function getNavigationIcon(): ?string
     {
-        return $this->navigationIcon ?? config('filament-flex-fields.navigation.icon');
+        return $this->navigationIcon;
     }
 }

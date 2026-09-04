@@ -57,15 +57,63 @@ export default function timezoneFieldFormComponent({
             this.initTimezonePicker()
         },
 
+        /**
+         * @returns {boolean} true when a browser timezone was written into state
+         */
         applyBrowserTimezoneDefault() {
             if (! this.browserTimezoneDefault || this.isLocked || this.state || this.initialState) {
+                return false
+            }
+
+            const detected = this.$el?.dataset?.fffDetectedTimezone || this.detectBrowserTimezone()
+
+            if (! detected) {
+                return false
+            }
+
+            this.state = detected
+
+            return true
+        },
+
+        /**
+         * Keep SSR trigger text aligned with the resolved selection. Used after
+         * Alpine mounts (inline boot may have already painted a provisional label).
+         */
+        syncTriggerSsrFromSelection() {
+            const selected = this.selectedTimezone
+
+            if (! selected) {
                 return
             }
 
-            const detected = this.detectBrowserTimezone()
+            const root = this.$el
 
-            if (detected) {
-                this.state = detected
+            if (! root || typeof root.querySelector !== 'function') {
+                return
+            }
+
+            if (! root.dataset.fffDetectedTimezone && selected.id) {
+                root.dataset.fffDetectedTimezone = String(selected.id)
+            }
+
+            const nextLabel = String(selected.label ?? '')
+            const nextOffset = String(selected.offset ?? '')
+            const label = root.querySelector('.fff-timezone-field__ssr-label')
+
+            if (label && label.textContent !== nextLabel) {
+                label.textContent = nextLabel
+                label.classList.remove('is-placeholder')
+                label.removeAttribute('data-fff-tz-ssr-provisional')
+            } else if (label) {
+                label.classList.remove('is-placeholder')
+                label.removeAttribute('data-fff-tz-ssr-provisional')
+            }
+
+            const meta = root.querySelector('.fff-timezone-field__ssr-meta')
+
+            if (meta && meta.textContent !== nextOffset) {
+                meta.textContent = nextOffset
             }
         },
 

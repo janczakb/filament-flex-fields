@@ -37,6 +37,18 @@ describe('combobox-engine', () => {
         engine.destroy()
     })
 
+    it('highlights the selected option when opening', () => {
+        const engine = createComboboxEngine({
+            options: sampleOptions,
+            initialSelectedValues: ['pt'],
+        })
+
+        engine.open()
+        assert.equal(engine.getSnapshot().highlightedIndex, 2)
+
+        engine.destroy()
+    })
+
     it('filters options with accent-insensitive search', () => {
         const engine = createComboboxEngine({ options: sampleOptions })
 
@@ -210,6 +222,32 @@ describe('combobox-engine', () => {
 
         assert.equal(idleSections[0]?.type, 'recent')
         assert.equal(idleSections[1]?.type, 'suggested')
+        assert.equal(idleSections[2]?.type, 'options')
+        assert.equal(
+            idleSections[2].options.some((option) => option.value === 'us'),
+            false,
+            'pinned recent values must not repeat in the main options section',
+        )
+        assert.equal(
+            idleSections[2].options.some((option) => option.value === 'pt'),
+            false,
+            'pinned suggested values must not repeat in the main options section',
+        )
+
+        engine.destroy()
+    })
+
+    it('omits empty recent section when pinned keys are missing from options', () => {
+        const engine = createComboboxEngine({
+            options: sampleOptions,
+            recentValues: ['missing-recent'],
+            suggestedValues: ['us'],
+        })
+
+        const sections = engine.smartSections()
+
+        assert.equal(sections.some((section) => section.type === 'recent'), false)
+        assert.equal(sections[0]?.type, 'suggested')
 
         engine.destroy()
     })

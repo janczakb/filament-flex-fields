@@ -54,7 +54,7 @@ test.describe('Flex Fields playground picker matrix', () => {
         await page.goto('/select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__basic"] .fi-select-input-btn').first()
+        const trigger = page.locator('[id$="select__basic"].fi-select-input-btn, [id$="select__basic"] .fi-select-input-btn').first()
 
         await trigger.click()
 

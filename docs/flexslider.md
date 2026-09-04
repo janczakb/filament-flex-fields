@@ -3,7 +3,7 @@ title: "FlexSlider"
 description: Styled wrapper around Filament's Slider with SaaS-like track, step dots, and server-rendered pips.
 ---
 
-![FlexSlider](/art/sc-16.png)
+![FlexSlider](/art/sc-16.webp)
 
 [← Back to Table of Contents](/docs/index)
 

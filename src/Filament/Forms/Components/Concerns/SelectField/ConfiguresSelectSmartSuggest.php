@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\SelectField;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 
 /**
@@ -121,7 +122,7 @@ trait ConfiguresSelectSmartSuggest
             'recent' => $this->getRecentOptionValues(),
             'suggested' => $this->getSuggestedOptionValues(),
             'allowCreate' => $this->allowsCreateOption(),
-            'createLabel' => (string) __('filament-flex-fields::default.select_field.smart_suggest.create'),
+            'createLabel' => Translations::get('filament-flex-fields::default.select_field.smart_suggest.create'),
             'entityMentions' => $this->hasEntityMentions(),
             'mentionTrigger' => $this->getEntityMentionTrigger(),
         ];

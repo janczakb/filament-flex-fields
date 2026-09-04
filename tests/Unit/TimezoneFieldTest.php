@@ -17,6 +17,7 @@ it('exposes timezone field configuration api', function () {
         ->showOffset(false)
         ->browserTimezoneDefault()
         ->browserTimezoneSortFirst()
+        ->locale('pl')
         ->prefixIcon(GravityIcon::Clock);
 
     expect($field->getSize())->toBe('lg')
@@ -27,6 +28,7 @@ it('exposes timezone field configuration api', function () {
         ->and($field->shouldShowOffset())->toBeFalse()
         ->and($field->shouldUseBrowserTimezoneDefault())->toBeTrue()
         ->and($field->shouldSortTimezonesByBrowserTimezone())->toBeTrue()
+        ->and($field->getLocale())->toBe('pl')
         ->and($field->getPrefixIcon())->toBe(GravityIcon::Clock);
 });
 
@@ -40,6 +42,47 @@ it('normalizes timezone state to iana identifier', function () {
     expect($field->normalizeState('UTC'))->toBe('UTC')
         ->and($field->normalizeState(null))->toBeNull()
         ->and($field->normalizeState(''))->toBeNull();
+});
+
+it('dehydrates only the iana identifier never the display label', function () {
+    $field = TimezoneField::make('timezone')
+        ->timezones(['Europe/Warsaw', 'UTC']);
+
+    $options = collect($field->getOptionsForJs())->keyBy('id');
+
+    expect($options['Europe/Warsaw']['id'])->toBe('Europe/Warsaw')
+        ->and($options['Europe/Warsaw']['label'])->not->toBe('Europe/Warsaw')
+        ->and($options['Europe/Warsaw']['label'])->not->toContain('Poland Time')
+        ->and($field->normalizeState('Europe/Warsaw'))->toBe('Europe/Warsaw')
+        ->and($field->normalizeState($options['Europe/Warsaw']['label']))->toBeNull()
+        ->and($field->normalizeState('Warsaw'))->toBeNull()
+        ->and($field->normalizeState('Poland Time'))->toBeNull();
+});
+
+it('localizes city labels independently of the app locale', function () {
+    if (! extension_loaded('intl')) {
+        expect(true)->toBeTrue();
+
+        return;
+    }
+
+    app()->setLocale('en');
+
+    $english = TimezoneField::make('timezone')
+        ->timezones(['Europe/Warsaw'])
+        ->locale('en');
+    $polish = TimezoneField::make('timezone')
+        ->timezones(['Europe/Warsaw'])
+        ->locale('pl');
+
+    $englishOptions = collect($english->getOptionsForJs())->keyBy('id');
+    $polishOptions = collect($polish->getOptionsForJs())->keyBy('id');
+
+    expect($english->getLocale())->toBe('en')
+        ->and($polish->getLocale())->toBe('pl')
+        ->and($englishOptions['Europe/Warsaw']['label'])->toBe('Warsaw, Poland')
+        ->and($polishOptions['Europe/Warsaw']['label'])->toBe('Warszawa, Polska')
+        ->and($englishOptions['Europe/Warsaw']['id'])->toBe($polishOptions['Europe/Warsaw']['id']);
 });
 
 it('defaults to full iana timezone list except excluded ones', function () {
@@ -123,3 +166,45 @@ it('exposes focus outline api', function () {
 it('rejects unsupported timezone field variants', function () {
     TimezoneField::make('timezone')->variant('ghost')->getVariant();
 })->throws(InvalidArgumentException::class);
+
+it('inlines blocking browser timezone ssr boot for empty browserTimezoneDefault fields', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/timezone-browser-ssr-boot.blade.php');
+
+    expect($blade)
+        ->toContain('timezoneBrowserSsrInlineContents()')
+        ->toContain('data-fff-timezone-boot')
+        ->toContain('getBrowserTimezoneBootCatalog()')
+        ->not->toContain('getScriptSrc');
+});
+
+it('builds a compact catalog matching alpine timezone labels', function () {
+    $field = TimezoneField::make('timezone')
+        ->timezones(['Europe/Warsaw', 'UTC']);
+
+    $catalog = $field->getBrowserTimezoneBootCatalog();
+    $options = collect($field->getOptionsForJs())->keyBy('id');
+
+    expect($catalog['Europe/Warsaw'][0])->toBe($options['Europe/Warsaw']['label'])
+        ->and($catalog['Europe/Warsaw'][1])->toBe($options['Europe/Warsaw']['offset'])
+        ->and($catalog['UTC'][0])->toBe($options['UTC']['label']);
+});
+
+it('includes utc in the default iana list and can hide it with includeUtc', function () {
+    $withUtc = TimezoneField::make('timezone');
+    $withoutUtc = TimezoneField::make('timezone')->includeUtc(false);
+
+    expect($withUtc->shouldIncludeUtc())->toBeTrue()
+        ->and($withoutUtc->shouldIncludeUtc())->toBeFalse()
+        ->and($withUtc->getExceptTimezoneIdentifiers())->not->toContain('UTC')
+        ->and($withoutUtc->getExceptTimezoneIdentifiers())->toContain('UTC')
+        ->and(collect($withUtc->getTimezonesMetadata())->pluck('id')->all())->toContain('UTC')
+        ->and(collect($withoutUtc->getTimezonesMetadata())->pluck('id')->all())->not->toContain('UTC');
+});
+
+it('does not duplicate utc when includeUtc is false and utc is already excepted', function () {
+    $field = TimezoneField::make('timezone')
+        ->includeUtc(false)
+        ->exceptTimezones(['UTC']);
+
+    expect($field->getExceptTimezoneIdentifiers())->toBe(['UTC']);
+});

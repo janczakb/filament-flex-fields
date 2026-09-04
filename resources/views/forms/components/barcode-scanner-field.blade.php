@@ -30,7 +30,9 @@
             ->class($wrapperClasses)
     "
 >
-    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'barcode-scanner-field'])
+    @include('filament-flex-fields::partials.load-stylesheet', ['component' => 'barcode-scanner-field',
+        'livewireKey' => $getLivewireKey(),
+    ])
 
     @once
         <link

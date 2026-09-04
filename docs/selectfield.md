@@ -182,8 +182,10 @@ SelectField::make('category_id')
 | Rule | When |
 |------|------|
 | `nullable` | Always (unless `required()`) |
-| `Rule::in(...)` | Value must match a configured option key |
+| `Rule::in(...)` | Value must match a configured option key (Filament “valid option” / label check) |
 | `required` | When `->required()` |
+| `array` + `min:N` | When `->minItems(N)` on a multi-select |
+| `array` + `max:N` | When `->maxItems(N)` on a multi-select |
 
 ---
 
@@ -209,7 +211,7 @@ All methods accept `Closure` unless noted.
 | `suggestedOptions(array\|Closure $values)` | Setup | `[]` | Pin suggested option keys below recent (smart suggest) |
 | `allowCreateOption(bool\|Closure $condition = true)` | Setup | `false` | Show inline “Create …” row when search has no exact match |
 | `entityMentions(bool\|Closure $condition = true, string\|Closure $trigger = '@')` | Setup | `false` | Async people/entity picker; type the trigger in search or on the closed trigger |
-| `clearable(bool\|Closure $condition = true)` | Setup | auto | Show clear button (×) |
+| `clearable(bool\|Closure $condition = true)` | Setup | auto | Show clear button (×); also updates `selectablePlaceholder()` |
 | `dropdownAlign(string\|Closure $align)` | Setup | auto | Align dropdown: `start`, `end` |
 | `size(string\|ControlSize\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg` |
 | `rounding(string\|Closure\|null $rounding)` | Setup | config | Border radius token |
@@ -394,6 +396,194 @@ See [Playground](/docs/index#playground) for setup.
 
 ---
 
+### Filament Select parity
+
+`SelectField` **extends** `Filament\Forms\Components\Select`. Every public Select API from the Filament docs is available with the same method names. The headless Alpine/Livewire UI wires behaviour that Filament’s JS select would otherwise handle.
+
+**Out of scope for this field (separate Filament components):** `MorphToSelect`, `ModalTableSelect`. Use those classes when you need morph type pickers or table-in-modal selection.
+
+#### Coverage matrix (Filament Select docs → SelectField)
+
+| Filament API | Support | Notes |
+|--------------|---------|-------|
+| `options([...])` / `options(fn)` | Yes | Static payload or `getOptionsForJs` on open (closures deferred until open) |
+| `native(false)` | Always on | Headless JS select; `setUp()` forces non-native |
+| `searchable()` / `searchable(bool\|Closure)` / `searchable(['col', …])` | Yes | Client filter or relationship SQL columns |
+| `getSearchResultsUsing()` + `getOptionLabelUsing()` | Yes | Async search + label hydrate; required for valid-option validation |
+| `getOptionLabelsUsing()` (multiple) | Yes | Same as Filament multi-select |
+| `loadingMessage()` | Yes | Skeleton / loading empty state |
+| `searchingMessage()` | Yes | While debounced search is in flight |
+| `searchPrompt()` | Yes | Before the user types a query |
+| `noSearchResultsMessage()` | Yes | Including static searchable lists |
+| `noOptionsMessage()` | Yes | Empty list / preload with no rows |
+| `searchDebounce()` | Yes | Default 1000 ms (same as Filament) |
+| `optionsLimit()` | Yes | Caps rendered options (default 50) |
+| `multiple()` | Yes | Array state; cast on the model |
+| `reorderable()` | Yes | Drag chips when multiple |
+| `minItems()` | Yes | PHP `array` + `min:N` validation (same as Filament — no client gate) |
+| `maxItems()` / `maxItemsMessage()` | Yes | PHP `max:N` **and** client block + in-menu banner |
+| Grouped `options(['Group' => [...]])` | Yes | Flat dropdown rows + group headers |
+| `relationship()` | Yes | BelongsTo / BelongsToMany; query restrict wrapper |
+| `preload()` | Yes | |
+| `ignoreRecord` (relationship arg) | Yes | Inherited |
+| `modifyQueryUsing` (relationship arg) | Yes | Inherited |
+| `getOptionLabelFromRecordUsing()` | Yes | Inherited |
+| `pivotData()` | Yes | Inherited |
+| `createOptionForm()` / `createOptionUsing()` | Yes | Filament modal suffix actions; state + label refresh after create |
+| `editOptionForm()` / `updateOptionUsing()` | Yes | Same action path |
+| `createOptionAction()` / `editOptionAction()` / `manageOptionActions()` | Yes | Inherited action customizers |
+| `allowHtml()` | Yes | Sanitized when using package option views |
+| `wrapOptionLabels(false)` | Yes | Truncate overflowing labels |
+| `selectablePlaceholder(false)` | Yes | Disables clear / null re-select (`isClearableInUi()`) |
+| `clearable()` | Yes | Flex Fields alias that also sets `selectablePlaceholder()` |
+| `disableOptionWhen()` / `disabledOptions()` | Yes | Filament callback + Flex Fields key list |
+| `prefix()` / `suffix()` / `prefixIcon()` / `suffixIcon()` / icon colors | Yes | Filament input wrapper / inline affixes |
+| `boolean()` / true/false/placeholder labels | Yes | Inherited |
+| `position('top'\|'bottom')` | Yes | Forces menu above/below (auto-flip when unset) |
+| `forceSearchCaseInsensitive()` | Yes | Inherited search behaviour |
+| `dependsOn()` | Yes | Flex Fields helper; parent must be `->live()`; reopen dropdown after parent change |
+
+#### Basic options & JS select
+
+```php
+SelectField::make('status')
+    ->options([
+        'draft' => 'Draft',
+        'reviewing' => 'Reviewing',
+        'published' => 'Published',
+    ]);
+// Always a JavaScript select (native HTML5 select is not used).
+```
+
+#### Searching & custom messages
+
+```php
+SelectField::make('author_id')
+    ->searchable()
+    ->getSearchResultsUsing(fn (string $search): array => User::query()
+        ->where('name', 'like', "%{$search}%")
+        ->limit(50)
+        ->pluck('name', 'id')
+        ->all())
+    ->getOptionLabelUsing(fn ($value): ?string => User::find($value)?->name)
+    ->loadingMessage('Loading authors...')
+    ->searchingMessage('Searching authors...')
+    ->noSearchResultsMessage('No authors found.')
+    ->noOptionsMessage('No authors available.')
+    ->searchPrompt('Search authors by name')
+    ->searchDebounce(500)
+    ->optionsLimit(20);
+```
+
+#### Multi-select, reorder, min/max items
+
+```php
+SelectField::make('technologies')
+    ->multiple()
+    ->reorderable()
+    ->options([
+        'tailwind' => 'Tailwind CSS',
+        'alpine' => 'Alpine.js',
+        'laravel' => 'Laravel',
+        'livewire' => 'Laravel Livewire',
+    ])
+    ->minItems(1)   // form validation when fewer than 1 selected
+    ->maxItems(3)   // validation + blocks further picks in the UI
+    ->maxItemsMessage('Remove an item before adding another.');
+```
+
+For custom async multi-select labels use `getOptionLabelsUsing()` (plural), same as Filament.
+
+#### Grouped options
+
+```php
+SelectField::make('status')
+    ->searchable()
+    ->options([
+        'In Process' => [
+            'draft' => 'Draft',
+            'reviewing' => 'Reviewing',
+        ],
+        'Reviewed' => [
+            'published' => 'Published',
+            'rejected' => 'Rejected',
+        ],
+    ]);
+```
+
+#### Relationship (+ preload, create/edit modals, pivot)
+
+```php
+SelectField::make('author_id')
+    ->relationship(name: 'author', titleAttribute: 'name')
+    ->searchable(['name', 'email'])
+    ->preload()
+    ->createOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->email()->required(),
+    ])
+    ->createOptionUsing(fn (array $data): int => Author::create($data)->getKey())
+    ->createOptionAction(fn (Action $action) => $action->modalWidth('3xl'))
+    ->editOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->email()->required(),
+    ])
+    ->updateOptionUsing(function (array $data, Schema $schema): void {
+        $schema->getRecord()?->update($data);
+    });
+```
+
+Inline smart-suggest create (`allowCreateOption()`) is a **different** path: one-field create from the current search string, no modal. Use `createOptionForm()` when the new record needs multiple fields.
+
+Call `disabled()` **before** `relationship()` on multi relationship selects (Filament requirement).
+
+#### HTML labels, wrap, placeholder, disabled options, affixes, boolean, position
+
+```php
+SelectField::make('technology')
+    ->options([
+        'tailwind' => '<span class="text-blue-500">Tailwind</span>',
+    ])
+    ->searchable()
+    ->allowHtml()
+    ->wrapOptionLabels(false)
+    ->selectablePlaceholder(false)
+    ->disableOptionWhen(fn (string $value): bool => $value === 'published')
+    ->prefix('https://')
+    ->suffix('.com')
+    ->suffixIcon(Heroicon::GlobeAlt)
+    ->suffixIconColor('success')
+    ->position('bottom'); // or 'top'
+
+SelectField::make('feedback')
+    ->boolean(trueLabel: 'Absolutely!', falseLabel: 'Not at all!', placeholder: 'Make your mind up...');
+```
+
+#### Cascading options (`dependsOn`)
+
+```php
+SelectField::make('country')
+    ->live()
+    // Avoid remorphing the whole form (freezes sibling fields for seconds on large pages).
+    ->skipRenderAfterStateUpdated()
+    ->options([...])
+    ->afterStateUpdated(fn (Set $set) => $set('region', null));
+
+SelectField::make('region')
+    ->dependsOn('country', fn (?string $country): array => match ($country) {
+        'pl' => ['mz' => 'Mazowieckie'],
+        default => [],
+    })
+    ->searchable()
+    ->placeholder('Pick a country first');
+```
+
+Until the parent has a value, the region list is correctly empty. Options refetch when the dropdown opens after the parent changes.
+
+On large schemas, prefer `skipRenderAfterStateUpdated()` or `partiallyRenderComponentsAfterStateUpdated([...])` on the parent — a full Livewire morph is what makes Region feel “blocked”, not the Region trigger itself.
+
+---
+
 ### Related components
 
 | Component | When to use instead |
@@ -401,6 +591,8 @@ See [Playground](/docs/index#playground) for setup.
 | [FlexRadiolist](/docs/flexradiolist) | When all options should be visible at once |
 | [ChoiceCards](/docs/choicecards) | Large card-style selection with more detail |
 | [DualListboxField](/docs/duallistboxfield) | When managing large sets of selected items |
+| `Filament\Forms\Components\MorphToSelect` | MorphTo type + record pickers |
+| `Filament\Forms\Components\ModalTableSelect` | Select records from a Filament table modal |
 
 ---
 

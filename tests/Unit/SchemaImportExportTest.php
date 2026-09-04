@@ -91,3 +91,40 @@ it('rejects unsupported export versions on import', function () {
 
     expect(fn () => $service->import($json))->toThrow(JsonException::class);
 });
+
+it('rejects fields referencing unknown section ids during dry run', function () {
+    $service = new SchemaImportExport;
+
+    $result = $service->dryRunValidate([
+        'target' => 'App\\Models\\User',
+        'sections' => [
+            ['id' => 'basics', 'label' => 'Basics', 'type' => 'section'],
+        ],
+        'fields' => [
+            [
+                'slug' => 'bio',
+                'label' => 'Bio',
+                'type' => 'multi_line_text',
+                'section_id' => 'missing',
+            ],
+        ],
+    ]);
+
+    expect($result['ok'])->toBeFalse()
+        ->and($result['errors'][0])->toContain('unknown section');
+});
+
+it('rejects circular formula dependencies during dry run', function () {
+    $service = new SchemaImportExport;
+
+    $result = $service->dryRunValidate([
+        'target' => 'App\\Models\\User',
+        'fields' => [
+            ['slug' => 'a', 'label' => 'A', 'type' => 'number_stepper', 'formula' => '{b} + 1'],
+            ['slug' => 'b', 'label' => 'B', 'type' => 'number_stepper', 'formula' => '{a} + 1'],
+        ],
+    ]);
+
+    expect($result['ok'])->toBeFalse()
+        ->and($result['errors'][0])->toContain('circular dependency');
+});

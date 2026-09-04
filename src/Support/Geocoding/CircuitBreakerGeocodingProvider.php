@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Geocoding;
 
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Illuminate\Support\Facades\Cache;
 
 final class CircuitBreakerGeocodingProvider implements GeocodingProviderContract
@@ -23,7 +24,7 @@ final class CircuitBreakerGeocodingProvider implements GeocodingProviderContract
         if ($this->isOpen()) {
             return [
                 'features' => [],
-                'error' => __('filament-flex-fields::default.geocoding.circuit_open'),
+                'error' => Translations::get('filament-flex-fields::default.geocoding.circuit_open'),
             ];
         }
 
@@ -51,7 +52,7 @@ final class CircuitBreakerGeocodingProvider implements GeocodingProviderContract
         if ($this->isOpen()) {
             return [
                 'feature' => null,
-                'error' => __('filament-flex-fields::default.geocoding.circuit_open'),
+                'error' => Translations::get('filament-flex-fields::default.geocoding.circuit_open'),
             ];
         }
 

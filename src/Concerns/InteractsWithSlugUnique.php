@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Concerns;
 
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SlugField;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @mixin SlugField
+ */
 trait InteractsWithSlugUnique
 {
     protected bool|Closure $slugUnique = true;
@@ -88,7 +93,7 @@ trait InteractsWithSlugUnique
 
     public function getSlugUniqueValidationMessage(): string
     {
-        return __('filament-flex-fields::default.validation.slug.unique');
+        return Translations::get('filament-flex-fields::default.validation.slug.unique');
     }
 
     public function isSlugValueUnique(?string $slug): bool
@@ -101,9 +106,7 @@ trait InteractsWithSlugUnique
             return true;
         }
 
-        if (method_exists($this, 'normalizeSlug')) {
-            $slug = $this->normalizeSlug($slug);
-        }
+        $slug = $this->normalizeSlug($slug);
 
         if ($slug === '') {
             return true;
@@ -111,15 +114,12 @@ trait InteractsWithSlugUnique
 
         $parameters = $this->getSlugUniqueParameters();
 
-        $column = (string) ($parameters['column']
-            ?? (method_exists($this, 'getSpatieSlugField') ? $this->getSpatieSlugField() : null)
-            ?? $this->getName());
+        $column = (string) ($parameters['column'] ?? ($this->getSpatieSlugField() ?: $this->getName()));
 
         $modelClass = $this->resolveSlugUniqueModelClass($parameters);
         $table = $parameters['table'] ?? null;
 
         if (is_string($modelClass) && $modelClass !== '' && class_exists($modelClass)) {
-            /** @var Builder $query */
             $query = $modelClass::query()->where($column, $slug);
         } elseif (filled($table)) {
             $query = DB::table($table)->where($column, $slug);
@@ -211,9 +211,7 @@ trait InteractsWithSlugUnique
 
         $modelClass = $this->resolveSlugUniqueModelClass($parameters);
 
-        $column = $parameters['column']
-            ?? (method_exists($this, 'getSpatieSlugField') ? $this->getSpatieSlugField() : null)
-            ?? $this->getName();
+        $column = $parameters['column'] ?? ($this->getSpatieSlugField() ?: $this->getName());
 
         $ignorable = $parameters['ignorable'] ?? function (): mixed {
             $record = $this->getRecord();
@@ -243,10 +241,6 @@ trait InteractsWithSlugUnique
 
         $table = $parameters['table'] ?? null;
 
-        if ($table === null && filled($modelClass)) {
-            $table = (new $modelClass)->getTable();
-        }
-
         $this->unique(
             table: $table,
             column: $column,
@@ -256,6 +250,9 @@ trait InteractsWithSlugUnique
         );
     }
 
+    /**
+     * @param  array<string, mixed>  $parameters
+     */
     protected function shouldDeferSlugUniqueModelResolution(array $parameters): bool
     {
         if (filled($parameters['model'] ?? null) || $this->slugUniqueModel !== null) {
@@ -278,7 +275,7 @@ trait InteractsWithSlugUnique
     {
         $model = $parameters['model']
             ?? $this->getSlugUniqueModel()
-            ?? (method_exists($this, 'getSpatieModelClass') ? $this->getSpatieModelClass() : null);
+            ?? $this->getSpatieModelClass();
 
         if (is_string($model) && $model !== '' && class_exists($model)) {
             return $model;
