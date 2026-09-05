@@ -1131,6 +1131,8 @@ it('clips and ellipsizes non-wrapping single-select trigger labels in the select
         ->toContain('--fff-select-option-min-h: 2.75rem')
         ->toMatch('/fi-select-input-ctn-option-labels-not-wrapped[^{]*\{[^}]*align-items:\s*center\s*!important/')
         ->toMatch('/\.fi-select-input-value-remove-btn[\s\S]*transform:\s*none/')
+        ->toMatch('/\.fi-select-input-value-remove-btn[\s\S]*mask-image:\s*none/')
+        ->toMatch('/\.fi-select-input-value-remove-btn[\s\S]*background-color:\s*transparent/')
         ->toMatch('/\.fff-select-option-selected-row\s*\{[^}]*position:\s*static/');
 
     expect($css)
@@ -1143,7 +1145,9 @@ it('clips and ellipsizes non-wrapping single-select trigger labels in the select
         ->toContain('padding-inline-end:var(--fff-select-option-check-gutter,1.75rem)!important')
         ->toContain('--fff-overlay-sheet-pad-bottom')
         ->toContain('--fff-select-option-min-h:2.75rem')
-        ->toMatch('/\.fi-select-input-value-remove-btn[^{]*\{[^}]*transform:none/');
+        ->toMatch('/\.fi-select-input-value-remove-btn[^{]*\{[^}]*transform:none/')
+        ->toMatch('/\.fi-select-input-value-remove-btn[^{]*\{[^}]*mask-image:none/')
+        ->toMatch('/\.fi-select-input-value-remove-btn[^{]*\{[^}]*background-color:(?:transparent|#0000)/');
 
     expect($blade)->not->toContain('<style');
 

@@ -5,6 +5,12 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.6] - 2026-09-05
+
+### Fixed
+
+- **SelectField clear icon** — reset Filament panel `mask-image` / `background-color` on `.fi-select-input-value-remove-btn` so Gravity `circle-xmark` is not clipped to a plain × (same outline pair as `circle-chevron-down`).
+
 ## [3.1.5] - 2026-09-05
 
 ### Fixed

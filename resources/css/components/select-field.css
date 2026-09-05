@@ -2983,6 +2983,14 @@ body > .fi-dropdown-panel.fff-select-dropdown-panel {
     border-radius: var(--fff-global-radius, 0.75rem);
     line-height: 0;
     /*
+     * Some Filament panel themes paint a plain × via `background-color` +
+     * `mask-image` on this button. That clips our Gravity `clearIcon()` SVG
+     * (circle-xmark) to an X silhouette — reset so the real icon shows.
+     */
+    background-color: transparent;
+    -webkit-mask-image: none;
+    mask-image: none;
+    /*
      * Filament theme already centers via the individual `translate` property
      * (`top: 50%` + `--tw-translate-y: -50%`). Do NOT also set
      * `transform: translateY(-50%)` — both apply and double-shift the clear up.
