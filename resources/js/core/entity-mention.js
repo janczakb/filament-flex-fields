@@ -132,9 +132,12 @@ export function createEntityMentionMixin({
         },
 
         focusHeadlessSearchInput() {
-            const input = this.inlineSearch
-                ? this.$refs.headlessInlineSearchInput
-                : this.$refs.headlessSearchInput
+            const sheet = typeof this.isSheetPresentation === 'function'
+                ? this.isSheetPresentation()
+                : false
+            const input = (! this.inlineSearch || sheet)
+                ? this.$refs.headlessSearchInput
+                : this.$refs.headlessInlineSearchInput
 
             input?.focus({ preventScroll: true })
         },

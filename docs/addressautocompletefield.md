@@ -7,7 +7,7 @@ description: Mapbox-powered address search without a map — combobox autocomple
 
 ### Summary
 
-Mapbox-powered **address search** without a map — combobox autocomplete with structured or string storage. Shares geocoding logic with `MapPickerField` but omits coordinates by default.
+Mapbox-powered **address search** without a map — combobox autocomplete with structured or string storage. Shares geocoding logic with `MapPickerField` but omits coordinates by default. On phones and tablets, suggestions open as a **bottom sheet** with an in-sheet search field (same overlay stack as SelectField) instead of a desktop dropdown.
 
 | | |
 |---|---|

@@ -609,6 +609,7 @@ return [
         'searching' => 'Szukanie…',
         'loading_more' => 'Ładowanie kolejnych…',
         'no_options' => 'Brak dostępnych opcji.',
+        'no_more_options' => 'Brak kolejnych opcji do wyboru.',
         'no_search_results' => 'Żadne wyniki nie pasują do Twojego wyszukiwania.',
         'empty_hint' => [
             'please_wait' => 'Proszę czekać…',
@@ -616,6 +617,7 @@ return [
             'filter_list' => 'Zacznij pisać, aby filtrować listę.',
             'try_different_search' => 'Spróbuj innej frazy wyszukiwania.',
             'no_options_available' => 'Obecnie nie ma dostępnych opcji.',
+            'all_options_selected' => 'Wszystkie dostępne opcje są już wybrane.',
         ],
     ],
 

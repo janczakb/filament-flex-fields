@@ -1168,13 +1168,13 @@ export default function currencyFieldFormComponent({
                 return
             }
 
-            const willOpen = ! this.currencyOpen
+            if (this.currencyOpen) {
+                this.closeTeleportedMenu()
 
-            this.currencyOpen = willOpen
-
-            if (! this.currencyOpen) {
                 return
             }
+
+            this.currencyOpen = true
 
             if (this.searchable) {
                 this.$nextTick(() => {

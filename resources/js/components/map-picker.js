@@ -8,16 +8,9 @@ import {
     reverseGeocodeMapbox,
     searchMapboxPlaces,
 } from '../support/mapbox-geocoding.js'
-import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
 import { createGeocodingComboboxMixin } from '../core/geocoding-combobox-alpine.js'
 import { createGeocodingDropdownMenuMixin } from '../core/geocoding-dropdown-menu.js'
 import { createGeocodingListKeyboardMixin } from '../core/geocoding-list-keyboard.js'
-
-const exclusiveDropdown = createExclusiveDropdownMixin({
-    openKey: 'searchOpen',
-    closeMethod: 'closeSearchDropdown',
-    ownerIdPrefix: 'fff-map-picker',
-})
 
 const geocodingDropdown = createGeocodingDropdownMenuMixin({
     openKey: 'searchOpen',
@@ -28,6 +21,7 @@ const geocodingDropdown = createGeocodingDropdownMenuMixin({
     closeMethod: 'closeSearchDropdown',
     menuThemeVariant: 'map',
     menuGap: 8,
+    ownerIdPrefix: 'fff-map-picker',
 })
 
 const geocodingKeyboard = createGeocodingListKeyboardMixin({
@@ -96,7 +90,6 @@ export default function mapPickerFormComponent({
     })
 
     return {
-        ...exclusiveDropdown,
         ...geocodingCombobox,
         ...geocodingDropdown,
         ...geocodingKeyboard,
@@ -126,7 +119,6 @@ export default function mapPickerFormComponent({
 
         init() {
             this.initGeocodingComboboxState()
-            this.wireExclusiveFlexDropdown()
             this.bindGeocodingDropdownMenu()
             this.initGeocodingListKeyboard()
 

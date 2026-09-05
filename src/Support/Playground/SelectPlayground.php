@@ -354,7 +354,7 @@ class SelectPlayground
                         ->native(),
                     SelectField::make('select__long_labels')
                         ->label('Long option labels')
-                        ->helperText('Test szerokości dropdownu przy długich etykietach opcji.')
+                        ->helperText('Closed trigger truncates to one line; dropdown can grow wider for long option labels.')
                         ->options($longLabelOptions)
                         ->searchable(),
                     SelectField::make('select__basic')

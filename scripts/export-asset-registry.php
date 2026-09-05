@@ -8,16 +8,45 @@ $autoloadCandidates = [
     __DIR__.'/../../../vendor/autoload.php',
 ];
 
-foreach ($autoloadCandidates as $autoload) {
-    if (is_file($autoload)) {
-        require $autoload;
+$autoload = null;
+
+foreach ($autoloadCandidates as $candidate) {
+    if (is_file($candidate)) {
+        $autoload = $candidate;
 
         break;
     }
 }
 
-if (! class_exists(FlexFieldAssets::class)) {
-    require_once __DIR__.'/../src/Support/FlexFieldAssets.php';
+if ($autoload === null) {
+    fwrite(STDERR, "Could not locate Composer autoload for export-asset-registry.\n");
+    exit(1);
+}
+
+require $autoload;
+
+$bootstrapCandidates = [
+    dirname($autoload).'/../bootstrap/app.php',
+    __DIR__.'/../../../../../bootstrap/app.php',
+];
+
+$bootstrapped = false;
+
+foreach ($bootstrapCandidates as $bootstrap) {
+    if (! is_file($bootstrap)) {
+        continue;
+    }
+
+    $app = require $bootstrap;
+    $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+    $bootstrapped = true;
+
+    break;
+}
+
+if (! $bootstrapped) {
+    fwrite(STDERR, "Could not bootstrap Laravel for export-asset-registry.\n");
+    exit(1);
 }
 
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;

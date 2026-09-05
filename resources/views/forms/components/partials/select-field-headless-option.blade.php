@@ -10,7 +10,8 @@
     x-bind:aria-selected="isOptionSelected(headlessOptionValue(row.option)) ? 'true' : 'false'"
     x-bind:aria-disabled="isHeadlessOptionDisabled(row.option) ? 'true' : 'false'"
     x-bind:disabled="isHeadlessOptionDisabled(row.option)"
-    x-on:click="toggleOption(headlessOptionValue(row.option))"
+    {{-- mousedown.prevent: select before search blur / click.outside can close the teleported panel --}}
+    x-on:mousedown.prevent="toggleOption(headlessOptionValue(row.option))"
     x-on:mouseenter="comboboxHighlightedIndex = headlessOptionFlatIndex(headlessOptionValue(row.option))"
 >
     @if ($isUserSelectField)
@@ -68,7 +69,7 @@
                     <span
                         class="fff-select-option-selected-check"
                         aria-hidden="true"
-                        data-visible="false"
+                        data-visible="true"
                     >
                         <svg class="fff-select-option-selected-check__svg" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 17 18" focusable="false">
                             <polyline points="1 9 7 14 15 4"></polyline>

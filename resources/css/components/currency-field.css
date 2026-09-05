@@ -113,6 +113,18 @@
     pointer-events: none;
 }
 
+.fff-currency-field__currency-menu.fff-teleported-menu--sheet {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto;
+    max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .fff-currency-field__currency-menu.is-positioned {
     opacity: 1;
     pointer-events: auto;

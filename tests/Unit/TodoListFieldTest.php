@@ -400,6 +400,8 @@ it('registers playground hub', function () {
         ->toContain('todo_list__variable_virtual')
         ->toContain('todo_list__edit_all')
         ->toContain('todo_list__celebration_gallery')
+        ->toContain('todo_list__celebration_fullscreen')
+        ->toContain('todo_list__celebration_custom')
         ->toContain('todo_list__deletable_all')
         ->toContain('todo_list__reorder_locked')
         ->toContain('todo_list__substack');

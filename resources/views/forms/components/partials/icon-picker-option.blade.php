@@ -21,12 +21,14 @@
             x-show="svgFor(entry.item.name)"
             x-html="svgFor(entry.item.name)"
         ></span>
-        <span
-            class="fff-icon-picker__option-icon-skeleton"
-            x-bind:class="{ 'is-visible': ! svgFor(entry.item.name) }"
-            aria-hidden="true"
-        ></span>
     </span>
+    {{-- Sibling of icon so icons layout can fill the whole option box; removed when SVG is ready. --}}
+    <span
+        class="fff-icon-picker__option-icon-skeleton"
+        x-show="! svgFor(entry.item.name)"
+        x-cloak
+        aria-hidden="true"
+    ></span>
     <span
         class="fff-icon-picker__option-label fff-select-headless-option-label"
         x-show="layout !== 'icons'"

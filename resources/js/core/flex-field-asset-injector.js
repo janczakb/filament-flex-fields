@@ -25,9 +25,16 @@ export function normalizeAssetUrl(url, baseUri = typeof document !== 'undefined'
     }
 
     try {
-        return new URL(url, baseUri).href
+        const resolved = new URL(url, baseUri)
+        // Cache-bust query / hash must not create duplicate identities — otherwise
+        // the injector keeps modulepreloading the same chunk under a second ?v=
+        // and the playground main thread stalls under duplicate Alpine graphs.
+        resolved.search = ''
+        resolved.hash = ''
+
+        return resolved.href
     } catch {
-        return String(url)
+        return String(url).split('#')[0].split('?')[0]
     }
 }
 

@@ -141,12 +141,13 @@ it('keeps icon picker results scrollable when select grid dropdown styles are lo
     $iconPickerBrowser = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/icon-picker-browser.blade.php');
     $headlessOverlaySearch = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/headless-overlay-search.blade.php');
     $selectCss = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $teleportedMenuCss = file_get_contents(__DIR__.'/../../resources/css/core/teleported-menu.css');
 
     expect($iconPickerCss)
         ->toContain('.fff-icon-picker__results')
         ->toContain('overflow: auto !important')
         ->toContain('padding-block: 0.625rem 0.125rem !important')
-        ->toContain('calc(100% - 0.25rem) !important')
+        ->toContain('fff-icon-picker__skeleton--cell')
         ->toContain('has-set-tabs')
         ->toContain('fff-icon-picker__option--loading')
         ->toContain('fff-icon-picker__initial-skeleton')
@@ -159,14 +160,17 @@ it('keeps icon picker results scrollable when select grid dropdown styles are lo
         ->toContain('iconLoadMoreSentinel')
         ->toContain('showLoadMoreTailSkeleton')
         ->toContain('showScrollLoadSkeleton')
-        ->toContain('loadedIconItems.length > 0 && ! showInitialSkeleton && resultsGeometryReady')
+        ->toContain('loadedIconItems.length > 0 && ! showInitialSkeleton')
+        ->not->toContain('resultsGeometryReady')
         ->toContain('virtual-spacer-top')
-        ->toContain('initialSkeletonSlots')
+        ->toContain('icon-picker-skeleton-cell')
+        ->toContain('range(1, 48)')
         ->and($headlessOverlaySearch)
         ->toContain('{{ $optionIdPrefix }} + {{ $activeIndexKey }}')
         ->not->toContain('\'{{ $optionIdPrefix }}-\'')
-        ->and($selectCss)
+        ->and($teleportedMenuCss)
         ->toContain('.fff-select-headless-menu.fff-teleported-menu:not(.is-positioned)')
+        ->and($selectCss)
         ->not->toMatch('/\.fff-select-dropdown-panel--layout-grid \.fi-select-input-options-ctn\s*\{[^}]*overflow:\s*hidden/s');
 });
 

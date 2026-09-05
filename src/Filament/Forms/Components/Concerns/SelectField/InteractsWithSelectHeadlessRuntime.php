@@ -30,6 +30,7 @@ trait InteractsWithSelectHeadlessRuntime
      *     filterList: string,
      *     tryDifferentSearch: string,
      *     noOptionsAvailable: string,
+     *     allOptionsSelected: string,
      * }
      */
     public function getSelectEmptyStateHintsForJs(): array
@@ -46,6 +47,7 @@ trait InteractsWithSelectHeadlessRuntime
             'filterList' => Translations::get('filament-flex-fields::default.select_field.empty_hint.filter_list'),
             'tryDifferentSearch' => Translations::get('filament-flex-fields::default.select_field.empty_hint.try_different_search'),
             'noOptionsAvailable' => Translations::get('filament-flex-fields::default.select_field.empty_hint.no_options_available'),
+            'allOptionsSelected' => Translations::get('filament-flex-fields::default.select_field.empty_hint.all_options_selected'),
         ];
     }
 
@@ -55,6 +57,7 @@ trait InteractsWithSelectHeadlessRuntime
      *     searching: string,
      *     loadingMore: string,
      *     noOptions: string,
+     *     noMoreOptions: string,
      *     noSearchResults: string,
      *     searchPrompt: string,
      * }
@@ -66,6 +69,7 @@ trait InteractsWithSelectHeadlessRuntime
             'searching' => $this->stringifySelectMessage($this->getSearchingMessage()),
             'loadingMore' => Translations::get('filament-flex-fields::default.select_field.loading_more'),
             'noOptions' => $this->stringifySelectMessage($this->getNoOptionsMessage()),
+            'noMoreOptions' => Translations::get('filament-flex-fields::default.select_field.no_more_options'),
             'noSearchResults' => $this->stringifySelectMessage($this->getNoSearchResultsMessage()),
             'searchPrompt' => $this->stringifySelectMessage($this->getSearchPrompt()),
         ];

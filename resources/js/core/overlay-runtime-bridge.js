@@ -81,6 +81,18 @@ export function updateOverlayPanelPosition(id) {
 }
 
 /**
+ * Sync an open overlay to panel/sheet after a breakpoint flip while open.
+ *
+ * @param {string} id
+ * @param {'panel' | 'sheet'} mode
+ */
+export function setOverlayPanelMode(id, mode) {
+    const runtime = ensureOverlayRuntimeBridge()
+
+    runtime?.setMode?.(id, mode)
+}
+
+/**
  * @param {string} id
  * @param {number} openLatencyMs
  */

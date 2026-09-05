@@ -81,29 +81,20 @@ class TodoListFieldPlayground
                     Section::make('Celebration gallery')
                         ->compact()
                         ->schema([
-                            View::make('filament-flex-fields::partials.playground.todo-list-custom-celebration'),
                             TodoListField::make('todo_list__celebration_gallery')
                                 ->label('Per-item effects')
-                                ->helperText('One list · each row has its own celebration (incl. fullscreen + custom playground-burst)')
+                                ->helperText('One list · each row has its own in-box celebration (standard check first)')
                                 ->celebration(false)
                                 ->sounds()
                                 ->options([
+                                    'standard' => [
+                                        'label' => 'Standard check',
+                                        'description' => 'Check + strike only · no celebration effect',
+                                    ],
                                     'fw' => [
                                         'label' => 'Launch fireworks',
                                         'description' => 'In-box fireworks',
                                         'celebration' => 'fireworks',
-                                    ],
-                                    'fw_fs' => [
-                                        'label' => 'Launch fullscreen fireworks',
-                                        'description' => 'celebrationFullscreen on this row',
-                                        'celebration' => 'fireworks',
-                                        'celebrationFullscreen' => true,
-                                    ],
-                                    'custom_fs' => [
-                                        'label' => 'Launch silk aurora',
-                                        'description' => 'registerCelebration(playground-burst) · fullscreen',
-                                        'celebration' => 'playground-burst',
-                                        'celebrationFullscreen' => true,
                                     ],
                                     'confetti' => [
                                         'label' => 'Throw confetti',
@@ -121,6 +112,42 @@ class TodoListFieldPlayground
                                         'label' => 'Check cascade',
                                         'celebration' => 'bloom',
                                     ],
+                                ]),
+
+                            Section::make('Fullscreen & custom')
+                                ->compact()
+                                ->schema([
+                                    View::make('filament-flex-fields::partials.playground.todo-list-custom-celebration'),
+                                    Grid::make(['default' => 1, 'lg' => 2])
+                                        ->extraAttributes(['class' => 'fff-playground-variants'])
+                                        ->schema([
+                                            TodoListField::make('todo_list__celebration_fullscreen')
+                                                ->label('Fullscreen fireworks')
+                                                ->helperText('celebrationFullscreen on this row · viewport canvas')
+                                                ->celebration(false)
+                                                ->sounds()
+                                                ->options([
+                                                    'fw_fs' => [
+                                                        'label' => 'Launch fullscreen fireworks',
+                                                        'description' => 'Check to fire · ~6s fullscreen',
+                                                        'celebration' => 'fireworks',
+                                                        'celebrationFullscreen' => true,
+                                                    ],
+                                                ]),
+                                            TodoListField::make('todo_list__celebration_custom')
+                                                ->label('Custom silk aurora')
+                                                ->helperText('registerCelebration(playground-burst) · fullscreen')
+                                                ->celebration(false)
+                                                ->sounds()
+                                                ->options([
+                                                    'custom_fs' => [
+                                                        'label' => 'Launch silk aurora',
+                                                        'description' => 'Custom celebration · fullscreen',
+                                                        'celebration' => 'playground-burst',
+                                                        'celebrationFullscreen' => true,
+                                                    ],
+                                                ]),
+                                        ]),
                                 ]),
                         ]),
 

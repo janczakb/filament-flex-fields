@@ -6,6 +6,17 @@ body > .fff-geocoding-dropdown-panel.fi-dropdown-panel.fff-select-dropdown-panel
     overflow: hidden !important;
 }
 
+/* Sheet must stay full viewport width for the whole enter/exit (no trigger-width flash). */
+body > .fff-geocoding-dropdown-panel.fff-teleported-menu--sheet,
+body > .fff-geocoding-dropdown-panel.fff-overlay-sheet {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    left: 0 !important;
+    right: 0 !important;
+    inset-inline: 0 !important;
+}
+
 .fff-geocoding-dropdown-panel.fi-dropdown-panel.fff-select-dropdown-panel {
     box-sizing: border-box;
 }

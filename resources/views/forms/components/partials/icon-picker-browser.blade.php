@@ -75,19 +75,20 @@
         role="status"
         aria-live="polite"
     >
+        {{-- Static cells (no Alpine x-for) so bones paint on the first open frame. --}}
         <div
             class="fff-icon-picker__grid fff-icon-picker__skeleton-grid"
             x-bind:style="iconResultsGridStyle"
         >
-            <template x-for="slot in initialSkeletonSlots" x-bind:key="'initial-skeleton-' + slot">
+            @foreach (range(1, 48) as $skeletonSlot)
                 @include('filament-flex-fields::forms.components.partials.icon-picker-skeleton-cell')
-            </template>
+            @endforeach
         </div>
     </div>
 
     <div
         class="fff-icon-picker__track"
-        x-show="loadedIconItems.length > 0 && ! showInitialSkeleton && resultsGeometryReady"
+        x-show="loadedIconItems.length > 0 && ! showInitialSkeleton"
         x-cloak
         x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
         x-bind:style="iconTrackStyle"

@@ -1,13 +1,7 @@
-{{-- Skeleton cell — mirrors icon-picker-option layout for pixel-identical grid geometry. --}}
+{{-- Full-cell skeleton bone — matches option box size (icons / grid / list). --}}
 <div
     class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option"
     aria-hidden="true"
 >
-    <span class="fff-icon-picker__option-icon">
-        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--icon"></span>
-    </span>
-    <span
-        class="fff-icon-picker__skeleton fff-icon-picker__skeleton--label"
-        x-show="layout !== 'icons'"
-    ></span>
+    <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
 </div>

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it, before, after } from 'node:test'
 
-import { createSearchableSelectMenuMixin, shouldSkipMenuScrollReposition } from '../../resources/js/core/searchable-select-menu.js'
+import { createSearchableSelectMenuMixin, shouldSkipMenuScrollReposition, playSheetEnter } from '../../resources/js/core/searchable-select-menu.js'
 import { createOverlayRuntime } from '../../resources/js/core/overlay-runtime.js'
 
 describe('searchable select menu scroll reposition', () => {
@@ -14,29 +14,130 @@ describe('searchable select menu scroll reposition', () => {
         previousWindow = globalThis.window
         previousMatchMedia = globalThis.matchMedia
 
-        const classList = {
-            contains: () => false,
-            add() {},
-            remove() {},
-            toggle() {},
-        }
+        const htmlClasses = new Set()
+        const htmlAttributes = new Map()
+        const bodyClasses = new Set()
+        const bodyChildren = []
+
+        const makeClassList = (store) => ({
+            add: (...names) => {
+                for (const name of names) {
+                    store.add(name)
+                }
+            },
+            remove: (...names) => {
+                for (const name of names) {
+                    store.delete(name)
+                }
+            },
+            contains: (name) => store.has(name),
+            toggle(name, force) {
+                if (force === true) {
+                    store.add(name)
+                } else if (force === false) {
+                    store.delete(name)
+                }
+            },
+        })
 
         globalThis.document = {
-            documentElement: { classList },
-            body: { classList },
-            querySelector: () => null,
+            documentElement: {
+                classList: makeClassList(htmlClasses),
+                getAttribute(name) {
+                    return htmlAttributes.get(name) ?? null
+                },
+                setAttribute(name, value) {
+                    htmlAttributes.set(name, String(value))
+                },
+                removeAttribute(name) {
+                    htmlAttributes.delete(name)
+                },
+            },
+            body: {
+                classList: makeClassList(bodyClasses),
+                appendChild(node) {
+                    bodyChildren.push(node)
+                    node.parentElement = this
+
+                    return node
+                },
+                children: bodyChildren,
+            },
+            createElement(tag) {
+                const classes = new Set()
+                const dataset = {}
+                const attributes = new Map()
+                const listeners = []
+                const children = []
+
+                return {
+                    tagName: String(tag).toUpperCase(),
+                    className: '',
+                    style: {},
+                    dataset,
+                    classList: makeClassList(classes),
+                    parentElement: null,
+                    firstChild: null,
+                    children,
+                    setAttribute(name, value) {
+                        attributes.set(name, String(value))
+                    },
+                    getAttribute(name) {
+                        return attributes.get(name) ?? null
+                    },
+                    appendChild(node) {
+                        children.push(node)
+                        this.firstChild = children[0] ?? null
+                        node.parentElement = this
+
+                        return node
+                    },
+                    querySelector() {
+                        return null
+                    },
+                    addEventListener(type, handler, options) {
+                        listeners.push({ type, handler, options })
+                    },
+                    remove() {
+                        const index = bodyChildren.indexOf(this)
+
+                        if (index >= 0) {
+                            bodyChildren.splice(index, 1)
+                        }
+
+                        this.parentElement = null
+                    },
+                }
+            },
+            querySelector(selector) {
+                const match = String(selector).match(/data-fff-overlay-backdrop="([^"]+)"/)
+
+                if (! match) {
+                    return null
+                }
+
+                return bodyChildren.find((node) => node.dataset?.fffOverlayBackdrop === match[1]) ?? null
+            },
         }
         globalThis.window = {
             Alpine: { store: () => null },
             innerWidth: 1280,
             innerHeight: 800,
             matchMedia: () => ({ matches: false }),
+            getComputedStyle: () => ({ direction: 'ltr', zIndex: '50' }),
+            addEventListener() {},
+            removeEventListener() {},
             requestAnimationFrame: (callback) => {
                 callback()
 
                 return 1
             },
             cancelAnimationFrame: () => {},
+            setTimeout: (callback) => {
+                callback()
+
+                return 1
+            },
         }
         globalThis.requestAnimationFrame = globalThis.window.requestAnimationFrame
         globalThis.cancelAnimationFrame = globalThis.window.cancelAnimationFrame
@@ -691,5 +792,815 @@ describe('searchable select menu scroll reposition', () => {
         assert.equal(component.comboboxOpen, false)
         assert.equal(menu.classList.contains('is-open'), false)
         assert.equal(menu.classList.contains('is-closing'), false)
+    })
+
+    it('does not re-open sheet classes while exit animation is in progress', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+        })
+
+        const menu = {
+            classList: {
+                classes: new Set(['is-closing', 'fff-teleported-menu--sheet']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle() {},
+            },
+            style: {
+                setProperty() {},
+                removeProperty() {},
+            },
+            getBoundingClientRect: () => ({ top: 0, left: 0, bottom: 0, width: 320, height: 240 }),
+            dir: 'ltr',
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 0, left: 0, bottom: 40, width: 320, height: 40 }),
+        }
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffSheetClosing: true,
+            menuDomId: 'menu-sheet',
+            componentKey: 'data.select__sheet',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        component.updateMenuPosition({ reveal: true, markReady: true })
+        component.scheduleMenuPosition()
+
+        assert.equal(menu.classList.contains('is-closing'), true)
+        assert.equal(menu.classList.contains('is-open'), false)
+    })
+
+    it('clears sheet peek height when anchoring as a desktop panel', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const removed = []
+        const menu = {
+            classList: {
+                classes: new Set(['fff-teleported-menu--sheet', 'is-open']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle(name, force) {
+                    if (force) {
+                        this.classes.add(name)
+                    } else {
+                        this.classes.delete(name)
+                    }
+                },
+            },
+            style: {
+                height: '320px',
+                maxHeight: '320px',
+                removeProperty(name) {
+                    removed.push(name)
+                },
+                setProperty() {},
+            },
+            dataset: {
+                fffOverlayPresentation: 'sheet',
+                fffSheetFittedHeight: '320',
+                fffOverlaySnap: 'peek',
+            },
+            querySelectorAll: () => [],
+            getBoundingClientRect: () => ({ top: 80, left: 0, bottom: 400, width: 320, height: 320 }),
+            dir: 'ltr',
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 0, left: 10, bottom: 40, width: 280, height: 40 }),
+        }
+
+        const originalMatchMedia = globalThis.window?.matchMedia
+        if (globalThis.window) {
+            globalThis.window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} })
+            globalThis.window.innerWidth = 1200
+            globalThis.window.innerHeight = 800
+            globalThis.window.getComputedStyle = () => ({ direction: 'ltr' })
+        }
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: false,
+            __fffOverlayMode: 'sheet',
+            menuDomId: 'menu-panel',
+            componentKey: 'data.select__inline_field_label',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        try {
+            component.updateMenuPosition({ reveal: false, markReady: true })
+        } finally {
+            if (globalThis.window && originalMatchMedia) {
+                globalThis.window.matchMedia = originalMatchMedia
+            }
+        }
+
+        assert.equal(menu.classList.contains('fff-teleported-menu--sheet'), false)
+        assert.equal(menu.classList.contains('fff-teleported-menu--panel'), true)
+        assert.ok(removed.includes('height'))
+        assert.ok(removed.includes('max-height'))
+        assert.equal(menu.dataset.fffSheetFittedHeight, undefined)
+    })
+
+    it('copies trigger writing direction onto the mobile sheet menu', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const menu = {
+            classList: {
+                classes: new Set(),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle(name, force) {
+                    if (force) {
+                        this.classes.add(name)
+                    } else {
+                        this.classes.delete(name)
+                    }
+                },
+            },
+            style: {
+                removeProperty() {},
+                setProperty() {},
+            },
+            dataset: {},
+            firstChild: null,
+            querySelectorAll: () => [],
+            insertBefore() {},
+            getBoundingClientRect: () => ({ top: 0, left: 0, bottom: 0, width: 320, height: 200 }),
+            dir: 'ltr',
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 0, left: 10, bottom: 40, width: 280, height: 40 }),
+        }
+
+        const originalMatchMedia = globalThis.window?.matchMedia
+        const originalInnerWidth = globalThis.window?.innerWidth
+        const originalInnerHeight = globalThis.window?.innerHeight
+        const originalGetComputedStyle = globalThis.window?.getComputedStyle
+        const originalDocument = globalThis.document
+        const originalHTMLElement = globalThis.HTMLElement
+
+        globalThis.HTMLElement = class HTMLElement {}
+        globalThis.document = {
+            ...originalDocument,
+            createElement(tag) {
+                return {
+                    tagName: String(tag).toUpperCase(),
+                    className: '',
+                    style: {},
+                    dataset: {},
+                    classList: {
+                        add() {},
+                        remove() {},
+                        contains: () => false,
+                    },
+                    setAttribute() {},
+                    appendChild() {},
+                    addEventListener() {},
+                    querySelector: () => null,
+                }
+            },
+        }
+
+        if (globalThis.window) {
+            globalThis.window.matchMedia = (query) => ({
+                matches: String(query).includes('pointer: coarse') || String(query).includes('max-width'),
+                addListener() {},
+                removeListener() {},
+            })
+            globalThis.window.innerWidth = 390
+            globalThis.window.innerHeight = 800
+            globalThis.window.getComputedStyle = () => ({ direction: 'rtl' })
+        }
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: false,
+            menuDomId: 'menu-sheet-rtl',
+            componentKey: 'data.select__rtl_sheet',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        try {
+            component.updateMenuPosition({ reveal: false, markReady: true })
+        } finally {
+            globalThis.document = originalDocument
+            if (originalHTMLElement) {
+                globalThis.HTMLElement = originalHTMLElement
+            } else {
+                delete globalThis.HTMLElement
+            }
+            if (globalThis.window) {
+                if (originalMatchMedia) {
+                    globalThis.window.matchMedia = originalMatchMedia
+                }
+                if (originalInnerWidth != null) {
+                    globalThis.window.innerWidth = originalInnerWidth
+                }
+                if (originalInnerHeight != null) {
+                    globalThis.window.innerHeight = originalInnerHeight
+                }
+                if (originalGetComputedStyle) {
+                    globalThis.window.getComputedStyle = originalGetComputedStyle
+                } else {
+                    delete globalThis.window.getComputedStyle
+                }
+            }
+        }
+
+        assert.equal(menu.dir, 'rtl')
+        assert.equal(menu.classList.contains('fff-teleported-menu--sheet'), true)
+    })
+
+    it('playSheetEnter parks closed then opens on the next frames', async () => {
+        const styles = {}
+        const menu = {
+            isConnected: true,
+            classList: {
+                classes: new Set(['is-open', 'fff-teleported-menu--sheet']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+            },
+            style: {
+                setProperty(name, value) {
+                    styles[name] = value
+                },
+                removeProperty(name) {
+                    delete styles[name]
+                },
+            },
+            dataset: {
+                fffSheetFittedHeight: '280',
+            },
+            scrollHeight: 280,
+            offsetWidth: 390,
+            offsetHeight: 280,
+            querySelectorAll: () => [],
+            querySelector: () => null,
+            getBoundingClientRect: () => ({ height: 280, width: 390 }),
+            addEventListener() {},
+            removeEventListener() {},
+        }
+
+        const frames = []
+        const originalRaf = globalThis.requestAnimationFrame
+        const originalSetTimeout = globalThis.setTimeout
+        globalThis.requestAnimationFrame = (cb) => {
+            frames.push(cb)
+
+            return frames.length
+        }
+        globalThis.setTimeout = () => 1
+
+        try {
+            playSheetEnter(menu)
+
+            assert.equal(menu.classList.contains('is-open'), false)
+            assert.equal(styles.transform, 'translate3d(0, 100%, 0)')
+            assert.equal(styles.transition, 'none')
+            assert.equal(menu.dataset.fffSheetEntering, 'true')
+
+            // Flush both rAF callbacks used by playSheetEnter.
+            while (frames.length > 0) {
+                const cb = frames.shift()
+                cb()
+            }
+
+            assert.equal(menu.classList.contains('is-open'), true)
+            assert.equal(styles.transform, undefined)
+            assert.match(String(styles.transition ?? ''), /transform/)
+        } finally {
+            globalThis.requestAnimationFrame = originalRaf
+            globalThis.setTimeout = originalSetTimeout
+        }
+    })
+
+    it('does not glass-reveal sheet menus during updateMenuPosition', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const menu = {
+            classList: {
+                classes: new Set(['fff-teleported-menu--sheet']),
+                add(name) { this.classes.add(name) },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) { return this.classes.has(name) },
+                toggle(name, force) {
+                    if (force) {
+                        this.classes.add(name)
+                    } else {
+                        this.classes.delete(name)
+                    }
+                },
+            },
+            style: {
+                removeProperty() {},
+                setProperty() {},
+            },
+            dataset: {},
+            firstChild: null,
+            querySelectorAll: () => [],
+            insertBefore() {},
+            getBoundingClientRect: () => ({ top: 0, left: 0, bottom: 0, width: 320, height: 200 }),
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 0, left: 10, bottom: 40, width: 280, height: 40 }),
+        }
+
+        const originalMatchMedia = globalThis.window?.matchMedia
+        const originalInnerWidth = globalThis.window?.innerWidth
+        const originalInnerHeight = globalThis.window?.innerHeight
+        const originalGetComputedStyle = globalThis.window?.getComputedStyle
+        const originalDocument = globalThis.document
+        const originalHTMLElement = globalThis.HTMLElement
+
+        globalThis.HTMLElement = class HTMLElement {}
+        globalThis.document = {
+            ...originalDocument,
+            createElement(tag) {
+                return {
+                    tagName: String(tag).toUpperCase(),
+                    className: '',
+                    style: {},
+                    dataset: {},
+                    classList: {
+                        add() {},
+                        remove() {},
+                        contains: () => false,
+                    },
+                    setAttribute() {},
+                    appendChild() {},
+                    addEventListener() {},
+                    querySelector: () => null,
+                }
+            },
+        }
+
+        if (globalThis.window) {
+            globalThis.window.matchMedia = (query) => ({
+                matches: String(query).includes('pointer: coarse') || String(query).includes('max-width'),
+                addListener() {},
+                removeListener() {},
+            })
+            globalThis.window.innerWidth = 390
+            globalThis.window.innerHeight = 800
+            globalThis.window.getComputedStyle = () => ({ direction: 'ltr' })
+        }
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: false,
+            menuDomId: 'menu-no-reveal',
+            componentKey: 'data.select__no_reveal',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        try {
+            component.updateMenuPosition({ reveal: true, markReady: true })
+            assert.equal(menu.classList.contains('is-open'), false)
+        } finally {
+            globalThis.document = originalDocument
+            if (originalHTMLElement) {
+                globalThis.HTMLElement = originalHTMLElement
+            }
+            if (globalThis.window) {
+                globalThis.window.matchMedia = originalMatchMedia
+                globalThis.window.innerWidth = originalInnerWidth
+                globalThis.window.innerHeight = originalInnerHeight
+                globalThis.window.getComputedStyle = originalGetComputedStyle
+            }
+        }
+    })
+
+    it('managed overlay flips sheet→panel on desktop restore while open', () => {
+        const runtime = createOverlayRuntime({
+            document: globalThis.document,
+            window: globalThis.window,
+        })
+        globalThis.window.FffOverlayRuntime = runtime
+        globalThis.window.getComputedStyle = () => ({ direction: 'ltr' })
+        globalThis.window.matchMedia = () => ({ matches: false, addListener() {}, removeListener() {} })
+        globalThis.window.innerWidth = 1200
+        globalThis.window.innerHeight = 800
+        globalThis.matchMedia = globalThis.window.matchMedia
+
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const removed = []
+        const menu = {
+            classList: {
+                classes: new Set(['fff-teleported-menu--sheet', 'fff-overlay-sheet', 'is-open']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle(name, force) {
+                    if (force) {
+                        this.classes.add(name)
+                    } else if (force === false) {
+                        this.classes.delete(name)
+                    }
+                },
+            },
+            style: {
+                left: '0',
+                right: '0',
+                bottom: '0',
+                width: '100%',
+                removeProperty(name) {
+                    removed.push(name)
+                    this[name] = ''
+                },
+                setProperty(name, value) {
+                    this[name] = value
+                },
+            },
+            dataset: {
+                fffOverlayPresentation: 'sheet',
+                fffOverlaySheet: 'true',
+                fffOverlaySnap: 'peek',
+            },
+            querySelector: () => null,
+            querySelectorAll: () => [],
+            getBoundingClientRect: () => ({ top: 80, left: 0, bottom: 400, width: 390, height: 320 }),
+            scrollHeight: 320,
+            clientHeight: 320,
+            offsetWidth: 390,
+            dir: 'ltr',
+            contains() {
+                return false
+            },
+            setAttribute() {},
+            removeAttribute() {},
+            getAttribute() {
+                return null
+            },
+            hidden: false,
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 120, left: 420, bottom: 160, width: 280, height: 40, right: 700 }),
+            offsetWidth: 280,
+        }
+
+        runtime.open({
+            id: 'fff-headless-select-members-menu',
+            panel: menu,
+            anchor: trigger,
+            mode: 'sheet',
+            exclusive: true,
+            manageVisibility: false,
+        })
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: true,
+            __fffOverlayMode: 'sheet',
+            __fffSheetScrollLocked: true,
+            menuDomId: 'menu-managed-resize',
+            componentKey: 'data.select__members',
+            statePath: 'members',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuOverlayId() {
+                return 'fff-headless-select-members-menu'
+            },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        globalThis.document.documentElement.setAttribute('data-fff-overlay-sheet-locks', '1')
+        globalThis.document.documentElement.classList.add('fff-overlay-sheet-open')
+
+        try {
+            component.updateMenuPosition({ reveal: false, markReady: true })
+
+            assert.equal(component.__fffOverlayMode, 'panel')
+            assert.equal(menu.classList.contains('fff-teleported-menu--sheet'), false)
+            assert.equal(menu.classList.contains('fff-teleported-menu--panel'), true)
+            assert.equal(menu.classList.contains('fff-overlay-sheet'), false)
+            assert.ok(removed.includes('left'))
+            assert.notEqual(String(menu.style.left), '0')
+            assert.match(String(menu.style.left), /px$/)
+            assert.equal(component.__fffSheetScrollLocked, false)
+            assert.equal(globalThis.document.documentElement.classList.contains('fff-overlay-sheet-open'), false)
+        } finally {
+            runtime.destroy()
+            delete globalThis.window.FffOverlayRuntime
+        }
+    })
+
+    it('managed overlay locks body scroll when flipping panel→sheet while open', () => {
+        const runtime = createOverlayRuntime({
+            document: globalThis.document,
+            window: globalThis.window,
+        })
+        globalThis.window.FffOverlayRuntime = runtime
+        globalThis.window.getComputedStyle = () => ({ direction: 'ltr', zIndex: '80' })
+        globalThis.window.matchMedia = (query) => ({
+            matches: String(query).includes('max-width') || String(query).includes('pointer: coarse'),
+            addListener() {},
+            removeListener() {},
+        })
+        globalThis.window.innerWidth = 390
+        globalThis.window.innerHeight = 800
+        globalThis.matchMedia = globalThis.window.matchMedia
+
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const menu = {
+            classList: {
+                classes: new Set(['fff-teleported-menu--panel', 'fff-overlay-panel', 'is-open']),
+                add(name) {
+                    this.classes.add(name)
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+                toggle(name, force) {
+                    if (force) {
+                        this.classes.add(name)
+                    } else if (force === false) {
+                        this.classes.delete(name)
+                    }
+                },
+            },
+            style: {
+                left: '420px',
+                top: '160px',
+                removeProperty(name) {
+                    this[name] = ''
+                },
+                setProperty(name, value) {
+                    this[name] = value
+                },
+            },
+            dataset: {
+                fffOverlayPresentation: 'panel',
+            },
+            querySelector: () => null,
+            querySelectorAll: () => [],
+            insertBefore(node) {
+                return node
+            },
+            getBoundingClientRect: () => ({ top: 160, left: 420, bottom: 400, width: 280, height: 240 }),
+            scrollHeight: 240,
+            clientHeight: 240,
+            offsetWidth: 280,
+            dir: 'ltr',
+            firstChild: null,
+            contains() {
+                return false
+            },
+            setAttribute() {},
+            removeAttribute() {},
+            getAttribute() {
+                return null
+            },
+            addEventListener() {},
+            removeEventListener() {},
+            hidden: false,
+        }
+
+        const trigger = {
+            getBoundingClientRect: () => ({ top: 120, left: 420, bottom: 160, width: 280, height: 40, right: 700 }),
+            offsetWidth: 280,
+        }
+
+        runtime.open({
+            id: 'fff-headless-select-members-sheet-menu',
+            panel: menu,
+            anchor: trigger,
+            mode: 'panel',
+            exclusive: true,
+            manageVisibility: false,
+        })
+
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: true,
+            __fffOverlayMode: 'panel',
+            __fffSheetScrollLocked: false,
+            menuDomId: 'menu-managed-to-sheet',
+            componentKey: 'data.select__members_sheet',
+            statePath: 'members_sheet',
+            $refs: { headlessMenu: menu, headlessTrigger: trigger },
+            resolveMenuOverlayId() {
+                return 'fff-headless-select-members-sheet-menu'
+            },
+            resolveMenuTriggerRef() {
+                return trigger
+            },
+            resolveMenuElement() {
+                return menu
+            },
+        }
+
+        try {
+            component.updateMenuPosition({ reveal: false, markReady: true })
+
+            assert.equal(component.__fffOverlayMode, 'sheet')
+            assert.equal(component.__fffSheetScrollLocked, true)
+            assert.equal(globalThis.document.documentElement.classList.contains('fff-overlay-sheet-open'), true)
+            assert.equal(globalThis.document.documentElement.getAttribute('data-fff-overlay-sheet-locks'), '1')
+            assert.equal(menu.classList.contains('fff-teleported-menu--sheet'), true)
+        } finally {
+            if (component.__fffSheetScrollLocked) {
+                component.syncOpenOverlaySheetEnvironment('panel', menu)
+            }
+
+            runtime.destroy()
+            delete globalThis.window.FffOverlayRuntime
+        }
+    })
+
+    it('managed overlay still binds window resize for panel↔sheet flips', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'comboboxOpen',
+            menuRef: 'headlessMenu',
+            ownerIdPrefix: 'fff-headless-select',
+            minMenuWidth: 200,
+            matchTriggerWidth: true,
+        })
+
+        const listeners = []
+        const originalAdd = globalThis.window.addEventListener.bind(globalThis.window)
+        const originalRemove = globalThis.window.removeEventListener.bind(globalThis.window)
+        const originalRaf = globalThis.requestAnimationFrame
+        const rafCallbacks = []
+
+        globalThis.window.addEventListener = (type, handler, options) => {
+            listeners.push({ type, handler, options })
+        }
+        globalThis.window.removeEventListener = (type, handler) => {
+            const idx = listeners.findIndex((entry) => entry.type === type && entry.handler === handler)
+            if (idx >= 0) {
+                listeners.splice(idx, 1)
+            }
+        }
+        globalThis.requestAnimationFrame = (cb) => {
+            rafCallbacks.push(cb)
+            return rafCallbacks.length
+        }
+
+        let updateCalls = 0
+        const component = {
+            ...mixin,
+            comboboxOpen: true,
+            __fffOverlayManaged: true,
+            __fffOverlayMode: 'panel',
+            updateMenuPosition() {
+                updateCalls += 1
+            },
+            resolveMenuTriggerRef() {
+                return { offsetWidth: 200 }
+            },
+            resolveMenuElement() {
+                return { classList: { contains() { return false } } }
+            },
+        }
+
+        try {
+            component.bindMenuListeners()
+
+            assert.equal(listeners.filter((entry) => entry.type === 'resize').length, 1)
+            assert.equal(listeners.filter((entry) => entry.type === 'scroll').length, 0)
+            assert.equal(typeof component.menuResizeHandler, 'function')
+            assert.equal(component.menuScrollHandler, undefined)
+
+            component.menuResizeHandler()
+            assert.equal(rafCallbacks.length, 1)
+            rafCallbacks[0]()
+            assert.equal(updateCalls, 1)
+
+            component.unbindMenuListeners()
+            assert.equal(listeners.filter((entry) => entry.type === 'resize').length, 0)
+            assert.equal(component.menuResizeHandler, null)
+        } finally {
+            globalThis.window.addEventListener = originalAdd
+            globalThis.window.removeEventListener = originalRemove
+            globalThis.requestAnimationFrame = originalRaf
+            component.unbindMenuListeners?.()
+        }
     })
 })

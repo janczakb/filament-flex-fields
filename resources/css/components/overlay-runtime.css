@@ -1,10 +1,19 @@
-.fff-overlay-panel,
 .fff-overlay-sheet {
     --fff-overlay-sheet-radius: 1.25rem 1.25rem 0 0;
-    --fff-overlay-sheet-max-height: min(85vh, 32rem);
-    --fff-overlay-handle-width: 2.5rem;
+    --fff-overlay-sheet-peek-height: min(50vh, 32rem);
+    --fff-overlay-sheet-expanded-height: 80vh;
+    --fff-overlay-sheet-max-height: var(--fff-overlay-sheet-peek-height);
+    --fff-overlay-handle-width: 2.25rem;
     --fff-overlay-handle-height: 0.25rem;
     --fff-overlay-handle-color: rgb(161 161 170);
+    --fff-overlay-sheet-enter-duration: 0.25s;
+    --fff-overlay-sheet-exit-duration: 0.2s;
+    --fff-overlay-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+    --fff-overlay-sheet-pad-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    --fff-overlay-sheet-min-height: 17.5rem;
+}
+
+.fff-overlay-panel {
     opacity: 0;
     pointer-events: none;
     transform: translateY(0.375rem);
@@ -13,36 +22,98 @@
         transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fff-overlay-panel.is-open,
-.fff-overlay-sheet.is-open {
+.fff-overlay-panel.is-open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
 }
 
 .fff-overlay-sheet {
-    inset-inline: 0;
-    bottom: 0;
+    left: 0 !important;
+    right: 0 !important;
+    inset-inline: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto;
+    min-height: var(--fff-overlay-sheet-min-height);
     max-height: var(--fff-overlay-sheet-max-height);
     border-radius: var(--fff-overlay-sheet-radius);
     overflow: hidden;
-    scroll-snap-align: end;
-    scroll-snap-stop: always;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding-bottom: var(--fff-overlay-sheet-pad-bottom, max(0.75rem, env(safe-area-inset-bottom, 0px)));
+    opacity: 1;
+    pointer-events: none;
+    transform: translate3d(0, 100%, 0);
+    will-change: transform;
+    transition:
+        transform var(--fff-overlay-sheet-enter-duration) var(--fff-overlay-sheet-ease);
+    /* Blur during slide is expensive on mobile GPUs. */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    contain: layout paint;
+    backface-visibility: hidden;
 }
 
-.fff-overlay-sheet::before {
-    content: '';
-    display: block;
-    width: var(--fff-overlay-handle-width);
-    height: var(--fff-overlay-handle-height);
-    margin: 0.625rem auto 0.375rem;
-    border-radius: 9999px;
-    background: var(--fff-overlay-handle-color);
-    flex-shrink: 0;
+.fff-overlay-sheet.is-open {
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0);
 }
 
-.fff-overlay-sheet[data-fff-overlay-snap='bottom'] {
-    scroll-snap-type: y proximity;
+/* Kill legacy pseudo handle — only `.fff-overlay-sheet__handle` may render the grabber. */
+.fff-overlay-sheet::before,
+.fff-overlay-sheet::after {
+    content: none !important;
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: none !important;
+    border: 0 !important;
+}
+
+html.fff-overlay-sheet-open,
+html.fff-overlay-sheet-open body {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
+html.fff-overlay-sheet-open .fff-overlay-sheet,
+html.fff-overlay-sheet-open .fff-overlay-sheet * {
+    touch-action: pan-y;
+}
+
+html.fff-overlay-sheet-open .fff-overlay-sheet__handle,
+html.fff-overlay-sheet-open .fff-overlay-sheet__handle * {
+    touch-action: none;
+}
+
+.fff-overlay-sheet[data-fff-overlay-snap='peek'] {
+    --fff-overlay-sheet-max-height: var(--fff-overlay-sheet-peek-height);
+}
+
+.fff-overlay-sheet[data-fff-overlay-snap='expanded'] {
+    --fff-overlay-sheet-max-height: var(--fff-overlay-sheet-expanded-height);
+}
+
+.fff-overlay-sheet--measuring [data-fff-overlay-scroll],
+.fff-overlay-sheet--measuring .fff-select-dropdown-scroller,
+.fff-overlay-sheet--measuring .fi-select-input-options-ctn,
+.fff-overlay-sheet--measuring .fff-phone-field__country-list,
+.fff-overlay-sheet--measuring .fff-country-field__list,
+.fff-overlay-sheet--measuring .fff-timezone-field__list,
+.fff-overlay-sheet--measuring .fff-currency-field__list {
+    flex: 0 0 auto !important;
+    min-height: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
 }
 
 .fff-overlay-backdrop {
@@ -51,7 +122,7 @@
     background: rgb(0 0 0 / 0.35);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity var(--fff-overlay-sheet-enter-duration, 0.25s) var(--fff-overlay-sheet-ease, cubic-bezier(0.32, 0.72, 0, 1));
 }
 
 .fff-overlay-backdrop.is-visible {
@@ -59,23 +130,46 @@
     pointer-events: auto;
 }
 
-.fff-overlay-sheet__handle {
-    width: 2.5rem;
-    height: 0.25rem;
-    margin: 0.625rem auto 0.375rem;
-    border-radius: 9999px;
-    background: rgb(161 161 170);
-    flex-shrink: 0;
-    touch-action: none;
-    cursor: grab;
+.fff-overlay-backdrop.is-leaving {
+    opacity: 0;
+    transition-duration: var(--fff-overlay-sheet-exit-duration, 0.2s);
 }
 
-.fff-overlay-sheet.is-dismissing {
-    opacity: 0;
-    transform: translateY(100%);
-    transition:
-        opacity 0.18s ease,
-        transform 0.22s cubic-bezier(0.4, 0, 1, 1);
+.fff-overlay-sheet__handle {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.625rem 0 0.375rem;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background: transparent !important;
+    touch-action: none;
+    cursor: grab;
+    user-select: none;
+}
+
+.fff-overlay-sheet__handle:active {
+    cursor: grabbing;
+}
+
+.fff-overlay-sheet__handle-bar {
+    display: block;
+    width: var(--fff-overlay-handle-width);
+    height: var(--fff-overlay-handle-height);
+    border-radius: 9999px;
+    background: var(--fff-overlay-handle-color);
+    pointer-events: none;
+}
+
+.fff-overlay-sheet.is-dismissing,
+.fff-overlay-sheet.is-closing {
+    pointer-events: none;
+    transform: translate3d(0, 100%, 0);
+    transition-duration: var(--fff-overlay-sheet-exit-duration);
+    transition-timing-function: var(--fff-overlay-sheet-ease);
 }
 
 .fff-overlay-reduced-motion,
@@ -88,7 +182,10 @@
     .fff-overlay-panel,
     .fff-overlay-sheet,
     .fff-overlay-panel.is-open,
-    .fff-overlay-sheet.is-open {
+    .fff-overlay-sheet.is-open,
+    .fff-overlay-sheet.is-dismissing,
+    .fff-overlay-sheet.is-closing,
+    .fff-overlay-backdrop {
         transition-duration: 0.01ms !important;
         transform: none !important;
     }

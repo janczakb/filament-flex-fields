@@ -801,6 +801,7 @@ return [
         'searching' => 'Searching…',
         'loading_more' => 'Loading more…',
         'no_options' => 'No options available.',
+        'no_more_options' => 'No more options to choose.',
         'no_search_results' => 'No results match your search.',
         'clear_search' => 'Clear search',
         'empty_hint' => [
@@ -809,6 +810,7 @@ return [
             'filter_list' => 'Start typing to filter the list.',
             'try_different_search' => 'Try a different search term.',
             'no_options_available' => 'No options are available right now.',
+            'all_options_selected' => 'Every available option is already selected.',
         ],
         'smart_suggest' => [
             'create' => 'Create',

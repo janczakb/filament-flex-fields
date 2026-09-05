@@ -174,6 +174,7 @@ export function createGeocodingComboboxMixin({
             this.updateSearchHasMinQuery()
 
             if (! this.searchHasMinQuery) {
+                this.searchResults = []
                 this.searchLoading = false
                 this.searchRefreshing = false
 
@@ -244,6 +245,18 @@ export function createGeocodingComboboxMixin({
             this.updateSearchHasMinQuery()
 
             const query = this.searchQuery.trim()
+
+            // Below min chars: drop stale results so empty/min-chars chrome is alone
+            // (do not leave prior suggestions under the “type at least N” message).
+            if (query.length < minSearchLength) {
+                this.searchResults = []
+                this.searchLoading = false
+                this.searchRefreshing = false
+                window.clearTimeout(this.searchDebounceTimer)
+
+                return
+            }
+
             const normalized = this.normalizeGeocodingQuery(query)
 
             if (normalized !== this.normalizeGeocodingQuery(this.lastFetchedQuery)) {
@@ -276,6 +289,20 @@ export function createGeocodingComboboxMixin({
                 const menu = this.$refs[menuRef]
 
                 if (menu?.contains(active)) {
+                    return
+                }
+
+                // Mobile sheet owns dismiss via backdrop / handle drag — clicking
+                // empty sheet chrome blurs the search input but must not close.
+                if (typeof this.shouldDismissGeocodingOnBlur === 'function') {
+                    if (! this.shouldDismissGeocodingOnBlur()) {
+                        return
+                    }
+                } else if (
+                    this.__fffOverlayMode === 'sheet'
+                    || menu?.classList?.contains?.('fff-teleported-menu--sheet')
+                    || menu?.classList?.contains?.('fff-overlay-sheet')
+                ) {
                     return
                 }
 

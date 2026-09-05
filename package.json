@@ -33,19 +33,19 @@
     "devDependencies": {
         "@playwright/test": "^1.61.1",
         "@tailwindcss/cli": "^4.3.3",
-        "@tiptap/core": "^3.28.0",
-        "@tiptap/extension-youtube": "^3.28.0",
+        "@tiptap/core": "^3.31.0",
+        "@tiptap/extension-youtube": "^3.31.0",
         "@xenova/transformers": "^2.17.2",
-        "esbuild": "^0.28.1",
+        "esbuild": "^0.28.2",
         "tailwindcss": "^4.3.3"
     },
     "dependencies": {
         "@gravity-ui/icons": "^2.20.0",
-        "@internationalized/date": "^3.8.2",
+        "@internationalized/date": "^3.12.3",
         "@zxing/browser": "^0.2.1",
         "@zxing/library": "^0.23.0",
         "emoji-picker-element": "^1.29.1",
-        "libphonenumber-js": "^1.13.8",
+        "libphonenumber-js": "^1.13.11",
         "nouislider": "^15.8.1",
         "number-flow": "^0.6.2"
     }

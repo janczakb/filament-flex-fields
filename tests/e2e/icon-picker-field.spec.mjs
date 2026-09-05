@@ -42,11 +42,18 @@ test.describe('Icon picker field fixture (layout precision)', () => {
         await expect(track).toBeHidden()
 
         const skeletonCell = skeleton.locator('.fff-icon-picker__option--loading').first()
+        const skeletonBone = skeletonCell.locator('.fff-icon-picker__skeleton--cell').first()
         const skeletonBox = await skeletonCell.boundingBox()
+        const boneBox = await skeletonBone.boundingBox()
 
         expect(skeletonBox).not.toBeNull()
-        expect(skeletonBox.height).toBeGreaterThan(16)
-        expect(skeletonBox.width).toBeGreaterThan(16)
+        expect(boneBox).not.toBeNull()
+        expect(skeletonBox.height).toBeGreaterThan(28)
+        expect(skeletonBox.width).toBeGreaterThan(28)
+        expect(Math.abs(boneBox.width - skeletonBox.width)).toBeLessThanOrEqual(2)
+        expect(Math.abs(boneBox.height - skeletonBox.height)).toBeLessThanOrEqual(2)
+        // Icons layout skeleton cells stay square like real icon boxes.
+        expect(Math.abs(skeletonBox.width - skeletonBox.height)).toBeLessThanOrEqual(2)
 
         await waitForLoadedTrack(panel)
     })
@@ -92,37 +99,17 @@ test.describe('Icon picker field fixture (layout precision)', () => {
         }
     })
 
-    test('per-icon skeleton is absolutely positioned over the icon slot', async ({ page }) => {
+    test('per-icon skeleton is removed once the svg is ready', async ({ page }) => {
         const panel = await openFixturePanel(page)
 
-        await expect(panel.locator('.fff-icon-picker__track .fff-icon-picker__option').first()).toBeVisible({
-            timeout: 15_000,
+        await waitForLoadedTrack(panel)
+
+        const firstOption = panel.locator('.fff-icon-picker__track .fff-icon-picker__option').first()
+
+        await expect(firstOption.locator('.fff-icon-picker__option-icon svg').first()).toBeVisible({
+            timeout: 10_000,
         })
-
-        const styles = await page.evaluate(() => {
-            const skeleton = document.querySelector('body > .fff-icon-picker__panel .fff-icon-picker__option-icon-skeleton')
-
-            if (! skeleton) {
-                return null
-            }
-
-            const computed = window.getComputedStyle(skeleton)
-
-            return {
-                position: computed.position,
-                top: computed.top,
-                right: computed.right,
-                bottom: computed.bottom,
-                left: computed.left,
-            }
-        })
-
-        expect(styles).not.toBeNull()
-        expect(styles.position).toBe('absolute')
-        expect(styles.top).toBe('0px')
-        expect(styles.right).toBe('0px')
-        expect(styles.bottom).toBe('0px')
-        expect(styles.left).toBe('0px')
+        await expect(firstOption.locator('.fff-icon-picker__option-icon-skeleton')).toHaveCount(0)
     })
 
     test('virtual scroll advances scrollTop smoothly without backward jumps', async ({ page }) => {
@@ -212,5 +199,30 @@ test.describe('Icon picker field fixture (layout precision)', () => {
             expect(Math.abs(before.height - after.height)).toBeLessThanOrEqual(1)
             expect(Math.abs(before.width - after.width)).toBeLessThanOrEqual(1)
         }
+    })
+
+    test('trigger preview icon and name share the same vertical center', async ({ page }) => {
+        await page.goto('/tests/e2e/fixtures/icon-picker-trigger-align.html')
+
+        await expect(page.locator('.fff-icon-picker__preview svg')).toBeVisible()
+
+        const metrics = await page.evaluate(() => {
+            const label = document.querySelector('.fi-select-input-value-label')
+            const preview = document.querySelector('.fff-icon-picker__preview')
+            const name = document.querySelector('.fff-icon-picker__name')
+            const labelStyle = window.getComputedStyle(label)
+            const previewRect = preview.getBoundingClientRect()
+            const nameRect = name.getBoundingClientRect()
+
+            return {
+                display: labelStyle.display,
+                alignItems: labelStyle.alignItems,
+                delta: Math.abs((previewRect.top + previewRect.height / 2) - (nameRect.top + nameRect.height / 2)),
+            }
+        })
+
+        expect(metrics.display).toContain('flex')
+        expect(metrics.alignItems).toBe('center')
+        expect(metrics.delta).toBeLessThanOrEqual(1)
     })
 })

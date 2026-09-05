@@ -9,7 +9,8 @@
 import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
 import { createOverlayBackdrop, removeOverlayBackdrop } from './overlay-backdrop.js'
 import { resolveOverlayMode } from './overlay-mode.js'
-import { bindOverlaySheetDismiss } from './overlay-sheet-dismiss.js'
+import { bindOverlaySheetDismiss, fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
+import { lockOverlaySheetScroll, unlockOverlaySheetScroll } from './overlay-sheet-scroll-lock.js'
 import {
     resolveTeleportedMenuHorizontalLeft,
     resolveTeleportedMenuVerticalPlacement,
@@ -20,6 +21,7 @@ import {
     emitOverlayOpenLatency,
     openOverlayPanel,
     releaseOverlayExclusive,
+    setOverlayPanelMode,
     updateOverlayPanelPosition,
 } from './overlay-runtime-bridge.js'
 import {
@@ -246,9 +248,260 @@ function revealTeleportedMenuPanel(menu, isOpen) {
     })
 }
 
+const SHEET_EXIT_MS = 200
+
+/**
+ * @param {HTMLElement | null | undefined} menu
+ * @returns {boolean}
+ */
+function menuIsSheet(menu) {
+    return Boolean(
+        menu?.classList?.contains('fff-teleported-menu--sheet')
+        || menu?.classList?.contains('fff-overlay-sheet'),
+    )
+}
+
+/**
+ * Play bottom-sheet enter: closed frame → open.
+ *
+ * Height is applied with transitions disabled so the first open (content measure
+ * 0 → fitted) does not eat the slide-up. Transform alone animates in.
+ *
+ * @param {HTMLElement} menu
+ */
+export function playSheetEnter(menu) {
+    if (! menu) {
+        return
+    }
+
+    cancelMenuCloseAnimation(menu)
+    menu.classList.remove('is-open', 'is-closing')
+
+    // Measure + park off-screen with transitions forced off until the open class
+    // lands in the same frame — otherwise first-open `reveal` rAF can flip
+    // `is-open` early and the slide stutters / skips.
+    if (typeof menu.style?.setProperty === 'function') {
+        menu.style.setProperty('transition', 'none', 'important')
+    }
+
+    // Height may already be fitted by openOverlayPanel; only measure when needed.
+    if (! menu.dataset?.fffSheetFittedHeight) {
+        fitOverlaySheetToContent(menu, window)
+    }
+
+    if (menu.dataset) {
+        menu.dataset.fffSheetEntering = 'true'
+    }
+
+    if (typeof menu.style?.setProperty === 'function') {
+        menu.style.setProperty('transform', 'translate3d(0, 100%, 0)', 'important')
+    }
+
+    void menu.offsetWidth
+
+    const finishEntering = () => {
+        if (! menu.dataset?.fffSheetEntering) {
+            return
+        }
+
+        delete menu.dataset.fffSheetEntering
+        menu.removeEventListener('transitionend', onEnterEnd)
+
+        // Skeleton / Livewire options often land mid-enter — one instant refit
+        // after the slide completes keeps height correct without fighting transform.
+        if (menu.isConnected) {
+            fitOverlaySheetToContent(menu, window)
+        }
+    }
+
+    const onEnterEnd = (event) => {
+        if (event.target !== menu || event.propertyName !== 'transform') {
+            return
+        }
+
+        finishEntering()
+    }
+
+    menu.addEventListener('transitionend', onEnterEnd)
+    // Prefer global timer (jsdom tests often stub globalThis, not window).
+    const schedule = typeof globalThis.setTimeout === 'function'
+        ? globalThis.setTimeout.bind(globalThis)
+        : window.setTimeout.bind(window)
+
+    schedule(finishEntering, 280)
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            if (! menu.isConnected) {
+                return
+            }
+
+            // Same frame: enable transform-only transition, drop parked transform, open.
+            // Never leave SNAP_EASE (height/max-height) active during enter.
+            if (typeof menu.style?.setProperty === 'function') {
+                menu.style.setProperty(
+                    'transition',
+                    'transform 0.25s cubic-bezier(0.32, 0.72, 0, 1)',
+                    'important',
+                )
+                menu.style.removeProperty('transform')
+            } else if (typeof menu.style?.removeProperty === 'function') {
+                menu.style.removeProperty('transition')
+                menu.style.removeProperty('transform')
+            }
+
+            menu.classList.remove('is-closing')
+            menu.classList.add('is-open')
+        })
+    })
+}
+
+/**
+ * Run work after the mobile sheet enter slide finishes (or immediately for panels).
+ * Livewire option fetches / focus must not contend with the enter animation frames.
+ *
+ * @param {HTMLElement | null | undefined} menu
+ * @param {() => void} callback
+ * @param {{ timeoutMs?: number }} [options]
+ */
+export function runAfterSheetEnter(menu, callback, { timeoutMs = 320 } = {}) {
+    if (typeof callback !== 'function') {
+        return
+    }
+
+    const isSheet = menuIsSheet(menu)
+        || (typeof window !== 'undefined' && resolveOverlayMode(window) === 'sheet')
+
+    if (! isSheet || ! menu) {
+        callback()
+
+        return
+    }
+
+    const startedAt = typeof performance !== 'undefined' ? performance.now() : Date.now()
+    let settled = false
+
+    const finish = () => {
+        if (settled) {
+            return
+        }
+
+        settled = true
+        callback()
+    }
+
+    const tick = () => {
+        if (settled) {
+            return
+        }
+
+        const entering = menu.dataset?.fffSheetEntering === 'true'
+        const open = typeof menu.classList?.contains === 'function'
+            && menu.classList.contains('is-open')
+        const elapsed = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - startedAt
+
+        if (! entering && open) {
+            finish()
+
+            return
+        }
+
+        if (elapsed >= timeoutMs) {
+            finish()
+
+            return
+        }
+
+        requestAnimationFrame(tick)
+    }
+
+    requestAnimationFrame(tick)
+}
+
+/**
+ * Play bottom-sheet exit, then invoke onDone (typically sets openKey=false).
+ *
+ * @param {HTMLElement} menu
+ * @param {() => void} onDone
+ */
+function playSheetExit(menu, onDone) {
+    if (! menu) {
+        onDone?.()
+
+        return
+    }
+
+    cancelMenuCloseAnimation(menu)
+
+    // Lock full-bleed geometry for the whole exit — reposition/width helpers must
+    // not shrink the drawer while translateY animates.
+    if (typeof menu.style?.setProperty === 'function') {
+        menu.style.setProperty('width', '100%', 'important')
+        menu.style.setProperty('min-width', '0', 'important')
+        menu.style.setProperty('max-width', 'none', 'important')
+        menu.style.setProperty('left', '0', 'important')
+        menu.style.setProperty('right', '0', 'important')
+        menu.style.setProperty('inset-inline', '0', 'important')
+    }
+
+    if (prefersReducedMotion()) {
+        menu.classList.remove('is-open', 'is-closing')
+        onDone?.()
+
+        return
+    }
+
+    // Guarantee a from→to transform so the exit always animates.
+    menu.classList.add('is-open')
+    menu.classList.remove('is-closing')
+    menu.style.transition = 'none'
+    menu.style.transform = 'translateY(0)'
+    void menu.offsetWidth
+    menu.style.transition = ''
+    menu.style.transform = ''
+
+    menu.classList.remove('is-open')
+    menu.classList.add('is-closing')
+
+    let finished = false
+
+    const complete = () => {
+        if (finished) {
+            return
+        }
+
+        finished = true
+        cancelMenuCloseAnimation(menu)
+        menu.classList.remove('is-closing')
+        onDone?.()
+    }
+
+    const onTransitionEnd = (event) => {
+        if (event.target !== menu) {
+            return
+        }
+
+        if (event.propertyName !== 'transform') {
+            return
+        }
+
+        complete()
+    }
+
+    menu.__fffMenuCloseListener = onTransitionEnd
+    menu.addEventListener('transitionend', onTransitionEnd)
+    menu.__fffMenuCloseTimeout = window.setTimeout(complete, SHEET_EXIT_MS + 40)
+}
+
 function hideTeleportedMenuPanel(menu, onHidden) {
     if (! menu) {
         onHidden?.()
+
+        return
+    }
+
+    if (menuIsSheet(menu)) {
+        playSheetExit(menu, onHidden)
 
         return
     }
@@ -294,20 +547,41 @@ function hideTeleportedMenuPanel(menu, onHidden) {
 
     menu.__fffMenuCloseListener = onTransitionEnd
     menu.addEventListener('transitionend', onTransitionEnd)
-
     menu.__fffMenuCloseTimeout = window.setTimeout(complete, 220)
 }
 
 function ensureSheetChrome(menu) {
-    if (! menu || menu.querySelector('[data-fff-overlay-handle]')) {
+    if (! menu) {
+        return
+    }
+
+    const existing = [...menu.querySelectorAll('[data-fff-overlay-handle], .fff-overlay-sheet__handle')]
+
+    if (existing.length > 0) {
+        const [keep, ...extras] = existing
+
+        for (const node of extras) {
+            node.remove()
+        }
+
+        if (keep instanceof HTMLElement && ! keep.querySelector('.fff-overlay-sheet__handle-bar')) {
+            const bar = document.createElement('span')
+
+            bar.className = 'fff-overlay-sheet__handle-bar'
+            keep.appendChild(bar)
+        }
+
         return
     }
 
     const handle = document.createElement('div')
+    const bar = document.createElement('span')
 
     handle.className = 'fff-overlay-sheet__handle'
     handle.dataset.fffOverlayHandle = 'true'
     handle.setAttribute('aria-hidden', 'true')
+    bar.className = 'fff-overlay-sheet__handle-bar'
+    handle.appendChild(bar)
     menu.insertBefore(handle, menu.firstChild)
 }
 
@@ -318,14 +592,78 @@ function applyOverlayPresentation(menu, mode) {
 
     menu.classList.toggle('fff-teleported-menu--sheet', mode === 'sheet')
     menu.classList.toggle('fff-teleported-menu--panel', mode !== 'sheet')
+    menu.classList.toggle('fff-overlay-sheet', mode === 'sheet')
+    menu.classList.toggle('fff-overlay-panel', mode !== 'sheet')
 
     if (menu.dataset) {
         menu.dataset.fffOverlayPresentation = mode
+
+        if (mode === 'sheet') {
+            menu.dataset.fffOverlaySheet = 'true'
+        } else {
+            delete menu.dataset.fffOverlaySheet
+            delete menu.dataset.fffSheetFittedHeight
+            delete menu.dataset.fffOverlaySnap
+        }
     }
 
     if (mode === 'sheet') {
         ensureSheetChrome(menu)
+
+        return
     }
+
+    // Panel mode must not keep sheet peek height / bottom pin from a prior
+    // sheet open (or a mode flip) — that leaves a giant empty desktop menu.
+    clearOverlaySheetInlineStyles(menu)
+    removeSheetChrome(menu)
+}
+
+/**
+ * @param {HTMLElement | null | undefined} menu
+ */
+function clearOverlaySheetInlineStyles(menu) {
+    if (! menu?.style || typeof menu.style.removeProperty !== 'function') {
+        return
+    }
+
+    for (const property of [
+        'height',
+        'max-height',
+        'min-height',
+        'bottom',
+        'left',
+        'right',
+        'inset-inline',
+        'width',
+        'min-width',
+        'max-width',
+        'top',
+        'transform',
+        'transition',
+    ]) {
+        menu.style.removeProperty(property)
+    }
+
+    menu.style.removeProperty('--fff-overlay-sheet-max-height')
+
+    if (menu.dataset) {
+        delete menu.dataset.fffSheetFittedHeight
+        delete menu.dataset.fffOverlaySnap
+    }
+}
+
+/**
+ * @param {HTMLElement | null | undefined} menu
+ */
+function removeSheetChrome(menu) {
+    if (! menu?.querySelectorAll) {
+        return
+    }
+
+    menu.querySelectorAll('[data-fff-overlay-handle], .fff-overlay-sheet__handle').forEach((node) => {
+        node.remove()
+    })
 }
 
 /**
@@ -388,6 +726,12 @@ export function createSearchableSelectMenuMixin({
         },
 
         scheduleMenuPosition({ onAnchored = null } = {}) {
+            // Exit animation owns transform classes — reposition/reveal would
+            // strip `is-closing` and flash the sheet open again.
+            if (this.__fffSheetClosing) {
+                return
+            }
+
             const trigger = this.resolveMenuTriggerRef()
             const menu = this.resolveMenuElement()
             const hasPositionedBefore = menu?.__fffHasBeenPositioned === true
@@ -429,11 +773,18 @@ export function createSearchableSelectMenuMixin({
                             return
                         }
 
+                        const sheetMode = resolveOverlayMode(window) === 'sheet'
+                            || menuIsSheet(currentMenu)
+
                         const alreadyPaintedOpen = typeof currentMenu.classList?.contains === 'function'
                             && currentMenu.classList.contains('is-open')
 
                         // Skip reveal reflow when optimistic is-open is already on.
-                        const shouldReveal = ! hasPositionedBefore && pass === 0 && ! alreadyPaintedOpen
+                        // Sheets never use glass reveal — playSheetEnter owns the slide.
+                        const shouldReveal = ! sheetMode
+                            && ! hasPositionedBefore
+                            && pass === 0
+                            && ! alreadyPaintedOpen
 
                         if (typeof this.measureVirtualListViewport === 'function') {
                             this.measureVirtualListViewport()
@@ -463,9 +814,12 @@ export function createSearchableSelectMenuMixin({
                             onAnchored?.()
                             this[readyKey] = true
 
-                            if (this[openKey] && currentMenu) {
-                                currentMenu.classList.remove('is-closing')
-                                currentMenu.classList.add('is-open')
+                            if (this[openKey] && ! this.__fffSheetClosing && currentMenu) {
+                                // Sheet enter is owned by playSheetEnter() after overlay chrome is applied.
+                                if (! sheetMode) {
+                                    currentMenu.classList.remove('is-closing')
+                                    currentMenu.classList.add('is-open')
+                                }
                             }
                         }
 
@@ -484,10 +838,20 @@ export function createSearchableSelectMenuMixin({
         },
 
         updateMenuPosition({ reveal = false, markReady = true } = {}) {
+            if (this.__fffSheetClosing) {
+                return
+            }
+
             const trigger = this.resolveMenuTriggerRef()
             const menu = this.resolveMenuElement()
 
             if (! trigger || ! menu) {
+                return
+            }
+
+            // While the enter slide runs, skip re-anchoring — skeleton/Livewire
+            // height thrash would stutter the transform animation.
+            if (menu.dataset?.fffSheetEntering === 'true') {
                 return
             }
 
@@ -501,17 +865,51 @@ export function createSearchableSelectMenuMixin({
                     : false
 
                 if (hasManagedPanel) {
-                    updateOverlayPanelPosition(managedOverlayId)
+                    // Live breakpoint wins — stale open-time mode / leftover sheet
+                    // classes must not leave the menu pinned left:0 after desktop restore.
+                    const desiredMode = resolveOverlayMode(window)
+
+                    this.__fffOverlayMode = desiredMode
+                    applyOverlayPresentation(menu, desiredMode)
+                    setOverlayPanelMode(managedOverlayId, desiredMode)
+                    this.syncOpenOverlaySheetEnvironment(desiredMode, menu)
+
+                    if (desiredMode === 'sheet') {
+                        menu.style.position = 'fixed'
+                        menu.style.zIndex = resolveTeleportedMenuZIndex()
+                        menu.style.setProperty('left', '0', 'important')
+                        menu.style.setProperty('right', '0', 'important')
+                        menu.style.setProperty('inset-inline', '0', 'important')
+                        menu.style.setProperty('bottom', '0', 'important')
+                        menu.style.setProperty('width', '100%', 'important')
+                        menu.style.setProperty('min-width', '0', 'important')
+                        menu.style.setProperty('max-width', 'none', 'important')
+                        menu.style.removeProperty('top')
+                        menu.style.marginTop = '0'
+                        menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
+
+                        if (
+                            this[openKey]
+                            && menu.classList?.contains?.('is-open')
+                            && menu.dataset?.fffSheetEntering !== 'true'
+                        ) {
+                            fitOverlaySheetToContent(menu, window)
+                        }
+                    } else {
+                        updateOverlayPanelPosition(managedOverlayId)
+                    }
 
                     if (markReady) {
                         this[readyKey] = true
                     }
 
-                    if (reveal) {
-                        revealTeleportedMenuPanel(menu, this[openKey])
-                    } else if (this[openKey] && markReady) {
-                        menu.classList.remove('is-closing')
-                        menu.classList.add('is-open')
+                    if (desiredMode !== 'sheet') {
+                        if (reveal) {
+                            revealTeleportedMenuPanel(menu, this[openKey])
+                        } else if (this[openKey] && markReady) {
+                            menu.classList.remove('is-closing')
+                            menu.classList.add('is-open')
+                        }
                     }
 
                     return
@@ -524,28 +922,42 @@ export function createSearchableSelectMenuMixin({
 
             const overlayMode = resolveOverlayMode(window)
 
+            this.__fffOverlayMode = overlayMode
             applyOverlayPresentation(menu, overlayMode)
+            this.syncOpenOverlaySheetEnvironment(overlayMode, menu)
 
             if (overlayMode === 'sheet') {
                 menu.style.position = 'fixed'
                 menu.style.zIndex = resolveTeleportedMenuZIndex()
-                menu.style.insetInline = '0'
-                menu.style.bottom = '0'
-                menu.style.width = '100%'
+                menu.style.setProperty('left', '0', 'important')
+                menu.style.setProperty('right', '0', 'important')
+                menu.style.setProperty('inset-inline', '0', 'important')
+                menu.style.setProperty('bottom', '0', 'important')
+                menu.style.setProperty('width', '100%', 'important')
+                menu.style.setProperty('min-width', '0', 'important')
+                menu.style.setProperty('max-width', 'none', 'important')
                 menu.style.removeProperty('top')
-                menu.style.removeProperty('left')
                 menu.style.marginTop = '0'
                 menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
+
+                // Mirror trigger writing direction so sheet search/options use [dir=rtl] CSS.
+                const sheetDirection = typeof window.getComputedStyle === 'function'
+                    ? window.getComputedStyle(trigger).direction || 'ltr'
+                    : 'ltr'
+                menu.dir = sheetDirection
 
                 if (markReady) {
                     this[readyKey] = true
                 }
 
-                if (reveal) {
-                    revealTeleportedMenuPanel(menu, this[openKey])
-                } else if (this[openKey] && markReady) {
-                    menu.classList.remove('is-closing')
-                    menu.classList.add('is-open')
+                // Never glass-reveal or flip is-open here — playSheetEnter owns enter.
+                // After enter, refit when Livewire/skeleton content changes height.
+                if (
+                    this[openKey]
+                    && menu.classList?.contains?.('is-open')
+                    && menu.dataset?.fffSheetEntering !== 'true'
+                ) {
+                    fitOverlaySheetToContent(menu, window)
                 }
 
                 return
@@ -558,9 +970,12 @@ export function createSearchableSelectMenuMixin({
             const shouldMatchTriggerWidth = typeof this.resolveMatchTriggerWidth === 'function'
                 ? this.resolveMatchTriggerWidth()
                 : matchTriggerWidth
+            const resolvedMinWidth = typeof this.resolveMenuMinWidth === 'function'
+                ? this.resolveMenuMinWidth()
+                : minMenuWidth
             const menuWidth = shouldMatchTriggerWidth
-                ? Math.min(Math.max(rect.width, minMenuWidth), window.innerWidth - (viewportPadding * 2))
-                : Math.min(Math.max(minMenuWidth, 0), window.innerWidth - (viewportPadding * 2))
+                ? Math.min(Math.max(rect.width, resolvedMinWidth), window.innerWidth - (viewportPadding * 2))
+                : Math.min(Math.max(resolvedMinWidth, 0), window.innerWidth - (viewportPadding * 2))
 
             const direction = typeof window.getComputedStyle === 'function'
                 ? window.getComputedStyle(trigger).direction || 'ltr'
@@ -572,11 +987,26 @@ export function createSearchableSelectMenuMixin({
             menu.style.position = 'fixed'
             // Always pin width before measure — content-sized first paint (e.g. phone
             // country list) jumps when overlay later applies minMenuWidth.
-            menu.style.width = `${Math.round(menuWidth)}px`
+            // Prefer setProperty(..., important) so a prior sheet `width: 100% !important`
+            // cannot win; also assign `.width` for plain style mocks / older paths.
+            const widthPx = `${Math.round(menuWidth)}px`
+            menu.style.width = widthPx
+            if (typeof menu.style.setProperty === 'function') {
+                menu.style.setProperty('width', widthPx, 'important')
+                menu.style.setProperty('max-width', 'none', 'important')
+                menu.style.setProperty('--fff-select-menu-width', widthPx)
+            }
             menu.style.zIndex = resolveTeleportedMenuZIndex()
             menu.style.top = `${Math.round(rect.bottom + gap)}px`
             menu.style.left = `${Math.round(rect.left)}px`
             menu.style.marginTop = '0'
+            // Ensure prior sheet pins cannot stretch the panel to the viewport bottom.
+            if (typeof menu.style.removeProperty === 'function') {
+                menu.style.removeProperty('bottom')
+                menu.style.removeProperty('height')
+                menu.style.removeProperty('max-height')
+                menu.style.removeProperty('min-height')
+            }
 
             const menuRect = menu.getBoundingClientRect()
             let left = resolveTeleportedMenuHorizontalLeft({
@@ -622,12 +1052,114 @@ export function createSearchableSelectMenuMixin({
             applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
         },
 
+        /**
+         * Keep body scroll lock + sheet backdrop/dismiss in sync when the open
+         * overlay flips panel↔sheet on resize (or when first anchored as sheet).
+         *
+         * @param {'panel' | 'sheet'} mode
+         * @param {HTMLElement | null | undefined} [menu]
+         * @param {{ bindDismiss?: boolean }} [options]
+         */
+        syncOpenOverlaySheetEnvironment(mode, menu = null, options = {}) {
+            if (! this[openKey] || typeof document === 'undefined') {
+                return
+            }
+
+            const bindDismiss = options.bindDismiss !== false
+            const overlayId = this.resolveMenuOverlayId()
+            const panel = menu ?? this.resolveMenuElement()
+
+            if (mode === 'sheet') {
+                if (! this.__fffSheetScrollLocked) {
+                    lockOverlaySheetScroll(document)
+                    this.__fffSheetScrollLocked = true
+                }
+
+                if (panel) {
+                    const zIndex = Number.parseInt(window.getComputedStyle?.(panel)?.zIndex, 10) || 50
+
+                    createOverlayBackdrop(document, overlayId, {
+                        zIndex: zIndex - 1,
+                        onDismiss: () => {
+                            if (this.__fffOverlayMode === 'sheet' || menuIsSheet(this.resolveMenuElement())) {
+                                this.closeTeleportedMenu()
+
+                                return
+                            }
+
+                            if (typeof this.closeTeleportedMenuImmediate === 'function') {
+                                this.closeTeleportedMenuImmediate()
+
+                                return
+                            }
+
+                            this[openKey] = false
+                        },
+                    })
+
+                    if (
+                        bindDismiss
+                        && ! this.__fffSheetDismissCleanup
+                        && typeof panel.addEventListener === 'function'
+                    ) {
+                        this.__fffSheetDismissCleanup = bindOverlaySheetDismiss({
+                            panel,
+                            onDismiss: () => {
+                                if (this.__fffSheetClosing || ! this[openKey]) {
+                                    return
+                                }
+
+                                this.__fffSheetClosing = true
+                                removeOverlayBackdrop(document, overlayId)
+                                window.setTimeout(() => {
+                                    this.__fffSheetClosing = false
+                                    this[openKey] = false
+                                }, 240)
+                            },
+                        })
+                    }
+                }
+
+                return
+            }
+
+            removeOverlayBackdrop(document, overlayId)
+
+            if (this.__fffSheetDismissCleanup) {
+                this.__fffSheetDismissCleanup()
+                this.__fffSheetDismissCleanup = null
+            }
+
+            if (this.__fffSheetScrollLocked) {
+                unlockOverlaySheetScroll(document)
+                this.__fffSheetScrollLocked = false
+            }
+        },
+
         closeTeleportedMenu() {
-            if (! this[openKey]) {
+            if (! this[openKey] || this.__fffSheetClosing) {
                 return
             }
 
             const menu = this.resolveMenuElement()
+            const sheet = menuIsSheet(menu) || this.__fffOverlayMode === 'sheet'
+
+            if (sheet) {
+                this.__fffSheetClosing = true
+
+                if (menu && ! menuIsSheet(menu)) {
+                    applyOverlayPresentation(menu, 'sheet')
+                }
+
+                removeOverlayBackdrop(document, this.resolveMenuOverlayId())
+
+                playSheetExit(menu, () => {
+                    this.__fffSheetClosing = false
+                    this[openKey] = false
+                })
+
+                return
+            }
 
             hideTeleportedMenuPanel(menu, () => {
                 this[openKey] = false
@@ -655,26 +1187,19 @@ export function createSearchableSelectMenuMixin({
                     'fff-teleported-menu--sheet',
                     'fff-teleported-menu--panel',
                 )
+                clearOverlaySheetInlineStyles(menu)
+                removeSheetChrome(menu)
             }
 
             this[openKey] = false
         },
 
         bindMenuListeners() {
-            if (this.__fffOverlayManaged) {
-                return
-            }
-
             this.unbindMenuListeners()
 
-            this[scrollHandlerKey] = (event) => {
-                const menu = this.resolveMenuElement()
-                const trigger = this.resolveMenuTriggerRef()
-
-                if (shouldSkipMenuScrollReposition(event, menu, trigger)) {
-                    return
-                }
-
+            // Breakpoint flips (panel↔sheet) must run even when overlay-runtime owns
+            // panel scroll reposition — runtime resize only calls positionPanel().
+            this[resizeHandlerKey] = () => {
                 if (this.__fffMenuPositionRaf) {
                     return
                 }
@@ -687,7 +1212,21 @@ export function createSearchableSelectMenuMixin({
                     }
                 })
             }
-            this[resizeHandlerKey] = () => {
+
+            window.addEventListener('resize', this[resizeHandlerKey])
+
+            if (this.__fffOverlayManaged) {
+                return
+            }
+
+            this[scrollHandlerKey] = (event) => {
+                const menu = this.resolveMenuElement()
+                const trigger = this.resolveMenuTriggerRef()
+
+                if (shouldSkipMenuScrollReposition(event, menu, trigger)) {
+                    return
+                }
+
                 if (this.__fffMenuPositionRaf) {
                     return
                 }
@@ -716,28 +1255,28 @@ export function createSearchableSelectMenuMixin({
             }
 
             window.addEventListener('scroll', this[scrollHandlerKey], true)
-            window.addEventListener('resize', this[resizeHandlerKey])
         },
 
         unbindMenuListeners() {
-            if (! this[scrollHandlerKey]) {
-                return
-            }
-
             if (this.__fffMenuPositionRaf) {
                 cancelAnimationFrame(this.__fffMenuPositionRaf)
                 this.__fffMenuPositionRaf = 0
             }
 
-            for (const parent of this[scrollParentsKey] ?? []) {
-                parent.removeEventListener('scroll', this[scrollHandlerKey])
+            if (this[scrollHandlerKey]) {
+                for (const parent of this[scrollParentsKey] ?? []) {
+                    parent.removeEventListener('scroll', this[scrollHandlerKey])
+                }
+
+                window.removeEventListener('scroll', this[scrollHandlerKey], true)
+                this[scrollHandlerKey] = null
             }
 
-            window.removeEventListener('scroll', this[scrollHandlerKey], true)
-            window.removeEventListener('resize', this[resizeHandlerKey])
+            if (this[resizeHandlerKey]) {
+                window.removeEventListener('resize', this[resizeHandlerKey])
+                this[resizeHandlerKey] = null
+            }
 
-            this[scrollHandlerKey] = null
-            this[resizeHandlerKey] = null
             this[scrollParentsKey] = []
         },
 
@@ -747,8 +1286,9 @@ export function createSearchableSelectMenuMixin({
                     return
                 }
 
-                // Never use the animated close path here — delayed openKey=false
-                // lets a sibling SelectField steal/show this panel.
+                // Exclusive displace must flip open state immediately so a sibling
+                // picker can claim the overlay. Backdrop / handle dismiss use the
+                // animated sheet exit instead.
                 if (typeof this.closeTeleportedMenuImmediate === 'function') {
                     this.closeTeleportedMenuImmediate()
 
@@ -797,24 +1337,6 @@ export function createSearchableSelectMenuMixin({
 
                             applyOverlayPresentation(menu, overlayMode)
 
-                            if (overlayMode === 'sheet') {
-                                const zIndex = parseInt(window.getComputedStyle(menu).zIndex, 10) || 50
-
-                                createOverlayBackdrop(document, anchoredOverlayId, {
-                                    zIndex: zIndex - 1,
-                                    onDismiss: displaceThisMenu,
-                                })
-
-                                if (this.__fffSheetDismissCleanup) {
-                                    this.__fffSheetDismissCleanup()
-                                }
-
-                                this.__fffSheetDismissCleanup = bindOverlaySheetDismiss({
-                                    panel: menu,
-                                    onDismiss: displaceThisMenu,
-                                })
-                            }
-
                             openOverlayPanel({
                                 id: anchoredOverlayId,
                                 panel: menu,
@@ -823,7 +1345,9 @@ export function createSearchableSelectMenuMixin({
                                 exclusive: wireExclusive,
                                 manageVisibility: false,
                                 onDisplace: displaceThisMenu,
-                                minWidth: minMenuWidth,
+                                minWidth: typeof this.resolveMenuMinWidth === 'function'
+                                    ? this.resolveMenuMinWidth()
+                                    : minMenuWidth,
                                 matchTriggerWidth: typeof this.resolveMatchTriggerWidth === 'function'
                                     ? this.resolveMatchTriggerWidth()
                                     : matchTriggerWidth,
@@ -835,6 +1359,18 @@ export function createSearchableSelectMenuMixin({
                             })
                             this.__fffOverlayManaged = true
                             this.__fffOverlayMode = overlayMode
+                            // Lock scroll + backdrop before enter; bind dismiss after so
+                            // snap/layout work cannot delay the first slide frame.
+                            this.syncOpenOverlaySheetEnvironment(overlayMode, menu, { bindDismiss: false })
+
+                            if (typeof this.afterOverlayPanelOpened === 'function') {
+                                this.afterOverlayPanelOpened(overlayMode, menu)
+                            }
+
+                            if (overlayMode === 'sheet') {
+                                playSheetEnter(menu)
+                                this.syncOpenOverlaySheetEnvironment('sheet', menu)
+                            }
                             // readyKey is set by scheduleMenuPosition after onAnchored returns
                             // so first paint already includes overlay geometry.
 
@@ -844,6 +1380,10 @@ export function createSearchableSelectMenuMixin({
 
                                 emitOverlayOpenLatency(anchoredOverlayId, latency)
                             }
+
+                            // Managed overlays skip scroll listeners (runtime owns those),
+                            // but still need resize for panel↔sheet breakpoint flips.
+                            this.bindMenuListeners()
                         },
                     })
 
@@ -856,13 +1396,25 @@ export function createSearchableSelectMenuMixin({
                     cancelMenuCloseAnimation(menu)
                     menu.classList.remove('is-open', 'is-closing', 'fff-teleported-menu--sheet', 'fff-teleported-menu--panel')
                     delete menu.dataset.fffOverlayPresentation
+                    delete menu.dataset.fffSheetFittedHeight
+                    delete menu.dataset.fffOverlaySnap
+                    menu.style.transition = ''
+                    menu.style.transform = ''
+                    clearOverlaySheetInlineStyles(menu)
+                    removeSheetChrome(menu)
                 }
 
+                this.__fffSheetClosing = false
                 removeOverlayBackdrop(document, overlayExclusiveId)
 
                 if (this.__fffSheetDismissCleanup) {
                     this.__fffSheetDismissCleanup()
                     this.__fffSheetDismissCleanup = null
+                }
+
+                if (this.__fffSheetScrollLocked) {
+                    unlockOverlaySheetScroll(document)
+                    this.__fffSheetScrollLocked = false
                 }
 
                 if (this.__fffOverlayManaged) {

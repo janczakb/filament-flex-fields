@@ -124,6 +124,17 @@
     --tw-shadow: 0 0 #0000 !important;
 }
 
+.fff-phone-field__country-menu.fff-teleported-menu--sheet {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    /* Height comes from fitOverlaySheetToContent / drag snap. */
+    height: auto;
+    max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
+}
+
 .fff-phone-field__country-menu--sm {
     --fff-phone-field-menu-text-size: var(--fff-text-md);
     --fff-phone-field-menu-flag-size: 1rem;

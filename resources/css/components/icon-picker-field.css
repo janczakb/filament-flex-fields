@@ -1,6 +1,7 @@
 /* Icon picker — trigger uses select-field; panel shell uses teleported-menu + select-dropdown; grid only here */
 
-.fff-icon-picker [x-cloak] {
+.fff-icon-picker [x-cloak],
+.fi-dropdown-panel.fff-icon-picker__panel [x-cloak] {
     display: none !important;
 }
 
@@ -23,18 +24,27 @@
     --fff-select-focus: var(--primary-400, rgb(96 165 250));
 }
 
-.fff-icon-picker .fi-select-input-value-label {
-    gap: 0.5rem;
-}
-
-.fff-icon-picker__preview {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--fff-select-trigger-icon-size, 1.375rem);
-    height: var(--fff-select-trigger-icon-size, 1.375rem);
-    flex-shrink: 0;
-    color: currentColor;
+/* Trigger: icon + name must stay a single centered row (SSR + hydrated).
+   Wrapper class `fff-icon-picker-field` is always on the input wrp. */
+.fi-input-wrp.fff-icon-picker-field .fi-select-input-value-label,
+.fff-icon-picker-field .fff-icon-picker .fi-select-input-value-label,
+.fff-icon-picker-field .fff-icon-picker-trigger-ssr .fi-select-input-value-label,
+.fff-icon-picker .fi-select-input-value-label,
+.fff-icon-picker-trigger-ssr .fi-select-input-value-label {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+    line-height: 1.25rem !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    width: auto !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
 }
 
 .fff-icon-picker-shell {
@@ -42,32 +52,58 @@
     width: 100%;
 }
 
+.fi-input-wrp.fff-icon-picker-field .fff-icon-picker__preview,
+.fff-icon-picker-field .fff-icon-picker__preview,
+.fff-icon-picker__preview,
 .fff-icon-picker-trigger-ssr .fff-icon-picker__preview {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--fff-select-trigger-icon-size, 1.375rem);
-    height: var(--fff-select-trigger-icon-size, 1.375rem);
-    flex-shrink: 0;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    min-height: 1.25rem !important;
+    max-width: 1.25rem !important;
+    max-height: 1.25rem !important;
+    flex: 0 0 1.25rem !important;
+    line-height: 0 !important;
+    overflow: hidden !important;
     color: currentColor;
 }
 
-.fff-icon-picker-trigger-ssr .fff-icon-picker__preview svg {
-    width: 100%;
-    height: 100%;
-}
-
-.fff-icon-picker-trigger-ssr .fi-select-input-value-label {
-    gap: 0.5rem;
+.fi-input-wrp.fff-icon-picker-field .fff-icon-picker__name,
+.fff-icon-picker-field .fff-icon-picker__name,
+.fff-icon-picker__name,
+.fff-icon-picker-trigger-ssr .fff-icon-picker__name {
+    display: inline-block !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    line-height: 1.25rem !important;
+    vertical-align: middle !important;
 }
 
 .fff-icon-picker__preview:empty {
-    display: none;
+    display: none !important;
 }
 
-.fff-icon-picker__preview svg {
-    width: 100%;
-    height: 100%;
+.fi-input-wrp.fff-icon-picker-field .fff-icon-picker__preview .fi-icon,
+.fi-input-wrp.fff-icon-picker-field .fff-icon-picker__preview svg,
+.fff-icon-picker__preview .fi-icon,
+.fff-icon-picker__preview svg,
+.fff-icon-picker-trigger-ssr .fff-icon-picker__preview .fi-icon,
+.fff-icon-picker-trigger-ssr .fff-icon-picker__preview svg {
+    display: block !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    min-height: 1.25rem !important;
+    max-width: 1.25rem !important;
+    max-height: 1.25rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .fi-dropdown-panel.fff-icon-picker__panel {
@@ -82,10 +118,17 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     margin: 0;
 }
 
-.fi-dropdown-panel.fff-icon-picker__panel.fff-select-dropdown-panel--layout-grid {
+.fi-dropdown-panel.fff-icon-picker__panel.fff-select-dropdown-panel--layout-grid:not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet) {
     width: min(22rem, calc(100vw - 2rem)) !important;
     min-width: min(22rem, calc(100vw - 2rem)) !important;
     max-width: min(22rem, calc(100vw - 2rem)) !important;
+}
+
+body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu--sheet,
+body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
 }
 
 .fff-icon-picker__toolbar {
@@ -321,6 +364,7 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
 
 .fff-icon-picker__option {
     display: flex;
+    position: relative;
     align-items: center;
     gap: 0.5rem;
     min-width: 0;
@@ -356,6 +400,10 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     padding: 0.1875rem;
 }
 
+.fff-icon-picker__results--icons-only .fff-icon-picker__track--virtual .fff-icon-picker__option {
+    aspect-ratio: unset;
+}
+
 .fff-icon-picker__results--grid .fff-icon-picker__option,
 .fff-icon-picker__results--grid .fff-icon-picker__track--virtual .fff-icon-picker__option {
     height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height));
@@ -364,10 +412,26 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
 }
 
 .fff-icon-picker__option--loading {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
     pointer-events: none;
     cursor: default;
     border-color: transparent !important;
     background: transparent !important;
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+.fff-icon-picker__results--grid .fff-icon-picker__option--loading,
+.fff-icon-picker__results--icons-only .fff-icon-picker__option--loading {
+    aspect-ratio: 1;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    max-height: none;
 }
 
 .fff-icon-picker__results--grid .fff-icon-picker__option {
@@ -433,74 +497,79 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     line-height: 0;
 }
 
+/* Grid / icons-only: glyph slot is a fixed square, always centered in the cell. */
 .fff-icon-picker__results--grid .fff-icon-picker__option-icon,
 .fff-icon-picker__results--icons-only .fff-icon-picker__option-icon {
     display: grid;
     place-items: center;
+    place-self: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    min-width: 1.5rem;
+    min-height: 1.5rem;
+    max-width: 1.5rem;
+    max-height: 1.5rem;
+    flex: 0 0 1.5rem;
+    margin-inline: auto;
+}
+
+.fff-icon-picker__results--grid .fff-icon-picker__option-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+    max-width: 1.25rem;
+    max-height: 1.25rem;
+    flex: 0 0 1.25rem;
+}
+
+/* Per-option SVG placeholder — removed via x-show once svgFor() resolves. */
+.fff-icon-picker__option-icon-skeleton {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    pointer-events: none;
+    border-radius: inherit;
+    background: rgb(228 228 231 / 0.85);
+    animation: fff-icon-picker-skeleton-pulse 1.35s ease-in-out infinite;
+}
+
+/* Grid / list: bone sits over the glyph slot only. */
+.fff-icon-picker__results--grid .fff-icon-picker__option-icon-skeleton,
+.fff-icon-picker__results--list .fff-icon-picker__option-icon-skeleton {
+    inset: auto;
+    top: 50%;
+    left: 0.5rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: -0.625rem;
+    border-radius: 0.375rem;
+}
+
+.fff-icon-picker__results--grid .fff-icon-picker__option-icon-skeleton {
+    left: 50%;
+    top: 0.5rem;
+    margin-top: 0;
+    margin-left: -0.625rem;
+}
+
+.dark .fff-icon-picker__option-icon-skeleton {
+    background: rgb(63 63 70 / 0.9);
+}
+
+.fff-icon-picker__option-icon svg,
+.fff-icon-picker__option-icon .fi-icon,
+.fff-icon-picker__option-icon .fi-icon svg {
+    display: block;
     width: 100%;
     height: 100%;
     max-width: 100%;
     max-height: 100%;
-    flex-shrink: 0;
-}
-
-.fff-icon-picker__results--grid .fff-icon-picker__option-icon {
-    flex: 1 1 auto;
-    width: 100%;
-    height: 1.625rem;
-    min-height: 1.625rem;
-    max-height: 1.625rem;
-}
-
-.fff-icon-picker__results--icons-only .fff-icon-picker__option-icon {
-    width: calc(100% - 0.25rem);
-    height: calc(100% - 0.25rem);
-}
-
-.fff-icon-picker__option-icon-skeleton {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: none;
-    max-height: none;
-    border-radius: 0.375rem;
-    background: linear-gradient(90deg, rgb(244 244 245) 25%, rgb(228 228 231) 50%, rgb(244 244 245) 75%);
-    background-size: 200% 100%;
-    animation: fff-icon-picker-skeleton 1.2s ease-in-out infinite;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 160ms ease;
-}
-
-.fff-icon-picker__option-icon-skeleton.is-visible {
-    opacity: 1;
-}
-
-.fff-icon-picker__option-icon:has(svg) .fff-icon-picker__option-icon-skeleton {
-    opacity: 0;
-}
-
-.fff-icon-picker__results--grid .fff-icon-picker__option-icon-skeleton,
-.fff-icon-picker__results--icons-only .fff-icon-picker__option-icon-skeleton {
-    border-radius: 0.375rem;
-}
-
-.dark .fff-icon-picker__option-icon-skeleton {
-    background: linear-gradient(90deg, rgb(39 39 42) 25%, rgb(63 63 70) 50%, rgb(39 39 42) 75%);
-    background-size: 200% 100%;
-}
-
-.fff-icon-picker__option-icon svg {
-    display: block;
-    width: 100%;
-    height: 100%;
 }
 
 .fff-icon-picker__results--grid .fff-icon-picker__option-icon > span,
-.fff-icon-picker__results--icons-only .fff-icon-picker__option-icon > span:not(.fff-icon-picker__option-icon-skeleton) {
+.fff-icon-picker__results--icons-only .fff-icon-picker__option-icon > span {
     position: relative;
     z-index: 1;
     display: inline-flex;
@@ -543,104 +612,83 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
 
 .fff-icon-picker__initial-skeleton .fff-icon-picker__grid,
 .fff-icon-picker__load-more-tail .fff-icon-picker__grid {
-    grid-auto-rows: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height));
+    grid-auto-rows: auto;
+}
+
+.fff-icon-picker__results--list .fff-icon-picker__initial-skeleton .fff-icon-picker__grid,
+.fff-icon-picker__results--list .fff-icon-picker__load-more-tail .fff-icon-picker__grid {
+    grid-auto-rows: var(--fff-icon-picker-row-height, 44px);
 }
 
 .fff-icon-picker__initial-skeleton .fff-icon-picker__option,
 .fff-icon-picker__load-more-tail .fff-icon-picker__option {
-    height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height));
-    min-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height));
-    max-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height));
     pointer-events: none;
 }
 
-.fff-icon-picker__skeleton--icon,
-.fff-icon-picker__skeleton--label {
-    border-radius: 0.375rem;
-    background: linear-gradient(
-        90deg,
-        rgb(244 244 245) 0%,
-        rgb(228 228 231) 50%,
-        rgb(244 244 245) 100%
-    );
-    background-size: 200% 100%;
-    animation: fff-icon-picker-skeleton 1.2s ease-in-out infinite;
-}
-
-.dark .fff-icon-picker__skeleton--icon,
-.dark .fff-icon-picker__skeleton--label {
-    background: linear-gradient(
-        90deg,
-        rgb(39 39 42) 0%,
-        rgb(63 63 70) 50%,
-        rgb(39 39 42) 100%
-    );
-    background-size: 200% 100%;
-}
-
-.fff-icon-picker__initial-skeleton .fff-icon-picker__option-icon,
-.fff-icon-picker__load-more-tail .fff-icon-picker__option-icon {
-    position: relative;
-}
-
-.fff-icon-picker__results--grid .fff-icon-picker__initial-skeleton .fff-icon-picker__option-icon,
-.fff-icon-picker__results--grid .fff-icon-picker__load-more-tail .fff-icon-picker__option-icon {
-    flex: 1 1 auto;
+/* Icons / grid: skeleton cells are 1:1 squares matching real icon boxes. */
+.fff-icon-picker__results--icons-only .fff-icon-picker__initial-skeleton .fff-icon-picker__option--loading,
+.fff-icon-picker__results--icons-only .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading,
+.fff-icon-picker__results--grid .fff-icon-picker__initial-skeleton .fff-icon-picker__option--loading,
+.fff-icon-picker__results--grid .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading {
+    aspect-ratio: 1;
     width: 100%;
-    height: 1.625rem;
-    min-height: 1.625rem;
-    max-height: 1.625rem;
+    height: auto;
+    min-height: 0;
+    max-height: none;
 }
 
-.fff-icon-picker__results--icons-only .fff-icon-picker__initial-skeleton .fff-icon-picker__option-icon,
-.fff-icon-picker__results--icons-only .fff-icon-picker__load-more-tail .fff-icon-picker__option-icon {
-    width: calc(100% - 0.25rem);
-    height: calc(100% - 0.25rem);
+.fff-icon-picker__results--list .fff-icon-picker__initial-skeleton .fff-icon-picker__option,
+.fff-icon-picker__results--list .fff-icon-picker__load-more-tail .fff-icon-picker__option {
+    aspect-ratio: unset;
+    height: var(--fff-icon-picker-row-height, 44px);
+    min-height: var(--fff-icon-picker-row-height, 44px);
+    max-height: var(--fff-icon-picker-row-height, 44px);
 }
 
-.fff-icon-picker__initial-skeleton .fff-icon-picker__skeleton--icon,
-.fff-icon-picker__load-more-tail .fff-icon-picker__skeleton--icon {
-    position: absolute;
-    inset: 0;
-}
-
-.fff-icon-picker__skeleton--label {
+/* Full option-box bone (initial + load-more), UserSelect-style pulse. */
+.fff-icon-picker__skeleton--cell {
     display: block;
-    width: 72%;
-    height: 0.625rem;
-    margin-inline: auto;
-    flex-shrink: 0;
+    box-sizing: border-box;
+    flex: 1 1 auto;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    border-radius: 0.5rem;
+    background: rgb(228 228 231);
+    animation: fff-icon-picker-skeleton-pulse 1.35s ease-in-out infinite;
+}
+
+.dark .fff-icon-picker__skeleton--cell {
+    background: rgb(82 82 91);
 }
 
 .fff-icon-picker__skeleton {
     border-radius: 0.625rem;
-    background: linear-gradient(
-        90deg,
-        rgb(244 244 245) 0%,
-        rgb(228 228 231) 50%,
-        rgb(244 244 245) 100%
-    );
-    background-size: 200% 100%;
-    animation: fff-icon-picker-skeleton 1.2s ease-in-out infinite;
+    background: rgb(228 228 231 / 0.85);
+    animation: fff-icon-picker-skeleton-pulse 1.35s ease-in-out infinite;
 }
 
 .dark .fff-icon-picker__skeleton {
-    background: linear-gradient(
-        90deg,
-        rgb(39 39 42) 0%,
-        rgb(63 63 70) 50%,
-        rgb(39 39 42) 100%
-    );
-    background-size: 200% 100%;
+    background: rgb(63 63 70 / 0.9);
 }
 
-@keyframes fff-icon-picker-skeleton {
-    0% {
-        background-position: 200% 0;
+@keyframes fff-icon-picker-skeleton-pulse {
+    0%,
+    100% {
+        opacity: 0.55;
     }
 
-    100% {
-        background-position: -200% 0;
+    50% {
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .fff-icon-picker__skeleton--cell,
+    .fff-icon-picker__skeleton,
+    .fff-icon-picker__option-icon-skeleton {
+        animation: none;
     }
 }
 
@@ -694,6 +742,11 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     padding: 0.1875rem !important;
 }
 
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--icons-only .fi-select-input-option.fff-icon-picker__option--loading,
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid .fi-select-input-option.fff-icon-picker__option--loading {
+    padding: 0 !important;
+}
+
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid .fi-select-input-option {
     display: flex !important;
     flex-direction: column !important;
@@ -703,30 +756,34 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid .fi-select-input-option > .fff-icon-picker__option-icon {
     display: grid !important;
     place-items: center !important;
+    place-self: center !important;
     position: relative !important;
-    width: 100% !important;
-    height: 1.625rem !important;
-    min-height: 1.625rem !important;
-    max-height: 1.625rem !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    flex: 0 0 auto !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    min-width: 1.25rem !important;
+    min-height: 1.25rem !important;
+    max-width: 1.25rem !important;
+    max-height: 1.25rem !important;
+    flex: 0 0 1.25rem !important;
+    margin-inline: auto !important;
     padding: 0 !important;
-    margin: 0 !important;
     background: transparent !important;
 }
 
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--icons-only .fi-select-input-option > .fff-icon-picker__option-icon {
     display: grid !important;
     place-items: center !important;
+    place-self: center !important;
     position: relative !important;
-    width: calc(100% - 0.25rem) !important;
-    height: calc(100% - 0.25rem) !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    flex: 0 0 auto !important;
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+    min-width: 1.5rem !important;
+    min-height: 1.5rem !important;
+    max-width: 1.5rem !important;
+    max-height: 1.5rem !important;
+    flex: 0 0 1.5rem !important;
+    margin: auto !important;
     padding: 0 !important;
-    margin: 0 !important;
     background: transparent !important;
 }
 
@@ -737,9 +794,29 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     height: auto !important;
     max-width: none !important;
     max-height: none !important;
+    border-radius: inherit !important;
+    pointer-events: none !important;
 }
 
-.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__option-icon > span:not(.fff-icon-picker__option-icon-skeleton),
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid .fff-icon-picker__option-icon-skeleton,
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--list .fff-icon-picker__option-icon-skeleton {
+    inset: auto !important;
+    top: 50% !important;
+    left: 0.5rem !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    margin-top: -0.625rem !important;
+    border-radius: 0.375rem !important;
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid .fff-icon-picker__option-icon-skeleton {
+    left: 50% !important;
+    top: 0.5rem !important;
+    margin-top: 0 !important;
+    margin-left: -0.625rem !important;
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__option-icon > span,
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__option-icon .fi-icon {
     display: inline-flex !important;
     align-items: center !important;
@@ -749,6 +826,49 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     line-height: 0 !important;
     padding: 0 !important;
     margin: 0 !important;
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__initial-skeleton .fi-select-input-option.fff-icon-picker__option--loading,
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__load-more-tail .fi-select-input-option.fff-icon-picker__option--loading {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    aspect-ratio: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--list .fff-icon-picker__initial-skeleton .fi-select-input-option.fff-icon-picker__option--loading,
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--list .fff-icon-picker__load-more-tail .fi-select-input-option.fff-icon-picker__option--loading {
+    aspect-ratio: unset !important;
+    height: var(--fff-icon-picker-row-height, 44px) !important;
+    min-height: var(--fff-icon-picker-row-height, 44px) !important;
+    max-height: var(--fff-icon-picker-row-height, 44px) !important;
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__skeleton--cell {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0.5rem !important;
+    background: rgb(228 228 231) !important;
+    flex: 1 1 auto !important;
+    align-self: stretch !important;
+}
+
+.dark .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__skeleton--cell {
+    background: rgb(82 82 91) !important;
 }
 
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__option-icon svg,

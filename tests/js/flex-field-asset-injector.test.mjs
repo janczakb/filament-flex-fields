@@ -437,6 +437,16 @@ test('normalizeAssetUrl resolves relative and absolute urls to the same href', (
     )
 })
 
+test('normalizeAssetUrl strips cache-bust query so duplicate ?v= does not re-inject', () => {
+    const baseUri = 'https://panel.test/admin'
+
+    const a = normalizeAssetUrl('/js/janczakb/filament-flex-fields/components/select-field.js?v=111', baseUri)
+    const b = normalizeAssetUrl('/js/janczakb/filament-flex-fields/components/select-field.js?v=222', baseUri)
+
+    assert.equal(a, b)
+    assert.equal(a, 'https://panel.test/js/janczakb/filament-flex-fields/components/select-field.js')
+})
+
 test('resolveHoverPreloadScope prefers the nearest field wrapper over the document', () => {
     const { document, window } = createDom()
     const injector = createFlexFieldAssetInjector({ document, window })

@@ -228,6 +228,10 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CalculatorField — Shared Floating Calculator Panel</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/selectfield"><img src="art/drawer-mobile.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SelectField - Searchable options open as a mobile bottom sheet drawer with drag handle, search header, and checkmark selection"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">SelectField — Mobile Bottom Sheet Drawer</p>
+  </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/signaturefield"><img src="art/sc-1.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SignatureField — Canvas Handwriting Signature Pad</p>
   </div>
@@ -871,18 +875,18 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 30.4 (gzip 6.3) |
-| PhoneField | 6.2 (gzip 2) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + phone-lib 184.9 (gzip 43.3) + search-normalize 0.1 (gzip 0.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 13.6 (gzip 2.6) + deps 29 |
-| CountryField | 4.1 (gzip 1.5) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 9.1 (gzip 2) + deps 29 |
-| FlexTextInput | 11.5 (gzip 3.4) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + shared 37.4 (gzip 13.4) + theme-utils 0.6 (gzip 0.3) | 22.1 (gzip 3.7) + deps 3 |
-| TagsField | 5.9 (gzip 2.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) | 2.3 (gzip 0.7) + deps 134.2 |
+| core (always) | — | 31.4 (gzip 6.6) |
+| PhoneField | 6.2 (gzip 2) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + phone-lib 185.1 (gzip 43.4) + search-normalize 0.1 (gzip 0.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 13.8 (gzip 2.7) + deps 30 |
+| CountryField | 4.2 (gzip 1.5) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 9.3 (gzip 2) + deps 30 |
+| FlexTextInput | 11.2 (gzip 3.3) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + shared 37.4 (gzip 13.4) + theme-utils 0.6 (gzip 0.3) | 22.1 (gzip 3.7) + deps 3 |
+| TagsField | 6 (gzip 2.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) | 2.3 (gzip 0.7) + deps 150.2 |
 | RatingField | 0.7 (gzip 0.3) | 4.7 (gzip 1.4) |
 | SwitchField | Alpine inline | 12.8 (gzip 2.5) |
-| UserSelect | 42.4 (gzip 11.3) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.1 (gzip 1.3) + components-select-field-headless-user-select 6.8 (gzip 2.1) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + search-normalize 0.1 (gzip 0.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) | 11.8 (gzip 2.2) + deps 118 |
-| MapPickerField | 7.6 (gzip 2.6) + flex-dropdown-coordinator 1.7 (gzip 0.8) + mapbox 15.4 (gzip 4.7) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) | 9 (gzip 2.2) + deps 30.4 |
-| SelectField | 42.4 (gzip 11.3) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.1 (gzip 1.3) + components-select-field-headless-user-select 6.8 (gzip 2.1) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + search-normalize 0.1 (gzip 0.1) + select-menu 21.6 (gzip 6.5) + theme-utils 0.6 (gzip 0.3) | 101.2 (gzip 12.5) + deps 6.9 |
+| UserSelect | 52.5 (gzip 13.1) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.2 (gzip 1.3) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) | 13.6 (gzip 2.3) + deps 133.9 |
+| MapPickerField | 7.5 (gzip 2.6) + flex-dropdown-coordinator 1.7 (gzip 0.8) + mapbox 15.5 (gzip 4.7) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) | 9 (gzip 2.2) + deps 31.6 |
+| SelectField | 52.5 (gzip 13.1) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.2 (gzip 1.3) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 35.8 (gzip 9.4) + theme-utils 0.6 (gzip 0.3) | 116.1 (gzip 13.9) + deps 8 |
 
-Sample bundles (10 of **68** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
+Sample bundles (10 of **69** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
 
 ---

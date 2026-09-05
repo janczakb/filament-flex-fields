@@ -9,7 +9,9 @@ function createStyleStub() {
         overflowX: 'visible',
         overflowY: 'visible',
         removeProperty() {},
-        setProperty() {},
+        setProperty(property, value) {
+            this[property] = value
+        },
     }
 }
 
@@ -25,6 +27,8 @@ function createElement(tagName = 'div') {
         style,
         hidden: true,
         offsetWidth: 1,
+        scrollHeight: 120,
+        clientHeight: 120,
         classList: {
             add: (...tokens) => {
                 for (const token of tokens) {
@@ -61,13 +65,19 @@ function createElement(tagName = 'div') {
         contains(node) {
             return node === this
         },
+        querySelector() {
+            return null
+        },
+        querySelectorAll() {
+            return []
+        },
         getBoundingClientRect() {
             return {
                 top: 100,
                 bottom: 140,
                 left: 24,
                 width: 240,
-                height: 40,
+                height: this.scrollHeight || 40,
             }
         },
         setAttribute(name, value) {
@@ -371,7 +381,44 @@ describe('overlay-runtime', () => {
         })
 
         assert.equal(panel.dataset.fffOverlaySheet, 'true')
+        assert.equal(['peek', 'content'].includes(panel.dataset.fffOverlaySnap), true)
         assert.equal(panel.classList.contains('fff-overlay-sheet'), true)
+        assert.equal(panel.style.width, '100%')
+        assert.equal(panel.style.left, '0')
+        assert.equal(panel.style.right, '0')
+
+        runtime.destroy()
+    })
+
+    it('setMode flips an open sheet to a positioned desktop panel', () => {
+        const context = createTestContext()
+        globalThis.document = context.document
+        globalThis.window = context.window
+        globalThis.matchMedia = context.window.matchMedia
+
+        const runtime = createOverlayRuntime(context)
+        const anchor = createElement()
+        const panel = createElement()
+
+        runtime.open({
+            id: 'resize-menu',
+            panel,
+            anchor,
+            mode: 'sheet',
+            exclusive: true,
+            manageVisibility: false,
+        })
+
+        assert.equal(panel.style.left, '0')
+        assert.equal(panel.classList.contains('fff-overlay-sheet'), true)
+
+        runtime.setMode('resize-menu', 'panel')
+
+        assert.equal(panel.classList.contains('fff-overlay-sheet'), false)
+        assert.equal(panel.classList.contains('fff-overlay-panel'), true)
+        assert.equal(panel.dataset.fffOverlayMode, 'panel')
+        assert.notEqual(panel.style.left, '0')
+        assert.match(String(panel.style.left), /px$/)
 
         runtime.destroy()
     })

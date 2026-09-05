@@ -87,6 +87,7 @@
                 'fff-select-trigger-ssr',
                 'fi-select-input-ctn' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
                 'fi-select-input-ctn-clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
+                'fi-select-input-ctn-option-labels-not-wrapped' => ! $canOptionLabelsWrap,
                 'fff-select-trigger-ssr--multiple' => $isMultiple,
                 'fff-select-trigger-ssr--layout-grid' => $isGridLayout,
                 'fff-select-trigger-ssr--clearable' => $field->isClearable() && filled($state) && ! $isMultiple && ! $isDisabled,
@@ -224,6 +225,7 @@
             searchingMessage: @js($headlessSelectMessages['searching']),
             loadingMoreMessage: @js($headlessSelectMessages['loadingMore']),
             noOptionsMessage: @js($headlessSelectMessages['noOptions']),
+            noMoreOptionsMessage: @js($headlessSelectMessages['noMoreOptions'] ?? ''),
             noSearchResultsMessage: @js($headlessSelectMessages['noSearchResults']),
             searchPrompt: @js($headlessSelectMessages['searchPrompt']),
             initialOptionLabel: @js($headlessInitialOptionLabel),
@@ -256,7 +258,7 @@
         })"
             x-init="init()"
             x-on:keydown.escape.stop="comboboxOpen && comboboxCloseMenu()"
-            x-on:click.outside="if ((typeof resolveMenuElement === 'function' ? resolveMenuElement() : $refs.headlessMenu)?.contains($event.target)) { return }; comboboxCloseMenu()"
+            x-on:click.outside="if (isEventInsideHeadlessMenu($event)) { return }; comboboxCloseMenu()"
             @class([
                 'fff-select-field__interactive',
             ])
@@ -420,12 +422,10 @@
                             @if ($isAutofocused)
                                 autofocus
                             @endif
-                            @if (filled($headlessTriggerDir))
-                                dir="{{ $headlessTriggerDir }}"
-                            @endif
+                            dir="auto"
                             x-ref="headlessInlineSearchInput"
-                            x-bind:value="inlineSearchInputValue()"
-                            x-on:input="onInlineSearchInput($event)"
+                            x-model="comboboxQuery"
+                            x-on:input="onInlineSearchClearedIfEmpty($event)"
                             x-on:focus="onInlineSearchFocus()"
                             x-on:blur="onInlineSearchBlur()"
                             x-on:keydown.down.prevent="comboboxMoveHighlight(1)"
@@ -486,15 +486,22 @@
                     'fff-teleported-menu',
                     'fff-select-dropdown-panel--dropdown-fixed',
                     'fff-select-dropdown-panel--overlay-scroll',
+                    // Filament theme defaults to max-w-[14rem]! — kill it so matchTriggerWidth can work.
+                    'fi-width-none',
                     'fff-select-dropdown-panel--layout-' . ($isUserSelectField ? 'list' : ($useRichListDropdownLayout ? 'list' : ($isGridLayout ? 'grid' : 'plain'))),
                     'fff-select-dropdown-panel--user-select' => $isUserSelectField,
                     'fi-select-input-ctn-option-labels-not-wrapped' => ! $canOptionLabelsWrap,
-                    'fi-width-none' => $isGridLayout && ! $isUserSelectField,
                 ])
                 x-bind:aria-label="{{ json_encode($fieldLabel ?? $statePath) }}"
             >
-                @if ($isSearchable && ! $isInlineSearch)
-                    <div class="fi-select-input-search-ctn fff-select-input-search-ctn">
+                @if ($isSearchable)
+                    <div
+                        class="fi-select-input-search-ctn fff-select-input-search-ctn"
+                        @if ($isInlineSearch)
+                            x-show="shouldShowMenuSearch()"
+                            x-cloak
+                        @endif
+                    >
                         <input
                             type="search"
                             class="fi-input fi-select-input-search-input"
@@ -502,9 +509,10 @@
                             autocomplete="off"
                             aria-controls="{{ $headlessListboxId }}"
                             aria-autocomplete="list"
+                            {{-- auto: Hebrew/Arabic → RTL caret; Latin queries keep LTR caret (forced dir=rtl put the caret on the wrong side for "teraz"). --}}
+                            dir="auto"
                             x-model="comboboxQuery"
                             x-ref="headlessSearchInput"
-                            x-on:input="comboboxSetQuery($event.target.value)"
                             x-on:keydown.down.prevent="comboboxMoveHighlight(1)"
                             x-on:keydown.up.prevent="comboboxMoveHighlight(-1)"
                             x-on:keydown.enter.prevent="comboboxSelectHighlighted()"
@@ -564,7 +572,7 @@
                                             type="button"
                                             class="fi-select-input-option fff-select-smart-create"
                                             role="option"
-                                            x-on:click="selectCreateOption(String(comboboxQuery ?? '').trim() || row.value)"
+                                            x-on:mousedown.prevent="selectCreateOption(String(comboboxQuery ?? '').trim() || row.value)"
                                         >
                                             <span>
                                                 <span class="fff-select-smart-create__content">

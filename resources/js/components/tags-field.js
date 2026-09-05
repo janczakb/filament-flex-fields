@@ -159,6 +159,14 @@ export default function tagsFieldFormComponent({
             this.newTag = '';
             this.searchResults = [];
             this.closeSuggestionsMenu();
+
+            // Static suggestions stay "should show" while focused, so the open
+            // watch does not re-fire after close — reopen for the next pick.
+            this.$nextTick?.(() => {
+                if (this.shouldShowSuggestions() && ! this.suggestionsSuppressed) {
+                    this.openSuggestionsMenu()
+                }
+            })
         },
 
         deleteTag(tagToDelete) {

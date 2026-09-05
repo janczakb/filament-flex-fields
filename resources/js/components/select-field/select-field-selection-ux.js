@@ -154,10 +154,12 @@ function findOptionElementByValue(selectInstance, value) {
 
 function scheduleCheckEnter(check) {
     cancelCheckEnter(check)
+    check.setAttribute('data-check-animate', 'true')
     check.setAttribute('data-visible', 'false')
 
     if (prefersReducedMotion()) {
         check.setAttribute('data-visible', 'true')
+        check.removeAttribute('data-check-animate')
 
         return
     }
@@ -180,6 +182,12 @@ function scheduleCheckEnter(check) {
             if (check.isConnected) {
                 check.setAttribute('data-visible', 'true')
             }
+
+            window.setTimeout(() => {
+                if (check.__fffCheckEnterGeneration === generation) {
+                    check.removeAttribute('data-check-animate')
+                }
+            }, CHECK_STROKE_TIMEOUT_MS)
         })
 
         check.__fffCheckEnterRafs = [inner]
@@ -194,6 +202,7 @@ function cancelCheckEnter(check) {
     }
 
     check.__fffCheckEnterGeneration = (check.__fffCheckEnterGeneration ?? 0) + 1
+    check.removeAttribute('data-check-animate')
 
     const rafs = check.__fffCheckEnterRafs
 

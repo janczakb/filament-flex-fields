@@ -84,19 +84,48 @@
                                 role="status"
                             >
                                 <div class="fff-icon-picker__grid fff-icon-picker__skeleton-grid" x-bind:style="iconResultsGridStyle">
-                                    <template x-for="slot in initialSkeletonSlots" x-bind:key="'initial-skeleton-' + slot">
-                                        <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
-                                            <span class="fff-icon-picker__option-icon">
-                                                <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--icon"></span>
-                                            </span>
-                                        </div>
-                                    </template>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
+                                    <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
+                                        <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
+                                    </div>
                                 </div>
                             </div>
 
                             <div
                                 class="fff-icon-picker__track"
-                                x-show="loadedIconItems.length > 0 && ! showInitialSkeleton && resultsGeometryReady"
+                                x-show="loadedIconItems.length > 0 && ! showInitialSkeleton"
                                 x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
                                 x-bind:style="iconTrackStyle"
                             >
@@ -121,12 +150,12 @@
                                         >
                                             <span class="fff-icon-picker__option-icon" x-bind:data-icon-name="entry.item.name">
                                                 <span x-show="svgFor(entry.item.name)" x-html="svgFor(entry.item.name)"></span>
-                                                <span
-                                                    class="fff-icon-picker__option-icon-skeleton"
-                                                    x-bind:class="{ 'is-visible': ! svgFor(entry.item.name) }"
-                                                    aria-hidden="true"
-                                                ></span>
                                             </span>
+                                            <span
+                                                class="fff-icon-picker__option-icon-skeleton"
+                                                x-show="! svgFor(entry.item.name)"
+                                                aria-hidden="true"
+                                            ></span>
                                         </button>
                                     </template>
                                 </div>
@@ -153,9 +182,7 @@
                                     <div class="fff-icon-picker__grid fff-icon-picker__load-more-tail-grid" x-bind:style="iconResultsGridStyle">
                                         <template x-for="slot in loadMoreSkeletonSlots" x-bind:key="'load-more-tail-' + slot">
                                             <div class="fff-icon-picker__option fff-icon-picker__option--loading fi-select-input-option" aria-hidden="true">
-                                                <span class="fff-icon-picker__option-icon">
-                                                    <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--icon"></span>
-                                                </span>
+                                                <span class="fff-icon-picker__skeleton fff-icon-picker__skeleton--cell"></span>
                                             </div>
                                         </template>
                                     </div>

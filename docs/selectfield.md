@@ -3,11 +3,13 @@ title: "SelectField"
 description: Styled Filament Select with pill trigger, rich option rows, grid layout, and multi-select chips.
 ---
 
+![SelectField mobile bottom sheet](/art/drawer-mobile.webp)
+
 [← Back to Table of Contents](/docs/index)
 
 ### Summary
 
-Styled Filament **Select** with pill trigger, rich option rows, grid layout, and multi-select chips. Extends Filament `Select` — **all native Select APIs remain available**.
+Styled Filament **Select** with pill trigger, rich option rows, grid layout, and multi-select chips. Extends Filament `Select` — **all native Select APIs remain available**. On phones and tablets, searchable menus open as a **bottom sheet** (drag handle, search in the sheet header, checkmark selection) instead of a desktop dropdown.
 
 | | |
 |---|---|
@@ -209,7 +211,7 @@ All methods accept `Closure` unless noted.
 | `inlineSearch(bool\|Closure $condition = true)` | Setup | `false` | Render search input inside the trigger (dropdown header search hidden) |
 | `recentOptions(array\|Closure $values)` | Setup | `[]` | Pin recent option keys at the top of the dropdown (smart suggest) |
 | `suggestedOptions(array\|Closure $values)` | Setup | `[]` | Pin suggested option keys below recent (smart suggest) |
-| `allowCreateOption(bool\|Closure $condition = true)` | Setup | `false` | Show inline “Create …” row when search has no exact match |
+| `allowCreateOption(bool\|Closure $condition = true)` | Setup | `false` | Inline “Create …” row from search (sets state to the string; **no** PHP create callback — see [Smart suggest](#smart-suggest-recentoptions-suggestedoptions-allowcreateoption) / [Create option: inline vs modal](#create-option-inline-vs-modal-which-api)) |
 | `entityMentions(bool\|Closure $condition = true, string\|Closure $trigger = '@')` | Setup | `false` | Async people/entity picker; type the trigger in search or on the closed trigger |
 | `clearable(bool\|Closure $condition = true)` | Setup | auto | Show clear button (×); also updates `selectablePlaceholder()` |
 | `dropdownAlign(string\|Closure $align)` | Setup | auto | Align dropdown: `start`, `end` |
@@ -246,9 +248,9 @@ SelectField::make('user_id')
     ->inlineSearch();
 ```
 
-When closed, the trigger input shows the selected label. When focused or open, the same input stays editable and keeps that label until you type or clear it; clearing the input clears the selection. Use the default field clear (×) next to the chevron to reset the value — inline mode does not render a separate search-query × (that control exists only in the dropdown search header). Multi-select fields should use dropdown search instead (`searchable()` without `inlineSearch()`).
+When closed, the trigger input shows the selected label. When focused or open on **desktop**, the same input stays editable and keeps that label until you type or clear it; clearing the input clears the selection. On **mobile** (bottom sheet / drawer), search moves into the sheet header — the trigger cannot accept keyboard input while the drawer covers it. Use the default field clear (×) next to the chevron to reset the value — inline mode does not render a separate search-query × on desktop (that control exists in the dropdown/sheet search header). Multi-select fields should use dropdown search instead (`searchable()` without `inlineSearch()`).
 
-For RTL layouts, set `extraAttributes(['dir' => 'rtl'])` on the field — the teleported menu mirrors from the trigger, and the inline input inherits the same direction for Arabic/Hebrew labels.
+For RTL layouts, set `extraAttributes(['dir' => 'rtl'])` on the field — the teleported **panel** and mobile **sheet** (bottom drawer) both copy the trigger writing direction onto the menu (`dir="rtl"`), so search icons, checkmarks (`inset-inline-end`), and option text mirror correctly. Search inputs use `dir="auto"` so Hebrew/Arabic queries get an RTL caret while Latin queries keep a normal LTR caret.
 
 Works with `entityMentions()` — type `@` in the inline search input or press `@` on the closed trigger to start a mention query.
 
@@ -263,6 +265,78 @@ SelectField::make('project_id')
     ->suggestedOptions(['archived'])
     ->allowCreateOption();
 ```
+
+Requires `searchable()`. When the query has **no exact label match**, a **Create “…”** row appears at the top of the list (label from `filament-flex-fields::default.select_field.smart_suggest.create`). Choosing that row commits the trimmed search string as the field value — **same string for both value and label**. No modal opens and **no PHP callback runs at click time**.
+
+| | Single (`allowCreateOption()`) | Multiple (`->multiple()->allowCreateOption()`) |
+|--|--|--|
+| State after create | `string` (the typed text) | `array` of strings (each create adds a chip) |
+| Dropdown | Create row when search ≠ any option label | Same; created values become chips |
+| Server / DB | Not created automatically | Same |
+
+Persist or insert in the database yourself — typically on form save, or immediately with `live()` + `afterStateUpdated()`:
+
+```php
+// Single — state is the new label string (or an existing option key).
+SelectField::make('tag')
+    ->searchable()
+    ->options(fn (): array => Tag::query()->pluck('name', 'name')->all())
+    ->allowCreateOption()
+    ->live()
+    ->afterStateUpdated(function (?string $state): void {
+        if (blank($state)) {
+            return;
+        }
+
+        Tag::query()->firstOrCreate(['name' => $state]);
+    });
+
+// Multiple — state is a list of strings; create any missing tags.
+SelectField::make('tags')
+    ->multiple()
+    ->searchable()
+    ->options(fn (): array => Tag::query()->pluck('name', 'name')->all())
+    ->allowCreateOption()
+    ->live()
+    ->afterStateUpdated(function (?array $state): void {
+        foreach ($state ?? [] as $name) {
+            if (filled($name)) {
+                Tag::query()->firstOrCreate(['name' => $name]);
+            }
+        }
+    });
+```
+
+If you need a **numeric id** in state (e.g. `tag_id`) after insert, create the row in `afterStateUpdated` and `$set` the new key — or prefer the modal path below when the new record needs more than one field.
+
+#### Create option: inline vs modal (which API?)
+
+Two different create flows exist. Do not mix their mental models:
+
+| | Inline smart suggest | Filament modal create |
+|--|--|--|
+| API | `allowCreateOption()` | `createOptionForm()` + `createOptionUsing()` (+ optional `createOptionAction()`) |
+| UI | “Create …” row inside the dropdown | Suffix / manage action opens a form modal |
+| Input | Current search string only | Full form schema (name, email, …) |
+| On confirm | Sets state to that string (client) | Runs `createOptionUsing` on the server; return value becomes the selected option key |
+| Best for | Free-text tags, one-field labels, quick add | Eloquent / relationship records with validation and multiple attributes |
+
+Modal example (also works without `relationship()` when you maintain `options()` yourself):
+
+```php
+SelectField::make('author_id')
+    ->relationship(name: 'author', titleAttribute: 'name')
+    ->searchable()
+    ->preload()
+    ->createOptionForm([
+        TextInput::make('name')->required(),
+        TextInput::make('email')->email()->required(),
+    ])
+    ->createOptionUsing(fn (array $data): int => Author::create($data)->getKey())
+    ->createOptionAction(fn (Action $action) => $action->modalWidth('3xl'));
+```
+
+Playground: **Smart suggest · create option** on `/select-field` shows inline single + multiple next to the modal form demo.
 
 #### Entity mentions (`entityMentions()`)
 
@@ -429,7 +503,7 @@ See [Playground](/docs/index#playground) for setup.
 | `modifyQueryUsing` (relationship arg) | Yes | Inherited |
 | `getOptionLabelFromRecordUsing()` | Yes | Inherited |
 | `pivotData()` | Yes | Inherited |
-| `createOptionForm()` / `createOptionUsing()` | Yes | Filament modal suffix actions; state + label refresh after create |
+| `createOptionForm()` / `createOptionUsing()` | Yes | Filament **modal** create (server callback returns option key). Not the same as `allowCreateOption()` — see [Create option: inline vs modal](#create-option-inline-vs-modal-which-api) |
 | `editOptionForm()` / `updateOptionUsing()` | Yes | Same action path |
 | `createOptionAction()` / `editOptionAction()` / `manageOptionActions()` | Yes | Inherited action customizers |
 | `allowHtml()` | Yes | Sanitized when using package option views |
@@ -533,7 +607,7 @@ SelectField::make('author_id')
     });
 ```
 
-Inline smart-suggest create (`allowCreateOption()`) is a **different** path: one-field create from the current search string, no modal. Use `createOptionForm()` when the new record needs multiple fields.
+Inline smart-suggest create (`allowCreateOption()`) is documented under [Create option: inline vs modal](#create-option-inline-vs-modal-which-api): one-field create from the search string, no modal, no automatic DB insert. Use `createOptionForm()` / `createOptionUsing()` when the new record needs multiple fields or a server-side primary key.
 
 Call `disabled()` **before** `relationship()` on multi relationship selects (Filament requirement).
 

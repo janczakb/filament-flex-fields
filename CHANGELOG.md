@@ -5,6 +5,36 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2026-09-05
+
+### New
+
+- **AudioField client-side Transcribe** — optional Whisper speech-to-text in the browser (`->transcription()`), inspired by Xenova/whisper-web: model / language / task settings, multilingual + quantized toggles, and a session transcript panel (UI-only; not written to field state). Playground hub demos full and English-only presets.
+
+### Improved
+
+- **VideoField player rebuild** — playback speed menu, quality options, and hover/scrub stop-frame thumbnails on the progress bar (cached preview frames), alongside the refreshed marketing art and control dock.
+- **SelectField marketing art** — mobile bottom-sheet screenshot (`art/drawer-mobile.webp`) in README Screenshots and the SelectField Help Center page.
+
+### Changed
+
+- **JS deps** — `@tiptap/core` + `@tiptap/extension-youtube` 3.31.0; `esbuild` 0.28.2; `libphonenumber-js` 1.13.11; `@internationalized/date` 3.12.3.
+
+### Fixed
+
+- **SelectField / UserSelect mobile sheets** — smoother bottom-sheet open on phones: enter animation stays transform-only, Livewire option fetch and focus wait until after the sheet finishes opening, and the UserSelect mixin loads with the combobox factory so option paint no longer races a missing `renderUserOptionHtml`.
+- **SelectField / UserSelect resize while open** — desktop→mobile→desktop no longer leaves the dropdown pinned at `left: 0` (detached over the sidebar); live breakpoint flips the overlay between sheet and panel, re-anchors under the trigger, and syncs body scroll lock / sheet backdrop with the drawer.
+- **SelectField init with dynamic search** — `serverSideFilterFn` stub keeps engine create safe while the Livewire mixin loads in the background (no Alpine init serialization across the playground).
+- **Asset injector stale registry** — rebuilding JS refreshes `asset-registry.json` when `alpine-manifest.json` is newer, so the injector no longer modulepreloads orphaned select-field chunk hashes (duplicate loads / main-thread jank on the playground).
+- **Asset injector URL identity** — cache-bust `?v=` is ignored when deduping modulepreloads/stylesheets, so the same chunk is not injected twice under two versions.
+- **UserSelect loading skeleton** — single-container shimmer instead of per-row gradient pulses, so the sheet feels lighter while options load.
+- **Multi UserSelect trigger** — long selected-name lists truncate with an ellipsis inside the bordered control; the chevron stays in place instead of painting past the field edge.
+- **IconPickerField trigger** — selected icon and icon name share the same vertical center in the closed trigger.
+- **IconPickerField mobile sheet** — no more cell/icon size jumps while the bottom sheet opens: sheet keeps full viewport width (no 22rem pin), grid geometry waits until enter settles, and locked virtual strides ignore tiny width thrash from sheet height fits.
+- **IconPickerField loading skeleton** — rebuilt: phase-driven bones (full-cell pulse), fetch no longer waits on grid geometry, icon track is not gated on `resultsGeometryReady` (that deadlock left the panel empty forever).
+- **IconPickerField resize / breakpoint** — open panel flips panel↔sheet on window resize: width pins run after mode chrome, stuck sheet-enter no longer blocks flips, and the icon grid remasures (the old resize wrapper never rebound `window`).
+- **Overlay breakpoint** — sheet vs panel follows viewport width only (`≤768`); coarse pointer alone no longer locks sheet on wide screens, so mobile→desktop restore works.
+
 ## [3.1.0] - 2026-09-04
 
 Flex Fields **3.1** ships two major interactive fields, closes the admin-to-runtime loop from 3.0, refreshes Phone/Video marketing art, speeds up heavy fields, and polishes the playground and release process.

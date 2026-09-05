@@ -22,6 +22,29 @@ test('icon picker anchors menu width and trigger before teleported positioning',
     assert.match(source, /applyIconPickerPanelWidth\(\)/)
     assert.match(source, /teleportedMenu\.updateMenuPosition\.call\(this/)
     assert.match(source, /closest\('\.fi-select-input-ctn'\)/)
+    assert.match(source, /resolveOverlayMode\(window\) === 'sheet'/)
+    assert.match(source, /runAfterSheetEnter/)
+})
+
+test('icon picker reapplies width after mode flip and remasures on resize', () => {
+    assert.match(source, /teleportedMenu\.updateMenuPosition\.call\(this, \{ reveal, markReady \}\)/)
+    assert.match(source, /this\.applyIconPickerPanelWidth\(\)/)
+    assert.match(source, /resetGridGeometryLock/)
+    assert.match(source, /onVirtualPanelResize/)
+    assert.match(source, /fffSheetEntering/)
+    assert.match(source, /desiredMode === 'sheet' && menu/)
+    assert.match(source, /desiredMode === 'panel' && menu/)
+    // Live breakpoint only — must not gate desktop pins on leftover sheet classes.
+    assert.doesNotMatch(
+        source,
+        /resolveOverlayMode\(window\) === 'sheet'\s*\|\|\s*menu\.classList\?\.contains\?\.\('fff-teleported-menu--sheet'\)/,
+    )
+})
+
+test('virtual scroll skips sheet-enter remasure and locks cell geometry', () => {
+    assert.match(virtualScroll, /fffSheetEntering/)
+    assert.match(virtualScroll, /lockTolerance/)
+    assert.match(virtualScroll, /gridGeometryLocked/)
 })
 
 test('virtual scroll mixin merges getters before alpine init', () => {
@@ -37,9 +60,12 @@ test('virtual scroll computes live window from virtualScrollTop', () => {
     assert.match(virtualScroll, /virtualTopSpacerStyle/)
 })
 
-test('initial skeleton waits for positioned panel before showing', () => {
-    assert.match(virtualScroll, /panelReady && this\.iconLoadingPhase === 'initial'/)
+test('initial skeleton is phase-driven and does not gate the icon track on geometry', () => {
+    assert.match(virtualScroll, /get showInitialSkeleton\(/)
+    assert.match(virtualScroll, /iconLoadingPhase === 'initial' \|\| this\.iconSkeletonFading/)
     assert.match(virtualScroll, /resultsGeometryReady/)
+    assert.doesNotMatch(virtualScroll, /panelOpen && this\.panelReady && this\.iconLoadingPhase === 'initial'/)
+    assert.doesNotMatch(virtualScroll, /loadedIconItems\.length > 0\s*&&\s*! this\.resultsGeometryReady/)
 })
 
 test('virtual scroll only mounts a bounded window for large lists', () => {

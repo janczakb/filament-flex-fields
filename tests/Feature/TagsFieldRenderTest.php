@@ -67,3 +67,19 @@ it('renders server search labels for select-style tag search', function (): void
         ->toContain('fff-select-dropdown-empty')
         ->toContain(__('filament-flex-fields::default.tags.suggestions.min_chars', ['min' => 2]));
 });
+
+it('renders sortable handle on reorderable tags', function (): void {
+    TestableSignatureForm::$formSchema = [
+        TagsField::make('tags')
+            ->reorderable()
+            ->default(['alpha', 'beta']),
+    ];
+
+    $html = Livewire::test(TestableSignatureForm::class)->html(false);
+
+    expect($html)
+        ->toContain('x-sortable')
+        ->toContain('x-sortable-handle')
+        ->toContain('x-bind:x-sortable-item="index"')
+        ->toContain('reorderTags($event)');
+});

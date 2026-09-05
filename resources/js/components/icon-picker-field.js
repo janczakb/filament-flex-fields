@@ -3,7 +3,8 @@ import { createIconPickerSvgLoader } from '../core/icon-picker-svg-loader.js'
 import { createIconPickerKeyboardMixin, highlightIconLabel } from '../core/icon-picker-keyboard.js'
 import { createIconPickerComboboxBridge } from '../core/icon-picker-combobox-bridge.js'
 import { createOverlayMenuKeyboardMixin } from '../core/overlay-menu-keyboard.js'
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createSearchableSelectMenuMixin, runAfterSheetEnter } from '../core/searchable-select-menu.js'
+import { resolveOverlayMode } from '../core/overlay-mode.js'
 import { createIconPickerVirtualScrollMixin, mergeAlpineComponentDescriptors } from '../core/icon-picker-virtual-scroll.js'
 import { callIconPickerSchemaMethod, canCallIconPickerSchemaMethod, isIconPickerSearchPayload } from '../core/icon-picker-livewire.js'
 import { buildSearchResultsCacheKey } from '../core/icon-picker-virtual-window.js'
@@ -119,6 +120,8 @@ export default function iconPickerFieldFormComponent({
         finishIconResultsLoad() {
             this.iconResultsLoading = false
             this.iconResultsLoadingStartedAt = null
+            this.searchPending = false
+            this.initialLoadPending = false
             this.finishIconSkeletonPhase()
         },
 
@@ -234,6 +237,21 @@ export default function iconPickerFieldFormComponent({
                 }
             }
 
+            const deferPanelResultsRefresh = ({ preserveScroll = false } = {}) => {
+                const menu = this.$refs.pickerPanel
+
+                runAfterSheetEnter(menu, () => {
+                    if (! this.panelOpen) {
+                        return
+                    }
+
+                    this.$nextTick(() => {
+                        refreshPanelResults({ preserveScroll })
+                        wrapPanelResizeHandler()
+                    })
+                })
+            }
+
             const wrapPanelResizeHandler = () => {
                 if (this._iconPickerResizeWrapped || typeof this.panelResizeHandler !== 'function') {
                     return
@@ -254,21 +272,19 @@ export default function iconPickerFieldFormComponent({
                     return
                 }
 
-                void this.whenPanelResultsReady?.(async () => {
+                // Fetch must not wait on grid geometry — geometry can stall on sheet enter.
+                if (this.loadedIconItems.length === 0 && ! this.searchPending && ! this.iconResultsLoading) {
+                    void this.fetchResultsWhenLivewireReady()
+                }
+
+                void this.whenPanelResultsReady?.(() => {
                     if (! this.panelOpen) {
                         return
                     }
 
-                    if (this.loadedIconItems.length === 0 && ! this.searchPending && ! this.iconResultsLoading) {
-                        await this.fetchResultsWhenLivewireReady()
-                    }
-
                     if (pendingResultsRefresh) {
                         pendingResultsRefresh = false
-                        this.$nextTick(() => {
-                            refreshPanelResults({ preserveScroll: true })
-                            wrapPanelResizeHandler()
-                        })
+                        deferPanelResultsRefresh({ preserveScroll: true })
                     }
                 })
             })
@@ -277,15 +293,20 @@ export default function iconPickerFieldFormComponent({
                 this.syncDropdownOpenState(open)
 
                 if (open) {
-                    if (this.loadedIconItems.length > 0 && this.panelReady) {
-                        void this.whenPanelResultsReady?.(() => {
-                            this.$nextTick(() => {
-                                refreshPanelResults({ preserveScroll: true })
-                                wrapPanelResizeHandler()
+                    this.beginIconSkeletonPhase('initial')
+
+                    if (this.loadedIconItems.length > 0) {
+                        this.finishIconResultsLoad()
+
+                        if (this.panelReady) {
+                            void this.whenPanelResultsReady?.(() => {
+                                deferPanelResultsRefresh({ preserveScroll: true })
                             })
-                        })
-                    } else if (this.loadedIconItems.length > 0) {
-                        pendingResultsRefresh = true
+                        } else {
+                            pendingResultsRefresh = true
+                        }
+                    } else if (this.panelReady) {
+                        void this.fetchResultsWhenLivewireReady()
                     }
 
                     return
@@ -293,9 +314,14 @@ export default function iconPickerFieldFormComponent({
 
                 this._iconPickerResizeWrapped = false
                 pendingResultsRefresh = false
+                this._finishSkeletonWhenReady = false
                 this.clearIconSkeletonTimers?.()
                 this.iconLoadingPhase = 'idle'
                 this.iconSkeletonFading = false
+                this._iconSkeletonShownAt = null
+                this.searchPending = false
+                this.initialLoadPending = false
+                this.iconResultsLoading = false
 
                 if (this.iconSvgSyncFrame) {
                     cancelAnimationFrame(this.iconSvgSyncFrame)
@@ -341,6 +367,12 @@ export default function iconPickerFieldFormComponent({
                 return
             }
 
+            // Live breakpoint only — leftover sheet classes must not block desktop pins
+            // after a sheet→panel resize flip.
+            if (resolveOverlayMode(window) === 'sheet') {
+                return
+            }
+
             if (this.layout === 'grid' || this.layout === 'icons') {
                 menu.style.setProperty('width', '22rem', 'important')
                 menu.style.setProperty('min-width', '22rem', 'important')
@@ -363,10 +395,55 @@ export default function iconPickerFieldFormComponent({
             menu.style.maxWidth = `min(${targetWidth}px, calc(100vw - 2rem))`
         },
 
-        updateMenuPosition({ reveal = false } = {}) {
+        updateMenuPosition({ reveal = false, markReady = true } = {}) {
+            if (this.__fffSheetClosing) {
+                return
+            }
+
+            const menu = this.$refs.pickerPanel
+            const previousMode = this.__fffOverlayMode ?? null
+            const desiredMode = resolveOverlayMode(window)
+
+            // Don't let an in-progress sheet enter skip breakpoint flips on resize.
+            if (
+                menu?.dataset?.fffSheetEntering === 'true'
+                && previousMode
+                && previousMode !== desiredMode
+            ) {
+                delete menu.dataset.fffSheetEntering
+            }
+
+            // Mode/chrome first, then desktop width pins (SelectField pattern).
+            teleportedMenu.updateMenuPosition.call(this, { reveal, markReady })
             this.applyIconPickerPanelWidth()
 
-            teleportedMenu.updateMenuPosition.call(this, { reveal })
+            // Belt-and-suspenders: CSS sheet/panel rules key off these classes —
+            // force both directions so a lagging class cannot leave the wrong chrome.
+            if (desiredMode === 'sheet' && menu) {
+                menu.classList.add('fff-teleported-menu--sheet', 'fff-overlay-sheet')
+                menu.classList.remove('fff-teleported-menu--panel', 'fff-overlay-panel')
+            } else if (desiredMode === 'panel' && menu) {
+                menu.classList.remove('fff-teleported-menu--sheet', 'fff-overlay-sheet')
+                menu.classList.add('fff-teleported-menu--panel', 'fff-overlay-panel')
+            }
+
+            const nextMode = this.__fffOverlayMode ?? desiredMode
+
+            if (previousMode && previousMode !== nextMode) {
+                this.resetGridGeometryLock?.()
+            }
+
+            // wrapPanelResizeHandler replaces this.panelResizeHandler after bind, so the
+            // window listener never sees onVirtualPanelResize — remasure here instead.
+            this.$nextTick?.(() => {
+                requestAnimationFrame(() => {
+                    if (! this.panelOpen) {
+                        return
+                    }
+
+                    this.onVirtualPanelResize?.()
+                })
+            })
         },
 
         selectIconFromKeyboard(icon) {
@@ -501,7 +578,10 @@ export default function iconPickerFieldFormComponent({
             const cachedPayload = this.readSearchCache(this.page)
 
             if (cachedPayload && isIconPickerSearchPayload(cachedPayload)) {
-                if (! reset) {
+                if (reset) {
+                    this.beginIconResultsLoad()
+                    this.loadedIconItems = []
+                } else {
                     await this.waitMinLoadMoreSkeleton?.()
                 }
 
@@ -512,8 +592,6 @@ export default function iconPickerFieldFormComponent({
                 }
 
                 if (reset) {
-                    this.searchPending = false
-                    this.initialLoadPending = false
                     this.finishIconResultsLoad()
                 } else {
                     this.releaseLoadMoreRequest?.()
@@ -571,10 +649,13 @@ export default function iconPickerFieldFormComponent({
                 }
             } finally {
                 if (token === this.searchRequestToken) {
-                    this.searchPending = false
-                    this.initialLoadPending = false
                     this.releaseLoadMoreRequest?.()
-                    this.finishIconResultsLoad()
+
+                    if (reset) {
+                        this.finishIconResultsLoad()
+                    } else {
+                        this.searchPending = false
+                    }
                 }
             }
         },

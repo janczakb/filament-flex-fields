@@ -54,6 +54,105 @@ test('syncClearablePresentation toggles wrapper and ctn clearable classes', () =
     assert.equal(ctn.classList.contains('fi-select-input-ctn-clearable'), true)
 })
 
+test('empty selects hand off SSR before optional mixins finish loading', async () => {
+    const shell = {
+        dataset: {},
+        querySelectorAll: () => [{ classList: { add() {} } }],
+    }
+
+    const config = headlessComboboxAlpine({
+        state: null,
+        initialState: null,
+        multiple: true,
+        searchable: true,
+        entityMentionsEnabled: true,
+        hasDynamicSearchResults: true,
+        hasClientSideOptionList: false,
+        options: [],
+    })
+
+    config.$el = {
+        closest: (selector) => (String(selector).includes('shell') ? shell : null),
+    }
+    config.loadOptionalMixins = async () => {
+        assert.equal(config.displayReady, true)
+        assert.equal(shell.dataset.fffSelectAttached, 'true')
+        config._optionalMixinsLoaded = true
+        config.serverSideFilterFn = () => () => true
+    }
+    config.serverSideFilterFn = () => () => true
+    config.bindSelectMenuLifecycle = () => {}
+    config.seedInitialTriggerLabels = () => {}
+    config.syncEngineOptions = () => {}
+    config.syncClearablePresentation = () => {}
+    config.bumpTriggerLabelEpoch = () => {}
+    config.syncInlineSearchInputAfterClose = () => {}
+    config._syncFromEngine = () => {}
+    config.$watch = () => {}
+    config.$nextTick = (fn) => fn()
+    config.canShowHydratedTrigger = () => true
+    globalThis.requestAnimationFrame = (fn) => {
+        fn()
+
+        return 1
+    }
+
+    await config.init()
+
+    assert.equal(config.displayReady, true)
+    assert.equal(shell.dataset.fffSelectAttached, 'true')
+})
+
+test('init does not block engine create on Livewire mixin for dynamic search', async () => {
+    let mixinsStarted = false
+    let resolveMixins
+    const mixinsGate = new Promise((resolve) => {
+        resolveMixins = resolve
+    })
+
+    const config = headlessComboboxAlpine({
+        state: null,
+        initialState: null,
+        multiple: false,
+        searchable: true,
+        hasDynamicSearchResults: true,
+        hasClientSideOptionList: true,
+        options: [{ value: 'a', label: 'Alpha' }],
+    })
+
+    config.loadOptionalMixins = async () => {
+        mixinsStarted = true
+        await mixinsGate
+        config._optionalMixinsLoaded = true
+    }
+    config.bindSelectMenuLifecycle = () => {}
+    config.seedInitialTriggerLabels = () => {}
+    config.syncEngineOptions = () => {}
+    config.syncClearablePresentation = () => {}
+    config.bumpTriggerLabelEpoch = () => {}
+    config.syncInlineSearchInputAfterClose = () => {}
+    config._syncFromEngine = () => {}
+    config.$watch = () => {}
+    config.$nextTick = (fn) => fn()
+    config.$el = { closest: () => null }
+    globalThis.requestAnimationFrame = (fn) => {
+        fn()
+
+        return 1
+    }
+
+    const initPromise = config.init()
+
+    // Engine must exist before optional Livewire chunk finishes — otherwise the
+    // playground serializes dozens of Alpine inits and the page freezes.
+    assert.equal(mixinsStarted, true)
+    assert.ok(config._engine)
+    assert.equal(typeof config.serverSideFilterFn, 'function')
+
+    resolveMixins()
+    await initPromise
+})
+
 test('markHeadlessDisplayReady waits for engine before replacing SSR', () => {
     const config = headlessComboboxAlpine({
         state: 'enterprise_agreement',
@@ -305,6 +404,7 @@ test('static client-side searchable selects show Filament empty-state messages',
     })
 
     config.getEngineOptions = () => []
+    config.countVisibleDropdownOptions = () => 0
     config.comboboxQuery = 'zzzz'
     config.comboboxOpen = true
 
@@ -315,9 +415,122 @@ test('static client-side searchable selects show Filament empty-state messages',
     config.comboboxQuery = ''
     config.options = []
     config.getEngineOptions = () => []
+    config.countVisibleDropdownOptions = () => 0
 
     assert.equal(config.headlessSelectDropdownState(), 'options')
     assert.equal(config.headlessSelectEmptyTitle(), 'No authors available.')
+})
+
+test('multi-select shows exhausted empty state when selected options leave the dropdown', () => {
+    const options = [
+        { value: 'a', label: 'Alpha' },
+        { value: 'b', label: 'Beta' },
+    ]
+
+    const config = headlessComboboxAlpine({
+        state: ['a', 'b'],
+        initialState: ['a', 'b'],
+        multiple: true,
+        keepSelectedOptionsInDropdown: false,
+        searchable: true,
+        hasClientSideOptionList: true,
+        hasDynamicOptions: false,
+        hasDynamicSearchResults: false,
+        noOptionsMessage: 'No options available.',
+        noMoreOptionsMessage: 'No more options to choose.',
+        selectEmptyStateHints: {
+            allOptionsSelected: 'Every available option is already selected.',
+            noOptionsAvailable: 'No options are available right now.',
+        },
+        options,
+    })
+
+    config.comboboxOpen = true
+    config.comboboxQuery = ''
+    config.comboboxSelectedValues = ['a', 'b']
+    config.isOptionSelected = (value) => ['a', 'b'].includes(String(value))
+    config.options = options
+
+    assert.equal(config.countVisibleDropdownOptions(), 0)
+    assert.equal(config.hasExhaustedSelectableOptions(), true)
+    assert.equal(config.headlessSelectDropdownState(), 'exhausted')
+    assert.equal(config.shouldShowHeadlessSelectEmptyState(), true)
+    assert.equal(config.headlessSelectEmptyTitle(), 'No more options to choose.')
+    assert.equal(config.headlessSelectEmptyHint(), 'Every available option is already selected.')
+})
+
+test('isEventInsideHeadlessMenu recognizes teleported menu owner clicks', () => {
+    const menu = {
+        contains(node) {
+            return node === menu || node?.parent === menu
+        },
+    }
+    const option = { parent: menu, closest(selector) {
+        if (String(selector).includes('data-fff-select-menu-owner')) {
+            return menu
+        }
+
+        return null
+    } }
+
+    const config = headlessComboboxAlpine({
+        state: null,
+        initialState: null,
+        componentKey: 'data.select__entity_mentions',
+        options: [],
+    })
+
+    config.resolveMenuElement = () => menu
+
+    assert.equal(config.isEventInsideHeadlessMenu({ target: option }), true)
+    assert.equal(config.isEventInsideHeadlessMenu({ target: { closest: () => null } }), false)
+})
+
+test('entity mention toggle keeps mention trigger query for multi-select', () => {
+    const config = headlessComboboxAlpine({
+        state: [],
+        initialState: [],
+        multiple: true,
+        searchable: true,
+        entityMentionsEnabled: true,
+        mentionTrigger: '@',
+        hasClientSideOptionList: true,
+        hasDynamicSearchResults: false,
+        options: [
+            { value: 'jane', label: 'Jane Cooper' },
+        ],
+    })
+
+    config.comboboxOpen = true
+    config.comboboxQuery = '@jan'
+    config.comboboxSelectedValues = []
+    config.comboboxEntityMentionActive = () => true
+    config.mentionTrigger = '@'
+    config._engine = {
+        selectValue() {},
+        setSelectedValues() {},
+        setQuery() {},
+        setOptions() {},
+        selectedValues: () => ['jane'],
+        highlightedIndex: () => -1,
+    }
+    config._syncFromEngine = () => {
+        config.comboboxSelectedValues = ['jane']
+    }
+    config.rememberSelectedOption = () => {}
+    config.queueOptionCheckEnter = () => {}
+    config.hideMaxItemsMessage = () => {}
+    config.comboboxSetQuery = (value) => {
+        config.comboboxQuery = value
+    }
+    config.isOptionSelected = () => false
+    config.optionRecord = () => ({ value: 'jane', label: 'Jane Cooper' })
+    config.isHeadlessOptionDisabled = () => false
+
+    config.toggleOption('jane')
+
+    assert.deepEqual(config.comboboxSelectedValues, ['jane'])
+    assert.equal(config.comboboxQuery, '@')
 })
 
 test('optionsLimit caps client-side filtered option trees', async () => {
@@ -1072,4 +1285,33 @@ test('multi deselect updates chips immediately without waiting for check exit', 
 
     globalThis.window = previousWindow
     globalThis.matchMedia = previousMatchMedia
+})
+
+test('resolveMenuTriggerElement prefers the full field track for menu width', () => {
+    const wrp = { className: 'fi-input-wrp fff-select-field' }
+    const ctn = { className: 'fi-select-input-ctn' }
+    const button = { className: 'fi-select-input-btn' }
+
+    const config = headlessComboboxAlpine({
+        state: ['jane'],
+        initialState: ['jane'],
+        multiple: true,
+        options: [{ value: 'jane', label: 'Jane' }],
+    })
+
+    config.$el = {
+        closest(selector) {
+            if (String(selector).includes('fi-input-wrp')) {
+                return wrp
+            }
+
+            return null
+        },
+    }
+    config.$refs = {
+        headlessTrigger: button,
+        headlessTriggerCtn: ctn,
+    }
+
+    assert.equal(config.resolveMenuTriggerElement(), wrp)
 })

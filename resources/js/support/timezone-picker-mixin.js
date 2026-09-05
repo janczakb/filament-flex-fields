@@ -230,11 +230,15 @@ export function createTimezonePickerMixin(options = {}) {
                 return
             }
 
-            const willOpen = ! this.menuOpen
+            if (this.menuOpen) {
+                this.closeTeleportedMenu()
 
-            this.menuOpen = willOpen
+                return
+            }
 
-            if (this.menuOpen && this.searchable) {
+            this.menuOpen = true
+
+            if (this.searchable) {
                 this.$nextTick(() => {
                     this.$refs.timezoneSearch?.focus()
                 })

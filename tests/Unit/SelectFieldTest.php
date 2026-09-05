@@ -145,6 +145,23 @@ it('renders grid layout html for dropdown options', function () {
         ->and($options[0]['triggerLabel'])->toContain('fff-select-option__trigger-label');
 });
 
+it('pins grid layout desktop dropdowns to 400px and re-applies after overlay anchoring', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $js = file_get_contents(__DIR__.'/../../resources/js/components/select-field/headless-combobox-alpine.js');
+
+    expect($css)
+        ->toMatch('/\.fi-dropdown-panel\.fff-select-dropdown-panel--layout-grid\s*\{[\s\S]*width:\s*400px\s*!important/')
+        ->toContain('max-width: min(400px, calc(100vw - 2rem)) !important')
+        ->toContain('min-width: 400px !important')
+        ->and($js)
+        ->toContain('GRID_DROPDOWN_WIDTH_PX = 400')
+        ->toContain('resolveMatchTriggerWidth')
+        ->toContain('resolveMenuMinWidth')
+        ->toContain('afterOverlayPanelOpened')
+        ->toMatch('/if \(this\.isGridLayout\) \{\s*return false/')
+        ->toMatch('/selectMenu\.updateMenuPosition\.call\(this, \{ reveal \}\)[\s\S]*if \(this\.isGridLayout\) \{[\s\S]*this\.applyGridDropdownWidth\(\)/');
+});
+
 it('renders trigger layout for grid selected value', function () {
     $field = SelectField::make('theme')
         ->optionLayout('grid')
@@ -851,6 +868,7 @@ it('resolves translatable select empty state hints for js from package lang file
             'filterList' => 'Zacznij pisać, aby filtrować listę.',
             'tryDifferentSearch' => 'Spróbuj innej frazy wyszukiwania.',
             'noOptionsAvailable' => 'Obecnie nie ma dostępnych opcji.',
+            'allOptionsSelected' => 'Wszystkie dostępne opcje są już wybrane.',
         ]);
 });
 
@@ -864,6 +882,7 @@ it('resolves translatable select messages for js from filament lang files', func
             'loading' => 'Wczytywanie...',
             'searching' => 'Szukanie...',
             'noOptions' => 'Brak dostępnych opcji.',
+            'noMoreOptions' => 'Brak kolejnych opcji do wyboru.',
             'noSearchResults' => 'Żadne wyniki nie pasują do Twojego wyszukiwania.',
             'searchPrompt' => 'Zacznij pisać aby wyszukać...',
         ]);
@@ -1093,6 +1112,45 @@ it('styles dark dropdown search input with glass backdrop in the select field bu
         ->toMatch('/\.dark\s+\.fi-dropdown-panel\.fff-select-dropdown-panel\s+\.fi-select-input-search-ctn\s+\.fi-input[\s\S]*backdrop-filter:blur\(15px\)saturate\(2\.5\)/');
 });
 
+it('clips and ellipsizes non-wrapping single-select trigger labels in the select field bundle', function () {
+    $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
+    $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/select-field.blade.php');
+    $headless = file_get_contents(__DIR__.'/../../resources/views/forms/components/partials/select-field-headless.blade.php');
+
+    expect($source)
+        ->toContain(':not(.fff-select-field--rich-list-trigger) .fi-select-input-value-label')
+        ->toContain('text-overflow: ellipsis !important')
+        ->toContain('-webkit-line-clamp: 2')
+        ->toContain('overflow: hidden')
+        ->toContain('max-height: var(--fff-select-min-h)')
+        ->toContain('--tw-translate-y: -50%')
+        ->toContain('--fff-select-option-check-gutter')
+        ->toContain('padding-inline-end: var(--fff-select-option-check-gutter, 1.75rem) !important')
+        ->toContain('--fff-overlay-sheet-pad-bottom')
+        ->toContain('--fff-select-option-min-h: 2.75rem')
+        ->toMatch('/fi-select-input-ctn-option-labels-not-wrapped[^{]*\{[^}]*align-items:\s*center\s*!important/')
+        ->toMatch('/\.fi-select-input-value-remove-btn[\s\S]*transform:\s*none/')
+        ->toMatch('/\.fff-select-option-selected-row\s*\{[^}]*position:\s*static/');
+
+    expect($css)
+        ->toContain('fi-input-wrp.fff-select-field:not(.fff-select-field--multiple):not(.fff-select-field--item-card){overflow:hidden}')
+        ->toContain('text-overflow:ellipsis!important')
+        ->toContain('white-space:nowrap!important')
+        ->toContain('-webkit-line-clamp:2')
+        ->toContain('--tw-translate-y:-50%')
+        ->toContain('--fff-select-option-check-gutter')
+        ->toContain('padding-inline-end:var(--fff-select-option-check-gutter,1.75rem)!important')
+        ->toContain('--fff-overlay-sheet-pad-bottom')
+        ->toContain('--fff-select-option-min-h:2.75rem')
+        ->toMatch('/\.fi-select-input-value-remove-btn[^{]*\{[^}]*transform:none/');
+
+    expect($blade)->not->toContain('<style');
+
+    expect($headless)
+        ->toContain("'fi-select-input-ctn-option-labels-not-wrapped' => ! \$canOptionLabelsWrap");
+});
+
 it('keeps hydrated select triggers clickable after Alpine handoff', function () {
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/select-field.css');
     $source = file_get_contents(__DIR__.'/../../resources/css/components/select-field.css');
@@ -1275,6 +1333,7 @@ it('exposes Filament select messages optionsLimit maxItems and create option act
             'loading' => 'Loading authors...',
             'searching' => 'Searching authors...',
             'noOptions' => 'No authors available.',
+            'noMoreOptions' => 'No more options to choose.',
             'noSearchResults' => 'No authors found.',
             'searchPrompt' => 'Search authors',
         ])

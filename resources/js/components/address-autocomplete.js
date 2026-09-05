@@ -4,24 +4,18 @@ import {
     isStreetLevelFeature,
     parseGeocodeFeature,
 } from '../support/mapbox-geocoding.js'
-import { createExclusiveDropdownMixin } from '../core/flex-dropdown-coordinator.js'
 import { createGeocodingComboboxMixin } from '../core/geocoding-combobox-alpine.js'
 import { createGeocodingDropdownMenuMixin } from '../core/geocoding-dropdown-menu.js'
 import { createGeocodingListKeyboardMixin } from '../core/geocoding-list-keyboard.js'
-
-const exclusiveDropdown = createExclusiveDropdownMixin({
-    openKey: 'searchOpen',
-    closeMethod: 'closeSearchDropdown',
-    ownerIdPrefix: 'fff-address-autocomplete',
-})
 
 const geocodingDropdown = createGeocodingDropdownMenuMixin({
     openKey: 'searchOpen',
     readyKey: 'searchDropdownReady',
     triggerRef: 'searchShell',
-    widthRef: 'searchInput',
+    widthRef: 'searchShell',
     menuRef: 'searchDropdown',
     closeMethod: 'closeSearchDropdown',
+    ownerIdPrefix: 'fff-address-autocomplete',
 })
 
 const geocodingKeyboard = createGeocodingListKeyboardMixin({
@@ -53,7 +47,6 @@ export default function addressAutocompleteFormComponent({
     })
 
     return {
-        ...exclusiveDropdown,
         ...geocodingCombobox,
         ...geocodingDropdown,
         ...geocodingKeyboard,
@@ -76,7 +69,6 @@ export default function addressAutocompleteFormComponent({
 
         init() {
             this.initGeocodingComboboxState()
-            this.wireExclusiveFlexDropdown()
             this.bindGeocodingDropdownMenu()
             this.initGeocodingListKeyboard()
             this.syncSearchInputFromState()

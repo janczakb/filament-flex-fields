@@ -63,11 +63,11 @@ test.describe('Icon picker field playground', () => {
 
         await expect(skeleton).toBeVisible({ timeout: 5_000 })
 
-        const skeletonBox = await skeleton.locator('.fff-icon-picker__skeleton--icon').first().boundingBox()
+        const skeletonBox = await skeleton.locator('.fff-icon-picker__skeleton--cell').first().boundingBox()
 
         expect(skeletonBox).not.toBeNull()
-        expect(skeletonBox.height).toBeGreaterThan(16)
-        expect(skeletonBox.width).toBeGreaterThan(16)
+        expect(skeletonBox.height).toBeGreaterThan(28)
+        expect(skeletonBox.width).toBeGreaterThan(28)
 
         await expect(track).toBeHidden()
 
@@ -127,22 +127,10 @@ test.describe('Icon picker field playground', () => {
 
         const firstOption = panel.locator('.fff-icon-picker__track .fff-icon-picker__option').first()
         const iconArea = firstOption.locator('.fff-icon-picker__option-icon').first()
-        const perIconSkeleton = iconArea.locator('.fff-icon-picker__option-icon-skeleton')
+        const perIconSkeleton = firstOption.locator('.fff-icon-picker__option-icon-skeleton')
 
-        await expect(perIconSkeleton).toHaveCount(1)
-
-        const skeletonBox = await perIconSkeleton.boundingBox()
-        const iconBox = await iconArea.boundingBox()
-
-        expect(skeletonBox).not.toBeNull()
-        expect(iconBox).not.toBeNull()
-
-        if (skeletonBox && iconBox) {
-            expect(Math.abs(skeletonBox.top - iconBox.top)).toBeLessThanOrEqual(1)
-            expect(Math.abs(skeletonBox.left - iconBox.left)).toBeLessThanOrEqual(1)
-            expect(Math.abs(skeletonBox.width - iconBox.width)).toBeLessThanOrEqual(1)
-            expect(Math.abs(skeletonBox.height - iconBox.height)).toBeLessThanOrEqual(1)
-        }
+        await expect(iconArea.locator('svg').first()).toBeVisible({ timeout: 10_000 })
+        await expect(perIconSkeleton).toHaveCount(0)
 
         await expect(scroller).toBeVisible()
     })

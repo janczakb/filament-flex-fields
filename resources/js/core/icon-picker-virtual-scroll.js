@@ -57,6 +57,7 @@ export function createIconPickerVirtualScrollMixin() {
         _iconSkeletonShownAt: null,
         _iconSkeletonFadeTimer: null,
         _iconSkeletonHideTimer: null,
+        _finishSkeletonWhenReady: false,
         _loadMoreShownAt: null,
         _loadMoreReleaseTimer: null,
 
@@ -225,7 +226,8 @@ export function createIconPickerVirtualScrollMixin() {
         },
 
         get showInitialSkeleton() {
-            return this.panelOpen && this.panelReady && this.iconLoadingPhase === 'initial'
+            return this.panelOpen
+                && (this.iconLoadingPhase === 'initial' || this.iconSkeletonFading)
         },
 
         get resultsGeometryReady() {
@@ -282,6 +284,7 @@ export function createIconPickerVirtualScrollMixin() {
             this.clearIconSkeletonTimers()
             this.iconLoadingPhase = phase
             this.iconSkeletonFading = false
+            this._finishSkeletonWhenReady = false
             this._iconSkeletonShownAt = Date.now()
 
             this.$nextTick(() => {
@@ -296,7 +299,17 @@ export function createIconPickerVirtualScrollMixin() {
                 return
             }
 
-            const elapsed = Date.now() - (this._iconSkeletonShownAt ?? 0)
+            if (! this.panelOpen) {
+                this.clearIconSkeletonTimers()
+                this.iconLoadingPhase = 'idle'
+                this.iconSkeletonFading = false
+                this._finishSkeletonWhenReady = false
+                this._iconSkeletonShownAt = null
+
+                return
+            }
+
+            const elapsed = Date.now() - (this._iconSkeletonShownAt ?? Date.now())
             const remaining = Math.max(0, ICON_PICKER_MIN_SKELETON_MS - elapsed)
 
             this.clearIconSkeletonTimers()
@@ -345,8 +358,14 @@ export function createIconPickerVirtualScrollMixin() {
             }
 
             const element = this.$refs.iconResults
+            const menu = this.$refs.pickerPanel
 
             if (! element) {
+                return
+            }
+
+            // Mid-enter sheet width is unstable — wait for enter to finish.
+            if (menu?.dataset?.fffSheetEntering === 'true' && ! force) {
                 return
             }
 
@@ -356,11 +375,27 @@ export function createIconPickerVirtualScrollMixin() {
                 return
             }
 
+            const widthDelta = Math.abs(containerWidth - this._gridContainerWidth)
+            const sheetMode = menu?.classList?.contains?.('fff-teleported-menu--sheet')
+                || menu?.classList?.contains?.('fff-overlay-sheet')
+            const lockTolerance = sheetMode ? 8 : 2
+
             if (
                 ! force
                 && this.gridGeometryLocked
                 && containerWidth > 0
-                && Math.abs(containerWidth - this._gridContainerWidth) < 2
+                && widthDelta < lockTolerance
+            ) {
+                return
+            }
+
+            // Once locked in sheet mode, ignore tiny width thrash from scrollbar /
+            // fitOverlaySheet — only remasure on real viewport changes.
+            if (
+                force
+                && sheetMode
+                && this.gridGeometryLocked
+                && widthDelta < lockTolerance
             ) {
                 return
             }
@@ -680,6 +715,14 @@ export function createIconPickerVirtualScrollMixin() {
         },
 
         onVirtualPanelResize() {
+            const menu = this.$refs.pickerPanel
+
+            if (menu?.dataset?.fffSheetEntering === 'true') {
+                return
+            }
+
+            // Height fits must not rewrite cell stride mid-scroll. Remasure width only
+            // when it actually changed; always refresh viewport height for virtual window.
             this.syncVirtualGridGeometry({ force: true })
             this.measureIconResultsViewport()
             this.clampIconResultsScroll()
@@ -687,6 +730,12 @@ export function createIconPickerVirtualScrollMixin() {
         },
 
         prepareResultsGeometry() {
+            const menu = this.$refs.pickerPanel
+
+            if (menu?.dataset?.fffSheetEntering === 'true') {
+                return
+            }
+
             this.measureIconResultsViewport()
             this.syncVirtualGridGeometry({ force: ! this.gridGeometryLocked })
         },
@@ -700,8 +749,22 @@ export function createIconPickerVirtualScrollMixin() {
                         return
                     }
 
+                    const menu = this.$refs.pickerPanel
+
+                    if (menu?.dataset?.fffSheetEntering === 'true') {
+                        if (pass >= maxAttempts) {
+                            resolve(this.resultsGeometryReady || this.layout === 'list')
+
+                            return
+                        }
+
+                        requestAnimationFrame(() => attempt(pass + 1))
+
+                        return
+                    }
+
                     this.measureIconResultsViewport()
-                    this.syncVirtualGridGeometry({ force: pass === 0 })
+                    this.syncVirtualGridGeometry({ force: pass === 0 && ! this.gridGeometryLocked })
 
                     if (this.resultsGeometryReady || this.layout === 'list') {
                         resolve(true)

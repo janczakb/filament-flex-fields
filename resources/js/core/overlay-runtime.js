@@ -2,6 +2,7 @@ import { emitObservabilityEvent } from './observability.js'
 import { recordOverlayOpenLatency } from './overlay-telemetry-p95.js'
 import { resolveTeleportedMenuHorizontalLeft, resolveTeleportedMenuVerticalPlacement } from './teleported-menu-position.js'
 import { prefersReducedMotion, resolveTeleportedMenuZIndex } from './theme-utils.js'
+import { fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
 
 const OVERFLOW_SCROLL_RE = /(auto|scroll|overlay)/
 const VIEWPORT_PADDING = 16
@@ -130,9 +131,18 @@ export function createOverlayRuntime({ document, window }) {
         panel.style.removeProperty('position')
         panel.style.removeProperty('top')
         panel.style.removeProperty('left')
+        panel.style.removeProperty('right')
+        panel.style.removeProperty('bottom')
+        panel.style.removeProperty('inset-inline')
         panel.style.removeProperty('width')
+        panel.style.removeProperty('height')
+        panel.style.removeProperty('max-height')
+        panel.style.removeProperty('min-width')
+        panel.style.removeProperty('max-width')
         panel.style.removeProperty('z-index')
         panel.style.removeProperty('margin-top')
+        panel.style.removeProperty('transform')
+        panel.style.removeProperty('transition')
         panel.hidden = true
         panel.setAttribute('aria-hidden', 'true')
     }
@@ -164,11 +174,23 @@ export function createOverlayRuntime({ document, window }) {
             : null
 
         panel.style.position = 'fixed'
-        panel.style.width = `${Math.round(menuWidth)}px`
+        const widthPx = `${Math.round(menuWidth)}px`
+        panel.style.width = widthPx
+        if (typeof panel.style.setProperty === 'function') {
+            panel.style.setProperty('width', widthPx, 'important')
+            panel.style.setProperty('max-width', 'none', 'important')
+            panel.style.setProperty('--fff-select-menu-width', widthPx)
+        }
         panel.style.zIndex = resolveTeleportedMenuZIndex()
         panel.style.top = `${Math.round(rect.bottom + gap)}px`
         panel.style.left = `${Math.round(rect.left)}px`
         panel.style.marginTop = '0'
+        if (typeof panel.style.removeProperty === 'function') {
+            panel.style.removeProperty('bottom')
+            panel.style.removeProperty('height')
+            panel.style.removeProperty('max-height')
+            panel.style.removeProperty('min-height')
+        }
 
         const panelRect = panel.getBoundingClientRect()
         let left = resolveTeleportedMenuHorizontalLeft({
@@ -202,30 +224,70 @@ export function createOverlayRuntime({ document, window }) {
     }
 
     function applySheetMode(entry) {
-        const { panel, id } = entry
+        const { panel, id, anchor } = entry
 
-        panel.classList.add('fff-overlay-sheet')
-        panel.classList.remove('fff-overlay-panel')
+        panel.classList.add('fff-overlay-sheet', 'fff-teleported-menu--sheet')
+        panel.classList.remove('fff-overlay-panel', 'fff-teleported-menu--panel')
         panel.dataset.fffOverlayMode = 'sheet'
         panel.dataset.fffOverlayId = id
-        panel.dataset.fffOverlaySnap = 'bottom'
         panel.dataset.fffOverlaySheet = 'true'
         panel.style.position = 'fixed'
         panel.style.zIndex = resolveTeleportedMenuZIndex()
-        panel.style.removeProperty('top')
-        panel.style.removeProperty('left')
-        panel.style.removeProperty('width')
+        panel.style.removeProperty('margin-top')
+
+        // Pin full viewport width before measure/fit — never inherit panel trigger width.
+        if (typeof panel.style?.setProperty === 'function') {
+            panel.style.setProperty('width', '100%', 'important')
+            panel.style.setProperty('min-width', '0', 'important')
+            panel.style.setProperty('max-width', 'none', 'important')
+            panel.style.setProperty('left', '0', 'important')
+            panel.style.setProperty('right', '0', 'important')
+            panel.style.setProperty('inset-inline', '0', 'important')
+            panel.style.setProperty('bottom', '0', 'important')
+            panel.style.setProperty('top', 'auto', 'important')
+        }
+
+        if (anchor && typeof window.getComputedStyle === 'function') {
+            panel.dir = window.getComputedStyle(anchor).direction || 'ltr'
+        }
+
+        fitOverlaySheetToContent(panel, window)
     }
 
     function applyPanelMode(entry) {
         const { panel, id } = entry
 
         panel.classList.add('fff-overlay-panel')
-        panel.classList.remove('fff-overlay-sheet')
+        panel.classList.remove('fff-overlay-sheet', 'fff-teleported-menu--sheet')
+        panel.classList.add('fff-teleported-menu--panel')
         panel.dataset.fffOverlayMode = 'panel'
         panel.dataset.fffOverlayId = id
         panel.removeAttribute('data-fff-overlay-snap')
         panel.removeAttribute('data-fff-overlay-sheet')
+        delete panel.dataset.fffSheetFittedHeight
+        delete panel.dataset.fffOverlaySnap
+
+        // Drop sheet peek height / bottom pin before measuring — otherwise the
+        // desktop panel keeps a giant empty height (inlineFieldLabel Status).
+        for (const property of [
+            'height',
+            'max-height',
+            'min-height',
+            'bottom',
+            'inset-inline',
+            'right',
+            'left',
+            'top',
+            'width',
+            'min-width',
+            'max-width',
+            'transform',
+            'transition',
+        ]) {
+            panel.style.removeProperty(property)
+        }
+
+        panel.style.removeProperty('--fff-overlay-sheet-max-height')
         positionPanel(entry)
     }
 
@@ -543,6 +605,48 @@ export function createOverlayRuntime({ document, window }) {
         positionPanel(entry)
     }
 
+    /**
+     * Flip an open overlay between panel and sheet (breakpoint resize while open).
+     * Keeps entry.mode in sync so updatePosition / sheet fits stay valid.
+     *
+     * @param {string} id
+     * @param {OverlayMode} mode
+     */
+    function setMode(id, mode) {
+        const entry = overlays.get(id)
+
+        if (! entry || (mode !== 'panel' && mode !== 'sheet')) {
+            return
+        }
+
+        if (entry.mode === mode) {
+            if (mode === 'panel') {
+                const panel = entry.panel
+                const sheetChromeLeft = panel?.classList?.contains?.('fff-overlay-sheet')
+                    || panel?.classList?.contains?.('fff-teleported-menu--sheet')
+
+                // DOM can lag entry.mode after a failed/partial flip — re-assert panel.
+                if (sheetChromeLeft) {
+                    applyPanelMode(entry)
+                } else {
+                    positionPanel(entry)
+                }
+            } else {
+                fitOverlaySheetToContent(entry.panel, window)
+            }
+
+            return
+        }
+
+        entry.mode = mode
+
+        if (mode === 'sheet') {
+            applySheetMode(entry)
+        } else {
+            applyPanelMode(entry)
+        }
+    }
+
     function isOpen(id) {
         return overlays.has(id) || exclusiveClaims.has(id)
     }
@@ -614,6 +718,7 @@ export function createOverlayRuntime({ document, window }) {
         close,
         closeAll,
         updatePosition,
+        setMode,
         isOpen,
         hasPanel,
         getOpenIds,

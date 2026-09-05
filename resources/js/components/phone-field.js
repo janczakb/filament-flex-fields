@@ -370,18 +370,20 @@ export default function phoneFieldFormComponent({
                 return
             }
 
-            const willOpen = ! this.countryOpen
+            if (this.countryOpen) {
+                this.closeTeleportedMenu()
 
-            if (willOpen) {
-                await Promise.all([
-                    this.ensureCountriesLoaded(),
-                    this.ensurePhoneLibLoaded(),
-                ])
+                return
             }
 
-            this.countryOpen = willOpen
+            await Promise.all([
+                this.ensureCountriesLoaded(),
+                this.ensurePhoneLibLoaded(),
+            ])
 
-            if (this.countryOpen && this.searchable) {
+            this.countryOpen = true
+
+            if (this.searchable) {
                 this.$nextTick(() => {
                     this.$refs.countrySearch?.focus()
                 })

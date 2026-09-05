@@ -259,6 +259,7 @@
                             ])
                             @if ($isReorderable)
                                 x-bind:x-sortable-item="index"
+                                x-sortable-handle
                             @endif
                         >
                             <span class="fff-tags-field__tag-label" x-text="displayLabel(tag)"></span>

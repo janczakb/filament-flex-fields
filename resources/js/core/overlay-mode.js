@@ -2,6 +2,11 @@
 export const OVERLAY_SHEET_BREAKPOINT = 768
 
 /**
+ * Sheet vs panel follows viewport width only.
+ *
+ * Coarse pointers must not lock sheet on wide screens — that prevents
+ * mobile→desktop restore on resize (DevTools device mode, hybrid laptops).
+ *
  * @param {Window | undefined} [win]
  * @returns {boolean}
  */
@@ -10,10 +15,7 @@ export function prefersOverlaySheet(win = typeof window !== 'undefined' ? window
         return false
     }
 
-    const coarsePointer = win.matchMedia?.('(pointer: coarse)')?.matches === true
-    const narrowViewport = win.innerWidth <= OVERLAY_SHEET_BREAKPOINT
-
-    return coarsePointer || narrowViewport
+    return win.innerWidth <= OVERLAY_SHEET_BREAKPOINT
 }
 
 /**

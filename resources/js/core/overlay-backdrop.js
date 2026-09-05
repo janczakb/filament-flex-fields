@@ -18,15 +18,15 @@ export function createOverlayBackdrop(document, overlayId, options = {}) {
     backdrop.dataset.fffOverlayBackdrop = overlayId
     backdrop.setAttribute('aria-hidden', 'true')
 
-    if (options.zIndex != null) {
+    if (options.zIndex != null && backdrop.style) {
         backdrop.style.zIndex = String(options.zIndex)
     }
 
-    backdrop.addEventListener('click', () => {
+    backdrop.addEventListener?.('click', () => {
         options.onDismiss?.()
     })
 
-    document.body.appendChild(backdrop)
+    document.body?.appendChild?.(backdrop)
 
     requestAnimationFrame(() => {
         backdrop.classList.add('is-visible')
@@ -47,11 +47,12 @@ export function removeOverlayBackdrop(document, overlayId) {
     }
 
     backdrop.classList.remove('is-visible')
+    backdrop.classList.add('is-leaving')
 
     const remove = () => {
         backdrop.remove()
     }
 
     backdrop.addEventListener('transitionend', remove, { once: true })
-    window.setTimeout(remove, 220)
+    window.setTimeout(remove, 200)
 }

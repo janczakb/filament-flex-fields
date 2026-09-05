@@ -244,15 +244,17 @@ export default function countryFieldFormComponent({
                 return
             }
 
-            const willOpen = ! this.menuOpen
+            if (this.menuOpen) {
+                this.closeTeleportedMenu()
 
-            if (willOpen) {
-                await this.ensureCountriesLoaded()
+                return
             }
 
-            this.menuOpen = willOpen
+            await this.ensureCountriesLoaded()
 
-            if (this.menuOpen && this.searchable) {
+            this.menuOpen = true
+
+            if (this.searchable) {
                 this.$nextTick(() => {
                     this.$refs.countrySearch?.focus()
                 })

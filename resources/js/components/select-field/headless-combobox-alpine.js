@@ -1,6 +1,7 @@
 import { createComboboxEngine, DEFAULT_VIRTUALIZE_THRESHOLD, DEFAULT_VIRTUAL_WINDOW_SIZE } from '../../core/combobox-engine.js'
 import { normalizeSearchQuery } from '../../core/search-normalize.js'
-import { createSearchableSelectMenuMixin } from '../../core/searchable-select-menu.js'
+import { createSearchableSelectMenuMixin, runAfterSheetEnter } from '../../core/searchable-select-menu.js'
+import { resolveOverlayMode } from '../../core/overlay-mode.js'
 import { updateVerticalScrollFade } from '../../core/vertical-scroll-fade.js'
 import { bindOverlayScrollbar, syncOverlayScrollbar } from '../../core/overlay-scrollbar.js'
 import {
@@ -23,12 +24,15 @@ import {
     seedHeadlessKnownSelected,
     setCheckVisibleInstant,
 } from './headless-select-selection-ux.js'
+import { createHeadlessUserSelectMixin } from './headless-user-select.js'
 import {
-    positionInlineSearchCaretAtInlineStart,
+    scheduleInlineSearchCaretAtEnd,
     resolveInlineSearchInputAfterClose,
     resolveInlineSearchInputPlaceholder,
     resolveInlineSearchInputValue,
+    resolveSelectSearchFocusTarget,
     shouldInlineSearchInputBeEditable,
+    shouldShowSelectMenuSearch,
     stripHtmlToPlainText,
 } from './headless-inline-search.js'
 import {
@@ -45,9 +49,14 @@ const optionalMixinStubs = {
     onHeadlessMenuOpenedForLivewire() {},
     observeHeadlessLoadMore() {},
     disconnectHeadlessLoadMoreObserver() {},
+    // Used at engine create when hasDynamicSearchResults; real mixin overwrites.
+    serverSideFilterFn() {
+        return () => true
+    },
     comboboxEntityMentionActive() {
         return false
     },
+    onHeadlessTriggerMentionKeydown() {},
     userSelectTriggerHtml() {
         return this.placeholder ?? ''
     },
@@ -104,6 +113,9 @@ function defaultGetOptionValue(option) {
     return headlessOptionValue(option)
 }
 
+/** Fixed desktop width for optionLayout('grid') theme-style pickers. */
+const GRID_DROPDOWN_WIDTH_PX = 400
+
 const selectMenu = createSearchableSelectMenuMixin({
     openKey: 'comboboxOpen',
     readyKey: 'menuReady',
@@ -114,7 +126,7 @@ const selectMenu = createSearchableSelectMenuMixin({
     menuRef: 'headlessMenu',
     closeMethod: 'comboboxCloseMenu',
     ownerIdPrefix: 'fff-headless-select',
-    onMenuClose() {
+    minMenuWidth: 288,    onMenuClose() {
         this._engine?.close?.()
         this.comboboxHighlightedIndex = -1
         this.inlineSearchFocused = false
@@ -193,6 +205,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         searchingMessage = '',
         loadingMoreMessage = '',
         noOptionsMessage = '',
+        noMoreOptionsMessage = '',
         searchPrompt = '',
         optionsLimit = 50,
         searchableOptionFields = ['label'],
@@ -255,6 +268,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         searchingMessage,
         loadingMoreMessage,
         noOptionsMessage,
+        noMoreOptionsMessage,
         noSearchResultsMessage,
         searchPrompt,
         selectEmptyStateHints,
@@ -282,9 +296,16 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         sectionLabel: entityMentionSectionLabel,
     }
 
+    // UserSelect mixin is static — dynamic import raced Livewire option paint and
+    // threw `renderUserOptionHtml is not a function` (main-thread long tasks / jank).
+    const userSelectMixin = needsUserSelectMixin
+        ? createHeadlessUserSelectMixin(userSelectConfig)
+        : {}
+
     return {
         ...selectMenu,
         ...optionalMixinStubs,
+        ...userSelectMixin,
 
         state,
         initialState,
@@ -306,6 +327,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         searchingMessage,
         loadingMoreMessage,
         noOptionsMessage,
+        noMoreOptionsMessage,
         searchPrompt,
         optionsLimit,
         searchableOptionFields,
@@ -360,9 +382,11 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             const query = String(this.comboboxQuery ?? '').trim()
-            const visibleOptionCount = typeof this.getEngineOptions === 'function'
-                ? this.getEngineOptions().length
-                : 0
+            // Count rows actually painted in the list (selected values may be
+            // omitted when keepSelectedOptionsInDropdown is false).
+            const visibleOptionCount = typeof this.countVisibleDropdownOptions === 'function'
+                ? this.countVisibleDropdownOptions()
+                : (typeof this.getEngineOptions === 'function' ? this.getEngineOptions().length : 0)
 
             if (this.hasDynamicSearchResults && query.length < Number(this.minSearchLength ?? 0)) {
                 return visibleOptionCount > 0 ? null : 'prompt'
@@ -389,7 +413,56 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 return 'search'
             }
 
+            if (this.hasExhaustedSelectableOptions()) {
+                return 'exhausted'
+            }
+
             return 'options'
+        },
+
+        /**
+         * Options remaining in the dropdown after selected-item filtering.
+         */
+        countVisibleDropdownOptions() {
+            if (this.smartSuggestEnabled && this._engine && ! this.hasDynamicSearchResults) {
+                const flat = typeof this.getEngineOptions === 'function'
+                    ? this.getEngineOptions()
+                    : []
+
+                if (! this.multiple || this.keepSelectedOptionsInDropdown) {
+                    return flat.length
+                }
+
+                return flat.filter((option) => ! this.isOptionSelected(headlessOptionValue(option))).length
+            }
+
+            const rows = buildHeadlessDropdownRows(this.comboboxFilteredOptionTree(), {
+                multiple: this.multiple,
+                keepSelectedOptionsInDropdown: this.keepSelectedOptionsInDropdown,
+                isOptionSelected: (value) => this.isOptionSelected(value),
+                withSeparators: false,
+            })
+
+            return flattenHeadlessDropdownRowOptions(rows).length
+        },
+
+        /**
+         * Multi-select removed every remaining choice from the list
+         * (keepSelectedOptionsInDropdown=false) while the source still has options.
+         */
+        hasExhaustedSelectableOptions() {
+            if (! this.multiple || this.keepSelectedOptionsInDropdown) {
+                return false
+            }
+
+            const sourceCount = flattenHeadlessOptions(this.options ?? []).length
+
+            if (sourceCount === 0) {
+                return false
+            }
+
+            return this.countVisibleDropdownOptions() === 0
+                && String(this.comboboxQuery ?? '').trim() === ''
         },
 
         shouldShowHeadlessDropdownOptions() {
@@ -405,7 +478,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         shouldShowHeadlessSelectEmptyState() {
             const state = this.headlessSelectDropdownState()
 
-            return state === 'prompt' || state === 'search' || state === 'options'
+            return state === 'prompt' || state === 'search' || state === 'options' || state === 'exhausted'
         },
 
         shouldShowHeadlessSelectSkeleton() {
@@ -449,6 +522,10 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 return this.noSearchResultsMessage
             }
 
+            if (state === 'exhausted') {
+                return this.noMoreOptionsMessage || this.noOptionsMessage
+            }
+
             return this.noOptionsMessage
         },
 
@@ -468,6 +545,10 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
             if (state === 'search') {
                 return hints.tryDifferentSearch ?? ''
+            }
+
+            if (state === 'exhausted') {
+                return hints.allOptionsSelected ?? hints.noOptionsAvailable ?? ''
             }
 
             return hints.noOptionsAvailable ?? ''
@@ -633,7 +714,29 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         resolveMatchTriggerWidth() {
+            // Grid pickers use a fixed desktop panel — matching the trigger causes a
+            // full-width flash before applyGridDropdownWidth re-pins to 400px.
+            if (this.isGridLayout) {
+                return false
+            }
+
             return this.matchTriggerWidth !== false
+        },
+
+        resolveMenuMinWidth() {
+            if (this.isGridLayout) {
+                return GRID_DROPDOWN_WIDTH_PX
+            }
+
+            return 288
+        },
+
+        afterOverlayPanelOpened(overlayMode) {
+            if (overlayMode === 'sheet' || ! this.isGridLayout) {
+                return
+            }
+
+            this.applyGridDropdownWidth()
         },
 
         _engine: null,
@@ -650,12 +753,6 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             if (needsLivewireMixin) {
                 jobs.push(import('./headless-combobox-livewire.js').then(({ createHeadlessComboboxLivewireMixin }) => {
                     Object.assign(this, createHeadlessComboboxLivewireMixin(livewireConfig))
-                }))
-            }
-
-            if (needsUserSelectMixin) {
-                jobs.push(import('./headless-user-select.js').then(({ createHeadlessUserSelectMixin }) => {
-                    Object.assign(this, createHeadlessUserSelectMixin(userSelectConfig))
                 }))
             }
 
@@ -678,12 +775,32 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         async init() {
-            await this.loadOptionalMixins()
-
-            const initialSelectedValues = normalizeInitialSelectedValues(
+            const pendingSelection = normalizeInitialSelectedValues(
                 resolveHeadlessBoundState(this.state, this.initialState, this.multiple),
                 this.multiple,
             )
+
+            // Empty non-UserSelect triggers hand off before optional chunks load so
+            // multi SSR never swallows clicks (Entity mentions). Pre-selected multi
+            // relies on CSS click-through until the engine reveals chips.
+            if (! this.isUserSelectField && pendingSelection.length === 0) {
+                this.displayReady = true
+                this.ensureHeadlessSsrHandoff()
+            }
+
+            // Kick off optional chunks without blocking engine create. Dynamic
+            // search uses serverSideFilterFn stub until the Livewire mixin assigns
+            // (same () => true). Awaiting here serialized Alpine init across the
+            // playground and froze the page under x-load.
+            const mixinsPromise = this.loadOptionalMixins()
+
+            if (this.isUserSelectField) {
+                await mixinsPromise
+            } else {
+                void mixinsPromise
+            }
+
+            const initialSelectedValues = pendingSelection
 
             this._engine = createComboboxEngine({
                 options: flattenHeadlessOptions(this.options),
@@ -692,7 +809,9 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 getOptionLabel: engineConfig.getOptionLabel ?? defaultGetOptionLabel,
                 getOptionValue: engineConfig.getOptionValue ?? defaultGetOptionValue,
                 filterFn: this.hasDynamicSearchResults
-                    ? this.serverSideFilterFn()
+                    ? (typeof this.serverSideFilterFn === 'function'
+                        ? this.serverSideFilterFn()
+                        : () => true)
                     : (option, normalizedQuery, getOptionLabel) => {
                         if (normalizedQuery === '') {
                             return true
@@ -751,17 +870,35 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                     this.checkExitCancel?.()
                     this.checkExitCancel = null
                     this.bindHeadlessMenuPositionObservers()
-                    this.onHeadlessMenuOpenedForLivewire()
 
-                    this.$nextTick(() => {
-                        this.bindDropdownScrollFadeObserver()
-                        this.markKnownOptionChecksVisible()
+                    // Defer Livewire fetch + focus until the sheet slide finishes.
+                    // Starting getOptionsForJs in the same turn starves rAF and the
+                    // enter animation never gets sheet/is-open classes in time.
+                    const menu = typeof this.resolveMenuElement === 'function'
+                        ? this.resolveMenuElement()
+                        : this.$refs?.headlessMenu
 
-                        if (this.searchable) {
-                            this.focusHeadlessSearchInput()
+                    runAfterSheetEnter(menu, () => {
+                        if (! this.comboboxOpen || this.__fffSheetClosing) {
+                            return
                         }
 
-                        this.observeHeadlessLoadMore?.()
+                        this.onHeadlessMenuOpenedForLivewire()
+
+                        this.$nextTick(() => {
+                            if (! this.comboboxOpen || this.__fffSheetClosing) {
+                                return
+                            }
+
+                            this.bindDropdownScrollFadeObserver()
+                            this.markKnownOptionChecksVisible()
+
+                            if (this.searchable) {
+                                this.focusHeadlessSearchInput()
+                            }
+
+                            this.observeHeadlessLoadMore?.()
+                        })
                     })
 
                     return
@@ -806,7 +943,20 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             })
 
             this.$watch('comboboxQuery', () => {
+                this.virtualRowWindowStart = 0
+                this._virtualFlatRows = []
+                this.virtualScrollTick = (this.virtualScrollTick ?? 0) + 1
                 this.applyComboboxQueryToEngine()
+
+                if (! this.comboboxOpen || this.__fffSheetClosing) {
+                    return
+                }
+
+                this.$nextTick(() => {
+                    syncDropdownScrollbarInset(this.resolveMenuElement())
+                    this.markKnownOptionChecksVisible()
+                    this.scheduleMenuPositionAfterLayout()
+                })
             })
 
             this.seedInitialTriggerLabels()
@@ -1358,6 +1508,17 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         resolveMenuTriggerElement() {
+            // Match the visible field track (includes suffix chevron), not the
+            // shrink-wrapped multi button/chips — otherwise the teleported menu
+            // stays ~content-width (Entity mentions).
+            const fieldTrack = this.$el?.closest?.('.fi-input-wrp.fff-select-field')
+                ?? this.$el?.closest?.('.fi-input-wrp')
+                ?? this.$el?.closest?.('.fff-select-field__shell')
+
+            if (fieldTrack) {
+                return fieldTrack
+            }
+
             const button = this.$refs?.headlessTrigger
 
             if (! button) {
@@ -1375,6 +1536,41 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
         hasHeadlessMenuBeenPositioned() {
             return this.resolveMenuElement()?.__fffHasBeenPositioned === true
+        },
+
+
+        isSheetPresentation() {
+            // While the exit slide runs, keep sheet chrome even if the viewport
+            // already crossed back to desktop.
+            if (this.__fffSheetClosing) {
+                return true
+            }
+
+            if (! this.comboboxOpen) {
+                return false
+            }
+
+            // Live breakpoint wins over stale open-time mode / leftover sheet classes.
+            // Otherwise resize mobile→desktop keeps left:0 via applySheetDropdownWidth().
+            return resolveOverlayMode(window) === 'sheet'
+        },
+
+        applySheetDropdownWidth() {
+            const menu = this.resolveMenuElement()
+
+            if (! menu) {
+                return
+            }
+
+            menu.classList.remove('fi-width-none')
+            menu.style.setProperty('width', '100%', 'important')
+            menu.style.setProperty('min-width', '0', 'important')
+            menu.style.setProperty('max-width', 'none', 'important')
+            menu.style.left = '0'
+            menu.style.right = '0'
+            menu.style.insetInline = '0'
+            menu.style.bottom = '0'
+            menu.style.top = 'auto'
         },
 
         applyHeadlessDropdownWidthLayout() {
@@ -1401,9 +1597,32 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 return
             }
 
+            // Never reflow width/anchor while the sheet exit animation is playing —
+            // panel-width math would shrink the drawer mid-slide.
+            if (this.__fffSheetClosing) {
+                this.applySheetDropdownWidth()
+
+                return
+            }
+
             // Match patch runtime: finalize width before anchoring, then re-anchor once sized.
             this.applyHeadlessDropdownWidthLayout()
             selectMenu.updateMenuPosition.call(this, { reveal })
+
+            // Overlay/local anchoring match-trigger width overwrites fixed pins — re-apply.
+            if (this.isSheetPresentation()) {
+                return
+            }
+
+            if (this.isGridLayout) {
+                this.applyGridDropdownWidth()
+
+                return
+            }
+
+            if (this.canOptionLabelsWrap === false) {
+                this.applyPlainListDropdownWidth()
+            }
         },
 
         teardownHeadlessMenuPosition() {
@@ -1429,6 +1648,18 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         applyRichListDropdownWidth() {
+            if (this.isSheetPresentation()) {
+                this.applySheetDropdownWidth()
+
+                return
+            }
+
+            if (this.canOptionLabelsWrap === false) {
+                this.applyPlainListDropdownWidth()
+
+                return
+            }
+
             const menu = this.resolveMenuElement()
             const trigger = this.resolveMenuTriggerElement()
 
@@ -1445,6 +1676,12 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         applyPlainListDropdownWidth() {
+            if (this.isSheetPresentation()) {
+                this.applySheetDropdownWidth()
+
+                return
+            }
+
             const menu = this.resolveMenuElement()
             const trigger = this.resolveMenuTriggerElement()
 
@@ -1453,6 +1690,19 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             const buttonWidth = trigger.offsetWidth
+
+            // wrapOptionLabels(false): dropdown matches trigger; long labels clamp in CSS.
+            if (this.canOptionLabelsWrap === false) {
+                const width = `${buttonWidth}px`
+
+                menu.style.setProperty('width', width, 'important')
+                menu.style.setProperty('min-width', width, 'important')
+                menu.style.setProperty('max-width', width, 'important')
+                menu.style.setProperty('overflow-x', 'hidden', 'important')
+
+                return
+            }
+
             const viewportCap = Math.max(buttonWidth, window.innerWidth - 32)
             const contentFloor = this.isUserSelectField ? 320 : buttonWidth
 
@@ -1479,6 +1729,12 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         applyGridDropdownWidth() {
+            if (this.isSheetPresentation()) {
+                this.applySheetDropdownWidth()
+
+                return
+            }
+
             const menu = this.resolveMenuElement()
 
             if (! menu) {
@@ -1486,13 +1742,19 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             menu.classList.add('fi-width-none')
-            menu.style.setProperty('width', '22rem', 'important')
-            menu.style.setProperty('max-width', 'min(22rem, calc(100vw - 2rem))', 'important')
-            menu.style.setProperty('min-width', '22rem', 'important')
+            menu.style.setProperty('width', `${GRID_DROPDOWN_WIDTH_PX}px`, 'important')
+            menu.style.setProperty('max-width', `min(${GRID_DROPDOWN_WIDTH_PX}px, calc(100vw - 2rem))`, 'important')
+            menu.style.setProperty('min-width', `${GRID_DROPDOWN_WIDTH_PX}px`, 'important')
         },
 
         scheduleMenuPositionAfterLayout() {
-            if (! this.comboboxOpen) {
+            if (! this.comboboxOpen || this.__fffSheetClosing) {
+                return
+            }
+
+            const menu = this.resolveMenuElement()
+
+            if (menu?.dataset?.fffSheetEntering === 'true') {
                 return
             }
 
@@ -1504,7 +1766,7 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 this.__fffHeadlessMenuPositionRaf = requestAnimationFrame(() => {
                     this.__fffHeadlessMenuPositionRaf = 0
 
-                    if (this.comboboxOpen) {
+                    if (this.comboboxOpen && ! this.__fffSheetClosing) {
                         this.updateMenuPosition({ reveal: false })
                     }
                 })
@@ -1589,18 +1851,42 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this._syncFromEngine()
             this.comboboxOpen = true
 
-            // Optimistic glass reveal — do not wait for Livewire option fetch /
-            // measure passes or the panel stays invisible while comboboxOpen=true
-            // (Region felt "blocked" for 1–2s after Country ->live()).
+            // Optimistic glass reveal for desktop panels — do not wait for Livewire
+            // option fetch / measure. Sheets must NOT get is-open here: playSheetEnter
+            // owns the first slide-up (optimistic open paints at translateY(0) and
+            // the first height measure then looks like a missing enter animation).
             const menu = typeof this.resolveMenuElement === 'function'
                 ? this.resolveMenuElement()
                 : this.$refs?.headlessMenu
 
             if (menu) {
                 menu.classList.remove('is-closing')
-                menu.classList.add('is-open')
                 menu.hidden = false
                 menu.setAttribute('aria-hidden', 'false')
+
+                const sheetMode = resolveOverlayMode(window) === 'sheet'
+                    || menu.classList?.contains?.('fff-teleported-menu--sheet')
+                    || menu.classList?.contains?.('fff-overlay-sheet')
+
+                if (sheetMode) {
+                    // Apply sheet classes synchronously so CSS bottom-sheet rules
+                    // win before the async anchor pass — avoids a panel-scale flash
+                    // and keeps enter work off the Livewire critical path.
+                    menu.classList.add('fff-teleported-menu--sheet')
+                    menu.classList.remove(
+                        'fff-teleported-menu--panel',
+                        'fff-select-dropdown-panel--below',
+                        'fff-select-dropdown-panel--above',
+                        'fff-teleported-menu--above',
+                        'fff-teleported-menu--below',
+                    )
+
+                    if (menu.dataset) {
+                        menu.dataset.fffOverlayPresentation = 'sheet'
+                    }
+                } else {
+                    menu.classList.add('is-open')
+                }
             }
 
             if (typeof this.scheduleMenuPosition === 'function') {
@@ -1676,17 +1962,31 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         focusHeadlessSearchInput() {
-            const input = this.inlineSearch
+            const target = resolveSelectSearchFocusTarget({
+                inlineSearch: this.inlineSearch && this.searchable,
+                sheetPresentation: this.isSheetPresentation(),
+            })
+            const input = target === 'inline'
                 ? this.$refs.headlessInlineSearchInput
                 : this.$refs.headlessSearchInput
 
             input?.focus({ preventScroll: true })
 
-            if (this.usesInlineSearchTriggerInput()) {
+            // Pin caret only when opening onto an existing value (selected label).
+            // Re-forcing on every focus fights mid-word edits and bidi typing.
+            if (input && String(input.value ?? '').length > 0) {
                 this.$nextTick(() => {
-                    positionInlineSearchCaretAtInlineStart(this.$refs.headlessInlineSearchInput)
+                    scheduleInlineSearchCaretAtEnd(input)
                 })
             }
+        },
+
+        shouldShowMenuSearch() {
+            return shouldShowSelectMenuSearch({
+                searchable: this.searchable,
+                inlineSearch: this.inlineSearch && ! this.multiple,
+                sheetPresentation: this.isSheetPresentation(),
+            })
         },
 
         onHeadlessTriggerClick(event) {
@@ -1732,6 +2032,12 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 return false
             }
 
+            // Drawer search owns keyboard input — keep the trigger non-editable
+            // so focus cannot land on the field buried under the sheet.
+            if (this.isSheetPresentation()) {
+                return true
+            }
+
             return ! shouldInlineSearchInputBeEditable(this.comboboxOpen, this.inlineSearchFocused)
         },
 
@@ -1768,7 +2074,17 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             this.$nextTick(() => {
-                positionInlineSearchCaretAtInlineStart(this.$refs.headlessInlineSearchInput)
+                if (this.isSheetPresentation()) {
+                    this.focusHeadlessSearchInput()
+
+                    return
+                }
+
+                const input = this.$refs.headlessInlineSearchInput
+
+                if (input && String(input.value ?? '').length > 0) {
+                    scheduleInlineSearchCaretAtEnd(input)
+                }
             })
         },
 
@@ -1788,6 +2104,18 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
                 this.inlineSearchFocused = false
             }, 0)
+        },
+
+        onInlineSearchClearedIfEmpty(event) {
+            if (! this.usesInlineSearchTriggerInput() || this.multiple) {
+                return
+            }
+
+            const value = event?.target?.value ?? ''
+
+            if (value === '' && this.isTriggerLabelSelected()) {
+                this.clearSelection()
+            }
         },
 
         onInlineSearchInput(event) {
@@ -1822,6 +2150,12 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this.virtualScrollTick = (this.virtualScrollTick ?? 0) + 1
 
             this.applyComboboxQueryToEngine()
+
+            // Alpine $watch('comboboxQuery') also runs these in the browser; keep
+            // them here for programmatic callers / unit tests without a watcher.
+            if (! this.comboboxOpen || this.__fffSheetClosing) {
+                return
+            }
 
             this.$nextTick(() => {
                 syncDropdownScrollbarInset(this.resolveMenuElement())
@@ -2032,7 +2366,11 @@ export default function headlessComboboxAlpine(userConfig = {}) {
 
         optionDropdownLabel(option) {
             if (option?.fffClientRender && option?.user) {
-                return this.renderUserOptionHtml(option.user, 'list')
+                if (typeof this.renderUserOptionHtml === 'function') {
+                    return this.renderUserOptionHtml(option.user, 'list')
+                }
+
+                return String(option.user?.name ?? option.label ?? option.user?.email ?? '')
             }
 
             return headlessOptionLabelHtml(option, 'dropdown')
@@ -2124,6 +2462,38 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this.checkExitTick = (this.checkExitTick ?? 0) + 1
         },
 
+        /**
+         * Teleported menus live outside the Alpine root; click.outside must not
+         * treat option/search clicks as dismiss.
+         */
+        isEventInsideHeadlessMenu(event) {
+            const target = event?.target
+
+            if (! target || typeof target.closest !== 'function') {
+                return false
+            }
+
+            const menu = typeof this.resolveMenuElement === 'function'
+                ? this.resolveMenuElement()
+                : this.$refs?.headlessMenu
+
+            if (menu?.contains?.(target)) {
+                return true
+            }
+
+            const owner = this.componentKey ?? this.statePath ?? null
+
+            if (owner == null || String(owner) === '') {
+                return Boolean(target.closest('.fff-select-headless-menu'))
+            }
+
+            const escaped = typeof CSS !== 'undefined' && typeof CSS.escape === 'function'
+                ? CSS.escape(String(owner))
+                : String(owner).replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+
+            return Boolean(target.closest(`.fff-select-headless-menu[data-fff-select-menu-owner="${escaped}"]`))
+        },
+
         toggleOption(value) {
             if (this.disabled) {
                 return
@@ -2155,6 +2525,16 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             }
 
             this.comboboxSelectValue(value)
+
+            // Keep @-mention mode ready for the next pick (multi) or clear the
+            // trigger character after a single select so search does not stick.
+            if (this.comboboxEntityMentionActive?.()) {
+                if (this.multiple) {
+                    this.comboboxSetQuery(String(this.mentionTrigger ?? '@'))
+                } else {
+                    this.comboboxSetQuery('')
+                }
+            }
         },
 
         clearSelection() {

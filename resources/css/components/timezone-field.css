@@ -145,6 +145,16 @@
     max-height: 15rem;
 }
 
+.fff-timezone-field__menu.fff-teleported-menu--sheet {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: auto;
+    max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
+}
+
 .fff-timezone-field__menu--sm {
     --fff-timezone-field-menu-text-size: var(--fff-text-md);
 }
