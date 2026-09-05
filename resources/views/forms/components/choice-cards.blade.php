@@ -12,6 +12,7 @@
     $color = $getColor();
     $isRippleEnabled = $isRippleEnabled();
     $isDisabled = $isDisabled();
+    $currentState = $getState();
 @endphp
 
 <x-dynamic-component
@@ -28,6 +29,9 @@
             disabledOptions: {{ Js::from(collect($options)->mapWithKeys(fn (array $option, string | int $key): array => [(string) $key => $option['disabled']])->all()) }},
             disabled: @js($isDisabled),
             rippleEnabled: @js($isRippleEnabled),
+            init() {
+                this.$nextTick(() => this.$root.classList.add('is-hydrated'));
+            },
             normalize(value) {
                 return value === null || value === undefined ? null : String(value);
             },
@@ -52,15 +56,22 @@
                     return;
                 }
 
+                if (event.pointerType === 'touch' || window.matchMedia('(pointer: coarse)').matches) {
+                    return;
+                }
+
                 const card = event.currentTarget;
                 const circle = document.createElement('span');
                 const diameter = Math.max(card.clientWidth, card.clientHeight);
+                const rect = card.getBoundingClientRect();
+                const x = (event.clientX ?? (rect.left + rect.width / 2)) - rect.left;
+                const y = (event.clientY ?? (rect.top + rect.height / 2)) - rect.top;
 
                 circle.className = 'fff-choice-cards__ripple';
                 circle.style.width = `${diameter}px`;
                 circle.style.height = `${diameter}px`;
-                circle.style.left = `${event.offsetX - (diameter / 2)}px`;
-                circle.style.top = `${event.offsetY - (diameter / 2)}px`;
+                circle.style.left = `${x - (diameter / 2)}px`;
+                circle.style.top = `${y - (diameter / 2)}px`;
 
                 card.appendChild(circle);
 
@@ -90,18 +101,27 @@
         @foreach ($options as $value => $option)
             @php
                 $key = (string) $value;
+                $optionDisabled = $isDisabled || $option['disabled'];
+                $isInitiallySelected = filled($currentState) && (string) $currentState === $key;
             @endphp
 
             <label
                 wire:key="{{ $statePath }}-choice-{{ $key }}"
-                x-on:click="ripple($event)"
+                x-on:click.prevent="
+                    if (canSelect(@js($key))) {
+                        select(@js($key));
+                    }
+
+                    ripple($event);
+                "
                 x-bind:class="{
                     'is-selected': isSelected(@js($key)),
                     'is-disabled': disabled || isOptionDisabled(@js($key)),
                 }"
                 @class([
                     'fff-choice-cards__item',
-                    'is-disabled' => $isDisabled || $option['disabled'],
+                    'is-selected' => $isInitiallySelected,
+                    'is-disabled' => $optionDisabled,
                 ])
             >
                 <input
@@ -110,9 +130,11 @@
                     value="{{ $key }}"
                     class="fff-choice-cards__input"
                     x-bind:checked="isSelected(@js($key))"
+                    @checked($isInitiallySelected)
                     x-bind:disabled="disabled || isOptionDisabled(@js($key))"
-                    x-on:change="select(@js($key))"
-                    @disabled($isDisabled || $option['disabled'])
+                    x-on:keydown.space.prevent="select(@js($key))"
+                    x-on:keydown.enter.prevent="select(@js($key))"
+                    @disabled($optionDisabled)
                 />
 
                 @if ($indicator !== 'none')

@@ -179,11 +179,12 @@ it('supports default and overlay layout variants', function () {
         ->and(ImageChoiceCards::make('body')->variant('invalid')->getVariant())->toBe('default');
 });
 
-it('provides inline playground silhouette data uris', function () {
+it('provides published playground silhouette asset urls', function () {
     $uris = ImageChoiceCardsPlaygroundSilhouettes::dataUris();
 
     expect($uris)->toHaveKeys(['slim', 'average', 'athletic', 'shredded'])
-        ->and($uris['slim'])->toStartWith('data:image/png;base64,');
+        ->and($uris['slim'])->toContain('filament-flex-fields-assets/playground/image-choice-silhouettes/slim.webp')
+        ->and($uris['slim'])->not->toStartWith('data:image/');
 });
 
 it('uses pexels playground photos outside body-type silhouette demos', function () {
@@ -198,7 +199,9 @@ it('uses pexels playground photos outside body-type silhouette demos', function 
     $yachtClassOptions = $reflection->getMethod('yachtClassOptions')->invoke($playground);
     $experienceOptions = $reflection->getMethod('experienceOptions')->invoke($playground);
 
-    expect($squareBodyOptions['slim']['image'])->toStartWith('data:image/png;base64,');
+    expect($squareBodyOptions['slim']['image'])
+        ->toContain('image-choice-silhouettes/slim.webp')
+        ->not->toStartWith('data:image/');
 
     foreach ([$destinationOptions, $focusOptions, $galleryPresetOptions, $yachtClassOptions, $experienceOptions] as $options) {
         foreach ($options as $option) {
@@ -223,14 +226,22 @@ it('server renders selected state before alpine hydrates', function () {
         ->toContain('$currentState = $getState()')
         ->toContain('$isInitiallySelected')
         ->toContain("'is-selected' => \$isInitiallySelected")
-        ->toContain('@checked($isInitiallySelected)');
+        ->toContain('@checked($isInitiallySelected)')
+        ->toContain('loading="eager"')
+        ->toContain('fetchpriority')
+        ->toContain("onload=\"this.classList.add('is-loaded')\"");
 
     expect($css)
         ->toContain('.fff-image-choice-cards:not(.is-hydrated)')
         ->toContain('.fff-image-choice-cards--overlay')
         ->toContain('backdrop-filter: blur(20px) saturate(1.5)')
-        ->toContain('--fff-image-choice-cards-overlay-fade');
+        ->toContain('--fff-image-choice-cards-overlay-fade')
+        ->toContain(':has(> .fff-image-choice-cards__input:checked)')
+        ->toContain('(pointer: coarse)')
+        ->toContain('.fff-image-choice-cards__image.is-loaded');
 
     expect($js)
-        ->toContain("this.\$root.classList.add('is-hydrated')");
+        ->toContain("this.\$root.classList.add('is-hydrated')")
+        ->toContain('syncFromDomIfNeeded')
+        ->toContain('warmNearbyImages');
 });

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-05T07:15:56.644Z",
+  "generatedAt": "2026-09-05T09:43:07.345Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 1168,
@@ -197,9 +197,9 @@
       "gzipKb": 2.67
     },
     "playground-address-autocomplete.css": {
-      "bytes": 160151,
-      "kb": 156.4,
-      "gzipKb": 19.55
+      "bytes": 215409,
+      "kb": 210.36,
+      "gzipKb": 29.98
     },
     "playground-admin-columns.css": {
       "bytes": 13578,
@@ -212,9 +212,9 @@
       "gzipKb": 7.72
     },
     "playground-barcode-scanner-field.css": {
-      "bytes": 34259,
-      "kb": 33.46,
-      "gzipKb": 5.5
+      "bytes": 35216,
+      "kb": 34.39,
+      "gzipKb": 5.56
     },
     "playground-bubble-choice.css": {
       "bytes": 8053,
@@ -222,14 +222,14 @@
       "gzipKb": 1.74
     },
     "playground-calculator-field.css": {
-      "bytes": 43658,
-      "kb": 42.63,
-      "gzipKb": 6.56
+      "bytes": 44615,
+      "kb": 43.57,
+      "gzipKb": 6.63
     },
     "playground-choice-cards.css": {
-      "bytes": 16245,
-      "kb": 15.86,
-      "gzipKb": 2.9
+      "bytes": 18393,
+      "kb": 17.96,
+      "gzipKb": 3.04
     },
     "playground-choice-checkbox-cards.css": {
       "bytes": 0,
@@ -252,9 +252,9 @@
       "gzipKb": 0.02
     },
     "playground-country-field.css": {
-      "bytes": 47976,
-      "kb": 46.85,
-      "gzipKb": 7.29
+      "bytes": 76089,
+      "kb": 74.31,
+      "gzipKb": 12.38
     },
     "playground-cover-card.css": {
       "bytes": 4481,
@@ -267,14 +267,14 @@
       "gzipKb": 3.26
     },
     "playground-currency-field.css": {
-      "bytes": 48434,
-      "kb": 47.3,
-      "gzipKb": 7.72
+      "bytes": 76547,
+      "kb": 74.75,
+      "gzipKb": 12.68
     },
     "playground-date-time-fields.css": {
-      "bytes": 80438,
-      "kb": 78.55,
-      "gzipKb": 10.46
+      "bytes": 108551,
+      "kb": 106.01,
+      "gzipKb": 15.58
     },
     "playground-dual-listbox.css": {
       "bytes": 14900,
@@ -282,9 +282,9 @@
       "gzipKb": 3.02
     },
     "playground-field-intelligence.css": {
-      "bytes": 203587,
-      "kb": 198.82,
-      "gzipKb": 24.74
+      "bytes": 258845,
+      "kb": 252.78,
+      "gzipKb": 35.17
     },
     "playground-file-upload.css": {
       "bytes": 56684,
@@ -292,14 +292,14 @@
       "gzipKb": 7.05
     },
     "playground-flex-checklist.css": {
-      "bytes": 20023,
-      "kb": 19.55,
+      "bytes": 20033,
+      "kb": 19.56,
       "gzipKb": 2.77
     },
     "playground-flex-color-picker.css": {
-      "bytes": 36706,
-      "kb": 35.85,
-      "gzipKb": 5.84
+      "bytes": 37663,
+      "kb": 36.78,
+      "gzipKb": 5.9
     },
     "playground-flex-matrix-table.css": {
       "bytes": 0,
@@ -307,8 +307,8 @@
       "gzipKb": 0.02
     },
     "playground-flex-radiolist.css": {
-      "bytes": 20023,
-      "kb": 19.55,
+      "bytes": 20033,
+      "kb": 19.56,
       "gzipKb": 2.77
     },
     "playground-flex-rich-editor.css": {
@@ -322,9 +322,9 @@
       "gzipKb": 3.64
     },
     "playground-flex-text-input.css": {
-      "bytes": 25645,
-      "kb": 25.04,
-      "gzipKb": 4.04
+      "bytes": 26602,
+      "kb": 25.98,
+      "gzipKb": 4.11
     },
     "playground-flex-textarea.css": {
       "bytes": 29873,
@@ -332,9 +332,9 @@
       "gzipKb": 3.9
     },
     "playground-focus-outline.css": {
-      "bytes": 0,
-      "kb": 0,
-      "gzipKb": 0.02
+      "bytes": 295011,
+      "kb": 288.1,
+      "gzipKb": 41.52
     },
     "playground-form-layouts.css": {
       "bytes": 0,
@@ -352,14 +352,14 @@
       "gzipKb": 0.66
     },
     "playground-icon-picker-field.css": {
-      "bytes": 154971,
-      "kb": 151.34,
-      "gzipKb": 18.24
+      "bytes": 209272,
+      "kb": 204.37,
+      "gzipKb": 29
     },
     "playground-image-choice-cards.css": {
-      "bytes": 12621,
-      "kb": 12.33,
-      "gzipKb": 2.31
+      "bytes": 18419,
+      "kb": 17.99,
+      "gzipKb": 2.62
     },
     "playground-item-card-group.css": {
       "bytes": 0,
@@ -367,14 +367,14 @@
       "gzipKb": 0.02
     },
     "playground-link-preview-field.css": {
-      "bytes": 35075,
-      "kb": 34.25,
-      "gzipKb": 5.44
+      "bytes": 36032,
+      "kb": 35.19,
+      "gzipKb": 5.5
     },
     "playground-map-picker.css": {
-      "bytes": 168180,
-      "kb": 164.24,
-      "gzipKb": 21.08
+      "bytes": 223438,
+      "kb": 218.2,
+      "gzipKb": 31.5
     },
     "playground-matrix-choice.css": {
       "bytes": 8237,
@@ -392,9 +392,9 @@
       "gzipKb": 1.85
     },
     "playground-phone-field.css": {
-      "bytes": 52593,
-      "kb": 51.36,
-      "gzipKb": 7.76
+      "bytes": 106271,
+      "kb": 103.78,
+      "gzipKb": 17.67
     },
     "playground-price-range.css": {
       "bytes": 12578,
@@ -422,14 +422,14 @@
       "gzipKb": 1.44
     },
     "playground-schedule-field.css": {
-      "bytes": 98456,
-      "kb": 96.15,
-      "gzipKb": 12.55
+      "bytes": 126569,
+      "kb": 123.6,
+      "gzipKb": 17.51
     },
     "playground-schema-conditions.css": {
-      "bytes": 25645,
-      "kb": 25.04,
-      "gzipKb": 4.04
+      "bytes": 26602,
+      "kb": 25.98,
+      "gzipKb": 4.11
     },
     "playground-segment-control.css": {
       "bytes": 15624,
@@ -452,9 +452,9 @@
       "gzipKb": 24.84
     },
     "playground-select-field.css": {
-      "bytes": 131668,
-      "kb": 128.58,
-      "gzipKb": 15.51
+      "bytes": 185969,
+      "kb": 181.61,
+      "gzipKb": 26.23
     },
     "playground-signature-field.css": {
       "bytes": 10483,
@@ -462,14 +462,14 @@
       "gzipKb": 2.21
     },
     "playground-slug-field.css": {
-      "bytes": 41711,
-      "kb": 40.73,
-      "gzipKb": 6.1
+      "bytes": 42668,
+      "kb": 41.67,
+      "gzipKb": 6.16
     },
     "playground-social-links-field.css": {
-      "bytes": 51170,
-      "kb": 49.97,
-      "gzipKb": 7.62
+      "bytes": 79377,
+      "kb": 77.52,
+      "gzipKb": 12.47
     },
     "playground-switch.css": {
       "bytes": 13125,
@@ -477,14 +477,14 @@
       "gzipKb": 2.5
     },
     "playground-tags-field.css": {
-      "bytes": 163863,
-      "kb": 160.02,
-      "gzipKb": 20.04
+      "bytes": 219121,
+      "kb": 213.99,
+      "gzipKb": 30.56
     },
     "playground-timezone-field.css": {
-      "bytes": 47962,
-      "kb": 46.84,
-      "gzipKb": 7.22
+      "bytes": 76075,
+      "kb": 74.29,
+      "gzipKb": 12.28
     },
     "playground-todo-list-field.css": {
       "bytes": 27492,
@@ -502,9 +502,9 @@
       "gzipKb": 1.26
     },
     "playground-translatable-fields.css": {
-      "bytes": 0,
-      "kb": 0,
-      "gzipKb": 0.02
+      "bytes": 71068,
+      "kb": 69.4,
+      "gzipKb": 8.37
     },
     "playground-user-column.css": {
       "bytes": 8680,
@@ -512,9 +512,9 @@
       "gzipKb": 1.77
     },
     "playground-user-select.css": {
-      "bytes": 155669,
-      "kb": 152.02,
-      "gzipKb": 18.67
+      "bytes": 209970,
+      "kb": 205.05,
+      "gzipKb": 29.27
     },
     "playground-verification-code.css": {
       "bytes": 8549,
@@ -984,9 +984,9 @@
       "gzipKb": 8.96
     },
     "image-choice-cards.js": {
-      "bytes": 1836,
-      "kb": 1.79,
-      "gzipKb": 0.71
+      "bytes": 3305,
+      "kb": 3.23,
+      "gzipKb": 1.26
     },
     "link-preview-field.js": {
       "bytes": 7708,

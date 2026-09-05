@@ -218,3 +218,12 @@ it('accepts desc as an inline option alias for description', function () {
 
     expect($field->getNormalizedOptions()['documents']['description'])->toBe('Updated 2 days ago');
 });
+
+it('routes checkbox clicks through the row handler only', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-checklist.blade.php');
+
+    expect($blade)
+        ->toContain('x-on:click="toggle(@js($key))"')
+        ->not->toContain('x-on:click.stop="toggle')
+        ->not->toContain('<label class="fff-flex-checklist__checkbox"');
+});

@@ -5,11 +5,21 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.5] - 2026-09-05
+
+### Fixed
+
+- **Focus outline playground** — hub CSS bundle now includes Flex Text Input, Select, Textarea, Phone, and Credit Card styles (was empty), so fields no longer flash Filament’s black `fi-input-wrp` ring on reload. Core anti-FOUC also covers phone wrappers and Select.
+
 ## [3.1.4] - 2026-09-05
 
 ### Fixed
 
 - **VideoField playground / AirPlay+Cast icons** — default cast/AirPlay icons no longer use Remix (`ri-cast-line` / `ri-airplay-line`), which threw `SvgNotFound` when that icon set is not installed. Defaults are Gravity UI (`gravityui-tv`, `gravityui-antenna-signal`), already required with the package.
+- **ImageChoiceCards mobile lag** — playground body-type silhouettes are published WebP assets instead of megabyte-scale base64 data-URIs; selection paints from native `:checked` before Alpine `x-load` hydrates; overlay blur / image `will-change` no longer run on coarse pointers. Remote option images warm earlier on scroll (Safari lazy) and fade in once loaded.
+- **ChoiceCards / ChoiceCheckboxCards** — selected options no longer flash on reload (SSR `is-selected` + no transition before hydrate); clicking the checkmark square toggles correctly (`click.prevent` + controlled state, indicator `pointer-events: none`).
+- **FlexChecklist / FlexRadiolist** — clicking the checkbox/radio control no longer double-toggles (nested label `click.stop` removed; row handler owns selection).
+- **Playground code snippets** — auto-generated hub snippets are real Field usage PHP (fluent `::make()` from live demo components), not `FlexFieldsPlaygroundRegistry` boilerplate. Layout hubs (e.g. Segment Tabs) export `SegmentTabs` / tabs schema instead of a nested input; Segment Tabs ships a hand-written usage block.
 
 ## [3.1.3] - 2026-09-05
 

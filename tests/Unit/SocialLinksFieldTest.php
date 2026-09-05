@@ -168,3 +168,15 @@ it('renders brand icon svgs for configured platforms', function (): void {
         ->and($icons['instagram'])->toContain('fff-social-links__brand-icon')
         ->and($icons['website'])->toContain('<svg');
 });
+
+it('enables shell focus outline by default like flex text input', function (): void {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/social-links-field.blade.php');
+
+    expect(SocialLinksField::make('socials')->shouldShowFocusOutline())->toBeTrue()
+        ->and(SocialLinksField::make('socials')->focusOutline(false)->shouldShowFocusOutline())->toBeFalse()
+        ->and(SocialLinksField::make('socials')->rounding('full')->getWrapperClasses())
+        ->toHaveKey('fff-rounding-full')
+        ->and($blade)
+        ->toContain("'has-focus-outline' => \$shouldShowFocusOutline()")
+        ->toContain("'fff-rounding-'.\$getRounding()");
+});

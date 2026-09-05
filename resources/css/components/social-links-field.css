@@ -291,6 +291,11 @@
     box-shadow: var(--fff-flex-text-input-shadow);
     outline: var(--fff-field-focus-ring-width) solid var(--fff-field-focus-ring);
     outline-offset: 0;
+    overflow: visible;
+}
+
+.fff-social-links .fff-flex-text-input__wrapper.fi-input-wrp {
+    border-radius: 0;
 }
 
 .fff-social-links .fff-flex-text-input__shell.is-invalid,

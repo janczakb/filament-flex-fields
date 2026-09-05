@@ -41,8 +41,9 @@ it('extends filament textarea and exposes universal styling api', function () {
 });
 
 it('exposes focus outline api', function () {
-    expect(FlexTextareaField::make('message')->shouldShowFocusOutline())->toBeFalse()
-        ->and(FlexTextareaField::make('message')->focusOutline()->shouldShowFocusOutline())->toBeTrue();
+    expect(FlexTextareaField::make('message')->shouldShowFocusOutline())->toBeTrue()
+        ->and(FlexTextareaField::make('message')->focusOutline()->shouldShowFocusOutline())->toBeTrue()
+        ->and(FlexTextareaField::make('message')->focusOutline(false)->shouldShowFocusOutline())->toBeFalse();
 });
 
 it('rejects unsupported flex textarea variants', function () {

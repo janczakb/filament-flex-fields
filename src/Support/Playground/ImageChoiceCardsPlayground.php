@@ -354,7 +354,7 @@ class ImageChoiceCardsPlayground
         ];
     }
 
-    protected function pexelsImage(int $photoId, int $width = 480, int $height = 640): string
+    protected function pexelsImage(int $photoId, int $width = 360, int $height = 480): string
     {
         return "https://images.pexels.com/photos/{$photoId}/pexels-photo-{$photoId}.jpeg?auto=compress&cs=tinysrgb&w={$width}&h={$height}&fit=crop";
     }

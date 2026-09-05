@@ -159,3 +159,30 @@ it('exposes choice card size css variables per size', function () {
         ->and($small['--fff-choice-cards-label-size'])->toBe('0.8125rem')
         ->and($large['--fff-choice-cards-label-size'])->toBe('1.125rem');
 });
+
+it('server renders selected state and prevents native label toggle fights', function () {
+    $radioBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/choice-cards.blade.php');
+    $checkboxBlade = file_get_contents(__DIR__.'/../../resources/views/forms/components/choice-checkbox-cards.blade.php');
+    $css = file_get_contents(__DIR__.'/../../resources/css/core/choice-cards.css');
+
+    expect($radioBlade)
+        ->toContain('$currentState = $getState()')
+        ->toContain('$isInitiallySelected')
+        ->toContain("'is-selected' => \$isInitiallySelected")
+        ->toContain('@checked($isInitiallySelected)')
+        ->toContain('x-on:click.prevent')
+        ->toContain("this.\$root.classList.add('is-hydrated')");
+
+    expect($checkboxBlade)
+        ->toContain('$currentState = $getState()')
+        ->toContain('$isInitiallySelected')
+        ->toContain("'is-selected' => \$isInitiallySelected")
+        ->toContain('@checked($isInitiallySelected)')
+        ->toContain('x-on:click.prevent')
+        ->toContain('x-on:keydown.space.prevent');
+
+    expect($css)
+        ->toContain('.fff-choice-cards:not(.is-hydrated)')
+        ->toContain(':has(> .fff-choice-cards__input:checked)')
+        ->toContain('pointer-events: none');
+});

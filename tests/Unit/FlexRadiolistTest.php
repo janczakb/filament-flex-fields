@@ -136,3 +136,12 @@ it('loads shared flex checklist stylesheet from the radiolist blade', function (
         ->toContain('partials.load-stylesheet')
         ->and($blade)->toContain("'component' => 'flex-radiolist'");
 });
+
+it('routes radio clicks through the row handler only', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-radiolist.blade.php');
+
+    expect($blade)
+        ->toContain('x-on:click="select(@js($key))"')
+        ->not->toContain('x-on:click.stop="select')
+        ->not->toContain('<label class="fff-flex-radiolist__radio"');
+});

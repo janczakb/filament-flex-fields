@@ -74,6 +74,11 @@ class FlexTextareaField extends Textarea implements HasAffixActions
         $this->disableGrammarly();
     }
 
+    protected function defaultFocusOutline(): bool
+    {
+        return true;
+    }
+
     public function variant(string|Closure $variant): static
     {
         $this->variant = $variant;

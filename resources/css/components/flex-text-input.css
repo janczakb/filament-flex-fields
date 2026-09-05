@@ -133,8 +133,19 @@
 
 .fff-flex-text-input__wrapper.fi-input-wrp {
     @apply h-full border-0 bg-transparent shadow-none ring-0;
+    border-radius: 0;
     --tw-ring-shadow: 0 0 #0000;
     --tw-ring-offset-shadow: 0 0 #0000;
+}
+
+/* Kill Filament's fi-input-wrp focus ring (gray/black) so only the Flex shell chrome shows. */
+.fff-flex-text-input__wrapper.fi-input-wrp:focus-within,
+.fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within,
+.fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within:not(.fi-invalid) {
+    @apply shadow-none outline-none ring-0;
+    --tw-ring-shadow: 0 0 #0000;
+    --tw-ring-offset-shadow: 0 0 #0000;
+    box-shadow: none;
 }
 
 .fff-flex-text-input__wrapper .fi-input-wrp-content-ctn {
@@ -193,6 +204,13 @@
     font-size: var(--fff-flex-text-input-text-size);
     line-height: 1.2;
     color: var(--fff-flex-text-input-text);
+}
+
+.fff-flex-text-input__input:focus,
+.fff-flex-text-input__input:focus-visible {
+    @apply outline-none ring-0;
+    outline: none;
+    box-shadow: none;
 }
 
 /* Match Filament number inputs without browser stepper chrome. */

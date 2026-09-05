@@ -205,6 +205,7 @@ class FlexFieldAssets
         'hold-confirm' => 'hold-confirm-action',
         'schema-conditions' => 'flex-text-input',
         'field-intelligence' => 'flex-text-input',
+        'focus-outline' => 'flex-text-input',
         'date-time-fields' => 'flex-date-time-field',
         'file-upload' => 'flex-file-upload',
         'verification-code' => 'flex-verification-code',
@@ -212,6 +213,7 @@ class FlexFieldAssets
         'matrix-choice' => 'matrix-choice-field',
         'rating' => 'rating-field',
         'flex-rich-editor' => 'rich-editor-field',
+        'translatable-fields' => 'segment-tabs',
     ];
 
     /**
@@ -223,6 +225,8 @@ class FlexFieldAssets
         'calculator-field' => ['calculator-panel'],
         'date-time-fields' => ['flex-time-segments'],
         'field-intelligence' => ['number-stepper', 'select-field', 'flex-textarea', 'currency-field'],
+        'focus-outline' => ['select-field', 'flex-textarea', 'phone-field', 'credit-card'],
+        'translatable-fields' => ['flex-text-input', 'flex-textarea'],
     ];
 
     /**
@@ -462,7 +466,9 @@ class FlexFieldAssets
 
     public static function hasPlaygroundBundleForSlug(string $slug): bool
     {
-        return is_file(self::playgroundBundlePathForSlug($slug));
+        $path = self::playgroundBundlePathForSlug($slug);
+
+        return is_file($path) && filesize($path) > 0;
     }
 
     public static function resolvePlaygroundSlugFromRequest(): ?string

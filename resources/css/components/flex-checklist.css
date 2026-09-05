@@ -130,7 +130,8 @@
 }
 
 .fff-flex-checklist__checkbox {
-    @apply inline-flex cursor-pointer items-center;
+    @apply inline-flex items-center;
+    pointer-events: none;
 }
 
 .fff-flex-checklist__control {
@@ -406,7 +407,8 @@
 }
 
 .fff-flex-radiolist__radio {
-    @apply inline-flex cursor-pointer items-center;
+    @apply inline-flex items-center;
+    pointer-events: none;
 }
 
 .fff-flex-radiolist__control {

@@ -66,6 +66,18 @@ class TranslatableFieldsPlayground
                 'ar' => 'محتوى عربي مع kierunkiem RTL.',
                 'en' => 'English body with LTR direction.',
             ],
+            'translatable_pg__rounding_native' => [
+                'pl' => 'Promień native',
+                'en' => 'Native radius',
+            ],
+            'translatable_pg__rounding_md' => [
+                'pl' => 'Promień md',
+                'en' => 'Medium radius',
+            ],
+            'translatable_pg__rounding_full' => [
+                'pl' => 'Promień full',
+                'en' => 'Full radius',
+            ],
             'translatable_pg__many_locales_title' => [
                 'en' => 'Product name',
                 'pl' => 'Nazwa produktu',
@@ -194,6 +206,37 @@ class TranslatableFieldsPlayground
                             ->rows(3),
                     ])
                     ->columnSpanFull(),
+                Grid::make(['default' => 1, 'lg' => 3])
+                    ->extraAttributes(['class' => 'fff-playground-variants'])
+                    ->schema([
+                        TranslatableFields::make('Rounding · native')
+                            ->locales(['pl' => 'PL', 'en' => 'EN'])
+                            ->withRecommendedDefaults()
+                            ->schema([
+                                FlexTextInput::make('translatable_pg__rounding_native')
+                                    ->label('Headline')
+                                    ->rounding('native')
+                                    ->placeholder('Native radius'),
+                            ]),
+                        TranslatableFields::make('Rounding · md')
+                            ->locales(['pl' => 'PL', 'en' => 'EN'])
+                            ->withRecommendedDefaults()
+                            ->schema([
+                                FlexTextInput::make('translatable_pg__rounding_md')
+                                    ->label('Headline')
+                                    ->rounding('md')
+                                    ->placeholder('Medium radius'),
+                            ]),
+                        TranslatableFields::make('Rounding · full')
+                            ->locales(['pl' => 'PL', 'en' => 'EN'])
+                            ->withRecommendedDefaults()
+                            ->schema([
+                                FlexTextInput::make('translatable_pg__rounding_full')
+                                    ->label('Headline')
+                                    ->rounding('full')
+                                    ->placeholder('Full radius'),
+                            ]),
+                    ]),
                 TranslatableFields::make('Many locale tabs (30)')
                     ->locales(self::manyPlaygroundLocales())
                     ->withRecommendedDefaults()

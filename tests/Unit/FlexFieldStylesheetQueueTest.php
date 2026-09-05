@@ -70,6 +70,55 @@ it('resolves matrix-choice and rating playground slugs to field bundle ids', fun
         ->toContain('rating-field');
 });
 
+it('bundles segment tabs and flex text chrome for the translatable-fields playground hub', function () {
+    expect(FlexFieldAssets::resolveStylesheetComponent('translatable-fields'))
+        ->toBe('segment-tabs')
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('translatable-fields'))
+        ->toBe([
+            'segment-control',
+            'segment-tabs',
+            'emoji-picker',
+            'flex-text-input',
+            'flex-textarea',
+        ]);
+
+    $bundlePath = FlexFieldAssets::playgroundBundlePathForSlug('translatable-fields');
+
+    expect(is_file($bundlePath))->toBeTrue()
+        ->and(filesize($bundlePath))->toBeGreaterThan(1000)
+        ->and((string) file_get_contents($bundlePath))
+        ->toContain('.fff-flex-text-input')
+        ->toContain('.fff-segment-tabs')
+        ->toContain('.fff-flex-text-input__wrapper.fi-input-wrp:focus-within');
+});
+
+it('bundles focus chrome for the focus-outline playground hub', function () {
+    expect(FlexFieldAssets::resolveStylesheetComponent('focus-outline'))
+        ->toBe('flex-text-input')
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('focus-outline'))
+        ->toBe([
+            'emoji-picker',
+            'flex-text-input',
+            'overlay-runtime',
+            'teleported-menu',
+            'select-field',
+            'flex-textarea',
+            'phone-field',
+            'credit-card',
+        ]);
+
+    $bundlePath = FlexFieldAssets::playgroundBundlePathForSlug('focus-outline');
+
+    expect(is_file($bundlePath))->toBeTrue()
+        ->and(filesize($bundlePath))->toBeGreaterThan(1000)
+        ->and((string) file_get_contents($bundlePath))
+        ->toContain('.fff-flex-text-input')
+        ->toContain('.fi-input-wrp.fff-select-field')
+        ->toContain('.fff-flex-textarea')
+        ->toContain('.fff-phone-field')
+        ->toContain('.fff-credit-card');
+});
+
 it('keeps flex text input in its own bundle separate from phone field', function () {
     $phoneCss = file_get_contents(__DIR__.'/../../resources/dist/css/phone-field.css');
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-text-input.css');

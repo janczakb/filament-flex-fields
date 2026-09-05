@@ -141,6 +141,7 @@
             'fff-flex-text-input',
             'fff-flex-text-input--'.$getSize(),
             'fff-flex-text-input--'.$getVariant(),
+            'fff-rounding-'.$getRounding(),
             'is-disabled' => $isDisabled,
             'is-read-only' => $isReadOnly,
             'has-actions' => $hasActionGroupItems,

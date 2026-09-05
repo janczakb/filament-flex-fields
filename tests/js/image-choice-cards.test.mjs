@@ -61,3 +61,84 @@ test('clearDisabledSelection drops locked keys', () => {
     multi.clearDisabledSelection()
     assert.deepEqual(multi.state, ['ok'])
 })
+
+test('syncFromDomIfNeeded adopts a pre-hydrate radio tap', () => {
+    const component = imageChoiceCardsFormComponent({
+        state: 'athletic',
+        multiple: false,
+        disabledOptions: {},
+        disabled: false,
+        rippleEnabled: false,
+        maxSelections: null,
+    })
+
+    component.$root = {
+        querySelectorAll: () => [{ value: 'slim', checked: true }],
+    }
+
+    component.syncFromDomIfNeeded()
+
+    assert.equal(component.state, 'slim')
+})
+
+test('ripple skips touch / coarse pointers', () => {
+    const component = imageChoiceCardsFormComponent({
+        state: null,
+        multiple: false,
+        disabledOptions: {},
+        disabled: false,
+        rippleEnabled: true,
+        maxSelections: null,
+    })
+
+    const card = { clientWidth: 100, clientHeight: 100, appendChild() {}, getBoundingClientRect() {
+        return { left: 0, top: 0, width: 100, height: 100 }
+    } }
+
+    const originalMatchMedia = globalThis.window?.matchMedia
+    globalThis.window = {
+        ...(globalThis.window ?? {}),
+        matchMedia: () => ({ matches: true }),
+        setTimeout: globalThis.setTimeout,
+    }
+
+    component.ripple({
+        pointerType: 'touch',
+        currentTarget: card,
+        clientX: 10,
+        clientY: 10,
+    })
+
+    // No throw / no DOM append for touch.
+    assert.equal(component.rippleEnabled, true)
+
+    if (originalMatchMedia) {
+        globalThis.window.matchMedia = originalMatchMedia
+    }
+})
+
+test('bindImageLoading marks already-complete images', () => {
+    const component = imageChoiceCardsFormComponent({
+        state: null,
+        multiple: false,
+        disabledOptions: {},
+        disabled: false,
+        rippleEnabled: false,
+        maxSelections: null,
+    })
+
+    const img = {
+        complete: true,
+        naturalWidth: 120,
+        classList: { added: [], add(name) { this.added.push(name) } },
+        addEventListener() {},
+    }
+
+    component.$root = {
+        querySelectorAll: (selector) => selector.includes('image') ? [img] : [],
+    }
+
+    component.bindImageLoading()
+
+    assert.deepEqual(img.classList.added, ['is-loaded'])
+})

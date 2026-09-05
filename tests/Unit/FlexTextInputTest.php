@@ -47,9 +47,24 @@ it('uses native filament input types for email url tel password and numeric', fu
 });
 
 it('exposes focus outline api', function () {
-    expect(FlexTextInput::make('title')->shouldShowFocusOutline())->toBeFalse()
+    expect(FlexTextInput::make('title')->shouldShowFocusOutline())->toBeTrue()
         ->and(FlexTextInput::make('title')->focusOutline()->shouldShowFocusOutline())->toBeTrue()
         ->and(FlexTextInput::make('title')->focusOutline(false)->shouldShowFocusOutline())->toBeFalse();
+});
+
+it('renders has-focus-outline on the flex text input root by default', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-text-input-field.blade.php');
+
+    expect($blade)->toContain("'has-focus-outline' => \$shouldShowFocusOutline()")
+        ->and(FlexTextInput::make('title')->shouldShowFocusOutline())->toBeTrue();
+});
+
+it('applies rounding class on both field wrapper and alpine root', function () {
+    $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-text-input-field.blade.php');
+    $field = FlexTextInput::make('title')->rounding('full');
+
+    expect($field->getWrapperClasses())->toContain('fff-rounding-full')
+        ->and($blade)->toContain("'fff-rounding-'.\$getRounding()");
 });
 
 it('rejects unsupported flex text input variants', function () {
@@ -232,6 +247,15 @@ it('includes emoji picker panel styles via lazy dependency bundle', function () 
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/css/components/flex-text-input.css');
 
     expect($flexTextInputCss)->not->toContain('@import "./emoji-picker.css"');
+});
+
+it('neutralizes filament input wrapper focus ring inside the flex shell', function () {
+    $css = file_get_contents(__DIR__.'/../../resources/css/components/flex-text-input.css');
+
+    expect($css)
+        ->toContain('.fff-flex-text-input__wrapper.fi-input-wrp:focus-within')
+        ->toContain('.fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within')
+        ->toContain('.fff-flex-text-input__input:focus-visible');
 });
 
 it('isolates alpine root from livewire morphing', function () {

@@ -158,3 +158,33 @@ html.dark .fff-flex-fields-assets-skeleton::before,
         opacity: 0;
     }
 }
+
+/*
+ * Anti-FOUC: Filament paints .fi-input-wrp with ring-gray-950/10 before lazy
+ * component CSS arrives — reads as a black flash on reload/focus restore.
+ */
+.fff-flex-text-input .fff-flex-text-input__wrapper.fi-input-wrp,
+.fff-flex-text-input .fff-flex-text-input__wrapper.fi-input-wrp:focus-within,
+.fff-flex-text-input .fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within,
+.fff-phone-field .fff-flex-text-input__wrapper.fi-input-wrp,
+.fff-phone-field .fff-flex-text-input__wrapper.fi-input-wrp:focus-within,
+.fff-phone-field .fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within,
+.fff-social-links .fff-flex-text-input__wrapper.fi-input-wrp,
+.fff-social-links .fff-flex-text-input__wrapper.fi-input-wrp:focus-within,
+.fff-social-links .fff-flex-text-input__wrapper.fi-input-wrp:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+    background-color: transparent !important;
+    border-width: 0 !important;
+    box-shadow: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+}
+
+/* Select chrome lives on .fi-input-wrp — kill only Filament’s ring, not the border. */
+.fi-input-wrp.fff-select-field,
+.fi-input-wrp.fff-select-field:focus-within,
+.fi-input-wrp.fff-select-field:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+    --tw-ring-color: transparent !important;
+    --tw-ring-width: 0px !important;
+}

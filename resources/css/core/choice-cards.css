@@ -132,25 +132,43 @@
         box-shadow 0.22s ease;
 }
 
-.fff-choice-cards__item:hover:not(.is-disabled):not(.is-selected) {
+.fff-choice-cards__item:hover:not(.is-disabled):not(:has(> .fff-choice-cards__input:checked)):not(.is-selected) {
     background: var(--fff-choice-cards-bg-hover);
 }
 
-.fff-choice-cards__item.is-selected {
+.fff-choice-cards__item:has(> .fff-choice-cards__input:checked),
+.fff-choice-cards.is-hydrated .fff-choice-cards__item.is-selected {
     background: var(--fff-choice-cards-bg-selected);
     border-color: var(--primary-500, rgb(59 130 246));
 }
 
-.fff-choice-cards--color-primary .fff-choice-cards__item.is-selected {
-    border-color: var(--primary-500, rgb(59 130 246));
-}
-
-.fff-choice-cards--variant-primary .fff-choice-cards__item.is-selected {
-    border-color: var(--primary-500, rgb(59 130 246));
-}
-
-.fff-choice-cards--indicator-none .fff-choice-cards__item:not(.is-selected) {
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__item.is-selected:not(:has(> .fff-choice-cards__input:checked)) {
+    background: var(--fff-choice-cards-bg);
     border-color: transparent;
+}
+
+.fff-choice-cards--color-primary .fff-choice-cards__item:has(> .fff-choice-cards__input:checked),
+.fff-choice-cards.is-hydrated .fff-choice-cards--color-primary .fff-choice-cards__item.is-selected {
+    border-color: var(--primary-500, rgb(59 130 246));
+}
+
+.fff-choice-cards--variant-primary .fff-choice-cards__item:has(> .fff-choice-cards__input:checked),
+.fff-choice-cards.is-hydrated .fff-choice-cards--variant-primary .fff-choice-cards__item.is-selected {
+    border-color: var(--primary-500, rgb(59 130 246));
+}
+
+.fff-choice-cards--indicator-none .fff-choice-cards__item:not(:has(> .fff-choice-cards__input:checked)):not(.is-selected) {
+    border-color: transparent;
+}
+
+/* Avoid selection pop / color transitions before Alpine hydrates (reload flash). */
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__item,
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__indicator,
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__indicator-dot,
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__indicator-ring,
+.fff-choice-cards:not(.is-hydrated) .fff-choice-cards__indicator-icon {
+    transition: none !important;
+    animation: none !important;
 }
 
 .fff-choice-cards__item.is-disabled {
@@ -171,6 +189,8 @@
     right: var(--fff-choice-cards-indicator-inset);
     width: var(--fff-choice-cards-indicator-size);
     height: var(--fff-choice-cards-indicator-size);
+    /* Decorative only — clicks must hit the label (controlled Alpine state). */
+    pointer-events: none;
 }
 
 .fff-choice-cards__indicator-dot {
@@ -185,7 +205,8 @@
         transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.fff-choice-cards__item.is-selected .fff-choice-cards__indicator-dot {
+.fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator-dot,
+.fff-choice-cards.is-hydrated .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-dot {
     border-color: var(--primary-500, rgb(59 130 246));
     border-width: 0.3125rem;
     transform: scale(1.04);
@@ -211,12 +232,14 @@
         border-color 0.22s ease;
 }
 
-.fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-ring {
+.fff-choice-cards--indicator-check .fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator-ring,
+.fff-choice-cards.is-hydrated .fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-ring {
     opacity: 0;
     transform: scale(0.55);
 }
 
-.fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator {
+.fff-choice-cards--indicator-check .fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator,
+.fff-choice-cards.is-hydrated .fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator {
     color: var(--primary-500, rgb(59 130 246));
 }
 
@@ -233,7 +256,8 @@
         transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-icon {
+.fff-choice-cards--indicator-check .fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator-icon,
+.fff-choice-cards.is-hydrated .fff-choice-cards--indicator-check .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-icon {
     opacity: 1;
     transform: scale(1);
 }
@@ -253,7 +277,8 @@
         transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.fff-choice-cards--indicator-checkbox .fff-choice-cards__item.is-selected .fff-choice-cards__indicator {
+.fff-choice-cards--indicator-checkbox .fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator,
+.fff-choice-cards.is-hydrated .fff-choice-cards--indicator-checkbox .fff-choice-cards__item.is-selected .fff-choice-cards__indicator {
     border-color: var(--primary-500, rgb(59 130 246));
     background: var(--primary-500, rgb(59 130 246));
     color: rgb(255 255 255);
@@ -271,7 +296,8 @@
         transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) 0.04s;
 }
 
-.fff-choice-cards--indicator-checkbox .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-icon {
+.fff-choice-cards--indicator-checkbox .fff-choice-cards__item:has(> .fff-choice-cards__input:checked) .fff-choice-cards__indicator-icon,
+.fff-choice-cards.is-hydrated .fff-choice-cards--indicator-checkbox .fff-choice-cards__item.is-selected .fff-choice-cards__indicator-icon {
     opacity: 1;
     transform: scale(1);
 }
@@ -299,11 +325,12 @@
     box-shadow: none;
 }
 
-.fff-choice-cards--featured.fff-choice-cards--variant-primary .fff-choice-cards__item:hover:not(.is-disabled):not(.is-selected) {
+.fff-choice-cards--featured.fff-choice-cards--variant-primary .fff-choice-cards__item:hover:not(.is-disabled):not(:has(> .fff-choice-cards__input:checked)):not(.is-selected) {
     background: var(--fff-choice-cards-featured-bg-hover);
 }
 
-.fff-choice-cards--featured.fff-choice-cards--variant-primary .fff-choice-cards__item.is-selected {
+.fff-choice-cards--featured.fff-choice-cards--variant-primary .fff-choice-cards__item:has(> .fff-choice-cards__input:checked),
+.fff-choice-cards.is-hydrated .fff-choice-cards--featured.fff-choice-cards--variant-primary .fff-choice-cards__item.is-selected {
     background: var(--fff-choice-cards-featured-bg-selected);
     border-color: var(--primary-500, rgb(59 130 246));
     box-shadow: none;

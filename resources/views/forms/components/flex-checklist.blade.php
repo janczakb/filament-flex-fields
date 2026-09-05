@@ -77,16 +77,17 @@
                     style="display: contents"
                 >
                     <div class="fff-flex-checklist__selection-cell">
-                        <label class="fff-flex-checklist__checkbox" x-on:click.stop="toggle(@js($key))">
+                        {{-- Decorative control only: row click owns toggle (label+stop caused double-toggle). --}}
+                        <div class="fff-flex-checklist__checkbox">
                             <input
                                 type="checkbox"
                                 value="{{ $key }}"
                                 class="fff-flex-checklist__input"
-                                aria-label="{{ __('Select row') }}"
+                                tabindex="-1"
+                                aria-hidden="true"
                                 @checked($isInitiallySelected)
                                 x-bind:checked="isSelected(@js($key))"
                                 x-bind:disabled="disabled || isOptionDisabled(@js($key)) || (! isSelected(@js($key)) && isMaxReached())"
-                                tabindex="-1"
                                 @disabled($isDisabled || $option['disabled'])
                             />
 
@@ -107,7 +108,7 @@
                                     </svg>
                                 </span>
                             </span>
-                        </label>
+                        </div>
                     </div>
 
                     <div class="fff-flex-checklist__content">

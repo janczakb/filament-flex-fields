@@ -80,6 +80,7 @@
             'fff-flex-textarea',
             'fff-flex-textarea--'.$getSize(),
             'fff-flex-textarea--'.$getVariant(),
+            'fff-rounding-'.$getRounding(),
             'is-disabled' => $isDisabled,
             'is-read-only' => $isReadOnly,
             'has-toolbar' => $hasToolbar,

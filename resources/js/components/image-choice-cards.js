@@ -15,12 +15,115 @@ export default function imageChoiceCardsFormComponent({
         maxSelections,
 
         init() {
+            this.syncFromDomIfNeeded()
             this.clearDisabledSelection()
             this.$watch('disabledOptions', () => this.clearDisabledSelection())
+            this.bindImageLoading()
+            this.warmNearbyImages()
 
             this.$nextTick(() => {
                 this.$root.classList.add('is-hydrated')
             })
+        },
+
+        destroy() {
+            this._imageWarmObserver?.disconnect()
+            this._imageWarmObserver = null
+        },
+
+        /**
+         * Soft-reveal remote images once decoded (avoids hard pop over the gray media bg).
+         */
+        bindImageLoading() {
+            const images = this.$root.querySelectorAll('.fff-image-choice-cards__image')
+
+            images.forEach((img) => {
+                const markLoaded = () => img.classList.add('is-loaded')
+
+                if (img.complete && img.naturalWidth > 0) {
+                    markLoaded()
+
+                    return
+                }
+
+                img.addEventListener('load', markLoaded, { once: true })
+                img.addEventListener('error', markLoaded, { once: true })
+            })
+        },
+
+        /**
+         * Safari lazy-loads late; promote nearby images to eager ~1 viewport early
+         * so remote URLs start fetching before the gray card is fully on screen.
+         */
+        warmNearbyImages() {
+            if (typeof IntersectionObserver === 'undefined') {
+                return
+            }
+
+            const images = [...this.$root.querySelectorAll('.fff-image-choice-cards__image[loading="lazy"]')]
+
+            if (images.length === 0) {
+                return
+            }
+
+            this._imageWarmObserver = new IntersectionObserver(
+                (entries) => {
+                    for (const entry of entries) {
+                        if (! entry.isIntersecting) {
+                            continue
+                        }
+
+                        const img = entry.target
+
+                        if (img.getAttribute('loading') === 'lazy') {
+                            img.setAttribute('loading', 'eager')
+                            // Re-assign src so Safari starts the fetch immediately.
+                            const src = img.getAttribute('src')
+
+                            if (src) {
+                                img.src = src
+                            }
+                        }
+
+                        this._imageWarmObserver?.unobserve(img)
+                    }
+                },
+                { root: null, rootMargin: '1200px 0px', threshold: 0.01 },
+            )
+
+            images.forEach((img) => this._imageWarmObserver.observe(img))
+        },
+
+        /**
+         * Honor a native radio/checkbox change that happened before Alpine
+         * finished loading (common first-tap lag on mobile + x-load).
+         */
+        syncFromDomIfNeeded() {
+            const checked = [...this.$root.querySelectorAll('.fff-image-choice-cards__input:checked')]
+                .map((input) => this.normalize(input.value))
+                .filter((value) => value !== null && value !== '')
+
+            if (checked.length === 0) {
+                return
+            }
+
+            if (this.multiple) {
+                const current = this.selectedValues()
+                const same = current.length === checked.length
+                    && checked.every((value) => current.includes(value))
+
+                if (! same) {
+                    this.state = checked
+                }
+
+                return
+            }
+
+            const next = checked[0]
+
+            if (this.normalize(this.state) !== next) {
+                this.state = next
+            }
         },
 
         normalize(value) {
@@ -121,15 +224,23 @@ export default function imageChoiceCardsFormComponent({
                 return
             }
 
+            // Touch devices already give press feedback; skip DOM work on scroll/tap.
+            if (event.pointerType === 'touch' || window.matchMedia('(pointer: coarse)').matches) {
+                return
+            }
+
             const card = event.currentTarget
             const circle = document.createElement('span')
             const diameter = Math.max(card.clientWidth, card.clientHeight)
+            const rect = card.getBoundingClientRect()
+            const x = (event.clientX ?? (rect.left + rect.width / 2)) - rect.left
+            const y = (event.clientY ?? (rect.top + rect.height / 2)) - rect.top
 
             circle.className = 'fff-image-choice-cards__ripple'
             circle.style.width = `${diameter}px`
             circle.style.height = `${diameter}px`
-            circle.style.left = `${event.offsetX - (diameter / 2)}px`
-            circle.style.top = `${event.offsetY - (diameter / 2)}px`
+            circle.style.left = `${x - (diameter / 2)}px`
+            circle.style.top = `${y - (diameter / 2)}px`
 
             card.appendChild(circle)
 

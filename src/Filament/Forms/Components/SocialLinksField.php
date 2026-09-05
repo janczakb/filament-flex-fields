@@ -392,7 +392,13 @@ class SocialLinksField extends Field
             'fff-flex-text-input--'.$this->getSize() => true,
             'fff-social-links-field--'.$this->getVariant() => true,
             'fff-flex-text-input--'.$this->getVariant() => true,
+            'fff-rounding-'.$this->getRounding() => true,
             'fff-social-links-field--reorderable' => $this->isReorderable(),
         ];
+    }
+
+    protected function defaultFocusOutline(): bool
+    {
+        return true;
     }
 }

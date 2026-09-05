@@ -85,15 +85,11 @@ final class PlaygroundCodeSnippet
     {
         $placeholders = [];
 
-        $store = function (string $html) use (&$placeholders): string {
-            $token = '___FFF_TK_'.count($placeholders).'___';
-            $placeholders[$token] = $html;
-
-            return $token;
-        };
-
-        $wrap = function (string $class, string $raw) use ($store): string {
-            return $store('<span class="'.$class.'">'.e($raw).'</span>');
+        $wrap = function (string $class, string $raw) use (&$placeholders): string {
+            return self::pushPlaceholder(
+                $placeholders,
+                '<span class="'.$class.'">'.e($raw).'</span>',
+            );
         };
 
         $withPlaceholders = preg_replace_callback(
@@ -126,8 +122,9 @@ final class PlaygroundCodeSnippet
             return e($code);
         }
 
+        // Negative lookbehind: Filament fluent uses ->default() / ::default — not PHP `default:`.
         $withPlaceholders = preg_replace_callback(
-            '/\b(use|namespace|class|function|return|new|static|public|private|protected|fn|match|true|false|null|echo|array|string|int|float|bool|void|mixed|self|parent|const|if|else|elseif|foreach|for|while|try|catch|throw|extends|implements|as|default|case|break|continue|clone|instanceof|yield|finally|readonly|enum)\b/',
+            '/(?<!->)(?<!::)\b(use|namespace|class|function|return|new|static|public|private|protected|fn|match|true|false|null|echo|array|string|int|float|bool|void|mixed|self|parent|const|if|else|elseif|foreach|for|while|try|catch|throw|extends|implements|as|default|case|break|continue|clone|instanceof|yield|finally|readonly|enum)\b/',
             fn (array $m): string => $wrap('fff-token-keyword', $m[0]),
             $withPlaceholders,
         );
@@ -176,22 +173,18 @@ final class PlaygroundCodeSnippet
             return e($code);
         }
 
-        return str_replace(array_keys($placeholders), array_values($placeholders), e($withPlaceholders));
+        return self::restorePlaceholders($placeholders, e($withPlaceholders));
     }
 
     public static function highlightJson(string $code): string
     {
         $placeholders = [];
 
-        $store = function (string $html) use (&$placeholders): string {
-            $token = '___FFF_TK_'.count($placeholders).'___';
-            $placeholders[$token] = $html;
-
-            return $token;
-        };
-
-        $wrap = function (string $class, string $raw) use ($store): string {
-            return $store('<span class="'.$class.'">'.e($raw).'</span>');
+        $wrap = function (string $class, string $raw) use (&$placeholders): string {
+            return self::pushPlaceholder(
+                $placeholders,
+                '<span class="'.$class.'">'.e($raw).'</span>',
+            );
         };
 
         $withPlaceholders = preg_replace_callback(
@@ -234,7 +227,41 @@ final class PlaygroundCodeSnippet
             return e($code);
         }
 
-        return str_replace(array_keys($placeholders), array_values($placeholders), e($withPlaceholders));
+        return self::restorePlaceholders($placeholders, e($withPlaceholders));
+    }
+
+    /**
+     * @param  array<string, string>  $placeholders
+     */
+    private static function pushPlaceholder(array &$placeholders, string $html): string
+    {
+        // Lowercase + unlikely in PHP; avoids class/keyword/number regex re-matching tokens.
+        $token = '§ph'.count($placeholders).'§';
+        $placeholders[$token] = $html;
+
+        return $token;
+    }
+
+    /**
+     * @param  array<string, string>  $placeholders
+     */
+    private static function restorePlaceholders(array $placeholders, string $escaped): string
+    {
+        if ($placeholders === []) {
+            return $escaped;
+        }
+
+        // Longest keys first so §ph1§ cannot eat the prefix of §ph10§.
+        $keys = array_keys($placeholders);
+        usort($keys, static fn (string $a, string $b): int => strlen($b) <=> strlen($a));
+
+        $values = [];
+
+        foreach ($keys as $key) {
+            $values[] = $placeholders[$key];
+        }
+
+        return str_replace($keys, $values, $escaped);
     }
 
     private static function normalizeCode(string $code): string
@@ -270,24 +297,37 @@ final class PlaygroundCodeSnippet
     }
 
     /**
-     * Starter snippet for hubs that do not ship a hand-written example block.
+     * Usage snippet for hubs that do not ship a hand-written example block.
+     * Builds real Field fluent PHP from the playground's live components().
      */
     public static function forHub(string $slug, string $playgroundClass): View
     {
-        $playgroundClass = str_replace('\\', '\\\\', $playgroundClass);
+        $code = null;
 
-        return self::make(<<<PHP
-// Playground hub: {$slug}
-// See {$playgroundClass} for the full demo schema.
+        if (class_exists($playgroundClass)) {
+            try {
+                $playground = app($playgroundClass);
 
-use Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry;
+                if (is_object($playground) && method_exists($playground, 'components')) {
+                    /** @var list<Component> $components */
+                    $components = $playground->components();
+                    $code = PlaygroundUsageExporter::fromComponents($components, $slug);
+                }
+            } catch (\Throwable) {
+                $code = null;
+            }
+        }
 
-\$definition = FlexFieldsPlaygroundRegistry::find('{$slug}');
-\$playground = app(\$definition['playground']);
+        if (! is_string($code) || trim($code) === '') {
+            $short = class_exists($playgroundClass) ? class_basename($playgroundClass) : 'Component';
 
-// Reuse the same components() array rendered on this page:
-\$components = \$playground->components();
-PHP, filename: "{$slug}-usage.php");
+            $code = <<<PHP
+// Open the {$slug} playground hub for live demos.
+// Add a PlaygroundCodeSnippet::make(...) block in {$short} for a custom example.
+PHP;
+        }
+
+        return self::make($code, filename: 'usage.php');
     }
 
     /**

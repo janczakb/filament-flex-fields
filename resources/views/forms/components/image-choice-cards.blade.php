@@ -107,8 +107,15 @@
                             class="fff-image-choice-cards__image"
                             src="{{ $option['image'] }}"
                             alt="{{ $option['alt'] }}"
-                            loading="lazy"
+                            @if ($loop->index < 6)
+                                loading="eager"
+                                fetchpriority="{{ $loop->index < 2 ? 'high' : 'auto' }}"
+                            @else
+                                loading="lazy"
+                            @endif
                             decoding="async"
+                            onload="this.classList.add('is-loaded')"
+                            onerror="this.classList.add('is-loaded')"
                         />
                     @else
                         <span class="fff-image-choice-cards__placeholder">

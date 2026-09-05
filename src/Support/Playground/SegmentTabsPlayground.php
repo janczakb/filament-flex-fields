@@ -85,6 +85,43 @@ class SegmentTabsPlayground
         return [
             PlaygroundRelatedHubs::view('segment-tabs'),
             $this->section(),
+            PlaygroundCodeSnippet::make(<<<'PHP'
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
+use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
+use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
+use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+
+SegmentTabs::make('Account')
+    ->tabs([
+        SegmentTab::make('General')
+            ->icon(GravityIcon::Person)
+            ->schema([
+                FlexTextInput::make('name')->label('Name'),
+                FlexTextInput::make('email')->label('Email'),
+            ]),
+        SegmentTab::make('Advanced')
+            ->icon(GravityIcon::Gear)
+            ->schema([
+                FlexTextInput::make('api_key')->label('API key'),
+                FlexTextInput::make('webhook')->label('Webhook URL'),
+            ]),
+    ]);
+
+SegmentTabs::make('Profile')
+    ->variant('ghost')
+    ->separators(false)
+    ->fullWidth()
+    ->tabs([
+        SegmentTab::make('Details')
+            ->schema([
+                FlexTextInput::make('display_name')->label('Display name'),
+            ]),
+        SegmentTab::make('Bio')
+            ->schema([
+                FlexTextInput::make('bio')->label('Short bio'),
+            ]),
+    ]);
+PHP, filename: 'segment-tabs.php'),
         ];
     }
 }

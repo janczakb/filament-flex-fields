@@ -85,6 +85,11 @@ class FlexTextInput extends TextInput
         $this->inlineSuffix();
     }
 
+    protected function defaultFocusOutline(): bool
+    {
+        return true;
+    }
+
     public function prefix(string|Htmlable|Closure|null $label, bool|Closure $isInline = true): static
     {
         return parent::prefix($label, $isInline);

@@ -51,7 +51,7 @@ class FocusOutlinePlayground
 
         return [
             Section::make('Focus outline')
-                ->description('Tab or click into each field — a blue ring appears around the shell. Enable with ->focusOutline() on Flex Text Input, Textarea, Select, Phone, and Credit Card (on by default for credit card).')
+                ->description('Tab or click into each field — a blue ring appears around the shell. Flex Text Input / Textarea enable this by default; use ->focusOutline() on Select, Phone, and Credit Card (on by default for credit card).')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Grid::make(['default' => 1, 'lg' => 2])

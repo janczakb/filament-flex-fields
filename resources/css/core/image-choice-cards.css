@@ -148,6 +148,20 @@
     mask-image: linear-gradient(transparent, black 50%);
 }
 
+/* Coarse pointers: skip expensive backdrop blur during scroll (iOS lag). */
+@media (hover: none), (pointer: coarse) {
+    .fff-image-choice-cards--overlay .fff-image-choice-cards__item::after {
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        background: linear-gradient(
+            transparent,
+            color-mix(in srgb, var(--fff-image-choice-cards-bg) 72%, transparent)
+        );
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+}
+
 .fff-image-choice-cards--overlay .fff-image-choice-cards__footer {
     @apply absolute z-10;
     inset-inline: var(--fff-image-choice-cards-footer-inset);
@@ -171,12 +185,25 @@
     object-fit: var(--fff-image-choice-cards-fit, cover);
     transform: scale(1);
     transform-origin: center center;
-    transition: transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    will-change: transform;
+    opacity: 0;
+    transition: opacity 0.22s ease;
 }
 
-.fff-image-choice-cards__item:hover:not(.is-disabled) .fff-image-choice-cards__image {
-    transform: scale(var(--fff-image-choice-cards-image-scale));
+.fff-image-choice-cards__image.is-loaded {
+    opacity: 1;
+}
+
+/* Hover zoom only on fine pointers — permanent will-change caused mobile scroll jank. */
+@media (hover: hover) and (pointer: fine) {
+    .fff-image-choice-cards__image {
+        transition:
+            opacity 0.22s ease,
+            transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .fff-image-choice-cards__item:hover:not(.is-disabled) .fff-image-choice-cards__image {
+        transform: scale(var(--fff-image-choice-cards-image-scale));
+    }
 }
 
 .fff-image-choice-cards__placeholder {
@@ -206,9 +233,20 @@
         color 0.22s ease;
 }
 
-.fff-image-choice-cards__item.is-selected .fff-image-choice-cards__footer {
+/*
+ * Prefer :has(:checked) so native radio/checkbox taps paint instantly before Alpine
+ * finishes x-load (first-tap lag on iOS). .is-selected stays as a hydrate fallback.
+ */
+.fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__footer,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__footer {
     background: var(--fff-image-choice-cards-footer-bg-selected);
     color: var(--fff-image-choice-cards-footer-fg-selected);
+}
+
+/* Before hydrate, ignore SSR .is-selected if the native input is no longer checked. */
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__footer {
+    background: var(--fff-image-choice-cards-footer-bg);
+    color: var(--fff-image-choice-cards-footer-fg);
 }
 
 /* Avoid selection pop / color transitions before Alpine hydrates (reload flash). */
@@ -221,10 +259,12 @@
     animation: none !important;
 }
 
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-ring,
 .fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-ring {
     transform: none;
 }
 
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-icon,
 .fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-icon {
     transform: none;
 }
@@ -250,10 +290,17 @@
         transform 0.2s ease;
 }
 
-.fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-ring {
+.fff-image-choice-cards--indicator-check .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-ring,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-ring {
     border-color: var(--primary-600, rgb(37 99 235));
     background: var(--primary-600, rgb(37 99 235));
     transform: scale(1.05);
+}
+
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__indicator-ring {
+    border-color: color-mix(in srgb, currentColor 55%, transparent);
+    background: transparent;
+    transform: none;
 }
 
 .fff-image-choice-cards--indicator-check .fff-image-choice-cards__indicator-icon {
@@ -267,9 +314,15 @@
     transform: scale(0.6);
 }
 
-.fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-icon {
+.fff-image-choice-cards--indicator-check .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-icon,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-icon {
     @apply text-white opacity-100;
     transform: scale(1);
+}
+
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-check .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__indicator-icon {
+    @apply text-transparent opacity-0;
+    transform: none;
 }
 
 .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__indicator {
@@ -282,10 +335,17 @@
         transform 0.2s ease;
 }
 
-.fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator {
+.fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator {
     border-color: var(--primary-600, rgb(37 99 235));
     background: var(--primary-600, rgb(37 99 235));
     animation: fff-image-choice-cards-indicator-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__indicator {
+    border-color: color-mix(in srgb, currentColor 55%, transparent);
+    background: transparent;
+    animation: none;
 }
 
 .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__indicator-icon {
@@ -295,8 +355,13 @@
     transition: opacity 0.15s ease, color 0.15s ease;
 }
 
-.fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-icon {
+.fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-icon,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-icon {
     @apply text-white opacity-100;
+}
+
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__indicator-icon {
+    @apply text-transparent opacity-0;
 }
 
 .fff-image-choice-cards--indicator-radio .fff-image-choice-cards__indicator-dot {
@@ -307,9 +372,15 @@
         box-shadow 0.2s ease;
 }
 
-.fff-image-choice-cards--indicator-radio .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-dot {
+.fff-image-choice-cards--indicator-radio .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator-dot,
+.fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-radio .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator-dot {
     border-color: var(--primary-600, rgb(37 99 235));
     box-shadow: inset 0 0 0 0.25rem var(--primary-600, rgb(37 99 235));
+}
+
+.fff-image-choice-cards:not(.is-hydrated) .fff-image-choice-cards--indicator-radio .fff-image-choice-cards__item.is-selected:not(:has(> .fff-image-choice-cards__input:checked)) .fff-image-choice-cards__indicator-dot {
+    border-color: color-mix(in srgb, currentColor 55%, transparent);
+    box-shadow: none;
 }
 
 .fff-image-choice-cards__ripple {
@@ -341,18 +412,28 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .fff-image-choice-cards__image {
+        opacity: 1 !important;
+        transition: none !important;
+        animation: none !important;
+    }
+
     .fff-image-choice-cards__item,
     .fff-image-choice-cards__indicator,
     .fff-image-choice-cards__indicator-ring,
     .fff-image-choice-cards__indicator-icon,
     .fff-image-choice-cards__indicator-dot,
-    .fff-image-choice-cards__footer,
-    .fff-image-choice-cards__image {
+    .fff-image-choice-cards__footer {
         transition: none !important;
         animation: none !important;
     }
 
     .fff-image-choice-cards__item:hover:not(.is-disabled) .fff-image-choice-cards__image {
         transform: none;
+    }
+
+    .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item:has(> .fff-image-choice-cards__input:checked) .fff-image-choice-cards__indicator,
+    .fff-image-choice-cards.is-hydrated .fff-image-choice-cards--indicator-checkbox .fff-image-choice-cards__item.is-selected .fff-image-choice-cards__indicator {
+        animation: none !important;
     }
 }

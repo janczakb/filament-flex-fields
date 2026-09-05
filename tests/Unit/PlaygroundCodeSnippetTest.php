@@ -48,6 +48,19 @@ PHP);
         ->and($html)->toContain('-&gt;<span class="fff-token-method">label</span>');
 });
 
+it('highlights ->default as a method not a leftover placeholder', function (): void {
+    $html = PlaygroundCodeSnippet::highlightPhp(<<<'PHP'
+ColorSwatchField::make('color')->default('green');
+PHP);
+
+    expect($html)
+        ->toContain('<span class="fff-token-method">default</span>')
+        ->toContain('<span class="fff-token-string">&#039;green&#039;</span>')
+        ->not->toContain('FFF_TK_')
+        ->not->toContain('§ph')
+        ->not->toContain('fff-token-keyword">default');
+});
+
 it('highlights json properties strings and literals', function (): void {
     $html = PlaygroundCodeSnippet::highlightJson(<<<'JSON'
 {"slug": "vat", "enabled": true, "rate": 23}
