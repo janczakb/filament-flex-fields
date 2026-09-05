@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-05T04:37:01.548Z",
+  "generatedAt": "2026-09-05T07:15:56.644Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 1168,
@@ -731,7 +731,7 @@
     "currency-field.js": {
       "bytes": 16767,
       "kb": 16.37,
-      "gzipKb": 4.7
+      "gzipKb": 4.69
     },
     "dual-listbox.js": {
       "bytes": 15662,
@@ -788,7 +788,7 @@
       "kb": 4.22,
       "gzipKb": 1.83
     },
-    "flex-fields-components-flex-time-segments-5FKBWC5R.js": {
+    "flex-fields-components-flex-time-segments-CR2HYMWB.js": {
       "bytes": 6579,
       "kb": 6.42,
       "gzipKb": 2.01
@@ -848,7 +848,7 @@
       "kb": 0.47,
       "gzipKb": 0.27
     },
-    "flex-fields-mapbox-MGYJ6V4B.js": {
+    "flex-fields-mapbox-OZKDUQ5K.js": {
       "bytes": 15833,
       "kb": 15.46,
       "gzipKb": 4.67
@@ -893,10 +893,10 @@
       "kb": 0.12,
       "gzipKb": 0.13
     },
-    "flex-fields-select-menu-XUASOJGX.js": {
-      "bytes": 36614,
-      "kb": 35.76,
-      "gzipKb": 9.44
+    "flex-fields-select-menu-XIGFEHNU.js": {
+      "bytes": 38337,
+      "kb": 37.44,
+      "gzipKb": 9.8
     },
     "flex-fields-shared-CEWOLNQU.js": {
       "bytes": 38338,
@@ -923,7 +923,7 @@
       "kb": 1.32,
       "gzipKb": 0.57
     },
-    "flex-fields-timezone-picker-mixin-4YNB7HEN.js": {
+    "flex-fields-timezone-picker-mixin-IV4FXOEU.js": {
       "bytes": 3527,
       "kb": 3.44,
       "gzipKb": 1.31
@@ -1016,7 +1016,7 @@
     "phone-field.js": {
       "bytes": 6357,
       "kb": 6.21,
-      "gzipKb": 1.97
+      "gzipKb": 1.96
     },
     "price-range.js": {
       "bytes": 4451,
@@ -1066,7 +1066,7 @@
     "social-links-field.js": {
       "bytes": 9882,
       "kb": 9.65,
-      "gzipKb": 3.09
+      "gzipKb": 3.08
     },
     "tags-field.js": {
       "bytes": 6196,

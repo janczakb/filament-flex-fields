@@ -3,6 +3,7 @@ import { recordOverlayOpenLatency } from './overlay-telemetry-p95.js'
 import { resolveTeleportedMenuHorizontalLeft, resolveTeleportedMenuVerticalPlacement } from './teleported-menu-position.js'
 import { prefersReducedMotion, resolveTeleportedMenuZIndex } from './theme-utils.js'
 import { fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
+import { OVERLAY_SHEET_PANEL_Z_INDEX } from './overlay-backdrop.js'
 
 const OVERFLOW_SCROLL_RE = /(auto|scroll|overlay)/
 const VIEWPORT_PADDING = 16
@@ -232,7 +233,10 @@ export function createOverlayRuntime({ document, window }) {
         panel.dataset.fffOverlayId = id
         panel.dataset.fffOverlaySheet = 'true'
         panel.style.position = 'fixed'
-        panel.style.zIndex = resolveTeleportedMenuZIndex()
+        panel.style.zIndex = String(OVERLAY_SHEET_PANEL_Z_INDEX)
+        if (typeof panel.style?.setProperty === 'function') {
+            panel.style.setProperty('z-index', String(OVERLAY_SHEET_PANEL_Z_INDEX), 'important')
+        }
         panel.style.removeProperty('margin-top')
 
         // Pin full viewport width before measure/fit — never inherit panel trigger width.

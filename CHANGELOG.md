@@ -5,6 +5,13 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.3] - 2026-09-05
+
+### Fixed
+
+- **Mobile overlay sheets (PhoneField, SelectField, UserSelect, and other searchable pickers)** — first open no longer paints the bottom drawer under the dimmer: backdrop uses a fixed `z-index` below the sheet and is inserted before the panel in the DOM.
+- **Sheet drag-to-dismiss** — pulling the handle down animates with `translateY` (matching CSS `transform: … !important` on `.is-open`) instead of shrinking height, so the close gesture no longer jumps or skips the exit animation.
+
 ## [3.1.2] - 2026-09-05
 
 ### New

@@ -41,13 +41,6 @@ export function resolveOverlaySheetExpandedHeight(win = globalThis.window) {
 }
 
 /**
- * Size the sheet to its content, capped at the peek max. Returns fitted height.
- *
- * @param {HTMLElement} panel
- * @param {Window} [win]
- * @returns {{ fitted: number, cap: number, canExpand: boolean }}
- */
-/**
  * @param {HTMLElement} panel
  * @param {string} property
  * @param {string} value
@@ -56,6 +49,31 @@ function setSheetStyle(panel, property, value) {
     panel.style.setProperty(property, value, 'important')
 }
 
+/**
+ * Sheet CSS uses transform !important on .is-open — drag/dismiss must match.
+ *
+ * @param {HTMLElement} panel
+ * @param {string} value
+ */
+function setSheetTransform(panel, value) {
+    if (typeof panel.style?.setProperty === 'function') {
+        panel.style.setProperty('transform', value, 'important')
+
+        return
+    }
+
+    if (panel.style) {
+        panel.style.transform = value
+    }
+}
+
+/**
+ * Size the sheet to its content, capped at the peek max. Returns fitted height.
+ *
+ * @param {HTMLElement} panel
+ * @param {Window} [win]
+ * @returns {{ fitted: number, cap: number, canExpand: boolean }}
+ */
 export function fitOverlaySheetToContent(panel, win = globalThis.window) {
     const cap = resolveOverlaySheetPeekHeight(win)
     const minHeight = resolveOverlaySheetMinHeight(win)
@@ -267,6 +285,9 @@ export function resolveOverlaySheetSnap(input) {
 /**
  * Bottom-sheet drag: pull down to dismiss / collapse, pull up to expand when content overflows.
  *
+ * Downward dismiss uses translateY (not height shrink) so exit never jumps when
+ * CSS `transform: … !important` on `.is-open` is overridden for the slide-away.
+ *
  * @param {{
  *   panel: HTMLElement,
  *   onDismiss: () => void,
@@ -288,6 +309,7 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
     let dragActive = false
     let pointerId = null
     let startHeight = 0
+    let dragOffsetY = 0
 
     const peekHeight = () => {
         const fitted = Number.parseInt(panel.dataset.fffSheetFittedHeight || '', 10)
@@ -301,8 +323,13 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
     const expandedHeight = () => resolveOverlaySheetExpandedHeight(win)
 
     const clearInlineMotion = () => {
-        panel.style.transition = ''
-        panel.style.transform = ''
+        if (typeof panel.style?.removeProperty === 'function') {
+            panel.style.removeProperty('transition')
+            panel.style.removeProperty('transform')
+        } else if (panel.style) {
+            panel.style.transition = ''
+            panel.style.transform = ''
+        }
     }
 
     const applySnapHeight = (snap, { animate = true } = {}) => {
@@ -314,8 +341,13 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
         panel.style.setProperty('--fff-overlay-sheet-max-height', `${height}px`)
 
         if (animate) {
-            panel.style.transition = SNAP_EASE
-            panel.style.transform = 'translate3d(0, 0, 0)'
+            if (typeof panel.style?.setProperty === 'function') {
+                panel.style.setProperty('transition', SNAP_EASE, 'important')
+            } else if (panel.style) {
+                panel.style.transition = SNAP_EASE
+            }
+
+            setSheetTransform(panel, 'translate3d(0, 0, 0)')
         }
     }
 
@@ -373,8 +405,15 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
         lastY = event.clientY
         lastTs = event.timeStamp
         velocityY = 0
+        dragOffsetY = 0
         startHeight = panel.getBoundingClientRect().height || peekHeight()
-        panel.style.transition = 'none'
+
+        if (typeof panel.style?.setProperty === 'function') {
+            panel.style.setProperty('transition', 'none', 'important')
+        } else if (panel.style) {
+            panel.style.transition = 'none'
+        }
+
         panel.setPointerCapture?.(event.pointerId)
     }
 
@@ -404,19 +443,37 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
         let deltaY = rawDelta
 
         if (! wasExpanded && ! canExpand) {
+            // Content-sized sheet: only pull down (dismiss). Keep height stable.
             deltaY = Math.max(0, rawDelta)
-        } else if (! wasExpanded && canExpand) {
+            dragOffsetY = deltaY
+            setSheetTransform(panel, `translate3d(0, ${deltaY}px, 0)`)
+
+            return
+        }
+
+        if (! wasExpanded && canExpand) {
             const maxUp = expandedHeight() - startHeight
             deltaY = Math.min(Math.max(rawDelta, -maxUp), startHeight)
         } else {
             deltaY = Math.min(Math.max(rawDelta, -(expandedHeight() - startHeight)), startHeight)
         }
 
-        const nextHeight = Math.max(0, startHeight - deltaY)
+        if (deltaY > 0) {
+            // Pulling down: translate the sheet (matches exit animation).
+            dragOffsetY = deltaY
+            setSheetStyle(panel, 'height', `${startHeight}px`)
+            setSheetStyle(panel, 'max-height', `${startHeight}px`)
+            setSheetTransform(panel, `translate3d(0, ${deltaY}px, 0)`)
 
+            return
+        }
+
+        // Pulling up: grow height toward expanded; keep transform at rest.
+        dragOffsetY = 0
+        const nextHeight = Math.max(0, startHeight - deltaY)
         setSheetStyle(panel, 'height', `${nextHeight}px`)
         setSheetStyle(panel, 'max-height', `${nextHeight}px`)
-        panel.style.transform = 'translate3d(0, 0, 0)'
+        setSheetTransform(panel, 'translate3d(0, 0, 0)')
     }
 
     const handlePointerUp = (event) => {
@@ -452,20 +509,56 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
         })
 
         if (snap === 'dismiss') {
+            const from = Math.max(dragOffsetY, deltaY, 0)
+            const to = Math.max(peek, startHeight, from + 24)
+
+            // Pin the live drag offset before flipping classes — otherwise
+            // `.is-dismissing { transform: 100% }` jumps from the finger.
+            setSheetTransform(panel, `translate3d(0, ${from}px, 0)`)
             panel.classList.add('is-dismissing')
-            panel.style.transition = EXIT_EASE
-            panel.style.transform = `translate3d(0, ${Math.max(peek, startHeight)}px, 0)`
-            onDismiss()
-            win.setTimeout(() => {
+            panel.classList.remove('is-open')
+            void panel.offsetWidth
+
+            if (typeof panel.style?.setProperty === 'function') {
+                panel.style.setProperty('transition', EXIT_EASE, 'important')
+            } else if (panel.style) {
+                panel.style.transition = EXIT_EASE
+            }
+
+            setSheetTransform(panel, `translate3d(0, ${to}px, 0)`)
+
+            let settled = false
+            const finish = () => {
+                if (settled) {
+                    return
+                }
+
+                settled = true
                 panel.classList.remove('is-dismissing')
                 clearInlineMotion()
-                panel.style.height = ''
-                panel.style.maxHeight = ''
-            }, EXIT_MS)
+                onDismiss()
+            }
+
+            const onEnd = (transitionEvent) => {
+                if (transitionEvent.target !== panel) {
+                    return
+                }
+
+                if (transitionEvent.propertyName && transitionEvent.propertyName !== 'transform') {
+                    return
+                }
+
+                panel.removeEventListener('transitionend', onEnd)
+                finish()
+            }
+
+            panel.addEventListener('transitionend', onEnd)
+            win.setTimeout(finish, EXIT_MS + 40)
 
             return
         }
 
+        dragOffsetY = 0
         applySnapHeight(snap, { animate: true })
         onCancel?.()
     }

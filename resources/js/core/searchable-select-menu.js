@@ -7,7 +7,12 @@
  * dropdowns (emoji / color / date / etc.) that are not overlay claims.
  */
 import { wireExclusiveFlexDropdown } from './flex-dropdown-coordinator.js'
-import { createOverlayBackdrop, removeOverlayBackdrop } from './overlay-backdrop.js'
+import {
+    createOverlayBackdrop,
+    OVERLAY_SHEET_BACKDROP_Z_INDEX,
+    OVERLAY_SHEET_PANEL_Z_INDEX,
+    removeOverlayBackdrop,
+} from './overlay-backdrop.js'
 import { resolveOverlayMode } from './overlay-mode.js'
 import { bindOverlaySheetDismiss, fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
 import { lockOverlaySheetScroll, unlockOverlaySheetScroll } from './overlay-sheet-scroll-lock.js'
@@ -876,7 +881,8 @@ export function createSearchableSelectMenuMixin({
 
                     if (desiredMode === 'sheet') {
                         menu.style.position = 'fixed'
-                        menu.style.zIndex = resolveTeleportedMenuZIndex()
+                        menu.style.zIndex = String(OVERLAY_SHEET_PANEL_Z_INDEX)
+                        menu.style.setProperty('z-index', String(OVERLAY_SHEET_PANEL_Z_INDEX), 'important')
                         menu.style.setProperty('left', '0', 'important')
                         menu.style.setProperty('right', '0', 'important')
                         menu.style.setProperty('inset-inline', '0', 'important')
@@ -928,7 +934,8 @@ export function createSearchableSelectMenuMixin({
 
             if (overlayMode === 'sheet') {
                 menu.style.position = 'fixed'
-                menu.style.zIndex = resolveTeleportedMenuZIndex()
+                menu.style.zIndex = String(OVERLAY_SHEET_PANEL_Z_INDEX)
+                menu.style.setProperty('z-index', String(OVERLAY_SHEET_PANEL_Z_INDEX), 'important')
                 menu.style.setProperty('left', '0', 'important')
                 menu.style.setProperty('right', '0', 'important')
                 menu.style.setProperty('inset-inline', '0', 'important')
@@ -1076,10 +1083,17 @@ export function createSearchableSelectMenuMixin({
                 }
 
                 if (panel) {
-                    const zIndex = Number.parseInt(window.getComputedStyle?.(panel)?.zIndex, 10) || 50
+                    // Numeric z-index — CSS var strings + first-paint "auto" used to put
+                    // the dimmer above the sheet on the first mobile open.
+                    if (typeof panel.style?.setProperty === 'function') {
+                        panel.style.setProperty('z-index', String(OVERLAY_SHEET_PANEL_Z_INDEX), 'important')
+                    } else if (panel.style) {
+                        panel.style.zIndex = String(OVERLAY_SHEET_PANEL_Z_INDEX)
+                    }
 
                     createOverlayBackdrop(document, overlayId, {
-                        zIndex: zIndex - 1,
+                        zIndex: OVERLAY_SHEET_BACKDROP_Z_INDEX,
+                        beforeElement: panel,
                         onDismiss: () => {
                             if (this.__fffOverlayMode === 'sheet' || menuIsSheet(this.resolveMenuElement())) {
                                 this.closeTeleportedMenu()
@@ -1109,12 +1123,11 @@ export function createSearchableSelectMenuMixin({
                                     return
                                 }
 
+                                // Exit transform already finished in bindOverlaySheetDismiss.
                                 this.__fffSheetClosing = true
                                 removeOverlayBackdrop(document, overlayId)
-                                window.setTimeout(() => {
-                                    this.__fffSheetClosing = false
-                                    this[openKey] = false
-                                }, 240)
+                                this.__fffSheetClosing = false
+                                this[openKey] = false
                             },
                         })
                     }

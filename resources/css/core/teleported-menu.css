@@ -245,9 +245,11 @@
     transform: translate3d(0, 0, 0) !important;
 }
 
-.fff-teleported-menu.fff-teleported-menu--sheet.is-closing {
+.fff-teleported-menu.fff-teleported-menu--sheet.is-closing,
+.fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing {
     opacity: 1 !important;
     pointer-events: none;
+    /* Inline transform !important (drag) beats this; playSheetExit clears inline and uses this. */
     transform: translate3d(0, 100%, 0) !important;
     transition-duration: var(--fff-overlay-sheet-exit-duration) !important;
     transition-timing-function: var(--fff-overlay-sheet-ease) !important;
@@ -256,7 +258,8 @@
 @media (prefers-reduced-motion: reduce) {
     .fff-teleported-menu.fff-teleported-menu--sheet,
     .fff-teleported-menu.fff-teleported-menu--sheet.is-open,
-    .fff-teleported-menu.fff-teleported-menu--sheet.is-closing {
+    .fff-teleported-menu.fff-teleported-menu--sheet.is-closing,
+    .fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing {
         transition-duration: 0.01ms !important;
         transform: none !important;
     }

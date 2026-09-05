@@ -119,6 +119,7 @@ html.fff-overlay-sheet-open .fff-overlay-sheet__handle * {
 .fff-overlay-backdrop {
     position: fixed;
     inset: 0;
+    z-index: 50;
     background: rgb(0 0 0 / 0.35);
     opacity: 0;
     pointer-events: none;

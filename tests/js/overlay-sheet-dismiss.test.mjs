@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import {
+    bindOverlaySheetDismiss,
     fitOverlaySheetToContent,
     overlaySheetCanExpand,
     OVERLAY_SHEET_MIN_HEIGHT_PX,
@@ -199,5 +200,116 @@ describe('overlay-sheet-dismiss', () => {
             canExpand: false,
             wasExpanded: false,
         }), 'dismiss')
+    })
+
+    it('drag-dismiss continues from the pull offset with transform !important', () => {
+        globalThis.Element = class Element {}
+
+        const classList = new Set(['is-open', 'fff-overlay-sheet'])
+        const styleProps = {}
+        const listeners = {}
+        const panel = {
+            style: {
+                setProperty(name, value, priority) {
+                    styleProps[name] = { value, priority }
+                    this[name] = value
+                },
+                removeProperty(name) {
+                    delete styleProps[name]
+                    this[name] = ''
+                },
+                transition: '',
+                transform: '',
+                height: '400px',
+            },
+            dataset: {
+                fffSheetFittedHeight: '400',
+                fffOverlaySnap: 'content',
+            },
+            classList: {
+                add: (token) => classList.add(token),
+                remove: (token) => classList.delete(token),
+                contains: (token) => classList.has(token),
+            },
+            getBoundingClientRect: () => ({ height: 400 }),
+            querySelectorAll: () => [],
+            addEventListener(type, handler) {
+                if (! listeners[type]) {
+                    listeners[type] = []
+                }
+
+                listeners[type].push(handler)
+            },
+            removeEventListener(type, handler) {
+                listeners[type] = (listeners[type] || []).filter((entry) => entry !== handler)
+            },
+            setPointerCapture() {},
+            releasePointerCapture() {},
+            offsetWidth: 1,
+        }
+
+        let dismissed = 0
+        const win = {
+            innerHeight: 800,
+            setTimeout() {
+                return 1
+            },
+        }
+
+        const cleanup = bindOverlaySheetDismiss({
+            panel,
+            onDismiss: () => {
+                dismissed += 1
+            },
+            window: win,
+        })
+
+        const handle = new Element()
+        handle.closest = (sel) => (String(sel).includes('handle') ? handle : null)
+
+        const fire = (type, event) => {
+            for (const handler of listeners[type] || []) {
+                handler(event)
+            }
+        }
+
+        fire('pointerdown', {
+            pointerType: 'touch',
+            pointerId: 1,
+            clientY: 100,
+            timeStamp: 0,
+            target: handle,
+            button: 0,
+        })
+        fire('pointermove', {
+            pointerId: 1,
+            clientY: 220,
+            timeStamp: 16,
+        })
+
+        assert.equal(styleProps.transform?.value, 'translate3d(0, 120px, 0)')
+        assert.equal(styleProps.transform?.priority, 'important')
+        assert.equal(styleProps.height?.value, '400px')
+
+        fire('pointerup', {
+            pointerId: 1,
+            clientY: 280,
+            timeStamp: 32,
+        })
+
+        assert.equal(classList.has('is-dismissing'), true)
+        assert.equal(classList.has('is-open'), false)
+        assert.match(styleProps.transform?.value ?? '', /translate3d\(0, \d+px, 0\)/)
+        assert.equal(dismissed, 0)
+
+        fire('transitionend', {
+            target: panel,
+            propertyName: 'transform',
+        })
+
+        assert.equal(dismissed, 1)
+        assert.equal(classList.has('is-dismissing'), false)
+
+        cleanup()
     })
 })
