@@ -5,7 +5,7 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.1.1] - 2026-09-05
+## [3.1.2] - 2026-09-05
 
 ### New
 
@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **IconPickerField loading skeleton** — rebuilt: phase-driven bones (full-cell pulse), fetch no longer waits on grid geometry, icon track is not gated on `resultsGeometryReady` (that deadlock left the panel empty forever).
 - **IconPickerField resize / breakpoint** — open panel flips panel↔sheet on window resize: width pins run after mode chrome, stuck sheet-enter no longer blocks flips, and the icon grid remasures (the old resize wrapper never rebound `window`).
 - **Overlay breakpoint** — sheet vs panel follows viewport width only (`≤768`); coarse pointer alone no longer locks sheet on wide screens, so mobile→desktop restore works.
+- **CI Pest bootstrap** — `phpunit.xml` no longer hard-codes monorepo `../../vendor/autoload.php`; `tests/bootstrap.php` loads package `vendor/` (GitHub Actions) or the app vendor when developing inside a monorepo.
 
 ## [3.1.0] - 2026-09-04
 
