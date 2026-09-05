@@ -45,7 +45,7 @@
         "@zxing/browser": "^0.2.1",
         "@zxing/library": "^0.23.0",
         "emoji-picker-element": "^1.29.1",
-        "libphonenumber-js": "^1.13.11",
+        "libphonenumber-js": "^1.13.12",
         "nouislider": "^15.8.1",
         "number-flow": "^0.6.2"
     }
