@@ -270,6 +270,8 @@ it('uses gravity ui icons for video controls by default', function () {
         ->and($field->getExitFullscreenIcon())->toBe(GravityIcon::ChevronsCollapseUpRight)
         ->and($field->getPictureInPictureIcon())->toBe(GravityIcon::CopyPicture)
         ->and($field->getExitPictureInPictureIcon())->toBe(GravityIcon::ChevronsCollapseUpRight)
+        ->and($field->getCastIcon())->toBe(GravityIcon::Tv)
+        ->and($field->getAirPlayIcon())->toBe(GravityIcon::AntennaSignal)
         ->and($field->getPlaceholderIcon())->toBe(GravityIcon::Video);
 });
 

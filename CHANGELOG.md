@@ -5,6 +5,12 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.4] - 2026-09-05
+
+### Fixed
+
+- **VideoField playground / AirPlay+Cast icons** — default cast/AirPlay icons no longer use Remix (`ri-cast-line` / `ri-airplay-line`), which threw `SvgNotFound` when that icon set is not installed. Defaults are Gravity UI (`gravityui-tv`, `gravityui-antenna-signal`), already required with the package.
+
 ## [3.1.3] - 2026-09-05
 
 ### Fixed

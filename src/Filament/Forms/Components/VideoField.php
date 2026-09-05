@@ -534,12 +534,12 @@ class VideoField extends Field
 
     public function getCastIcon(): string|BackedEnum|Htmlable
     {
-        return $this->resolveFieldIcon($this->castIcon, 'video_cast_icon', 'ri-cast-line');
+        return $this->resolveFieldIcon($this->castIcon, 'video_cast_icon', GravityIcon::Tv);
     }
 
     public function getAirPlayIcon(): string|BackedEnum|Htmlable
     {
-        return $this->resolveFieldIcon($this->airPlayIcon, 'video_airplay_icon', 'ri-airplay-line');
+        return $this->resolveFieldIcon($this->airPlayIcon, 'video_airplay_icon', GravityIcon::AntennaSignal);
     }
 
     public function getPlaceholderIcon(): string|BackedEnum|Htmlable

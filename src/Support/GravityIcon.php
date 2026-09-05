@@ -85,6 +85,12 @@ final class GravityIcon
 
     public const string Display = 'gravityui-display';
 
+    public const string Tv = 'gravityui-tv';
+
+    public const string BroadcastSignal = 'gravityui-broadcast-signal';
+
+    public const string AntennaSignal = 'gravityui-antenna-signal';
+
     public const string LayoutColumns = 'gravityui-layout-columns';
 
     public const string House = 'gravityui-house';
