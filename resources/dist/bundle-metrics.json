@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-05T11:11:11.454Z",
+  "generatedAt": "2026-09-06T14:03:59.030Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 1168,
@@ -798,15 +798,10 @@
       "kb": 3.78,
       "gzipKb": 1.09
     },
-    "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js": {
-      "bytes": 16195,
-      "kb": 15.82,
-      "gzipKb": 4.01
-    },
-    "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js": {
-      "bytes": 3318,
-      "kb": 3.24,
-      "gzipKb": 1.28
+    "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js": {
+      "bytes": 16241,
+      "kb": 15.86,
+      "gzipKb": 4.05
     },
     "flex-fields-country-registry-2XW6HAQE.js": {
       "bytes": 4104,
@@ -897,6 +892,11 @@
       "bytes": 38337,
       "kb": 37.44,
       "gzipKb": 9.8
+    },
+    "flex-fields-select-trigger-TWA4LBK6.js": {
+      "bytes": 4442,
+      "kb": 4.34,
+      "gzipKb": 1.63
     },
     "flex-fields-shared-CEWOLNQU.js": {
       "bytes": 38338,
@@ -1049,9 +1049,9 @@
       "gzipKb": 1.24
     },
     "select-field.js": {
-      "bytes": 53781,
-      "kb": 52.52,
-      "gzipKb": 13.11
+      "bytes": 53407,
+      "kb": 52.16,
+      "gzipKb": 13
     },
     "signature-field.js": {
       "bytes": 17384,

@@ -155,8 +155,7 @@
   ],
   "select-field": [
     "flex-fields-combobox-engine-XG742CWK.js",
-    "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js",
-    "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js",
+    "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js",
     "flex-fields-entity-mention-4NPSHJHF.js",
     "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
     "flex-fields-flex-text-input-caret-EDK6FLPM.js",
@@ -164,6 +163,7 @@
     "flex-fields-overlay-scrollbar-IR2UQS36.js",
     "flex-fields-search-normalize-WCBTD3TJ.js",
     "flex-fields-select-menu-XIGFEHNU.js",
+    "flex-fields-select-trigger-TWA4LBK6.js",
     "flex-fields-theme-utils-TTMZXY7G.js"
   ],
   "signature-field": [
@@ -266,8 +266,7 @@
     "flex-fields-combobox-engine-XG742CWK.js",
     "flex-fields-components-flex-time-segments-CR2HYMWB.js",
     "flex-fields-components-segment-scroll-shadow-TOQ4AUX3.js",
-    "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js",
-    "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js",
+    "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js",
     "flex-fields-country-registry-2XW6HAQE.js",
     "flex-fields-date-time-calendar-system-DZNPII56.js",
     "flex-fields-date-time-segmented-input-KPH7FA2W.js",
@@ -286,6 +285,7 @@
     "flex-fields-rich-editor-toolbar-a11y-SLY3K5DZ.js",
     "flex-fields-search-normalize-WCBTD3TJ.js",
     "flex-fields-select-menu-XIGFEHNU.js",
+    "flex-fields-select-trigger-TWA4LBK6.js",
     "flex-fields-shared-CEWOLNQU.js",
     "flex-fields-shared-EUC7KYEY.js",
     "flex-fields-shared-QXDUA67G.js",
@@ -376,14 +376,11 @@
       "flex-fields-merge-alpine-component-data-QM7C5ZRT.js",
       "flex-fields-select-menu-XIGFEHNU.js"
     ],
-    "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js": [
+    "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js": [
       "flex-fields-combobox-engine-XG742CWK.js",
-      "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js",
       "flex-fields-observability-ZSQ5ZUOF.js",
-      "flex-fields-search-normalize-WCBTD3TJ.js"
-    ],
-    "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js": [
-      "flex-fields-search-normalize-WCBTD3TJ.js"
+      "flex-fields-search-normalize-WCBTD3TJ.js",
+      "flex-fields-select-trigger-TWA4LBK6.js"
     ],
     "flex-fields-country-registry-2XW6HAQE.js": [
       "flex-fields-overlay-menu-keyboard-RR5GXLKC.js",
@@ -404,6 +401,9 @@
       "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
       "flex-fields-observability-ZSQ5ZUOF.js",
       "flex-fields-theme-utils-TTMZXY7G.js"
+    ],
+    "flex-fields-select-trigger-TWA4LBK6.js": [
+      "flex-fields-search-normalize-WCBTD3TJ.js"
     ],
     "flex-fields-shared-EUC7KYEY.js": [
       "flex-fields-calendar-panel-MJDKHVE3.js",
@@ -504,8 +504,7 @@
     ],
     "select-field.js": [
       "flex-fields-combobox-engine-XG742CWK.js",
-      "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js",
-      "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js",
+      "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js",
       "flex-fields-entity-mention-4NPSHJHF.js",
       "flex-fields-flex-dropdown-coordinator-R752RI3D.js",
       "flex-fields-flex-text-input-caret-EDK6FLPM.js",
@@ -513,6 +512,7 @@
       "flex-fields-overlay-scrollbar-IR2UQS36.js",
       "flex-fields-search-normalize-WCBTD3TJ.js",
       "flex-fields-select-menu-XIGFEHNU.js",
+      "flex-fields-select-trigger-TWA4LBK6.js",
       "flex-fields-theme-utils-TTMZXY7G.js"
     ],
     "signature-field.js": [
@@ -561,7 +561,7 @@
       "core/shared-emoji-picker.js"
     ],
     "flex-fields-phone-lib-HS2GMPRU.js": [],
-    "flex-fields-components-select-field-headless-combobox-livewire-46NLSQBE.js": [
+    "flex-fields-components-select-field-headless-combobox-livewire-7C5VVGVG.js": [
       "components/select-field/headless-combobox-livewire.js"
     ],
     "flex-fields-entity-mention-4NPSHJHF.js": [
@@ -574,8 +574,9 @@
     "flex-fields-time-panel-GEDG7PRU.js": [
       "core/date-time/time-panel.js"
     ],
-    "flex-fields-components-select-field-headless-select-options-DRUAGDFN.js": [
-      "components/select-field/headless-select-options.js"
+    "flex-fields-select-trigger-TWA4LBK6.js": [
+      "components/select-field/headless-select-options.js",
+      "components/select-field/headless-select-state.js"
     ],
     "flex-fields-overlay-scrollbar-IR2UQS36.js": [
       "core/overlay-scrollbar.js"

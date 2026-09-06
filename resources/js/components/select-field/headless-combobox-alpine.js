@@ -36,8 +36,11 @@ import {
     stripHtmlToPlainText,
 } from './headless-inline-search.js'
 import {
+    canWriteHeadlessWireState,
+    commitHeadlessSelectionToWire,
     normalizeInitialSelectedValues,
     resolveHeadlessBoundState,
+    shouldHydrateInitialSelectionToWire,
     shouldIgnoreEmptyHeadlessWireSync,
 } from './headless-select-state.js'
 
@@ -844,7 +847,10 @@ export default function headlessComboboxAlpine(userConfig = {}) {
                 allowCreate: allowCreateOption,
                 createOptionLabel: (query) => `${createOptionLabel} "${query}"`,
                 onChange: (values) => {
-                    this._userHasMutatedSelection = true
+                    if (! this._programmaticSelectionWrite) {
+                        this._userHasMutatedSelection = true
+                    }
+
                     this.comboboxSelectedValues = values
                     this.syncStateFromEngine(values)
                     this.syncClearablePresentation()
@@ -861,6 +867,17 @@ export default function headlessComboboxAlpine(userConfig = {}) {
             this.syncInlineSearchInputAfterClose()
             this.bindSelectMenuLifecycle()
 
+            // SSR/default can paint a label while Livewire state is still null.
+            // Push the hydrated selection once so required fill validation sees it.
+            if (shouldHydrateInitialSelectionToWire(this.state, this.initialState, this.multiple)) {
+                this._programmaticSelectionWrite = true
+
+                try {
+                    this.syncStateFromEngine(initialSelectedValues)
+                } finally {
+                    this._programmaticSelectionWrite = false
+                }
+            }
             this.$watch('comboboxOpen', (open) => {
                 if (open) {
                     // Options were already synced in comboboxOpenMenu(); avoid a
@@ -1052,29 +1069,13 @@ export default function headlessComboboxAlpine(userConfig = {}) {
         },
 
         syncStateFromEngine(values) {
-            if (this.state === undefined || this.state === null) {
+            const commit = commitHeadlessSelectionToWire(this.state, values, this.multiple)
+
+            if (commit.skip || ! canWriteHeadlessWireState(this.state)) {
                 return
             }
 
-            if (this.multiple) {
-                const next = values.slice()
-
-                if (Array.isArray(this.state) && this._valuesEqual(this.state, next)) {
-                    return
-                }
-
-                this.state = next
-
-                return
-            }
-
-            const next = values.length > 0 ? values[0] : null
-
-            if (String(this.state ?? '') === String(next ?? '')) {
-                return
-            }
-
-            this.state = next
+            this.state = commit.nextState
         },
 
         _valuesEqual(left, right) {

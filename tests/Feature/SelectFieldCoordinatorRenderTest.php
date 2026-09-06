@@ -275,3 +275,68 @@ it('resolves dependsOn options from a live sibling through getOptionsForJs', fun
         ->toContain('hasDynamicOptions: true')
         ->toContain('select__cascade_region');
 });
+
+it('required select round-trips filled and empty Livewire state (server path)', function (): void {
+    TestableTranslatableForm::$formSchema = [
+        SelectField::make('company_size')
+            ->label('Company size')
+            ->options([
+                '1_10' => '1–10',
+                '11_50' => '11–50',
+                'other' => 'Other',
+            ])
+            ->required()
+            ->live(),
+    ];
+
+    $livewire = Livewire::test(TestableTranslatableForm::class);
+
+    expect($livewire->get('data.company_size'))->toBeNull();
+
+    $livewire->fillForm(['company_size' => '1_10'])
+        ->assertSet('data.company_size', '1_10');
+
+    $livewire->fillForm(['company_size' => null])
+        ->assertSet('data.company_size', null);
+
+    $livewire->fillForm(['company_size' => 'other'])
+        ->assertSet('data.company_size', 'other');
+});
+
+it('required multi select round-trips empty array and values', function (): void {
+    TestableTranslatableForm::$formSchema = [
+        SelectField::make('skills')
+            ->options([
+                'php' => 'PHP',
+                'react' => 'React',
+            ])
+            ->multiple()
+            ->required()
+            ->live(),
+    ];
+
+    Livewire::test(TestableTranslatableForm::class)
+        ->fillForm(['skills' => ['php', 'react']])
+        ->assertSet('data.skills', ['php', 'react'])
+        ->fillForm(['skills' => []])
+        ->assertSet('data.skills', []);
+});
+
+it('headless select blade binds live entangle for wire sync', function (): void {
+    TestableTranslatableForm::$formSchema = [
+        SelectField::make('company_size')
+            ->options([
+                '1_10' => '1–10',
+            ])
+            ->required()
+            ->live(),
+    ];
+
+    $html = Livewire::test(TestableTranslatableForm::class)->html();
+
+    expect($html)
+        ->toContain('fff-select-field__shell--headless')
+        ->toContain('company_size')
+        ->toContain('entangle(')
+        ->not->toContain('fi-select-input-native');
+});

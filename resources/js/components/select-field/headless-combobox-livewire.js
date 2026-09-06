@@ -1,6 +1,7 @@
 import { emitObservabilityEvent } from '../../core/observability.js'
 import { createRelationshipSearchAdapter } from '../../core/combobox-engine.js'
 import { findHeadlessOptionRecord, flattenHeadlessOptions, headlessOptionValue } from './headless-select-options.js'
+import { pruneSelectedValuesToAllowed, shouldApplyRemoteOptionsFromFetchResult } from './headless-select-state.js'
 
 /**
  * Livewire commit `succeed` often runs after the awaited schema call resolves.
@@ -532,9 +533,9 @@ export function createHeadlessComboboxLivewireMixin({
             try {
                 const results = await this.callSchemaMethod('getOptionsForJs')
 
-                if (results === null) {
-                    this.applyRemoteOptions([])
-
+                // Soft-fail: keep painted options + selection. Applying [] would prune
+                // a valid answer and mark the field "user mutated" empty.
+                if (! shouldApplyRemoteOptionsFromFetchResult(results)) {
                     return false
                 }
 
@@ -543,8 +544,6 @@ export function createHeadlessComboboxLivewireMixin({
 
                 return true
             } catch {
-                this.applyRemoteOptions([])
-
                 return false
             } finally {
                 this.optionsLoading = false
@@ -834,11 +833,18 @@ export function createHeadlessComboboxLivewireMixin({
             this._engine?.setOptions(this.flatOptions)
 
             if (this.hasDynamicOptions && ! this.hasDynamicSearchResults) {
-                const allowed = new Set(this.flatOptions.map((option) => String(headlessOptionValue(option))))
-                const nextSelected = this.comboboxSelectedValues.filter((value) => allowed.has(String(value)))
+                const allowed = this.flatOptions.map((option) => String(headlessOptionValue(option)))
+                const nextSelected = pruneSelectedValuesToAllowed(this.comboboxSelectedValues, allowed)
 
-                if (nextSelected.length !== this.comboboxSelectedValues.length) {
-                    this._engine?.setSelectedValues(nextSelected)
+                if (nextSelected.length !== this.comboboxSelectedValues.length
+                    || nextSelected.some((value, index) => String(value) !== String(this.comboboxSelectedValues[index] ?? ''))) {
+                    this._programmaticSelectionWrite = true
+
+                    try {
+                        this._engine?.setSelectedValues(nextSelected)
+                    } finally {
+                        this._programmaticSelectionWrite = false
+                    }
                 }
             }
 
