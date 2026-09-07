@@ -76,7 +76,7 @@ final class FlexTextInputFieldConfigurator implements FieldConfigurator
             $field->verificationStatusIcon($config['verification_status_icon']);
         }
 
-        if (array_key_exists('verification_status_color', $config)) {
+        if (array_key_exists('verification_status_color', $config) && filled($config['verification_status_color'])) {
             $field->verificationStatusColor($config['verification_status_color']);
         }
 

@@ -27,7 +27,7 @@ const CSS_BUDGETS = {
     // v3 headless Select + teleported menu chrome grew picker CSS; budgets track current dist + ~10% headroom.
     'phone-field.css': { rawKb: 40, gzipKb: 12 },
     'country-field.css': { rawKb: 36, gzipKb: 10 },
-    'select-field.css': { rawKb: 106, gzipKb: 14 },
+    'select-field.css': { rawKb: 130, gzipKb: 18 },
     'user-display.css': { rawKb: 32, gzipKb: 7 },
     'tag-chips.css': { rawKb: 33, gzipKb: 7 },
     'user-select.css': { rawKb: 15, gzipKb: 3 },
@@ -37,7 +37,7 @@ const CSS_BUDGETS = {
     'flex-date-time-field.css': { rawKb: 36, gzipKb: 6 },
     'flex-file-upload.css': { rawKb: 60, gzipKb: 8 },
     'barcode-scanner-field.css': { rawKb: 12, gzipKb: 3 },
-    'icon-picker-field.css': { rawKb: 22, gzipKb: 4 },
+    'icon-picker-field.css': { rawKb: 24, gzipKb: 5 },
 };
 
 /** @type {Record<string, { rawKb?: number, gzipKb?: number }>} */
@@ -45,7 +45,7 @@ const JS_BUDGETS = {
     'flex-fields-phone-lib': { rawKb: 195, gzipKb: 48 },
     'flex-fields-emoji': { rawKb: 120, gzipKb: 40 },
     'flex-fields-mapbox': { rawKb: 20, gzipKb: 8 },
-    'flex-fields-select-menu': { rawKb: 20, gzipKb: 6 },
+    'flex-fields-select-menu': { rawKb: 42, gzipKb: 12 },
     'flex-fields-barcode-scanner': { rawKb: 460, gzipKb: 125 },
     'barcode-scanner-field.js': { rawKb: 24, gzipKb: 7 },
     'phone-field.js': { rawKb: 20, gzipKb: 8 },

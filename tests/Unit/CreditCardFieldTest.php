@@ -43,6 +43,8 @@ it('normalizes credit card state', function () {
 });
 
 it('strips cvv from dehydrated state', function () {
+    config(['filament-flex-fields.media_capture.pci.never_store_pan' => false]);
+
     $field = CreditCardField::make('payment');
 
     expect($field->dehydrateStateForStorage([
@@ -62,6 +64,23 @@ it('strips cvv from dehydrated state', function () {
     ]))->not->toHaveKey('cvv');
 });
 
+it('strips pan to last4 under default enterprise pci posture', function () {
+    config(['filament-flex-fields.media_capture.pci.never_store_pan' => true]);
+
+    $field = CreditCardField::make('payment');
+
+    expect($field->dehydrateStateForStorage([
+        'number' => '4242 4242 4242 4242',
+        'name' => 'Jan Kowalski',
+        'expiry' => '12/28',
+        'cvv' => '123',
+    ]))->toBe([
+        'last4' => '4242',
+        'name' => 'Jan Kowalski',
+        'expiry' => '12/28',
+    ]);
+});
+
 it('validates card numbers with luhn algorithm', function () {
     $field = CreditCardField::make('payment');
 
@@ -72,6 +91,8 @@ it('validates card numbers with luhn algorithm', function () {
 });
 
 it('rejects invalid luhn card numbers during validation', function () {
+    config(['filament-flex-fields.media_capture.pci.never_store_pan' => false]);
+
     $field = CreditCardField::make('payment');
 
     $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
@@ -89,7 +110,9 @@ it('rejects invalid luhn card numbers during validation', function () {
     expect($message)->toBe(__('filament-flex-fields::default.validation.credit_card.invalid_number'));
 });
 
-it('allows valid luhn card numbers during validation', function () {
+it('allows valid luhn card numbers during validation when pan storage is enabled', function () {
+    config(['filament-flex-fields.media_capture.pci.never_store_pan' => false]);
+
     $field = CreditCardField::make('payment');
 
     $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
@@ -105,6 +128,26 @@ it('allows valid luhn card numbers during validation', function () {
     });
 
     expect($message)->toBeNull();
+});
+
+it('requires tokenization under default enterprise pci posture', function () {
+    config(['filament-flex-fields.media_capture.pci.never_store_pan' => true]);
+
+    $field = CreditCardField::make('payment');
+
+    $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
+
+    $message = null;
+    $rule('payment', [
+        'number' => '4242424242424242',
+        'name' => 'Jan',
+        'expiry' => '12/28',
+        'cvv' => '123',
+    ], function (string $failMessage) use (&$message): void {
+        $message = $failMessage;
+    });
+
+    expect($message)->toBe(__('filament-flex-fields::default.validation.credit_card.tokenization_required'));
 });
 
 it('rejects unsupported credit card variants', function () {

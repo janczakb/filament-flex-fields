@@ -221,7 +221,7 @@ it('ships flex rich editor as a thin shell without bundling filament tip tap run
 it('loads stylesheet via blade partial', function () {
     $blade = file_get_contents(__DIR__.'/../../resources/views/forms/components/flex-rich-editor-field.blade.php');
 
-    expect($blade)->toContain("load-stylesheet', ['component' => 'rich-editor-field']");
+    expect($blade)->toContain("load-stylesheet', ['component' => 'rich-editor-field'");
 });
 
 it('registers flex-only clear tools for shared toolbars', function () {
@@ -249,11 +249,13 @@ it('registers flex rich editor playground sections', function () {
 
 it('uses root css tokens in rich editor field bundle', function () {
     $css = file_get_contents(__DIR__.'/../../resources/dist/css/rich-editor-field.css');
+    $tokens = file_get_contents(__DIR__.'/../../resources/css/base.css');
 
     expect($css)
         ->toContain('var(--fff-rich-editor-text)')
         ->toContain('var(--fff-rich-editor-bubble-shadow)')
-        ->toContain('--fff-rich-editor-text:#fafafa');
+        ->and($tokens)
+        ->toContain('--fff-rich-editor-text: rgb(250 250 250)');
 });
 
 it('defines reference toolbar and bubble sizing tokens', function () {

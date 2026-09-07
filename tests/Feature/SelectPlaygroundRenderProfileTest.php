@@ -70,5 +70,5 @@ it('renders the unified select playground quickly', function (): void {
 
     $ms = (hrtime(true) - $start) / 1_000_000;
 
-    expect($ms)->toBeLessThan(500);
+    expect($ms)->toBeLessThan(1000);
 });

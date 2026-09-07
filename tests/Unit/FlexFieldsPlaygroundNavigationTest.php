@@ -12,8 +12,8 @@ use Illuminate\Http\Request;
 it('exposes one registry entry per playground component', function () {
     config()->set('filament-flex-fields.playground.enabled', true);
 
-    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(63)
-        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(63);
+    expect(count(FlexFieldsPlaygroundRegistry::definitions()))->toBe(64)
+        ->and(count(FlexFieldsPlaygroundRegistry::pageConfigurations()))->toBe(64);
 });
 
 it('orders playground definitions by category then sort', function () {
@@ -84,7 +84,7 @@ it('uses registry labels for sub-navigation entries', function () {
     $labels = array_column(FlexFieldsPlaygroundRegistry::ordered(), 'label');
 
     expect($labels)->toContain('RatingColumn', 'IconColumn', 'UserColumn', 'Phone field')
-        ->and(count($labels))->toBe(63);
+        ->and(count($labels))->toBe(64);
 });
 
 it('assigns a gravity icon to every playground sub-navigation entry', function () {
@@ -145,7 +145,7 @@ it('maps every playground hub to an explicit design-system category', function (
         'data_display',
         'media',
         'location',
-    ])->and(count($categories, COUNT_RECURSIVE) - count($categories))->toBe(63);
+    ])->and(count($categories, COUNT_RECURSIVE) - count($categories))->toBe(64);
 });
 
 it('expires NEW badges on v3 meta hubs', function () {

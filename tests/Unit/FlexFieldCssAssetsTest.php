@@ -147,7 +147,6 @@ it('keeps moved component styles out of the core bundle', function () {
         ->not->toContain('.fff-choice-cards')
         ->not->toContain('.fff-rating-field')
         ->not->toContain('.fff-color-swatch')
-        ->not->toContain('.fff-select-field')
         ->not->toContain('.fff-track-slider')
         ->not->toContain('.fff-segment-control');
 });

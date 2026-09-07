@@ -18,7 +18,9 @@ it('renders queued table column stylesheets from the styles after hook', functio
 
     $emitBlade = file_get_contents(__DIR__.'/../../resources/views/partials/emit-assets.blade.php');
 
-    expect($emitBlade)->toContain('data-navigate-track');
+    expect($emitBlade)
+        ->toContain('data-fff-asset-batch')
+        ->toContain('data-fff-stylesheets');
 });
 
 it('registers unified asset injector for flex fields lazy assets', function (): void {

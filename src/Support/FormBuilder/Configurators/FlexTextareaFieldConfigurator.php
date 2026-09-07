@@ -97,14 +97,22 @@ final class FlexTextareaFieldConfigurator implements FieldConfigurator
 
     private function resolveToolbarSelectConfigs(array $config): array
     {
-        if (isset($config['toolbar_selects']) && is_array($config['toolbar_selects'])) {
-            return array_values($config['toolbar_selects']);
+        $selects = $config['toolbar_selects'] ?? null;
+
+        if (is_array($selects) && $selects !== []) {
+            return array_values($selects);
         }
 
-        if (isset($config['toolbar_select']) && is_array($config['toolbar_select'])) {
-            return [$config['toolbar_select']];
+        $singular = $config['toolbar_select'] ?? null;
+
+        if (! is_array($singular) || $singular === []) {
+            return [];
         }
 
-        return [];
+        if (array_is_list($singular) && isset($singular[0]) && is_array($singular[0])) {
+            return array_values($singular);
+        }
+
+        return [$singular];
     }
 }

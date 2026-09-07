@@ -49,7 +49,15 @@ readonly class FlexFieldDefinition
             : FieldType::from((string) $attributes['type']);
 
         $helpText = $attributes['help_text'] ?? $attributes['helpText'] ?? null;
-        $config = array_merge($type->defaultConfig(), $attributes['config'] ?? []);
+        $userConfig = $attributes['config'] ?? [];
+        $config = array_merge($type->defaultConfig(), $userConfig);
+
+        // Keep `size` out of merged defaults when the definition did not set it, so
+        // field configurators can resolve dedicated `filament-flex-fields.ui.*_size` keys.
+        if (! array_key_exists('size', $userConfig)) {
+            unset($config['size']);
+        }
+
         $formula = self::resolveFormulaExpression($attributes, $config);
         $width = self::resolveWidth($attributes);
 

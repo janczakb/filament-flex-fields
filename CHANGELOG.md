@@ -5,6 +5,28 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.8] - 2026-09-07
+
+### Fixed
+
+- **FormBuilder / FlexTextInput** — skip `verificationStatusColor()` when the config value is null (avoids TypeError on formula/conditions builds).
+- **FormBuilder sizes** — when a definition omits `size`, configurators honor `filament-flex-fields.ui.*_size` instead of the hardcoded default-config `md`.
+- **FlexTextarea toolbar_select** — empty default `toolbar_selects: []` no longer blocks the legacy singular `toolbar_select` config.
+- **Hold Confirm action view** — stylesheet include tolerates missing `$getLivewireKey` outside a Livewire field context.
+- **Credit Card PCI tests / defaults** — unit coverage aligned with `never_store_pan` (last4 dehydrate + tokenization required).
+- **Mapbox geocoding rate-limit tests** — set `filament-flex-fields.geocoding.rate_limit_per_minute` (controller key), not only the legacy mapbox key.
+- **Playground registry count** — navigation tests expect 64 components.
+- **CI / asset assertion drift** — barcode `openScanner($event)`, rich-editor stylesheet include, select CSS, UserSelect `overlay-runtime`, emit-assets batch markers, Select playground render budget, and bundle budgets for select/icon-picker/select-menu.
+
+### Security
+
+- **GitHub Actions pinned to SHA** — `checkout`, `setup-php`, and `setup-node` use full commit SHAs (Plumb / supply-chain hardening).
+- **Dependabot covers GitHub Actions** — `.github/dependabot.yml` now includes the `github-actions` ecosystem (with the same cooldown as Composer/npm).
+
+### Changed
+
+- **npm** — `@internationalized/date` ^3.12.4, `libphonenumber-js` ^1.13.12.
+
 ## [3.1.7] - 2026-09-06
 
 ### Fixed

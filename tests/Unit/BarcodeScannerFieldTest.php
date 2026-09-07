@@ -119,7 +119,7 @@ it('renders required blade integration hooks', function () {
         ->toContain('fff-barcode-scanner__scan-line')
         ->toContain('-video')
         ->toContain('x-modal-opened')
-        ->toContain('openScanner()')
+        ->toContain('openScanner($event)')
         ->toContain('toggleTorch()')
         ->toContain('fff-barcode-scanner__switch-camera-btn');
 });

@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 beforeEach(function (): void {
     config()->set('filament-flex-fields.mapbox.access_token', 'pk.test-token');
     config()->set('filament-flex-fields.mapbox.rate_limit_per_minute', 2);
+    config()->set('filament-flex-fields.geocoding.rate_limit_per_minute', 2);
     config()->set('filament-flex-fields.mapbox.cache_ttl_seconds', 0);
 
     $this->withoutMiddleware(Authenticate::class);
