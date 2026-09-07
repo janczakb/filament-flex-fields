@@ -24,8 +24,6 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    # github-actions only accepts default-days; semver-*-days invalidate the whole file.
     cooldown:
       default-days: 3
-      semver-major-days: 7
-      semver-minor-days: 3
-      semver-patch-days: 3
