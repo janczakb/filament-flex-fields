@@ -11,20 +11,21 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\Playground\TranslatableFieldsPlayground;
 use Bjanczak\FilamentFlexFields\Support\Translatable\TranslatableLocales;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
-it('builds locale tabs for a single field schema', function (): void {
+it('accepts Filament Schema in TranslatableFields::schema() signature', function (): void {
+    $schema = Schema::make()->components([
+        FlexTextInput::make('title'),
+    ]);
+
     $component = TranslatableFields::make('Content')
-        ->locales(['ar' => 'Arabic', 'en' => 'English'])
-        ->schema([
-            FlexTextInput::make('title'),
-        ]);
+        ->locales(['en' => 'English'])
+        ->schema($schema);
 
     $tabs = $component->buildTranslatableTabs();
 
-    expect($tabs)->toHaveCount(2)
-        ->and($tabs[0])->toBeInstanceOf(TranslatableTab::class)
-        ->and($tabs[0]->getLocale())->toBe('ar')
-        ->and($tabs[1]->getLocale())->toBe('en');
+    expect($tabs)->toHaveCount(1)
+        ->and($tabs[0])->toBeInstanceOf(TranslatableTab::class);
 });
 
 it('resolves locales from translatable config', function (): void {

@@ -111,6 +111,9 @@
     },
     "scripts": {
         "test": "pest",
+        "test:filament-compat": [
+            "@php vendor/bin/pest --compact tests/Unit/FilamentOverrideCompatibilityTest.php tests/Feature/TranslatableFieldsFilament58SmokeTest.php tests/Unit/TranslatableFieldsTest.php tests/Unit/TranslatableArchitectureTest.php tests/Feature/TranslatableFieldsTest.php tests/Feature/TranslatableFieldsPlaygroundFillTest.php tests/Feature/TitleSlugTranslatableFieldTest.php tests/Feature/SelectFieldCoordinatorRenderTest.php"
+        ],
         "analyse": "phpstan analyse --memory-limit=512M",
         "prune:phpstan-baseline": "node scripts/prune-phpstan-baseline.mjs",
         "audit:components": "node scripts/audit-components.mjs",

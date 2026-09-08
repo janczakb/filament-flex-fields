@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.10] - 2026-09-08
+
+### Fixed
+
+- **TranslatableFields + Filament ≥ 5.8** — `CustomizesTranslatableComponents::schema()` now accepts `Filament\Schemas\Schema|array|Closure`, matching `Component::schema()` after [filamentphp/filament#19867](https://github.com/filamentphp/filament/pull/19867) (fixes fatal signature incompatibility reported in [#61](https://github.com/janczakb/filament-flex-fields/issues/61)).
+- **TranslatableFields child-schema cache hygiene** — `schema()`, `locales()`, `localesLabels()`, `spatieTranslatable()`, `localeFieldUsing()`, and `storageAttributeUsing()` now call `clearCachedChildSchemas()` so Filament 5.8+ cached / deferred hierarchies rebuild when templates or locales change (we intentionally bypass `parent::schema()`).
+
+### Tests
+
+- Package test suite locked/run against **filament/schemas v5.8.1**; added `TranslatableFieldsFilament58SmokeTest` covering LSP signature, `Schema` / Closure-`Schema` templates, repeated `getChildSchema()` resolution, cache invalidation, and JSON hydration via `fillStateWithNull()`.
+- Select HTML smokes accept Filament 5.8 / Laravel 13.31+ `Js::from()` encoding (`JSON.parse('{\u0022…\u0022:…}')`) via `tests/Support/AlpineJsHtml.php`.
+- **Enterprise Filament guardrails** — `FilamentOverrideCompatibilityTest` + `FilamentOverrideSignatureGuard` assert critical overrides stay LSP-compatible; CI job `filament-compat` matrix runs on **5.7.8** and **^5.8** (weekly schedule + `workflow_dispatch`); Dependabot groups `filament/*`; Composer script `composer test:filament-compat`.
+- CI pins `actions/checkout@v7.0.1` + `actions/setup-node@v7.0.0` (Node 20 deprecation) and fails fast if `composer.lock` is missing from the git checkout (root cause of [Release 3.1.9 CI](https://github.com/janczakb/filament-flex-fields/actions/runs/34229936169) resolving Filament 5.8 against the pre-#61 `schema()` signature).
+- npm: `@tiptap/core` / `@tiptap/extension-youtube` 3.31.x, `@gravity-ui/icons` 2.22.0, `@playwright/test` ^1.62.1.
+
 ## [3.1.9] - 2026-09-08
 
 ### Added

@@ -7,6 +7,14 @@ on:
   pull_request:
     paths:
       - '**'
+  schedule:
+    # Catch Filament minors early (Dependabot + weekly matrix).
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: flex-fields-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -17,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup PHP
         uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
@@ -27,10 +35,18 @@ jobs:
           tools: composer:v2
 
       - name: Setup Node
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22'
           cache: npm
+
+      - name: Require committed composer.lock
+        run: |
+          set -euo pipefail
+          if [[ ! -f composer.lock ]]; then
+            echo "::error::composer.lock is missing from the git checkout. CI must not resolve Filament floatingly (see issue #61 / Release 3.1.9 Pest fatal)."
+            exit 1
+          fi
 
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist
@@ -52,3 +68,72 @@ jobs:
 
       - name: Run FFART consumer-graph suite
         run: npm run test:consumer-graph
+
+  filament-compat:
+    name: Filament ${{ matrix.filament }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Last 5.7.x before Component::schema(Schema|…) — proves we stay compatible backwards.
+          - filament: '5.7.8'
+            label: '5.7.8 (pre-schema-union)'
+          # Current stable line that introduced the #61 LSP break surface.
+          - filament: '^5.8'
+            label: '5.8.x (latest)'
+
+    defaults:
+      run:
+        working-directory: .
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2.37.2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Require committed composer.lock
+        run: |
+          set -euo pipefail
+          if [[ ! -f composer.lock ]]; then
+            echo "::error::composer.lock is missing from the git checkout. CI must not resolve Filament floatingly (see issue #61 / Release 3.1.9 Pest fatal)."
+            exit 1
+          fi
+
+      - name: Install Composer dependencies (lock)
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Switch Filament to ${{ matrix.label }}
+        run: |
+          set -euo pipefail
+          composer require "filament/filament:${{ matrix.filament }}" --no-update --no-interaction
+          composer update "filament/*" --with-all-dependencies --no-interaction --prefer-dist
+
+      - name: Show installed Filament versions
+        run: |
+          set -euo pipefail
+          php -r '
+            require "vendor/autoload.php";
+            foreach (["filament/filament", "filament/schemas", "filament/forms", "filament/support"] as $package) {
+              echo $package, ": ", \Composer\InstalledVersions::getPrettyVersion($package), PHP_EOL;
+            }
+          '
+
+      - name: Run Filament compatibility Pest suites
+        run: composer test:filament-compat

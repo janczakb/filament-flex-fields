@@ -25,6 +25,7 @@ trait ConfiguresTranslatableLocales
     public function locales(array|Closure $locales): static
     {
         $this->translatableLocales = $locales;
+        $this->clearCachedChildSchemas();
 
         return $this;
     }
@@ -35,6 +36,7 @@ trait ConfiguresTranslatableLocales
     public function localesLabels(array|Closure $localeLabels): static
     {
         $this->translatableLocaleLabels = $localeLabels;
+        $this->clearCachedChildSchemas();
 
         return $this;
     }

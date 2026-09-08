@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
+use Bjanczak\FilamentFlexFields\Tests\Support\AlpineJsHtml;
 use Bjanczak\FilamentFlexFields\Tests\Support\TestableTranslatableForm;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -40,12 +41,13 @@ it('renders headless combobox shell for static select fields by default', functi
         ->toContain('id="form.status"')
         ->toContain('id="form.status-listbox"')
         ->toContain('id="form.technologies-search"')
-        ->toMatch('/statePath["\']?\s*:\s*["\']data\.status["\']?/')
-        ->toMatch('/statePath["\']?\s*:\s*["\']data\.technologies["\']?/')
-        ->toMatch('/statePath["\']?\s*:\s*["\']data\.theme["\']?/')
         ->not->toContain('fffSelectFieldCoordinator')
         ->not->toContain('data-fff-select-root')
         ->not->toContain('selectFormComponent({');
+
+    expect(AlpineJsHtml::containsString($html, 'statePath', 'data.status'))->toBeTrue();
+    expect(AlpineJsHtml::containsString($html, 'statePath', 'data.technologies'))->toBeTrue();
+    expect(AlpineJsHtml::containsString($html, 'statePath', 'data.theme'))->toBeTrue();
 });
 
 it('renders user select through the headless combobox runtime', function (): void {
@@ -78,10 +80,11 @@ it('renders user select through the headless combobox runtime', function (): voi
         ->toContain('fffHeadlessSelectField')
         ->toContain('isUserSelectField')
         ->toContain('fff-user-select__selected-tags')
-        ->toMatch('/statePath["\']?\s*:\s*["\']data\.assignee["\']?/')
-        ->toMatch('/statePath["\']?\s*:\s*["\']data\.members["\']?/')
         ->not->toContain('fffSelectFieldCoordinator')
         ->not->toContain('data-fff-select-root');
+
+    expect(AlpineJsHtml::containsString($html, 'statePath', 'data.assignee'))->toBeTrue();
+    expect(AlpineJsHtml::containsString($html, 'statePath', 'data.members'))->toBeTrue();
 });
 
 it('renders rich option selects through the headless runtime', function (): void {
@@ -117,9 +120,10 @@ it('renders async search selects through the headless runtime', function (): voi
 
     expect($html)
         ->toContain('fffHeadlessSelectField')
-        ->toContain('hasDynamicSearchResults: true')
         ->toContain('componentKey')
         ->not->toContain('selectFormComponent({');
+
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicSearchResults', true))->toBeTrue();
 });
 
 it('renders closure option selects as dynamic options without async search', function (): void {
@@ -135,11 +139,10 @@ it('renders closure option selects as dynamic options without async search', fun
 
     $html = Livewire::test(TestableTranslatableForm::class)->html(false);
 
-    expect($html)
-        ->toContain('hasDynamicOptions: true')
-        ->toContain('hasDynamicSearchResults: false')
-        ->toContain('options: []')
-        ->toContain('componentKey');
+    expect($html)->toContain('componentKey');
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicOptions', true))->toBeTrue();
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicSearchResults', false))->toBeTrue();
+    expect(AlpineJsHtml::containsEmptyArray($html, 'options'))->toBeTrue();
 });
 
 it('fetches closure based options through callSchemaComponentMethod', function (): void {
@@ -211,10 +214,12 @@ it('fetches playground dynamic options through callSchemaComponentMethod', funct
     $html = $livewire->html(false);
 
     expect($html)
-        ->toContain('hasDynamicOptions: true')
-        ->toContain('hasDynamicSearchResults: false')
         ->toContain('select__dynamic_options')
         ->not->toContain('componentKey: null');
+
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicOptions', true))->toBeTrue();
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicSearchResults', false))->toBeTrue();
+    expect(str_contains($html, '\\u0022componentKey\\u0022:null'))->toBeFalse();
 });
 
 it('resolves dependsOn options from a live sibling through getOptionsForJs', function (): void {
@@ -271,9 +276,8 @@ it('resolves dependsOn options from a live sibling through getOptionsForJs', fun
 
     $html = $livewire->html(false);
 
-    expect($html)
-        ->toContain('hasDynamicOptions: true')
-        ->toContain('select__cascade_region');
+    expect($html)->toContain('select__cascade_region');
+    expect(AlpineJsHtml::containsFlag($html, 'hasDynamicOptions', true))->toBeTrue();
 });
 
 it('required select round-trips filled and empty Livewire state (server path)', function (): void {

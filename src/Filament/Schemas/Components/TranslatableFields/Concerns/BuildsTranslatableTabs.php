@@ -17,8 +17,14 @@ trait BuildsTranslatableTabs
      */
     public function buildTranslatableTabs(): array
     {
-        /** @var list<Field> $templates */
+        /** @var list<Field>|Schema $templates */
         $templates = $this->evaluate($this->translatableFieldTemplates);
+
+        if ($templates instanceof Schema) {
+            /** @var list<Field> $templates */
+            $templates = $templates->getComponents();
+        }
+
         $locales = $this->getLocales();
 
         if ($locales === []) {

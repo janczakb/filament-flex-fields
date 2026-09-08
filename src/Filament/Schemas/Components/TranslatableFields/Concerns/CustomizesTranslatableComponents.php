@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFi
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields\TranslatableTab;
 use Closure;
 use Filament\Forms\Components\Field;
+use Filament\Schemas\Schema;
 
 trait CustomizesTranslatableComponents
 {
@@ -38,11 +39,24 @@ trait CustomizesTranslatableComponents
     protected ?Closure $translatableStorageAttributeUsing = null;
 
     /**
-     * @param  array<Field>|Closure  $schema
+     * Compatible with Filament\Schemas\Components\Component::schema()
+     * (`Schema|Closure|array` since filamentphp/filament#19867).
+     *
+     * @param  array<Field>|Schema|Closure  $components
      */
-    public function schema(array|Closure $schema): static
+    public function schema(Schema|array|Closure $components): static
     {
-        $this->translatableFieldTemplates = $schema;
+        if ($components instanceof Schema) {
+            /** @var array<Field> $resolved */
+            $resolved = $components->getComponents();
+            $this->translatableFieldTemplates = $resolved;
+        } else {
+            $this->translatableFieldTemplates = $components;
+        }
+
+        // Bypass parent::schema(), so invalidate Filament child-schema caches
+        // explicitly (required for Filament 5.8+ deferred / cached hierarchies).
+        $this->clearCachedChildSchemas();
 
         return $this;
     }
@@ -72,6 +86,7 @@ trait CustomizesTranslatableComponents
     public function spatieTranslatable(bool|Closure $condition = true): static
     {
         $this->translatableSpatieEnabled = $condition;
+        $this->clearCachedChildSchemas();
 
         return $this;
     }
@@ -84,6 +99,7 @@ trait CustomizesTranslatableComponents
     public function localeFieldUsing(Closure $callback): static
     {
         $this->translatableLocaleFieldUsing = $callback;
+        $this->clearCachedChildSchemas();
 
         return $this;
     }
@@ -96,6 +112,7 @@ trait CustomizesTranslatableComponents
     public function storageAttributeUsing(Closure $callback): static
     {
         $this->translatableStorageAttributeUsing = $callback;
+        $this->clearCachedChildSchemas();
 
         return $this;
     }
