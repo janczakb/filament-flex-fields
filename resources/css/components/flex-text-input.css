@@ -384,6 +384,14 @@
     @apply bg-red-500 text-white;
 }
 
+.fff-flex-text-input__action-btn--copy.is-copied {
+    @apply text-emerald-600;
+}
+
+.fff-flex-text-input__copy-icon[x-cloak] {
+    display: none !important;
+}
+
 .fff-flex-text-input__meta {
     @apply flex items-center justify-between gap-3 px-1;
     min-height: 1.25rem;
@@ -557,6 +565,10 @@
 .dark .fff-flex-text-input__action-btn,
 .dark .fff-flex-text-input__action-group .fi-icon-btn {
     @apply text-zinc-200;
+}
+
+.dark .fff-flex-text-input__action-btn--copy.is-copied {
+    @apply text-emerald-400;
 }
 
 .dark .fff-flex-text-input__action-btn:hover:not(:disabled),

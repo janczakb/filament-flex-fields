@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-08T13:00:10.108Z",
+  "generatedAt": "2026-09-08T16:03:09.410Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 1168,
@@ -959,9 +959,9 @@
       "gzipKb": 12.61
     },
     "flex-text-input.js": {
-      "bytes": 11433,
-      "kb": 11.17,
-      "gzipKb": 3.3
+      "bytes": 12023,
+      "kb": 11.74,
+      "gzipKb": 3.46
     },
     "flex-textarea.js": {
       "bytes": 9053,

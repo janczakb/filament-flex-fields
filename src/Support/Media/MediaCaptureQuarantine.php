@@ -38,9 +38,7 @@ final class MediaCaptureQuarantine
             try {
                 $written = $target->writeStream($destination, $read, ['visibility' => 'private']);
             } finally {
-                if (is_resource($read)) {
-                    fclose($read);
-                }
+                fclose($read);
             }
 
             if ($written === false && ! $target->exists($destination)) {
@@ -77,9 +75,7 @@ final class MediaCaptureQuarantine
         try {
             $written = $target->writeStream($destination, $read, ['visibility' => 'private']);
         } finally {
-            if (is_resource($read)) {
-                fclose($read);
-            }
+            fclose($read);
         }
 
         if ($written === false && ! $target->exists($destination)) {
@@ -108,8 +104,8 @@ final class MediaCaptureQuarantine
             }
         }
 
-        if (method_exists($media, 'getPathRelativeToRoot') && method_exists($media, 'disk')) {
-            $disk = (string) $media->disk;
+        if (method_exists($media, 'getPathRelativeToRoot') && method_exists($media, 'getAttributeValue')) {
+            $disk = (string) ($media->getAttributeValue('disk') ?? '');
             $path = (string) $media->getPathRelativeToRoot();
 
             if ($disk !== '' && $path !== '') {
@@ -119,7 +115,7 @@ final class MediaCaptureQuarantine
 
         $diskAttr = method_exists($media, 'getAttributeValue')
             ? $media->getAttributeValue('disk')
-            : (property_exists($media, 'disk') ? $media->disk : null);
+            : null;
         $path = method_exists($media, 'getPathRelativeToRoot')
             ? (string) $media->getPathRelativeToRoot()
             : null;

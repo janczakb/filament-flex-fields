@@ -23,12 +23,12 @@ final class DiskMediaRef implements MediaRef
         return $this->path;
     }
 
-    public function diskName(): ?string
+    public function diskName(): string
     {
         return $this->disk;
     }
 
-    public function relativePath(): ?string
+    public function relativePath(): string
     {
         return $this->path;
     }

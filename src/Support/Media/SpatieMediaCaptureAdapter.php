@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Media;
 
-use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexFileUploadStorage;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
 use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Drivers\SpatieMediaDriver;
 use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaContext;
@@ -303,7 +302,6 @@ final class SpatieMediaCaptureAdapter
             return null;
         }
 
-        /** @var FlexFileUploadStorage $component */
         return FlexMedia::signedUrl($component->getDiskName(), (string) $media->getPathRelativeToRoot(), [
             'visibility' => $component->getVisibility(),
             'field' => $component->getName(),

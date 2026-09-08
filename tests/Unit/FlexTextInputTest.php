@@ -138,6 +138,22 @@ it('uses gravity ui icons for copy and password suffix actions by default', func
         ->and($icons['hidePassword'])->toBe(GravityIcon::EyeClosed);
 });
 
+it('uses native copy button feedback icon instead of filament tooltip handler', function () {
+    $field = FlexTextInput::make('token')->copyable();
+
+    $copy = collect($field->getSuffixActions())
+        ->first(fn ($action) => $action->getName() === 'copy');
+
+    expect($copy)->not->toBeNull();
+
+    $property = new ReflectionProperty($copy, 'alpineClickHandler');
+    $rawHandler = $property->getValue($copy);
+
+    expect($rawHandler)->toBe('return')
+        ->and($field->getCopySuccessIcon())->toBe(GravityIcon::Check)
+        ->and($field->getCopyFeedbackDurationMs())->toBe(2500);
+});
+
 it('allows overriding built-in flex text input action icons', function () {
     $field = FlexTextInput::make('token')
         ->password()

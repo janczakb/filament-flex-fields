@@ -57,10 +57,7 @@ final class DiskMediaDriver implements MediaDriver
             }
 
             if ($written === false && ! $disk->exists($relativePath)) {
-                // Some Flysystem adapters return null/true inconsistently — verify existence.
-                if (! $disk->exists($relativePath)) {
-                    return null;
-                }
+                return null;
             }
         } catch (Throwable) {
             return null;

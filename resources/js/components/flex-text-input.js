@@ -48,6 +48,7 @@ export default function flexTextInputFormComponent({
     isPasswordRevealable,
     hasPersistentActions,
     loadingInGroup,
+    copyFeedbackDuration,
     initialCharacterCount,
     initialState,
 }) {
@@ -100,6 +101,9 @@ export default function flexTextInputFormComponent({
         emojiPickerReady: false,
         focusFromPointer: false,
         isInputUpdating: false,
+        copyFeedback: false,
+        copyFeedbackTimeout: null,
+        copyFeedbackDuration: Math.max(500, Number(copyFeedbackDuration) || 2500),
 
         get characterCount() {
             const current = String(this.state ?? '').length
@@ -193,6 +197,39 @@ export default function flexTextInputFormComponent({
             this.stateHydrated = true
             this.applyStateToInput('')
             this.$refs.input?.focus()
+        },
+
+        async copyInputValue() {
+            const input = this.$refs.input
+
+            if (! input) {
+                return
+            }
+
+            const value = String(input.value ?? '')
+
+            try {
+                if (navigator?.clipboard?.writeText) {
+                    await navigator.clipboard.writeText(value)
+                } else {
+                    input.select()
+                    document.execCommand('copy')
+                    input.setSelectionRange?.(input.value.length, input.value.length)
+                }
+            } catch {
+                return
+            }
+
+            this.copyFeedback = true
+
+            if (this.copyFeedbackTimeout) {
+                clearTimeout(this.copyFeedbackTimeout)
+            }
+
+            this.copyFeedbackTimeout = setTimeout(() => {
+                this.copyFeedback = false
+                this.copyFeedbackTimeout = null
+            }, this.copyFeedbackDuration)
         },
 
         focusInputFromAffix() {

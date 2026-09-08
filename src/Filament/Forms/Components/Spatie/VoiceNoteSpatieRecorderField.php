@@ -300,7 +300,9 @@ class VoiceNoteSpatieRecorderField extends FlexSpatieMediaLibraryFileUpload
             return method_exists($media, 'getUrl') ? (string) $media->getUrl() : null;
         }
 
-        $disk = (string) ($media->getAttributeValue('disk') ?? $this->getDiskName());
+        $disk = method_exists($media, 'getAttributeValue')
+            ? (string) ($media->getAttributeValue('disk') ?? $this->getDiskName())
+            : $this->getDiskName();
 
         return FlexMedia::signedUrl($disk, $path, [
             'field' => $this->getName(),

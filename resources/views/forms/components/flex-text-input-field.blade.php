@@ -133,6 +133,7 @@
             isPasswordRevealable: @js($isPasswordRevealable),
             hasPersistentActions: @js($hasPersistentActions),
             loadingInGroup: @js($loadingInGroup),
+            copyFeedbackDuration: @js($getCopyFeedbackDurationMs()),
             initialCharacterCount: @js($initialCharacterCount),
             initialState: @js($initialInputValue ?? (is_scalar($initialState) ? (string) $initialState : null)),
         })"
@@ -261,6 +262,24 @@
                         @endif
 
                         @foreach ($suffixActions as $action)
+                            @if ($action->getName() === 'copy')
+                                <div class="fff-flex-text-input__action-item fff-flex-text-input__copy">
+                                    <button
+                                        type="button"
+                                        class="fff-flex-text-input__action-btn fff-flex-text-input__action-btn--copy"
+                                        x-bind:class="{ 'is-copied': copyFeedback }"
+                                        x-on:click="copyInputValue()"
+                                        x-bind:aria-label="copyFeedback ? @js(__('filament-forms::components.text_input.actions.copy.message')) : @js(__('filament-forms::components.text_input.actions.copy.label'))"
+                                    >
+                                        <span x-show="! copyFeedback" class="fff-flex-text-input__copy-icon" aria-hidden="true">
+                                            {{ \Filament\Support\generate_icon_html($getCopyIcon(), size: IconSize::Small, attributes: new \Illuminate\View\ComponentAttributeBag(['class' => 'fff-flex-text-input__action-icon'])) }}
+                                        </span>
+                                        <span x-show="copyFeedback" x-cloak class="fff-flex-text-input__copy-icon fff-flex-text-input__copy-icon--success" aria-hidden="true">
+                                            {{ \Filament\Support\generate_icon_html($getCopySuccessIcon(), size: IconSize::Small, attributes: new \Illuminate\View\ComponentAttributeBag(['class' => 'fff-flex-text-input__action-icon'])) }}
+                                        </span>
+                                    </button>
+                                </div>
+                            @else
                             @php
                                 $suffixSlotAttributes = new \Illuminate\View\ComponentAttributeBag([
                                     'class' => 'fff-flex-text-input__action-item fff-flex-text-input__suffix-action',
@@ -280,6 +299,7 @@
                             <div {{ $suffixSlotAttributes }}>
                                 {{ $action }}
                             </div>
+                            @endif
                         @endforeach
                     </div>
                 @endif

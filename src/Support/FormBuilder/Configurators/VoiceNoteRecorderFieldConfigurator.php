@@ -41,7 +41,11 @@ final class VoiceNoteRecorderFieldConfigurator implements FieldConfigurator
         /** @var VoiceNoteSpatieRecorderField $field */
         $field = $this->fileUpload->configure($field, $config);
 
-        return $this->applyVoiceNoteOptions($field, $config, applyDirectoryDefault: false);
+        $configured = $this->applyVoiceNoteOptions($field, $config, applyDirectoryDefault: false);
+
+        assert($configured instanceof VoiceNoteSpatieRecorderField);
+
+        return $configured;
     }
 
     /**

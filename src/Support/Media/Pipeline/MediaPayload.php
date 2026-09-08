@@ -29,17 +29,17 @@ final class MediaPayload
         $path = rescue(fn (): string => $file->getRealPath() ?: $file->path(), '', report: false);
         $path = is_string($path) && $path !== '' && is_file($path) ? $path : null;
 
-        $originalName = rescue(fn (): string => (string) $file->getClientOriginalName(), null, report: false);
-        $mime = rescue(fn (): ?string => $file->getMimeType(), null, report: false);
-        $size = rescue(fn (): ?int => $file->getSize(), null, report: false);
+        $originalName = rescue(fn (): string => (string) $file->getClientOriginalName(), '', report: false);
+        $mime = rescue(fn (): string => (string) ($file->getMimeType() ?: ''), '', report: false);
+        $size = rescue(fn (): int => (int) $file->getSize(), 0, report: false);
 
         return new self(
             localPath: $path,
             stream: null,
             inlineContents: null,
-            originalName: is_string($originalName) ? $originalName : null,
-            mimeType: is_string($mime) ? $mime : null,
-            size: is_int($size) ? $size : null,
+            originalName: $originalName !== '' ? $originalName : null,
+            mimeType: $mime !== '' ? $mime : null,
+            size: $size > 0 ? $size : null,
         );
     }
 
@@ -118,7 +118,10 @@ final class MediaPayload
     public function openReadableStream(): mixed
     {
         if ($this->hasLocalPath()) {
-            $handle = fopen($this->localPath, 'rb');
+            $localPath = $this->localPath;
+            assert(is_string($localPath));
+
+            $handle = fopen($localPath, 'rb');
 
             if (! is_resource($handle)) {
                 throw new RuntimeException('Unable to open media payload path for reading.');

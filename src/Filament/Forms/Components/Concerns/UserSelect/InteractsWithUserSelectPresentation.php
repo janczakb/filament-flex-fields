@@ -87,9 +87,7 @@ trait InteractsWithUserSelectPresentation
      */
     public function getUserSelectEmptyStateHintsForJs(): array
     {
-        $minSearchLength = method_exists($this, 'getMinSearchLength')
-            ? (int) $this->getMinSearchLength()
-            : 0;
+        $minSearchLength = (int) $this->getMinSearchLength();
 
         return [
             'tryDifferentSearch' => Translations::get('filament-flex-fields::default.user_select_field.empty_hint.try_different_search'),

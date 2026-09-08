@@ -242,7 +242,7 @@ trait InteractsWithFlexRichEditorFileAttachments
                 ? MediaStorageDriver::Spatie
                 : MediaStorageDriver::Disk,
             field: $this->getName(),
-            record: $this->getRecord(),
+            record: ($record = $this->getRecord()) instanceof Model ? $record : null,
             disk: $this->getFileAttachmentsDiskName(),
             directory: $this->getFileAttachmentsDirectory(),
         ))->withCorrelationId((string) Str::uuid());

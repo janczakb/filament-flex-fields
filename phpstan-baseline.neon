@@ -193,6 +193,12 @@ parameters:
 			path: src/Filament/Forms/Components/FlexDateTimeField.php
 
 		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\:\:spatie\(\) should return Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload but returns Filament\\Forms\\Components\\BaseFileUpload\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Forms/Components/FlexFileUpload.php
+
+		-
 			message: '#^Parameter \#1 \$value of method Filament\\Support\\Components\\Component\:\:evaluate\(\) expects \(callable\(\)\: void\)\|void, Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, Livewire\\Features\\SupportFileUploads\\TemporaryUploadedFile\)\: void given\.$#'
 			identifier: argument.type
 			count: 1
@@ -310,12 +316,6 @@ parameters:
 			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<\(int\|string\),Filament\\Actions\\Action\|Filament\\Actions\\ActionGroup\>\:\:map\(\) expects callable\(Filament\\Actions\\Action\|Filament\\Actions\\ActionGroup, int\|string\)\: Filament\\Actions\\Action, Closure\(Filament\\Actions\\Action\)\: Filament\\Actions\\Action given\.$#'
 			identifier: argument.type
 			count: 1
-			path: src/Filament/Forms/Components/FlexTextareaField.php
-
-		-
-			message: '#^Possibly invalid array key type string\|null\.$#'
-			identifier: offsetAccess.invalidOffset
-			count: 2
 			path: src/Filament/Forms/Components/FlexTextareaField.php
 
 		-
@@ -889,6 +889,12 @@ parameters:
 			path: src/Filament/Forms/Components/UserSelect/UserSelectQueryEngine.php
 
 		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\VoiceNoteRecorderField\:\:spatie\(\) should return Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\VoiceNoteSpatieRecorderField but returns Filament\\Forms\\Components\\BaseFileUpload\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Filament/Forms/Components/VoiceNoteRecorderField.php
+
+		-
 			message: '#^Parameter \#1 \$callback of method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\:\:afterPersistUploadedFileUsing\(\) expects \(Closure\(Filament\\Forms\\Components\\BaseFileUpload, string, Livewire\\Features\\SupportFileUploads\\TemporaryUploadedFile\)\: void\)\|null, Closure\(Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\VoiceNoteRecorderField, string\)\: void given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1039,6 +1045,24 @@ parameters:
 			path: src/Filament/Resources/FlexFieldGroupResource.php
 
 		-
+			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Concerns/ManagesFlexFieldGroupSchemaActions.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Concerns/ManagesFlexFieldGroupSchemaActions.php
+
+		-
+			message: '#^Using nullsafe property access "\?\-\>target_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
+			identifier: nullsafe.neverNull
+			count: 2
+			path: src/Filament/Resources/FlexFieldGroupResource/Concerns/ManagesFlexFieldGroupSchemaActions.php
+
+		-
 			message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory\:\:id\(\)\.$#'
 			identifier: method.notFound
 			count: 1
@@ -1120,24 +1144,6 @@ parameters:
 			message: '#^Parameter \#1 \$title of method Filament\\Notifications\\Notification\:\:title\(\) expects Closure\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 7
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>target_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
 			path: src/Filament/Resources/FlexFieldGroupResource/Pages/CreateFlexFieldGroup.php
 
 		-
@@ -1288,24 +1294,6 @@ parameters:
 			message: '#^Parameter \#1 \$title of method Filament\\Notifications\\Notification\:\:title\(\) expects Closure\|string\|null, array\|string given\.$#'
 			identifier: argument.type
 			count: 9
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>name" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>slug" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
-			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
-
-		-
-			message: '#^Using nullsafe property access "\?\-\>target_type" on left side of \?\? is unnecessary\. Use \-\> instead\.$#'
-			identifier: nullsafe.neverNull
-			count: 2
 			path: src/Filament/Resources/FlexFieldGroupResource/Pages/EditFlexFieldGroup.php
 
 		-
@@ -1975,31 +1963,13 @@ parameters:
 			path: src/Support/FlexFieldAssets.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldAssets\:\:playgroundStylesheetHrefsForRequest\(\) should return list\<string\> but returns array\{string\|null\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Support/FlexFieldAssets.php
-
-		-
 			message: '#^Parameter \#1 \$chunks of static method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldAssets\:\:expandTransitiveAlpineChunks\(\) expects list\<string\>, array\<mixed\> given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Support/FlexFieldAssets.php
 
 		-
-			message: '#^Undefined variable\: \$statePathPrefix$#'
-			identifier: variable.undefined
-			count: 2
-			path: src/Support/FlexFieldFormBuilder.php
-
-		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:find\(\) should return array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\|null but returns array\{label\: string, playground\: class\-string, sort\: int, icon\: string\}\|null\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Support/FlexFieldsPlaygroundRegistry.php
-
-		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FlexFieldsPlaygroundRegistry\:\:groupedByCategory\(\) should return array\<string, list\<array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\> but returns array\{meta\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, layout\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, fields\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, tables\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>, media\: array\<string, array\{label\: string, playground\: class\-string, sort\: int, icon\: string, category\: Bjanczak\\FilamentFlexFields\\Enums\\PlaygroundCategory, badge\?\: string, badgeColor\?\: string, docs_path\?\: string\}\>\}\.$#'
 			identifier: return.type
 			count: 1
 			path: src/Support/FlexFieldsPlaygroundRegistry.php
@@ -2171,6 +2141,24 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Support/FormBuilder/Configurators/FlexColorPickerFieldConfigurator.php
+
+		-
+			message: '#^Instanceof between Filament\\Schemas\\Components\\Component and Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Support/FormBuilder/Configurators/FlexFileUploadFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\FlexFileUploadFieldConfigurator\:\:configure\(\) should return Filament\\Schemas\\Components\\Component but returns Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\|Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/FlexFileUploadFieldConfigurator.php
+
+		-
+			message: '#^PHPDoc tag @var with type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\|Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload is not subtype of native type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\FlexFileUpload\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Support/FormBuilder/Configurators/FlexFileUploadFieldConfigurator.php
 
 		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\FlexRadiolistFieldConfigurator\:\:configureFlexRadiolistField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
@@ -2437,8 +2425,38 @@ parameters:
 			path: src/Support/FormBuilder/Configurators/VideoFieldConfigurator.php
 
 		-
+			message: '#^Instanceof between Filament\\Schemas\\Components\\Component and Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\VoiceNoteSpatieRecorderField will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\VoiceNoteRecorderFieldConfigurator\:\:configure\(\) should return Filament\\Schemas\\Components\\Component but returns Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\VoiceNoteSpatieRecorderField\.$#'
+			identifier: return.type
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\VoiceNoteRecorderFieldConfigurator\:\:configureVoiceNoteRecorderField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
+			message: '#^Method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\VoiceNoteRecorderFieldConfigurator\:\:configureVoiceNoteSpatieRecorderField\(\) has parameter \$config with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
+			message: '#^PHPDoc tag @var with type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\VoiceNoteSpatieRecorderField is not subtype of native type Filament\\Schemas\\Components\\Component\.$#'
+			identifier: varTag.nativeType
+			count: 1
+			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
+
+		-
+			message: '#^Parameter \#1 \$field of method Bjanczak\\FilamentFlexFields\\Support\\FormBuilder\\Configurators\\FlexFileUploadFieldConfigurator\:\:configure\(\) expects Filament\\Schemas\\Components\\Component, Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\VoiceNoteSpatieRecorderField given\.$#'
+			identifier: argument.type
 			count: 1
 			path: src/Support/FormBuilder/Configurators/VoiceNoteRecorderFieldConfigurator.php
 
@@ -2571,7 +2589,7 @@ parameters:
 		-
 			message: '#^Call to an undefined method object\:\:getAttributeValue\(\)\.$#'
 			identifier: method.notFound
-			count: 6
+			count: 5
 			path: src/Support/Media/SpatieMediaCaptureAdapter.php
 
 		-
@@ -2593,12 +2611,6 @@ parameters:
 			path: src/Support/Media/SpatieMediaCaptureAdapter.php
 
 		-
-			message: '#^Call to method resolveMediaCaptureSignedUrl\(\) on an unknown class Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage\.$#'
-			identifier: class.notFound
-			count: 1
-			path: src/Support/Media/SpatieMediaCaptureAdapter.php
-
-		-
 			message: '#^Cannot call method delete\(\) on stdClass\.$#'
 			identifier: method.nonObject
 			count: 1
@@ -2607,18 +2619,6 @@ parameters:
 		-
 			message: '#^Cannot call method getAttributeValue\(\) on stdClass\.$#'
 			identifier: method.nonObject
-			count: 1
-			path: src/Support/Media/SpatieMediaCaptureAdapter.php
-
-		-
-			message: '#^PHPDoc tag @var for variable \$component has invalid type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage\.$#'
-			identifier: varTag.trait
-			count: 1
-			path: src/Support/Media/SpatieMediaCaptureAdapter.php
-
-		-
-			message: '#^PHPDoc tag @var with type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Concerns\\FlexFileUpload\\FlexFileUploadStorage is not subtype of native type Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\Spatie\\FlexSpatieMediaLibraryFileUpload\.$#'
-			identifier: varTag.nativeType
 			count: 1
 			path: src/Support/Media/SpatieMediaCaptureAdapter.php
 
@@ -2751,12 +2751,6 @@ parameters:
 		-
 			message: '#^Offset int\<0, max\>\|null might not exist on list\<array\{url\: string, width\: int\}\>\.$#'
 			identifier: offsetAccess.notFound
-			count: 1
-			path: src/Support/RichEditor/RichEditorResponsiveSrcsetBuilder.php
-
-		-
-			message: '#^Possibly invalid array key type int\<0, max\>\|null\.$#'
-			identifier: offsetAccess.invalidOffset
 			count: 1
 			path: src/Support/RichEditor/RichEditorResponsiveSrcsetBuilder.php
 

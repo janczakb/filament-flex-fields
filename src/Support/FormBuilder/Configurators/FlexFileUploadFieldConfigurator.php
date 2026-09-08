@@ -68,53 +68,53 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
             $field->maxFiles((int) $config['max_files']);
         }
 
-        if (array_key_exists('max_total_size_kb', $config) && method_exists($field, 'maxTotalSizeKb')) {
+        if (array_key_exists('max_total_size_kb', $config)) {
             $field->maxTotalSizeKb((int) $config['max_total_size_kb']);
         }
 
-        if (array_key_exists('documents_only', $config) && (bool) $config['documents_only'] && method_exists($field, 'documentsOnly')) {
+        if (array_key_exists('documents_only', $config) && (bool) $config['documents_only']) {
             $field->documentsOnly();
         }
 
-        if (array_key_exists('images_only', $config) && (bool) $config['images_only'] && method_exists($field, 'imagesOnly')) {
+        if (array_key_exists('images_only', $config) && (bool) $config['images_only']) {
             $field->imagesOnly();
         }
 
-        if (array_key_exists('variant', $config) && filled($config['variant']) && method_exists($field, 'variant')) {
+        if (array_key_exists('variant', $config) && filled($config['variant'])) {
             $field->variant((string) $config['variant']);
         }
 
-        if (array_key_exists('size', $config) && filled($config['size']) && method_exists($field, 'size')) {
+        if (array_key_exists('size', $config) && filled($config['size'])) {
             $field->size($config['size']);
         }
 
-        if (array_key_exists('store_metadata_in', $config) && filled($config['store_metadata_in']) && method_exists($field, 'storeMetadataIn')) {
+        if (array_key_exists('store_metadata_in', $config) && filled($config['store_metadata_in'])) {
             $field->storeMetadataIn((string) $config['store_metadata_in']);
         }
 
-        if (array_key_exists('scoped_directory', $config) && method_exists($field, 'scopedDirectory')) {
+        if (array_key_exists('scoped_directory', $config)) {
             if ((bool) $config['scoped_directory']) {
                 $field->scopedDirectory(is_string($config['scoped_directory']) ? $config['scoped_directory'] : 'uploads');
             }
         }
 
-        if (array_key_exists('optimize_images', $config) && method_exists($field, 'optimizeImages')) {
+        if (array_key_exists('optimize_images', $config)) {
             $field->optimizeImages((bool) $config['optimize_images']);
         }
 
-        if (array_key_exists('max_image_width', $config) && method_exists($field, 'maxImageWidth')) {
+        if (array_key_exists('max_image_width', $config)) {
             $field->maxImageWidth((int) $config['max_image_width']);
         }
 
-        if (array_key_exists('max_image_height', $config) && method_exists($field, 'maxImageHeight')) {
+        if (array_key_exists('max_image_height', $config)) {
             $field->maxImageHeight((int) $config['max_image_height']);
         }
 
-        if (array_key_exists('allow_url_upload', $config) && (bool) $config['allow_url_upload'] && method_exists($field, 'allowUrlUpload')) {
+        if (array_key_exists('allow_url_upload', $config) && (bool) $config['allow_url_upload']) {
             $field->allowUrlUpload();
         }
 
-        if (array_key_exists('allow_webcam_upload', $config) && (bool) $config['allow_webcam_upload'] && method_exists($field, 'allowWebcamUpload')) {
+        if (array_key_exists('allow_webcam_upload', $config) && (bool) $config['allow_webcam_upload']) {
             $field->allowWebcamUpload();
         }
 

@@ -35,12 +35,12 @@ final class SpatieMediaRef implements MediaRef
         return $this->path;
     }
 
-    public function mediaUuid(): ?string
+    public function mediaUuid(): string
     {
         return $this->uuid;
     }
 
-    public function media(): ?object
+    public function media(): object
     {
         return $this->media;
     }

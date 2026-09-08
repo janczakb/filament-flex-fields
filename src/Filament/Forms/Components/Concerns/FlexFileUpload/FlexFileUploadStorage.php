@@ -295,9 +295,9 @@ trait FlexFileUploadStorage
             kind: $kind,
             driver: MediaStorageDriver::Disk,
             field: $this->getName(),
-            record: $this->getRecord(),
+            record: ($record = $this->getRecord()) instanceof Model ? $record : null,
             disk: $this->getDiskName(),
-            directory: method_exists($this, 'getDirectory') ? $this->getDirectory() : null,
+            directory: $this->getDirectory(),
         ))->withCorrelationId((string) Str::uuid());
     }
 

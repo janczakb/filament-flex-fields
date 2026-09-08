@@ -125,9 +125,12 @@ class TimezoneRegistryQueue
         return app(self::class)->queuedPools();
     }
 
+    /**
+     * @param  list<string>  $identifiers
+     */
     public static function registerTimezoneFilter(array $identifiers): string
     {
-        return app(self::class)->queueTimezoneFilter($identifiers);
+        return app(self::class)->queueTimezoneFilter(array_values($identifiers));
     }
 
     public static function registerLocale(string $locale): bool

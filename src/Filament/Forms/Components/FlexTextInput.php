@@ -61,6 +61,8 @@ class FlexTextInput extends TextInput
 
     protected string|BackedEnum|Htmlable|Closure|null $copyIcon = null;
 
+    protected int|Closure|null $copyFeedbackDuration = null;
+
     protected string|BackedEnum|Htmlable|Closure|null $showPasswordIcon = null;
 
     protected string|BackedEnum|Htmlable|Closure|null $hidePasswordIcon = null;
@@ -311,7 +313,10 @@ class FlexTextInput extends TextInput
         string|Closure|null $copyMessage = null,
         int|Closure|null $copyMessageDuration = null,
     ): static {
-        parent::copyable($condition, $copyMessage, $copyMessageDuration);
+        $duration = $copyMessageDuration ?? 2500;
+        $this->copyFeedbackDuration = $duration;
+
+        parent::copyable($condition, $copyMessage, $duration);
 
         $this->applyOutlineSuffixActionIcons(
             copy: true,
@@ -347,7 +352,7 @@ class FlexTextInput extends TextInput
         foreach ($this->getSuffixActions() as $action) {
             match ($action->getName()) {
                 CopyAction::getDefaultName() => $copy
-                    ? $action->icon($this->getCopyIcon())
+                    ? $this->configureFlexCopyAction($action)
                     : null,
                 ShowPasswordAction::getDefaultName() => $showPassword
                     ? $action->icon($this->getShowPasswordIcon())
@@ -358,6 +363,45 @@ class FlexTextInput extends TextInput
                 default => null,
             };
         }
+    }
+
+    /**
+     * Copy lives in `.fff-flex-text-input__action-group` (outside Filament's `.fi-input-wrp`).
+     * The blade renders a custom button with temporary success-icon feedback (no tooltip).
+     */
+    protected function configureFlexCopyAction(Action $action): void
+    {
+        $action->icon($this->getCopyIcon());
+
+        // Prevent stock Filament handler (closest('.fi-input-wrp') + tooltip) — unused when we
+        // render the native action-group copy button, but keep a no-op if the action is ever rendered.
+        if ($action instanceof CopyAction) {
+            $action->alpineClickHandler('return');
+        }
+    }
+
+    public function getCopySuccessIcon(): string|BackedEnum|Htmlable
+    {
+        $configured = config('filament-flex-fields.ui.flex_text_input_copy_success_icon');
+
+        return is_string($configured) && filled($configured)
+            ? $configured
+            : GravityIcon::Check;
+    }
+
+    public function getCopyFeedbackDurationMs(): int
+    {
+        $duration = $this->copyFeedbackDuration;
+
+        if ($duration instanceof Closure) {
+            $duration = $this->evaluate($duration);
+        }
+
+        if (! is_int($duration) || $duration < 1) {
+            return 2500;
+        }
+
+        return max(500, $duration);
     }
 
     public function getVariant(): string

@@ -47,11 +47,14 @@ class CurrencyRegistryQueue
     /**
      * @param  list<string>  $codes
      */
+    /**
+     * @param  list<string>  $codes
+     */
     public function queueCurrencyFilter(array $codes): string
     {
         $normalized = array_values(array_unique(array_map(
             static fn (string $code): string => strtoupper($code),
-            $codes,
+            array_values($codes),
         )));
 
         sort($normalized);
@@ -100,9 +103,12 @@ class CurrencyRegistryQueue
         return app(self::class)->queuedPools();
     }
 
+    /**
+     * @param  list<string>  $codes
+     */
     public static function registerCurrencyFilter(array $codes): string
     {
-        return app(self::class)->queueCurrencyFilter($codes);
+        return app(self::class)->queueCurrencyFilter(array_values($codes));
     }
 
     public static function renderScriptOnce(): string

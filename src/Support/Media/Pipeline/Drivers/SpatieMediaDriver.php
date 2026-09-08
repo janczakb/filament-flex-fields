@@ -51,6 +51,10 @@ final class SpatieMediaDriver implements MediaDriver
         try {
             $mediaAdder = $this->createMediaAdder($record, $payload);
 
+            if (! method_exists($mediaAdder, 'addCustomHeaders')) {
+                return null;
+            }
+
             $media = $mediaAdder
                 ->addCustomHeaders($context->customHeaders)
                 ->usingFileName($filename)
@@ -72,7 +76,13 @@ final class SpatieMediaDriver implements MediaDriver
             return null;
         }
 
-        $uuid = (string) $media->getAttributeValue('uuid');
+        if (! is_object($media)) {
+            return null;
+        }
+
+        $uuid = method_exists($media, 'getAttributeValue')
+            ? (string) $media->getAttributeValue('uuid')
+            : (string) data_get($media, 'uuid');
         $path = method_exists($media, 'getPathRelativeToRoot')
             ? (string) $media->getPathRelativeToRoot()
             : null;

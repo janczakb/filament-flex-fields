@@ -7,12 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.14] - 2026-09-08
+
+### Fixed
+
+- **CI PHPStan (quality PHP 8.3)** — typed Media Ingress / registry helpers and refreshed `phpstan-baseline.neon` so Release 3.1.13’s PHPStan job no longer fails after the Media Capture OS surface landed.
+
 ## [3.1.13] - 2026-09-08
 
 ### Changed
 
 - **CI / Pest speed** — Select playground stress suites (`PlaygroundSelectVariantAtomicsTest` ~8k Livewire cases, plus cascade / Livewire / config matrices) are **excluded from default Pest and CI**. Maintainer one-shot only: `FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics`. Default `quality` jobs should finish in minutes.
 - **Bundle budgets** — slightly raised `icon-picker-field.css` / `flex-fields-select-menu` caps to match current dist after Select sheet / menu work.
+
+### Fixed
+
+- **FlexTextInput `->copyable()`** — copy action lives in the external action group (outside Filament’s `.fi-input-wrp`), so the stock Alpine handler threw `Cannot read properties of null (reading 'querySelector')`. Native action-group button copies via the field shell and swaps to a check icon for ~2.5s (no Filament tooltip).
 
 ## [3.1.12] - 2026-09-08
 

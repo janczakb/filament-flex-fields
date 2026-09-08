@@ -188,6 +188,9 @@ final class MediaIngress
         return true;
     }
 
+    /**
+     * @param  array<string, mixed>  $context
+     */
     public function resolveSignedUrl(string $disk, string $path, array $context = []): ?string
     {
         $resolver = MediaCaptureOs::signedUploadUrlResolver();
@@ -204,8 +207,12 @@ final class MediaIngress
     public function reject(MediaRef $ref, MediaContext $context): void
     {
         if ($ref instanceof SpatieMediaRef) {
-            MediaCaptureQuarantine::quarantineSpatieMedia($ref->media());
-            rescue(fn () => $ref->media()?->delete(), report: false);
+            $media = $ref->media();
+            MediaCaptureQuarantine::quarantineSpatieMedia($media);
+
+            if (method_exists($media, 'delete')) {
+                rescue(fn () => $media->delete(), report: false);
+            }
 
             return;
         }
@@ -219,11 +226,24 @@ final class MediaIngress
     {
         $scanPath = null;
 
-        if ($ref instanceof SpatieMediaRef && method_exists($ref->media(), 'getPath')) {
-            $scanPath = (string) $ref->media()->getPath();
+        if ($ref instanceof SpatieMediaRef) {
+            $media = $ref->media();
+
+            if (method_exists($media, 'getPath')) {
+                $scanPath = (string) $media->getPath();
+            }
         } elseif ($ref->relativePath() !== null && $ref->diskName() !== null) {
             $absolute = rescue(
-                fn (): string => Storage::disk($ref->diskName())->path($ref->relativePath()),
+                function () use ($ref): string {
+                    $disk = $ref->diskName();
+                    $path = $ref->relativePath();
+
+                    if ($disk === null || $path === null) {
+                        return '';
+                    }
+
+                    return Storage::disk($disk)->path($path);
+                },
                 '',
                 report: false,
             );
