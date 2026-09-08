@@ -3,14 +3,14 @@ updates:
   - package-ecosystem: "composer"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      # Daily: catch Filament minors/patches within ~24h of Packagist publish.
+      interval: "daily"
     open-pull-requests-limit: 10
     cooldown:
-      default-days: 3
-      semver-major-days: 7
-      semver-minor-days: 3
-      semver-patch-days: 3
+      default-days: 0
+      semver-major-days: 3
+      semver-minor-days: 0
+      semver-patch-days: 0
     groups:
       filament:
         patterns:

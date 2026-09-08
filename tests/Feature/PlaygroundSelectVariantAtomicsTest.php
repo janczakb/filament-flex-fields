@@ -15,9 +15,23 @@ use Illuminate\Support\Facades\Schema;
 use Livewire\Features\SupportTesting\Testable;
 use Livewire\Livewire;
 
+/*
+|--------------------------------------------------------------------------
+| Manual Select stress matrix (~8k Livewire cases)
+|--------------------------------------------------------------------------
+| Excluded from default Pest / CI (phpunit.xml). One-shot maintainer run:
+|   FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics
+*/
+
 uses(RefreshDatabase::class);
 
 beforeEach(function (): void {
+    if (! SelectPlaygroundVariantRegistry::wantsFullAtomicsMatrix()) {
+        $this->markTestSkipped(
+            'Select atomics are manual-only. Run: FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics'
+        );
+    }
+
     Schema::dropIfExists('select_payload_posts');
 
     Schema::create('select_payload_posts', function (Blueprint $table): void {
@@ -394,7 +408,7 @@ it('select playground variant atomic matrix', function (string $key, string $sce
     }
 
     throw new InvalidArgumentException("Unhandled scenario [{$scenario}] for [{$key}].");
-})->with(SelectPlaygroundVariantRegistry::dataset());
+})->with(fn (): array => SelectPlaygroundVariantRegistry::dataset());
 
 it('clearable variants expose clearable API; not_clearable hides UI clear', function (string $key): void {
     $variant = SelectPlaygroundVariantRegistry::get($key);

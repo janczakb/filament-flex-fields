@@ -8,8 +8,8 @@ on:
     paths:
       - '**'
   schedule:
-    # Catch Filament minors / 5.x-dev drift early.
-    - cron: '0 6 * * 1'
+    # Daily Filament compat + 5.x-dev canary (~06:00 UTC).
+    - cron: '0 6 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -20,6 +20,7 @@ jobs:
   quality:
     name: quality (PHP ${{ matrix.php }})
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
@@ -63,6 +64,7 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      # Select playground stress suites (~8k+) excluded from Pest — see composer test:select-atomics.
       - name: Run Pest
         run: vendor/bin/pest --compact
 

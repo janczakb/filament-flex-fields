@@ -10,6 +10,19 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Tests\Support\TestableTranslatableForm;
 use Livewire\Livewire;
 
+/*
+| Manual Select stress — excluded from default Pest / CI.
+| Run: FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics
+*/
+
+beforeEach(function (): void {
+    if (! filter_var(getenv('FFF_SELECT_ATOMICS_FULL') ?: '', FILTER_VALIDATE_BOOLEAN)) {
+        $this->markTestSkipped(
+            'Select config matrix is manual-only. Run: FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics'
+        );
+    }
+});
+
 it('atomic SelectField config matrix round-trips Livewire state', function (
     bool $multiple,
     bool $searchable,

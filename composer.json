@@ -114,6 +114,7 @@
     },
     "scripts": {
         "test": "pest",
+        "test:select-atomics": "FFF_SELECT_ATOMICS_FULL=1 pest --compact tests/Feature/PlaygroundSelectVariantAtomicsTest.php tests/Feature/PlaygroundSelectCascadeAtomicsTest.php tests/Feature/PlaygroundSelectLivewireMatrixTest.php tests/Feature/PlaygroundSelectConfigMatrixTest.php",
         "test:filament-compat": [
             "@php vendor/bin/pest --compact tests/Unit/FilamentOverrideCompatibilityTest.php tests/Feature/TranslatableFieldsFilament58SmokeTest.php tests/Unit/TranslatableFieldsTest.php tests/Unit/TranslatableArchitectureTest.php tests/Feature/TranslatableFieldsTest.php tests/Feature/TranslatableFieldsPlaygroundFillTest.php tests/Feature/TitleSlugTranslatableFieldTest.php tests/Feature/SelectFieldCoordinatorRenderTest.php"
         ],

@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.13] - 2026-09-08
+
+### Changed
+
+- **CI / Pest speed** — Select playground stress suites (`PlaygroundSelectVariantAtomicsTest` ~8k Livewire cases, plus cascade / Livewire / config matrices) are **excluded from default Pest and CI**. Maintainer one-shot only: `FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics`. Default `quality` jobs should finish in minutes.
+- **Bundle budgets** — slightly raised `icon-picker-field.css` / `flex-fields-select-menu` caps to match current dist after Select sheet / menu work.
+
 ## [3.1.12] - 2026-09-08
 
 ### Fixed
 
 - **CI on PHP 8.3** — `composer.lock` is generated with `config.platform.php = 8.3.33` so locked deps (e.g. `symfony/clock`) stay installable on the minimum supported PHP. The previous lock pulled Symfony 8.1 (`php >=8.4.1`) on a PHP 8.5 maintainer machine and broke all PHP 8.3 Actions jobs.
+- **Faster Filament watch** — Dependabot Composer + scheduled CI run **daily** (~06:00 UTC) so new Filament 5.x tags are usually caught within ~24h (npm/Actions Dependabot stay weekly).
 
 ## [3.1.11] - 2026-09-08
 

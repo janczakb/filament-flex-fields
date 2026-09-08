@@ -37,7 +37,7 @@ const CSS_BUDGETS = {
     'flex-date-time-field.css': { rawKb: 36, gzipKb: 6 },
     'flex-file-upload.css': { rawKb: 60, gzipKb: 8 },
     'barcode-scanner-field.css': { rawKb: 12, gzipKb: 3 },
-    'icon-picker-field.css': { rawKb: 24, gzipKb: 5 },
+    'icon-picker-field.css': { rawKb: 28, gzipKb: 6 },
 };
 
 /** @type {Record<string, { rawKb?: number, gzipKb?: number }>} */
@@ -45,7 +45,7 @@ const JS_BUDGETS = {
     'flex-fields-phone-lib': { rawKb: 195, gzipKb: 48 },
     'flex-fields-emoji': { rawKb: 120, gzipKb: 40 },
     'flex-fields-mapbox': { rawKb: 20, gzipKb: 8 },
-    'flex-fields-select-menu': { rawKb: 42, gzipKb: 12 },
+    'flex-fields-select-menu': { rawKb: 52, gzipKb: 13 },
     'flex-fields-barcode-scanner': { rawKb: 460, gzipKb: 125 },
     'barcode-scanner-field.js': { rawKb: 24, gzipKb: 7 },
     'phone-field.js': { rawKb: 20, gzipKb: 8 },

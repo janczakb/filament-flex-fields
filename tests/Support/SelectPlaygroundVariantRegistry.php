@@ -253,7 +253,10 @@ final class SelectPlaygroundVariantRegistry
     }
 
     /**
-     * Hundreds of atomic scenario ids per variant.
+     * Atomic scenario ids per variant (~8k Livewire cases across all keys).
+     *
+     * Not part of default CI. Manual one-shot only:
+     * `FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics`
      *
      * @return list<string>
      */
@@ -324,11 +327,27 @@ final class SelectPlaygroundVariantRegistry
         return $ids;
     }
 
+    public static function wantsFullAtomicsMatrix(): bool
+    {
+        $raw = getenv('FFF_SELECT_ATOMICS_FULL');
+
+        if ($raw === false || $raw === '') {
+            return false;
+        }
+
+        return filter_var($raw, FILTER_VALIDATE_BOOLEAN);
+    }
+
     /**
      * @return list<array{0: string, 1: string}>
      */
     public static function dataset(): array
     {
+        if (! self::wantsFullAtomicsMatrix()) {
+            // Non-empty placeholder so Pest does not reject an empty provider when the file is run without the env flag.
+            return ['manual_only' => ['__manual__', '__manual__']];
+        }
+
         $rows = [];
 
         foreach (self::keys() as $key) {

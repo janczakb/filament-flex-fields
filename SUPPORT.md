@@ -8,9 +8,9 @@ Filament Flex Fields is tested as a **premium Filament v5 plugin**. This documen
 |------------|-----------------|-------------|
 | PHP | `^8.3` | 8.3, 8.4, 8.5 |
 | Filament | `^5.0` | **5.7.8** (regression floor before `schema(Schema\|…)`) and **^5.8** (current stable line) |
-| Filament canary | `5.x-dev` | Weekly / on push — **non-blocking** (`continue-on-error`) |
+| Filament canary | `5.x-dev` | **Daily** schedule / on push — **non-blocking** (`continue-on-error`) |
 
-We aim to keep the plugin green on the **latest Filament 5.x stable** within **1–2 business days** of a breaking upstream release (Dependabot + scheduled `filament-compat` + override signature guards).
+We aim to keep the plugin green on the **latest Filament 5.x stable** within **~24 hours** of a Packagist release (daily Dependabot + daily scheduled `filament-compat` / canary + override signature guards).
 
 ## How we catch Filament breaks (class of [#61](https://github.com/janczakb/filament-flex-fields/issues/61))
 
@@ -18,7 +18,7 @@ We aim to keep the plugin green on the **latest Filament 5.x stable** within **1
 2. **`FilamentOverrideCompatibilityTest`** — reflection LSP checks on critical overrides (`schema()`, Select, RichEditor, …).
 3. **`filament-compat` matrix** — Pest compatibility suites on PHP × Filament axes.
 4. **`filament-dev` canary** — installs `filament/filament:5.x-dev` to surface breaks before a tag.
-5. **Dependabot** groups `filament/*` (weekly).
+5. **Dependabot** groups `filament/*` (**daily**; npm/Actions stay weekly).
 
 ## Release gate (required checks)
 
@@ -35,7 +35,10 @@ Configure under **Settings → Branches → Branch protection rules → Require 
 
 ```bash
 composer install
+composer test
 composer test:filament-compat
+# Optional one-shot Select stress (~8k Livewire cases) — NOT part of CI:
+FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics
 ```
 
 To simulate CI Filament switch:

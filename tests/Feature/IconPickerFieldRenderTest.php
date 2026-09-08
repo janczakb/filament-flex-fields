@@ -160,7 +160,7 @@ it('keeps icon picker results scrollable when select grid dropdown styles are lo
         ->toContain('iconLoadMoreSentinel')
         ->toContain('showLoadMoreTailSkeleton')
         ->toContain('showScrollLoadSkeleton')
-        ->toContain('loadedIconItems.length > 0 && ! showInitialSkeleton')
+        ->toContain('loadedIconItems.length > 0 && iconResultsReady')
         ->not->toContain('resultsGeometryReady')
         ->toContain('virtual-spacer-top')
         ->toContain('icon-picker-skeleton-cell')

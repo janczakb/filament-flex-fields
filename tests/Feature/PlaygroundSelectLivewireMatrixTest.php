@@ -11,6 +11,19 @@ use Illuminate\Auth\GenericUser;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 
+/*
+| Manual Select stress — excluded from default Pest / CI.
+| Run: FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics
+*/
+
+beforeEach(function (): void {
+    if (! filter_var(getenv('FFF_SELECT_ATOMICS_FULL') ?: '', FILTER_VALIDATE_BOOLEAN)) {
+        $this->markTestSkipped(
+            'Select Livewire matrix is manual-only. Run: FFF_SELECT_ATOMICS_FULL=1 composer test:select-atomics'
+        );
+    }
+});
+
 /**
  * @return array<string, mixed>
  */

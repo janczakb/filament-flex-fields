@@ -10,6 +10,11 @@
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
+            <!-- Heavy Select playground stress suites — manual only (composer test:select-atomics). -->
+            <exclude>tests/Feature/PlaygroundSelectVariantAtomicsTest.php</exclude>
+            <exclude>tests/Feature/PlaygroundSelectCascadeAtomicsTest.php</exclude>
+            <exclude>tests/Feature/PlaygroundSelectLivewireMatrixTest.php</exclude>
+            <exclude>tests/Feature/PlaygroundSelectConfigMatrixTest.php</exclude>
         </testsuite>
         <testsuite name="Schema">
             <directory>tests/Schema</directory>
