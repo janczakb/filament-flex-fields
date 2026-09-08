@@ -95,16 +95,8 @@ final class PlaygroundUsageExporter
         foreach ($fields as $field) {
             $exported = self::exportField($field);
 
-            if ($exported === null) {
-                continue;
-            }
-
             $uses[$exported['class']] = true;
             $blocks[] = $exported['code'];
-        }
-
-        if ($blocks === []) {
-            return null;
         }
 
         return self::assemble($uses, $blocks);
@@ -133,9 +125,7 @@ final class PlaygroundUsageExporter
         if ($component instanceof Field) {
             $exported = self::exportField($component);
 
-            return $exported === null
-                ? null
-                : self::assemble([$exported['class'] => true], [$exported['code']]);
+            return self::assemble([$exported['class'] => true], [$exported['code']]);
         }
 
         // Generic package layout: Class::make('Label')->… when we only know the label.
@@ -176,7 +166,7 @@ final class PlaygroundUsageExporter
         try {
             $variant = $tabs->getVariant();
 
-            if (is_string($variant) && $variant !== '' && $variant !== 'default') {
+            if ($variant !== '' && $variant !== 'default') {
                 $lines[] = '    ->variant('.self::exportValue($variant).')';
             }
         } catch (\Throwable) {
@@ -209,21 +199,19 @@ final class PlaygroundUsageExporter
             $tabLabel = self::stringish($tab->getLabel()) ?? 'Tab';
             $tabLines = ['        SegmentTab::make('.self::exportValue($tabLabel).')'];
 
-            if (method_exists($tab, 'getIcon')) {
-                try {
-                    $icon = $tab->getIcon();
-                    $iconExport = self::exportIcon($icon);
+            try {
+                $icon = $tab->getIcon();
+                $iconExport = self::exportIcon($icon);
 
-                    if ($iconExport !== null) {
-                        $tabLines[] = '            ->icon('.$iconExport['code'].')';
+                if ($iconExport !== null) {
+                    $tabLines[] = '            ->icon('.$iconExport['code'].')';
 
-                        foreach ($iconExport['uses'] as $useClass) {
-                            $uses[$useClass] = true;
-                        }
+                    foreach ($iconExport['uses'] as $useClass) {
+                        $uses[$useClass] = true;
                     }
-                } catch (\Throwable) {
-                    //
                 }
+            } catch (\Throwable) {
+                //
             }
 
             $schemaFields = [];
@@ -234,10 +222,6 @@ final class PlaygroundUsageExporter
                 }
 
                 $exported = self::exportField($child, indent: 4);
-
-                if ($exported === null) {
-                    continue;
-                }
 
                 $uses[$exported['class']] = true;
                 $schemaFields[] = $exported['code'];
@@ -374,12 +358,7 @@ final class PlaygroundUsageExporter
      */
     private static function childComponents(Component $component): array
     {
-        if (! method_exists($component, 'getDefaultChildComponents')) {
-            return [];
-        }
-
         try {
-            /** @var list<Component>|mixed $children */
             $children = $component->getDefaultChildComponents();
         } catch (\Throwable) {
             return [];
@@ -401,9 +380,9 @@ final class PlaygroundUsageExporter
     }
 
     /**
-     * @return array{class: class-string, code: string}|null
+     * @return array{class: class-string, code: string}
      */
-    private static function exportField(Field $field, int $indent = 0): ?array
+    private static function exportField(Field $field, int $indent = 0): array
     {
         $class = $field::class;
         $short = class_basename($class);
@@ -590,14 +569,12 @@ final class PlaygroundUsageExporter
             }
         }
 
-        if (method_exists($field, 'isRequired')) {
-            try {
-                if ($field->isRequired()) {
-                    $calls[] = 'required()';
-                }
-            } catch (\Throwable) {
-                //
+        try {
+            if ($field->isRequired()) {
+                $calls[] = 'required()';
             }
+        } catch (\Throwable) {
+            //
         }
 
         try {
@@ -685,7 +662,7 @@ final class PlaygroundUsageExporter
                 continue;
             }
 
-            if (array_keys($row) === ['label']) {
+            if (isset($row['label']) && array_keys($row) === ['label']) {
                 $simplified[$key] = $row['label'];
             } else {
                 $simplified[$key] = $row;
@@ -839,7 +816,7 @@ final class PlaygroundUsageExporter
     /**
      * @param  array<array-key, mixed>  $value
      */
-    private static function exportArray(array $value, int $depth): ?string
+    private static function exportArray(array $value, int $depth): string
     {
         if ($value === []) {
             return '[]';

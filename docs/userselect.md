@@ -84,6 +84,21 @@ All methods accept `Closure` unless noted.
 
 ---
 
+### FlexFieldFormBuilder / Studio config
+
+`UserSelectFieldConfigurator` reuses Select Studio keys (`searchable`, `multiple`, `native`, `clearable`, `variant`, `options`, …) then applies user-specific keys:
+
+| Config key | Maps to |
+|------------|---------|
+| `option_model` / `model` | `optionModel()` — **wins over** static `options` |
+| `options` | `options()` via `normalizeStudioLabeledList` when no model is set |
+| `name_column` / `email_column` / `avatar_column` / `verification_column` | matching column methods |
+| `max_visible_avatars` | `maxVisibleAvatars()` |
+
+Async search and `relationship()` remain PHP-only (same boundary as [SelectField](/docs/selectfield#flexfieldformbuilder--studio-config)).
+
+---
+
 ### Real-world examples
 
 #### Custom Avatar Integration
@@ -124,6 +139,14 @@ See [Playground](/docs/index#playground) for setup.
 | [UserColumn](/docs/usercolumn) | Read-only user display in tables |
 | [SelectField](/docs/selectfield) | Generic selection without user semantics |
 | [ChoiceCards](/docs/choicecards) | Large card-style selection |
+
+---
+
+### Ops notes
+
+UserSelect inherits Select Livewire search rate limiting (`filament-flex-fields.select.search_rate_limit_per_minute`). Keys use the authenticated user id or `Request::ip()` — configure Laravel **TrustedProxies** behind a reverse proxy.
+
+Headless overlay teardown: Alpine `destroy()` cancels in-flight search and releases teleported menus; Livewire `morph.updating` also runs emergency overlay cleanup when a field node is removed (modal / slide-over close).
 
 ---
 

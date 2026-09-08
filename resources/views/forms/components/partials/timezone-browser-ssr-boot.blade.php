@@ -2,6 +2,7 @@
     Blocking inline IIFE (same pattern as segment-overflow-shell): paints the
     official catalog label during HTML parse — before Alpine x-load. Catalog
     keys are the allowed IANA ids so the trigger never swaps Intl → package names.
+    Registry-backed fields omit data-fff-timezone-catalog; boot reads #fff-timezone-registry-data.
 --}}
 @if ($shouldUseBrowserTimezoneDefault() && blank($selectedId))
     @php
@@ -14,7 +15,9 @@
         class="fff-timezone-field__browser-boot"
         hidden
         data-fff-timezone-boot="1"
-        data-fff-timezone-catalog="{{ json_encode($timezoneBootCatalog, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) }}"
+        @if ($timezoneBootCatalog !== [])
+            data-fff-timezone-catalog="{{ json_encode($timezoneBootCatalog, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) }}"
+        @endif
     ></div>
     @if (filled($timezoneBootInline))
         <script>{!! $timezoneBootInline !!}</script>

@@ -37,6 +37,63 @@ class TagsField extends TagsInput
 
         $this->size('md');
         $this->splitKeys(['Tab']);
+
+        $this->rule(function (TagsField $component): Closure {
+            return function (string $attribute, mixed $value, Closure $fail) use ($component): void {
+                $tags = $component->normalizeTagsState($value);
+                $max = $component->getMaxTags();
+
+                if ($max !== null && count($tags) > $max) {
+                    $fail(__('filament-flex-fields::default.validation.tags.max', ['max' => $max]));
+
+                    return;
+                }
+
+                if (! $component->isSuggestionsOnly()) {
+                    return;
+                }
+
+                $allowed = array_map('strval', $component->getSuggestions());
+
+                if ($component->isDuplicateInsensitive()) {
+                    $allowedLookup = array_map(static fn (string $tag): string => mb_strtolower($tag), $allowed);
+                } else {
+                    $allowedLookup = $allowed;
+                }
+
+                foreach ($tags as $tag) {
+                    $needle = $component->isDuplicateInsensitive() ? mb_strtolower($tag) : $tag;
+
+                    if (! in_array($needle, $allowedLookup, true)) {
+                        $fail(__('filament-flex-fields::default.validation.tags.suggestions_only'));
+
+                        return;
+                    }
+                }
+            };
+        });
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function normalizeTagsState(mixed $state): array
+    {
+        if (is_array($state)) {
+            return array_values(array_filter(
+                array_map(static fn (mixed $tag): string => trim((string) $tag), $state),
+                static fn (string $tag): bool => $tag !== '',
+            ));
+        }
+
+        if (is_string($state) && filled($state) && ($separator = $this->getSeparator())) {
+            return array_values(array_filter(
+                array_map(static fn (string $tag): string => trim($tag), explode($separator, $state)),
+                static fn (string $tag): bool => $tag !== '',
+            ));
+        }
+
+        return [];
     }
 
     public function variant(string|Closure $variant): static

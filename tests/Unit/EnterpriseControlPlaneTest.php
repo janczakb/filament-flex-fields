@@ -79,11 +79,17 @@ it('emits observability hook payloads to registered listeners', function (): voi
 
     ObservabilityHooks::emit(ObservabilityHooks::EVENT_SELECT_SEARCH, [
         'field' => 'country',
-        'query' => 'pol',
+        'query_hash' => hash('sha256', 'pol'),
+        'query_len' => 3,
     ]);
 
     expect($received)->toHaveCount(1)
-        ->and($received[0])->toMatchArray(['field' => 'country', 'query' => 'pol'])
+        ->and($received[0])->toMatchArray([
+            'field' => 'country',
+            'query_hash' => hash('sha256', 'pol'),
+            'query_len' => 3,
+        ])
+        ->and($received[0])->not->toHaveKey('query')
         ->and(ObservabilityHooks::listEvents())->toContain(
             ObservabilityHooks::EVENT_FIELD_MOUNT,
             ObservabilityHooks::EVENT_UPLOAD_FAIL,
@@ -147,9 +153,11 @@ it('records select.search on SelectField dynamic search cache miss only', functi
     expect($received)->toHaveCount(1)
         ->and($received[0])->toMatchArray([
             'field' => 'country',
-            'query' => 'pol',
+            'query_hash' => hash('sha256', 'pol'),
+            'query_len' => 3,
             'source' => 'options',
-        ]);
+        ])
+        ->and($received[0])->not->toHaveKey('query');
 });
 
 it('records upload.fail when FlexFileUpload virus scan rejects', function (): void {
@@ -209,13 +217,18 @@ it('forwards observability events through SiemBridge custom sink after boot', fu
 
     ObservabilityHooks::emit(ObservabilityHooks::EVENT_SELECT_SEARCH, [
         'field' => 'country',
-        'query' => 'pl',
+        'query_hash' => hash('sha256', 'pl'),
+        'query_len' => 2,
     ]);
 
     expect($forwarded)->toHaveCount(1)
         ->and($forwarded[0][0])->toBe(ObservabilityHooks::EVENT_SELECT_SEARCH)
         ->and($forwarded[0][1])->toBe('filament-flex-fields')
-        ->and($forwarded[0][2])->toMatchArray(['field' => 'country', 'query' => 'pl']);
+        ->and($forwarded[0][2])->toMatchArray([
+            'field' => 'country',
+            'query_hash' => hash('sha256', 'pl'),
+            'query_len' => 2,
+        ]);
 });
 
 it('exposes oem white-label banner and wipe guide for reseller handoff', function (): void {

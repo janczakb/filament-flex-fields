@@ -502,8 +502,13 @@ class FlexFieldAssets
     public static function playgroundStylesheetHrefForSlug(?string $slug): string
     {
         $hrefs = self::playgroundStylesheetHrefsForSlug($slug);
+        $last = array_key_last($hrefs);
 
-        return $hrefs[array_key_last($hrefs)] ?? self::playgroundStylesheetHref();
+        if ($last === null) {
+            return self::playgroundStylesheetHref();
+        }
+
+        return $hrefs[$last];
     }
 
     /**
@@ -541,8 +546,8 @@ class FlexFieldAssets
      *     componentId: string,
      *     stylesheets: list<string>,
      *     chunks: list<string>,
-     *     entry: string,
-     *     kind: string,
+     *     entry: string|null,
+     *     kind: 'full'|'styles-only',
      * }
      */
     public static function assetBundleFor(string $component): array

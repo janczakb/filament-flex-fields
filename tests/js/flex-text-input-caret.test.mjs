@@ -8,9 +8,10 @@ import {
 } from '../../resources/js/core/flex-text-input-caret.js'
 
 describe('flex-text-input-caret', () => {
-    it('allows selection on text and email inputs but not number inputs', () => {
+    it('allows selection only on types that support setSelectionRange', () => {
         assert.equal(canSetInputSelection({ type: 'text', setSelectionRange() {} }), true)
-        assert.equal(canSetInputSelection({ type: 'email', setSelectionRange() {} }), true)
+        assert.equal(canSetInputSelection({ type: 'tel', setSelectionRange() {} }), true)
+        assert.equal(canSetInputSelection({ type: 'email', setSelectionRange() {} }), false)
         assert.equal(canSetInputSelection({ type: 'number', setSelectionRange() {} }), false)
         assert.equal(canSetInputSelection(null), false)
     })
@@ -20,7 +21,7 @@ describe('flex-text-input-caret', () => {
         let selectionEnd = null
 
         setInputCaretToEnd({
-            type: 'email',
+            type: 'text',
             value: 'hi@example.com',
             setSelectionRange(start, end) {
                 selectionStart = start
@@ -32,6 +33,19 @@ describe('flex-text-input-caret', () => {
         assert.equal(selectionEnd, 14)
     })
 
+    it('skips caret moves on email inputs that throw InvalidStateError', () => {
+        assert.equal(
+            setInputCaretToEnd({
+                type: 'email',
+                value: 'hi@example.com',
+                setSelectionRange() {
+                    throw new Error('InvalidStateError')
+                },
+            }),
+            false,
+        )
+    })
+
     it('does not reposition the caret after focus is lost', async () => {
         const body = {}
         let selectionStart = null
@@ -39,7 +53,7 @@ describe('flex-text-input-caret', () => {
         let active = true
 
         const input = {
-            type: 'email',
+            type: 'text',
             value: 'hi@example.com',
             setSelectionRange(start, end) {
                 selectionStart = start

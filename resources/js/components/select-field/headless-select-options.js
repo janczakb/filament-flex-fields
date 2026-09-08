@@ -354,50 +354,6 @@ export function flattenHeadlessDropdownRowsForVirtualization(rows) {
 }
 
 /**
- * @param {Array<{ height?: number }>} flatRows
- * @param {number} startIndex
- * @param {number} windowSize
- */
-export function windowHeadlessVirtualRows(flatRows, startIndex, windowSize) {
-    const total = flatRows.length
-
-    if (total === 0) {
-        return {
-            rows: [],
-            meta: { startIndex: 0, endIndex: 0, total: 0, paddingTop: 0, paddingBottom: 0 },
-        }
-    }
-
-    const maxStart = Math.max(0, total - windowSize)
-    const clampedStart = Math.max(0, Math.min(startIndex, maxStart))
-    const endIndex = Math.min(total, clampedStart + windowSize)
-    const visibleRows = flatRows.slice(clampedStart, endIndex)
-
-    let paddingTop = 0
-
-    for (let index = 0; index < clampedStart; index += 1) {
-        paddingTop += flatRows[index]?.height ?? HEADLESS_DROPDOWN_ROW_HEIGHTS.option
-    }
-
-    let paddingBottom = 0
-
-    for (let index = endIndex; index < total; index += 1) {
-        paddingBottom += flatRows[index]?.height ?? HEADLESS_DROPDOWN_ROW_HEIGHTS.option
-    }
-
-    return {
-        rows: visibleRows,
-        meta: {
-            startIndex: clampedStart,
-            endIndex,
-            total,
-            paddingTop,
-            paddingBottom,
-        },
-    }
-}
-
-/**
  * @param {Array<{ type: string, option?: Record<string, unknown>, options?: Array<Record<string, unknown>> }>} rows
  * @returns {Array<Record<string, unknown>>}
  */

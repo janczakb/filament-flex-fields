@@ -4,17 +4,6 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
-use Bjanczak\FilamentFlexFields\Support\Select\HeadlessSelectFeatureFlags;
-
-it('always enables the headless select engine at runtime regardless of config', function (): void {
-    config()->set('filament-flex-fields.select.use_headless_engine', null);
-
-    expect(HeadlessSelectFeatureFlags::useHeadlessEngine())->toBeTrue();
-
-    config()->set('filament-flex-fields.select.use_headless_engine', false);
-
-    expect(HeadlessSelectFeatureFlags::useHeadlessEngine())->toBeTrue();
-});
 
 it('marks static select fields as headless eligible', function (): void {
     $field = SelectField::make('status')
@@ -27,8 +16,7 @@ it('marks static select fields as headless eligible', function (): void {
         ->keepSelectedOptionsInDropdown()
         ->variant('soft');
 
-    expect(HeadlessSelectFeatureFlags::isFieldEligible($field))->toBeTrue()
-        ->and($field->shouldUseHeadlessEngine())->toBeTrue();
+    expect($field->shouldUseHeadlessEngine())->toBeTrue();
 });
 
 it('marks user select async and rich option fields as headless eligible', function (): void {
@@ -55,10 +43,7 @@ it('marks user select async and rich option fields as headless eligible', functi
         ->options(fn (): array => ['draft' => 'Draft'])
         ->searchable();
 
-    expect(HeadlessSelectFeatureFlags::isFieldEligible($userSelect))->toBeTrue()
-        ->and(HeadlessSelectFeatureFlags::isFieldEligible($richField))->toBeTrue()
-        ->and(HeadlessSelectFeatureFlags::isFieldEligible($dynamicField))->toBeTrue()
-        ->and($userSelect->shouldUseHeadlessEngine())->toBeTrue()
+    expect($userSelect->shouldUseHeadlessEngine())->toBeTrue()
         ->and($richField->shouldUseHeadlessEngine())->toBeTrue()
         ->and($dynamicField->shouldUseHeadlessEngine())->toBeTrue();
 });

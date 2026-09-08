@@ -86,7 +86,7 @@ php artisan flex-fields:prune-capture-media --category=temp_captures --dry-run
 
 Key env vars: `FLEX_FIELDS_REQUIRE_VIRUS_SCAN`, `FLEX_FIELDS_QUARANTINE_DISK`, `FLEX_FIELDS_RETENTION_*`, `FLEX_FIELDS_MEDIA_TENANT_*`.
 
-See [Media & Capture OS](/docs/media-capture-os).
+See [Media Ingress](/docs/media-capture-os) and [Media Ingress migration](/docs/media-ingress-migration).
 
 Overlay exclusive open cannot reach PHP; the runtime dispatches a browser CustomEvent instead:
 

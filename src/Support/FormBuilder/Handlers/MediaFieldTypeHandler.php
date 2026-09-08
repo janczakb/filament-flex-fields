@@ -14,12 +14,13 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\MapPickerField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SignatureField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SocialLinksField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\VoiceNoteSpatieRecorderField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VideoField;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VoiceNoteRecorderField;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\AudioFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\BarcodeScannerFieldConfigurator;
-use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexSpatieMediaLibraryFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexFileUploadFieldConfigurator;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\FlexSpatieMediaLibraryFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\MapPickerFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SignatureFieldConfigurator;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\SocialLinksFieldConfigurator;
@@ -66,7 +67,7 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
             FieldType::Image => $this->configureImageUpload($statePath, $config),
             FieldType::Video => $this->video->configure(VideoField::make($statePath), $config),
             FieldType::Audio => $this->audio->configure(AudioField::make($statePath), $config),
-            FieldType::VoiceNote => $this->voiceNote->configure(VoiceNoteRecorderField::make($statePath), $config),
+            FieldType::VoiceNote => $this->configureVoiceNote($statePath, $config),
             FieldType::MapPicker => $this->mapPicker->configure(MapPickerField::make($statePath), $config),
             FieldType::SocialLinks => $this->socialLinks->configure(SocialLinksField::make($statePath), $config),
             FieldType::Signature => $this->signature->configure(SignatureField::make($statePath), $config),
@@ -78,9 +79,27 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
     /**
      * @param  array<string, mixed>  $config
      */
+    private function configureVoiceNote(string $statePath, array $config): Component
+    {
+        if ($this->shouldUseSpatieStorage($config) && class_exists(SpatieMediaLibraryFileUpload::class)) {
+            $field = VoiceNoteSpatieRecorderField::make($statePath);
+
+            if (filled($config['media_collection'] ?? null)) {
+                $field->collection((string) $config['media_collection']);
+            }
+
+            return $this->voiceNote->configure($field, $config);
+        }
+
+        return $this->voiceNote->configure(VoiceNoteRecorderField::make($statePath), $config);
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     */
     private function configureFileUpload(string $statePath, array $config): Component
     {
-        if (($config['use_spatie_media_library'] ?? false) && class_exists(SpatieMediaLibraryFileUpload::class)) {
+        if ($this->shouldUseSpatieStorage($config) && class_exists(SpatieMediaLibraryFileUpload::class)) {
             return $this->spatieFileUpload->configure(
                 FlexSpatieMediaLibraryFileUpload::make($statePath)->withRecommendedDefaults(),
                 $config,
@@ -98,7 +117,7 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
      */
     private function configureImageUpload(string $statePath, array $config): Component
     {
-        if (($config['use_spatie_media_library'] ?? false) && class_exists(SpatieMediaLibraryFileUpload::class)) {
+        if ($this->shouldUseSpatieStorage($config) && class_exists(SpatieMediaLibraryFileUpload::class)) {
             return $this->spatieFileUpload->configure(
                 FlexSpatieMediaLibraryFileUpload::make($statePath)->withRecommendedDefaults()->imagesOnly(),
                 $config,
@@ -109,5 +128,24 @@ final class MediaFieldTypeHandler extends AbstractFieldTypeHandler
             FlexImageUpload::make($statePath)->withRecommendedDefaults(),
             $config,
         );
+    }
+
+    /**
+     * @param  array<string, mixed>  $config
+     */
+    private function shouldUseSpatieStorage(array $config): bool
+    {
+        $driver = $config['storage_driver'] ?? null;
+
+        if (is_string($driver) && strtolower($driver) === 'spatie') {
+            return true;
+        }
+
+        if (is_string($driver) && strtolower($driver) === 'disk') {
+            return false;
+        }
+
+        // Deprecated alias — prefer storage_driver.
+        return (bool) ($config['use_spatie_media_library'] ?? false);
     }
 }

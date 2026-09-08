@@ -110,7 +110,7 @@ final class FlexTextareaFieldConfigurator implements FieldConfigurator
         }
 
         if (array_is_list($singular) && isset($singular[0]) && is_array($singular[0])) {
-            return array_values($singular);
+            return $singular;
         }
 
         return [$singular];

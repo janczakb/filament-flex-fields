@@ -3,8 +3,28 @@ export function canSetInputSelection(input) {
         return false
     }
 
-    // Native number inputs throw InvalidStateError for selection APIs in most browsers.
-    return input.type !== 'number'
+    // These input types throw InvalidStateError for selection APIs in Chromium/WebKit.
+    const type = String(input.type || 'text').toLowerCase()
+
+    return ! [
+        'email',
+        'number',
+        'date',
+        'datetime-local',
+        'month',
+        'time',
+        'week',
+        'color',
+        'range',
+        'checkbox',
+        'radio',
+        'file',
+        'hidden',
+        'button',
+        'submit',
+        'reset',
+        'image',
+    ].includes(type)
 }
 
 export function setInputCaretToEnd(input) {
@@ -18,7 +38,11 @@ export function setInputCaretToEnd(input) {
         return true
     }
 
-    input.setSelectionRange(length, length)
+    try {
+        input.setSelectionRange(length, length)
+    } catch {
+        return false
+    }
 
     return true
 }

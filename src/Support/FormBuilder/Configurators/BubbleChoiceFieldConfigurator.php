@@ -17,6 +17,9 @@ final class BubbleChoiceFieldConfigurator implements FieldConfigurator
         return $this->configureBubbleChoiceField($field, $config);
     }
 
+    /**
+     * @param  array<string, mixed>  $config
+     */
     public function configureBubbleChoiceField(BubbleChoiceField $field, array $config): BubbleChoiceField
     {
         $field = $field

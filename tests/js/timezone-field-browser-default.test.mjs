@@ -156,6 +156,95 @@ test('bootTimezoneBrowserSsrDefaults boots every marker in scope', () => {
     }
 })
 
+test('browser timezone boot paints from shared timezone registry when catalog attribute is empty', () => {
+    const previousDocument = globalThis.document
+    const ssrLabel = {
+        textContent: 'Select timezone',
+        classList: createClassList(['is-placeholder']),
+        attrs: {},
+        setAttribute(name, value) {
+            this.attrs[name] = String(value)
+        },
+        getAttribute(name) {
+            return this.attrs[name] ?? null
+        },
+        removeAttribute(name) {
+            delete this.attrs[name]
+        },
+    }
+    const ssrMeta = { textContent: '' }
+    const registry = {
+        tagName: 'TEMPLATE',
+        innerHTML: JSON.stringify({
+            locale: 'en',
+            pools: {
+                iana: {
+                    'Europe/Warsaw': { l: 'Warsaw, Poland', o: 'UTC+02:00', r: 'Europe' },
+                },
+            },
+        }),
+    }
+    const boot = {
+        attrs: {
+            'data-fff-timezone-boot': '1',
+        },
+        getAttribute(name) {
+            return this.attrs[name] ?? null
+        },
+        setAttribute(name, value) {
+            this.attrs[name] = String(value)
+        },
+        closest(selector) {
+            return selector === '.fff-timezone-field' ? root : null
+        },
+    }
+    const root = {
+        dataset: {},
+        querySelector(selector) {
+            if (selector === '.fff-timezone-field__ssr-label') {
+                return ssrLabel
+            }
+
+            if (selector === '.fff-timezone-field__ssr-meta') {
+                return ssrMeta
+            }
+
+            if (selector === '[data-fff-timezone-boot]') {
+                return boot
+            }
+
+            return null
+        },
+    }
+
+    globalThis.document = {
+        querySelectorAll(selector) {
+            if (selector === '#fff-timezone-registry-data') {
+                return [registry]
+            }
+
+            return []
+        },
+    }
+
+    const originalResolved = Intl.DateTimeFormat.prototype.resolvedOptions
+
+    Intl.DateTimeFormat.prototype.resolvedOptions = function resolvedOptions() {
+        return { timeZone: 'Europe/Warsaw' }
+    }
+
+    try {
+        assert.equal(bootTimezoneBrowserSsrElement(boot), true)
+        assert.equal(ssrLabel.textContent, 'Warsaw, Poland')
+        assert.equal(ssrMeta.textContent, 'UTC+02:00')
+        assert.equal(root.dataset.fffDetectedTimezone, 'Europe/Warsaw')
+        assert.equal(root.dataset.fffTzBooted, '1')
+    } finally {
+        Intl.DateTimeFormat.prototype.resolvedOptions = originalResolved
+        globalThis.document = previousDocument
+    }
+})
+
 test('finalizeTimezoneTriggerHandoff keeps catalog SSR and never flips displayReady', () => {
     const ticks = []
     const ssrLabel = {

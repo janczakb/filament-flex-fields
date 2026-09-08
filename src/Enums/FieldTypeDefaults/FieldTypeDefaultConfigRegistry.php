@@ -788,6 +788,8 @@ final class FieldTypeDefaultConfigRegistry
             'max_image_height' => null,
             'allow_url_upload' => false,
             'allow_webcam_upload' => false,
+            // Prefer storage_driver: 'disk'|'spatie'. use_spatie_media_library remains a deprecated alias.
+            'storage_driver' => 'disk',
             'use_spatie_media_library' => false,
             'media_collection' => null,
             'conversion' => null,

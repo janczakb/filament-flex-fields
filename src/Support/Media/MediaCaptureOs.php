@@ -4,9 +4,15 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support\Media;
 
-use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureQuarantine;
+use Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaIngress;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
+/**
+ * @deprecated Prefer {@see FlexMedia} / {@see MediaIngress}
+ * for persist/control-plane flows. Host hook registrars remain supported as deprecated aliases into the same runtime.
+ */
 final class MediaCaptureOs implements MediaStorageContract
 {
     /** @var (callable(string): bool|null)|null */
@@ -202,7 +208,7 @@ final class MediaCaptureOs implements MediaStorageContract
             return MediaCaptureQuarantine::quarantineFromDisk($diskName, $storedPath);
         }
 
-        rescue(fn () => \Illuminate\Support\Facades\Storage::disk($diskName)->delete($storedPath), report: false);
+        rescue(fn () => Storage::disk($diskName)->delete($storedPath), report: false);
 
         return null;
     }
@@ -302,8 +308,8 @@ final class MediaCaptureOs implements MediaStorageContract
      */
     public static function recordBarcodeCapture(BarcodeValue $barcode, string $field, array $context = []): void
     {
-        \Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks::record(
-            \Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks::EVENT_BARCODE_CAPTURE,
+        ObservabilityHooks::record(
+            ObservabilityHooks::EVENT_BARCODE_CAPTURE,
             array_merge([
                 'field' => $field,
                 'value' => $barcode->value,

@@ -1,8 +1,12 @@
 import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
 import { createOverlayMenuKeyboardMixin } from '../core/overlay-menu-keyboard.js'
 import { normalizeSearchQuery } from '../core/search-normalize.js'
+import {
+    computeFffVirtualWindow,
+    SIBLING_VIRTUALIZE_THRESHOLD,
+} from '../core/fff-virtual-adapter.js'
 
-export const FFF_TIMEZONE_VIRTUAL_THRESHOLD = 50
+export const FFF_TIMEZONE_VIRTUAL_THRESHOLD = SIBLING_VIRTUALIZE_THRESHOLD
 export const FFF_TIMEZONE_ROW_HEIGHT = 40
 export const FFF_TIMEZONE_OVERSCAN = 6
 
@@ -53,6 +57,7 @@ export function createTimezonePickerMixin(options = {}) {
         menuScrollHandler: null,
         menuResizeHandler: null,
         virtualScrollTop: 0,
+        virtualViewportHeight: 320,
         overlayMenuActiveIndex: -1,
         ...selectMenu,
         ...timezoneKeyboard,
@@ -143,17 +148,24 @@ export function createTimezonePickerMixin(options = {}) {
             return this.filteredTimezones.length > (this.virtualScrollThreshold ?? FFF_TIMEZONE_VIRTUAL_THRESHOLD)
         },
 
+        resolveTimezoneVirtualWindow() {
+            return computeFffVirtualWindow({
+                count: this.filteredTimezones.length,
+                scrollTop: this.virtualScrollTop,
+                viewportHeight: this.virtualViewportHeight || 320,
+                estimateSize: () => FFF_TIMEZONE_ROW_HEIGHT,
+                overscan: FFF_TIMEZONE_OVERSCAN,
+            })
+        },
+
         get visibleTimezones() {
             if (! this.usesVirtualScroll) {
                 return this.filteredTimezones
             }
 
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-            const viewportHeight = 320
-            const visibleCount = Math.ceil(viewportHeight / FFF_TIMEZONE_ROW_HEIGHT) + (FFF_TIMEZONE_OVERSCAN * 2)
-            const endIndex = Math.min(this.filteredTimezones.length, startIndex + visibleCount)
+            const windowed = this.resolveTimezoneVirtualWindow()
 
-            return this.filteredTimezones.slice(startIndex, endIndex)
+            return this.filteredTimezones.slice(windowed.startIndex, windowed.endIndex)
         },
 
         get virtualSpacerTop() {
@@ -161,9 +173,7 @@ export function createTimezonePickerMixin(options = {}) {
                 return 0
             }
 
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-
-            return startIndex * FFF_TIMEZONE_ROW_HEIGHT
+            return this.resolveTimezoneVirtualWindow().paddingTop
         },
 
         get virtualSpacerBottom() {
@@ -171,12 +181,7 @@ export function createTimezonePickerMixin(options = {}) {
                 return 0
             }
 
-            const startIndex = Math.max(0, Math.floor(this.virtualScrollTop / FFF_TIMEZONE_ROW_HEIGHT) - FFF_TIMEZONE_OVERSCAN)
-            const viewportHeight = 320
-            const visibleCount = Math.ceil(viewportHeight / FFF_TIMEZONE_ROW_HEIGHT) + (FFF_TIMEZONE_OVERSCAN * 2)
-            const endIndex = Math.min(this.filteredTimezones.length, startIndex + visibleCount)
-
-            return Math.max(0, (this.filteredTimezones.length - endIndex) * FFF_TIMEZONE_ROW_HEIGHT)
+            return this.resolveTimezoneVirtualWindow().paddingBottom
         },
 
         get selectedTimezone() {
@@ -187,6 +192,7 @@ export function createTimezonePickerMixin(options = {}) {
             }
 
             return this.timezones.find((timezone) => timezone.id === timezoneId)
+                ?? (this.selectedTimezoneSeed?.id === timezoneId ? this.selectedTimezoneSeed : null)
                 ?? this.timezones[0]
                 ?? null
         },
@@ -213,6 +219,19 @@ export function createTimezonePickerMixin(options = {}) {
 
         onTimezoneListScroll(event) {
             this.virtualScrollTop = event.target.scrollTop
+            this.virtualViewportHeight = event.target.clientHeight || this.virtualViewportHeight || 320
+        },
+
+        onOverlaySheetGeometry() {
+            const menu = this.$refs?.[menuRef]
+            const list = menu?.querySelector?.('.fff-timezone-field__list, [data-fff-overlay-scroll]')
+                ?? this.$el?.querySelector?.('.fff-timezone-field__list')
+
+            if (! list) {
+                return
+            }
+
+            this.virtualViewportHeight = list.clientHeight || this.virtualViewportHeight || 320
         },
 
         selectTimezone(id) {

@@ -1,0 +1,147 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Bjanczak\FilamentFlexFields\Support;
+
+use Illuminate\Support\Facades\View;
+
+class TimezoneRegistryQueue
+{
+    /** @var array<string, true> */
+    protected array $pools = [];
+
+    /** @var array<string, list<string>> */
+    protected array $filters = [];
+
+    /** @var array<string, true> */
+    protected array $locales = [];
+
+    protected bool $scriptRendered = false;
+
+    public function queuePool(string $pool): bool
+    {
+        if (isset($this->pools[$pool])) {
+            return false;
+        }
+
+        $this->pools[$pool] = true;
+        $this->scriptRendered = false;
+
+        return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function queuedPools(): array
+    {
+        return array_keys($this->pools);
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function registeredFilters(): array
+    {
+        return $this->filters;
+    }
+
+    /**
+     * @param  list<string>  $identifiers
+     */
+    public function queueTimezoneFilter(array $identifiers): string
+    {
+        $normalized = array_values(array_unique(array_map(
+            static fn (string $id): string => (string) $id,
+            $identifiers,
+        )));
+
+        sort($normalized);
+
+        $key = substr(hash('xxh128', implode(',', $normalized)), 0, 12);
+
+        if (! isset($this->filters[$key])) {
+            $this->filters[$key] = $normalized;
+            $this->scriptRendered = false;
+        }
+
+        return $key;
+    }
+
+    public function queueLocale(string $locale): bool
+    {
+        if ($locale === '' || isset($this->locales[$locale])) {
+            return false;
+        }
+
+        $this->locales[$locale] = true;
+        $this->scriptRendered = false;
+
+        return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function queuedLocales(): array
+    {
+        return array_keys($this->locales);
+    }
+
+    public function renderScriptMarkup(): string
+    {
+        if ($this->scriptRendered || $this->pools === []) {
+            return '';
+        }
+
+        $this->scriptRendered = true;
+
+        return View::make('filament-flex-fields::partials.timezone-registry-data', [
+            'pools' => $this->queuedPools(),
+            'filters' => $this->registeredFilters(),
+            'extraLocales' => $this->queuedLocales(),
+        ])->render();
+    }
+
+    public function clear(): void
+    {
+        $this->pools = [];
+        $this->filters = [];
+        $this->locales = [];
+        $this->scriptRendered = false;
+    }
+
+    public static function enqueue(string $pool): bool
+    {
+        return app(self::class)->queuePool($pool);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function pools(): array
+    {
+        return app(self::class)->queuedPools();
+    }
+
+    public static function registerTimezoneFilter(array $identifiers): string
+    {
+        return app(self::class)->queueTimezoneFilter($identifiers);
+    }
+
+    public static function registerLocale(string $locale): bool
+    {
+        return app(self::class)->queueLocale($locale);
+    }
+
+    public static function renderScriptOnce(): string
+    {
+        return app(self::class)->renderScriptMarkup();
+    }
+
+    public static function reset(): void
+    {
+        app(self::class)->clear();
+    }
+}

@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
+use Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators\Concerns\NormalizesStudioChoiceOptions;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
 final class UserSelectFieldConfigurator implements FieldConfigurator
 {
+    use NormalizesStudioChoiceOptions;
+
     public function __construct(
         private readonly SelectFieldConfigurator $select = new SelectFieldConfigurator,
     ) {}
@@ -43,14 +46,12 @@ final class UserSelectFieldConfigurator implements FieldConfigurator
             $field->maxVisibleAvatars((int) $config['max_visible_avatars']);
         }
 
-        if ((bool) ($config['multiple'] ?? false)) {
-            $field->multiple();
-        }
-
+        // Prefer optionModel over static options. SelectFieldConfigurator already applied
+        // multiple/searchable/native/clearable — do not call multiple() again.
         if (filled($config['option_model'] ?? $config['model'] ?? null)) {
             $field->optionModel((string) ($config['option_model'] ?? $config['model']));
         } elseif (! empty($config['options'])) {
-            $field->options($config['options']);
+            $field->options($this->normalizeStudioLabeledList($config['options']));
         }
 
         return $field;

@@ -127,7 +127,8 @@ test('resolveVirtualWindow track height matches total rows', () => {
     const stride = 48 + 6
     const totalRows = Math.ceil(items.length / 8)
 
-    assert.equal(window.trackHeight, resolveIconPickerTrackHeight(totalRows, stride))
+    // TanStack row estimates use full stride (including gap) for every row.
+    assert.equal(window.trackHeight, totalRows * stride)
 })
 
 test('resolveVirtualWindow aligns padding with measured stride', () => {

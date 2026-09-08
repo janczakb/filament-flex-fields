@@ -50,7 +50,8 @@
         'fff-icon-picker__results--grid': layout === 'grid' || layout === 'icons',
         'fff-icon-picker__results--list': layout === 'list',
         'fff-icon-picker__results--icons-only': layout === 'icons',
-        'is-loading': showInitialSkeleton || showScrollLoadSkeleton,
+        'is-loading': iconSkeletonVisible || showScrollLoadSkeleton,
+        'is-revealing': iconSkeletonFading,
     }"
     x-on:scroll.passive="onIconResultsScroll($event)"
     x-on:keydown="onIconResultsKeydown($event)"
@@ -58,24 +59,26 @@
     role="listbox"
     x-bind:id="componentKey + '-listbox'"
     x-bind:aria-hidden="! panelOpen"
-    x-bind:aria-busy="showInitialSkeleton || loadingMore"
+    x-bind:aria-busy="iconSkeletonVisible || loadingMore"
 >
     <div
         class="fff-icon-picker__status"
-        x-show="! showInitialSkeleton && ! searchPending && ! initialLoadPending && loadedIconItems.length === 0"
+        x-show="loadedIconItems.length === 0 && ! iconSkeletonVisible && ! initialLoadPending && ! iconResultsLoading && ! searchPending"
         x-cloak
         x-text="labels.noResults"
     ></div>
 
+    {{-- Absolute cover: bones stay on top until one reveal. Track may mount underneath during fade. --}}
     <div
         class="fff-icon-picker__initial-skeleton"
-        x-show="showInitialSkeleton"
-        x-cloak
-        x-bind:class="{ 'is-fading': iconSkeletonFading }"
+        x-bind:class="{
+            'is-visible': iconSkeletonVisible,
+            'is-fading': iconSkeletonFading,
+        }"
         role="status"
         aria-live="polite"
+        x-bind:aria-hidden="! iconSkeletonVisible"
     >
-        {{-- Static cells (no Alpine x-for) so bones paint on the first open frame. --}}
         <div
             class="fff-icon-picker__grid fff-icon-picker__skeleton-grid"
             x-bind:style="iconResultsGridStyle"
@@ -88,7 +91,7 @@
 
     <div
         class="fff-icon-picker__track"
-        x-show="loadedIconItems.length > 0 && ! showInitialSkeleton"
+        x-show="loadedIconItems.length > 0 && iconResultsReady"
         x-cloak
         x-bind:class="{ 'fff-icon-picker__track--virtual': usesIconVirtualScroll }"
         x-bind:style="iconTrackStyle"

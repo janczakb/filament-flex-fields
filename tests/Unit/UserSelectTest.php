@@ -576,35 +576,35 @@ it('returns plain names from resolve option labels for values', function () {
 
 it('filters selected users from dropdown options without mutating livewire state', function () {
     $contents = file_get_contents(
-        dirname(__DIR__, 2).'/resources/views/forms/components/partials/user-select-client-patches.blade.php',
+        dirname(__DIR__, 2).'/resources/js/components/select-field/headless-select-options.js',
     );
 
     expect($contents)
-        ->toContain('filterUserSelectUnselectedOptions')
-        ->toContain('isUserSelectValueSelected')
+        ->toContain('keepSelectedOptionsInDropdown')
+        ->toContain('isOptionSelected')
         ->not->toContain('this.state = this.state.map((value) => String(value))');
 });
 
 it('syncs multiple user removal with livewire state immediately', function () {
     $contents = file_get_contents(
-        dirname(__DIR__, 2).'/resources/views/forms/components/partials/user-select-trigger-patches.blade.php',
+        dirname(__DIR__, 2).'/resources/js/components/select-field/headless-user-select.js',
     );
 
     expect($contents)
-        ->toContain('Livewire.find(selectInstance.livewireId)')
-        ->toContain('initialSelectedUserEntries')
-        ->toContain('onStateChange([...nextState])');
+        ->toContain('removeUserSelectTag')
+        ->toContain('comboboxDeselectValue')
+        ->toContain('initialSelectedUserEntries');
 });
 
 it('guards user select state against stale livewire sync on dropdown open', function () {
     $contents = file_get_contents(
-        dirname(__DIR__, 2).'/resources/views/forms/components/partials/user-select-client-patches.blade.php',
+        dirname(__DIR__, 2).'/resources/js/components/select-field/headless-select-state.js',
     );
 
     expect($contents)
-        ->toContain('userSelectStatesEqual')
-        ->toContain('__fffLocalStateVersion')
-        ->toContain('__fffLocalState');
+        ->toContain('shouldIgnoreEmptyHeadlessWireSync')
+        ->toContain('shouldHydrateInitialSelectionToWire')
+        ->toContain('canWriteHeadlessWireState');
 });
 
 it('respects configured max visible avatars', function () {

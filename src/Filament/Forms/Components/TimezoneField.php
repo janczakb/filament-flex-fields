@@ -9,6 +9,8 @@ use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\TimezoneRegistry;
+use Bjanczak\FilamentFlexFields\Support\TimezoneRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\Timezones;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
@@ -361,10 +363,88 @@ class TimezoneField extends Field
     }
 
     /**
+     * Default full IANA list uses a shared CountryRegistry-style catalog
+     * (one HTML template per request) instead of embedding options in every field's `@js`.
+     * Explicit `timezones([...])` whitelists stay inline for lean payloads.
+     */
+    public function shouldUseTimezoneRegistry(): bool
+    {
+        return $this->getAllowedTimezoneIdentifiers() === null;
+    }
+
+    public function getTimezonePool(): string
+    {
+        return TimezoneRegistry::POOL_IANA;
+    }
+
+    public function hasCustomTimezoneFilter(): bool
+    {
+        return $this->getAllowedTimezoneIdentifiers() !== null
+            || $this->getExceptTimezoneIdentifiers() !== [];
+    }
+
+    public function getTimezoneFilterKey(): ?string
+    {
+        if (! $this->shouldUseTimezoneRegistry()) {
+            return null;
+        }
+
+        if (! $this->hasCustomTimezoneFilter()) {
+            return null;
+        }
+
+        return TimezoneRegistryQueue::registerTimezoneFilter($this->getResolvedTimezoneIdentifiers());
+    }
+
+    /**
+     * Selected-row seed for SSR trigger label when the full catalog is deferred.
+     *
+     * @return array{id: string, label: string, offset: string, region: string}|null
+     */
+    public function getSelectedTimezoneSeed(): ?array
+    {
+        try {
+            $stateValue = $this->getState();
+        } catch (\Throwable) {
+            $stateValue = null;
+        }
+
+        $selectedId = filled($stateValue) ? trim((string) $stateValue) : null;
+
+        if ($selectedId === null) {
+            return null;
+        }
+
+        $allowed = $this->getResolvedTimezoneIdentifiers();
+
+        if (! in_array($selectedId, $allowed, true)) {
+            return null;
+        }
+
+        $metadata = Timezones::metadata([$selectedId], [], $this->getLocale());
+        $row = $metadata[0] ?? null;
+
+        if ($row === null) {
+            return null;
+        }
+
+        return [
+            'id' => $row['id'],
+            'label' => $row['label'],
+            'offset' => $row['offset'],
+            'region' => $row['region'],
+        ];
+    }
+
+    /**
      * @return list<array{id: string, label: string, offset: string}>
      */
     public function getOptionsForJs(): array
     {
+        if ($this->shouldUseTimezoneRegistry()) {
+            return [];
+        }
+
         return collect($this->getTimezonesMetadata())
             ->map(fn (array $timezone): array => [
                 'id' => $timezone['id'],
@@ -378,14 +458,19 @@ class TimezoneField extends Field
     /**
      * Compact id → [label, offset] map for blocking browser-timezone SSR boot.
      * Must match Alpine option labels exactly so the trigger never swaps names.
+     * Registry-backed fields omit the per-field attribute — boot reads the shared template.
      *
      * @return array<string, array{0: string, 1: string}>
      */
     public function getBrowserTimezoneBootCatalog(): array
     {
+        if ($this->shouldUseTimezoneRegistry()) {
+            return [];
+        }
+
         $catalog = [];
 
-        foreach ($this->getOptionsForJs() as $timezone) {
+        foreach ($this->getTimezonesMetadata() as $timezone) {
             $catalog[$timezone['id']] = [$timezone['label'], $timezone['offset']];
         }
 

@@ -129,3 +129,45 @@ it('falls back to static suggestions when live search is not configured', functi
         ->and($field->getSuggestionsForJs())->toBe(['laravel', 'php'])
         ->and($field->searchTagSuggestions('la'))->toBe(['laravel', 'php']);
 });
+
+it('validates max tags on the server', function () {
+    $field = TagsField::make('tags')->maxTags(2);
+    $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
+
+    expect($rule)->toBeInstanceOf(Closure::class);
+
+    $failed = null;
+    $rule('tags', ['a', 'b', 'c'], function (string $message) use (&$failed): void {
+        $failed = $message;
+    });
+
+    expect($failed)->not->toBeNull();
+
+    $failed = null;
+    $rule('tags', ['a', 'b'], function (string $message) use (&$failed): void {
+        $failed = $message;
+    });
+
+    expect($failed)->toBeNull();
+});
+
+it('validates suggestions-only tags on the server', function () {
+    $field = TagsField::make('tags')
+        ->suggestions(['laravel', 'php'])
+        ->suggestionsOnly();
+    $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
+
+    $failed = null;
+    $rule('tags', ['laravel', 'vue'], function (string $message) use (&$failed): void {
+        $failed = $message;
+    });
+
+    expect($failed)->not->toBeNull();
+
+    $failed = null;
+    $rule('tags', ['laravel', 'php'], function (string $message) use (&$failed): void {
+        $failed = $message;
+    });
+
+    expect($failed)->toBeNull();
+});

@@ -115,6 +115,12 @@ See [Playground](/docs/index#playground) for setup.
 
 ---
 
+### Ops notes
+
+`getIconPickerSearchResults` and `getIconPickerSvgPreviews` share the Select-family Livewire rate limit (`filament-flex-fields.select.search_rate_limit_per_minute`). Keys use the authenticated user id or `Request::ip()` — configure Laravel **TrustedProxies** behind a reverse proxy. SVG preview batches stay capped at 64 icons. When limited, search returns an empty page (`hasMore=false`) and SVG previews return `[]`.
+
+---
+
 ### Related components
 
 | Component | When to use instead |

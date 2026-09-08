@@ -1,22 +1,30 @@
 @php
     use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+    use Bjanczak\FilamentFlexFields\Support\TimezoneRegistry;
+    use Bjanczak\FilamentFlexFields\Support\TimezoneRegistryQueue;
 
     $statePath = $getStatePath();
     $isDisabled = $isDisabled();
     $isReadOnly = $isReadOnly();
     $wrapperClasses = $getWrapperClasses();
-    $timezones = $field->getOptionsForJs();
+    $usesTimezoneRegistry = $field->shouldUseTimezoneRegistry();
+    $timezones = $usesTimezoneRegistry ? [] : $field->getOptionsForJs();
+    $selectedTimezoneSeed = $field->getSelectedTimezoneSeed();
     $defaultTimezone = $getDefaultTimezoneIdentifier();
     $stateValue = $getState();
     $selectedId = filled($stateValue) ? (string) $stateValue : null;
-    $selectedTimezone = $selectedId
-        ? collect($timezones)->firstWhere('id', $selectedId)
-        : null;
+    $selectedTimezone = $selectedTimezoneSeed;
     $placeholder = filled($getPlaceholder())
         ? $getPlaceholder()
         : __('filament-flex-fields::default.timezone.placeholder');
     $hasError = filled($statePath) && $errors->has($statePath);
     $livewireKey = $getLivewireKey();
+
+    if ($usesTimezoneRegistry) {
+        TimezoneRegistryQueue::enqueue(TimezoneRegistry::POOL_IANA);
+        TimezoneRegistryQueue::registerLocale($field->getLocale());
+        $field->getTimezoneFilterKey();
+    }
 @endphp
 
 <x-dynamic-component
@@ -39,6 +47,11 @@
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             statePath: @js($statePath),
             timezones: @js($timezones),
+            timezonePool: @js($usesTimezoneRegistry ? $field->getTimezonePool() : null),
+            timezoneFilterKey: @js($usesTimezoneRegistry ? $field->getTimezoneFilterKey() : null),
+            selectedTimezoneSeed: @js($selectedTimezoneSeed),
+            sortPreferredFirst: @js($shouldSortTimezonesByBrowserTimezone()),
+            preferredTimezoneId: @js($shouldSortTimezonesByBrowserTimezone() ? $getBrowserTimezoneIdentifier() : null),
             defaultTimezone: @js($defaultTimezone),
             disabled: @js($isDisabled),
             readOnly: @js($isReadOnly),
@@ -47,8 +60,9 @@
             searchPlaceholder: @js(__('filament-flex-fields::default.timezone.search_timezones')),
             placeholder: @js($placeholder),
             browserTimezoneDefault: @js($shouldUseBrowserTimezoneDefault()),
-            allowedTimezoneIdentifiers: @js($field->getResolvedTimezoneIdentifiers()),
+            allowedTimezoneIdentifiers: @js($usesTimezoneRegistry ? null : $field->getResolvedTimezoneIdentifiers()),
             initialState: @js($selectedId),
+            locale: @js($field->getLocale()),
             virtualScrollThreshold: @js($field->getVirtualScrollThreshold()),
         })"
         x-init="init()"
@@ -76,6 +90,7 @@
                 crossorigin
             />
         @endonce
+        {!! TimezoneRegistryQueue::renderScriptOnce() !!}
         <div @class([
             'fff-timezone-field__shell fff-flex-text-input__shell',
             'is-invalid' => $hasError,

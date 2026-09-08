@@ -1,4 +1,5 @@
 import { normalizeSearchQuery } from '../core/search-normalize.js'
+import { computeFffVirtualWindow } from '../core/fff-virtual-adapter.js'
 
 export const FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD = 100
 export const FFF_DUAL_LISTBOX_ROW_HEIGHT = 44
@@ -6,8 +7,8 @@ export const FFF_DUAL_LISTBOX_OVERSCAN = 6
 export const FFF_DUAL_LISTBOX_POINTER_DRAG_THRESHOLD = 12
 export const FFF_DUAL_LISTBOX_TOUCH_PICKUP_MS = 450
 
-function buildVirtualWindow(items, scrollTop, viewportHeight) {
-    if (items.length <= FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD) {
+function buildVirtualWindow(items, scrollTop, viewportHeight, threshold = FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD) {
+    if (items.length <= threshold) {
         return {
             items,
             spacerTop: 0,
@@ -16,18 +17,18 @@ function buildVirtualWindow(items, scrollTop, viewportHeight) {
         }
     }
 
-    const startIndex = Math.max(
-        0,
-        Math.floor(scrollTop / FFF_DUAL_LISTBOX_ROW_HEIGHT) - FFF_DUAL_LISTBOX_OVERSCAN,
-    )
-    const visibleCount = Math.ceil(viewportHeight / FFF_DUAL_LISTBOX_ROW_HEIGHT)
-        + (FFF_DUAL_LISTBOX_OVERSCAN * 2)
-    const endIndex = Math.min(items.length, startIndex + visibleCount)
+    const windowed = computeFffVirtualWindow({
+        count: items.length,
+        scrollTop,
+        viewportHeight,
+        estimateSize: () => FFF_DUAL_LISTBOX_ROW_HEIGHT,
+        overscan: FFF_DUAL_LISTBOX_OVERSCAN,
+    })
 
     return {
-        items: items.slice(startIndex, endIndex),
-        spacerTop: startIndex * FFF_DUAL_LISTBOX_ROW_HEIGHT,
-        spacerBottom: Math.max(0, (items.length - endIndex) * FFF_DUAL_LISTBOX_ROW_HEIGHT),
+        items: items.slice(windowed.startIndex, windowed.endIndex),
+        spacerTop: windowed.paddingTop,
+        spacerBottom: windowed.paddingBottom,
         useVirtual: true,
     }
 }
@@ -165,6 +166,7 @@ export default function dualListboxFormComponent({
                 this.availableItems,
                 this.availableScrollTop,
                 this.availableViewportHeight || 256,
+                this.virtualThreshold ?? FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD,
             )
         },
 
@@ -173,6 +175,7 @@ export default function dualListboxFormComponent({
                 this.selectedItems,
                 this.selectedScrollTop,
                 this.selectedViewportHeight || 256,
+                this.virtualThreshold ?? FFF_DUAL_LISTBOX_VIRTUAL_THRESHOLD,
             )
         },
 

@@ -417,7 +417,8 @@ FlexImageUpload::make('photo')
 | `max_image_width` / `max_image_height` | `maxImageWidth()` / `maxImageHeight()` |
 | `allow_webcam_upload` | `allowWebcamUpload()` |
 | `allow_url_upload` | `allowUrlUpload()` |
-| `use_spatie_media_library` | Switches to `FlexSpatieMediaLibraryFileUpload` |
+| `storage_driver` | `'disk'` (default) or `'spatie'` — preferred |
+| `use_spatie_media_library` | Deprecated alias of `storage_driver=spatie` |
 | `media_collection` | Spatie `collection()` |
 | `conversion` | Spatie `conversion()` |
 | `conversions_disk` | Spatie `conversionsDisk()` |
@@ -446,7 +447,101 @@ FlexImageUpload::make('photo')
 - Requires Livewire temporary uploads; configure `FILESYSTEM_DISK` and disk credentials.
 - Webcam capture requires HTTPS. URL import rejects unsafe remote URLs before server fetch.
 - Playground examples under **File upload** in Flex Fields Playground (File / Camera / URL tabs).
-- **Spatie Media Library** — use `FlexSpatieMediaLibraryFileUpload` with native Spatie persistence plus enterprise virus scan, signed URLs, and retention. See [Media & Capture OS](/docs/media-capture-os).
+- **Spatie Media Library** — full walkthrough (conversions, S3, FormBuilder, create-form timing): [Media Ingress](/docs/media-capture-os). Quick start below.
+
+---
+
+### Spatie Media Library (file / image fields)
+
+Use when you need Media Library UUIDs, collections, and **named conversions** (`thumb`, `medium`, …). Disk `FlexFileUpload` only stores one path (+ optional resize/optimize) — it does **not** run Spatie conversions.
+
+```bash
+composer require spatie/laravel-medialibrary filament/spatie-laravel-media-library-plugin
+```
+
+#### Model — define conversions (full Spatie API)
+
+```php
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
+class Product extends Model implements HasMedia
+{
+    use InteractsWithMedia;
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('gallery')->useDisk('s3');
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')->width(200)->height(200)->nonQueued();
+        $this->addMediaConversion('medium')->width(800)->format('webp');
+        $this->addMediaConversion('large')->fit(\Spatie\Image\Enums\Fit::Max, 2000, 2000);
+    }
+}
+```
+
+Flex Fields does not limit `registerMediaConversions()` — Spatie runs it after upload.
+
+#### Form field
+
+```php
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexFileUpload;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
+
+// Factory sugar (returns FlexSpatieMediaLibraryFileUpload)
+FlexFileUpload::spatie('gallery')
+    ->collection('gallery')
+    ->disk('s3')
+    ->conversion('thumb')      // preview in the form UI
+    ->responsiveImages()
+    ->multiple()
+    ->reorderable()
+    ->withRecommendedDefaults();
+
+// Same as:
+FlexSpatieMediaLibraryFileUpload::make('gallery')
+    ->collection('gallery')
+    ->conversion('thumb');
+```
+
+#### Disk vs Spatie for the same UX sources
+
+Webcam / URL import go through the same Flex sources layer; choose driver at construction:
+
+```php
+// One optimized file on S3 (no Spatie thumbs)
+FlexImageUpload::make('photo')
+    ->allowWebcamUpload()
+    ->allowUrlUpload()
+    ->optimizeImages()
+    ->maxImageWidth(1920)
+    ->disk('s3')
+    ->directory('photos');
+
+// Spatie UUID + model conversions
+FlexFileUpload::spatie('photo')
+    ->collection('gallery')
+    ->conversion('thumb')
+    ->disk('s3');
+```
+
+#### FormBuilder
+
+```php
+'config' => [
+    'storage_driver' => 'spatie',
+    'media_collection' => 'gallery',
+    'conversion' => 'thumb',
+    'responsive_images' => true,
+    'disk' => 's3',
+],
+```
+
+See [Media Ingress](/docs/media-capture-os) for tenant disks, AV, quarantine, create-form Spatie timing, and Rich Editor Spatie attachments.
 
 ---
 

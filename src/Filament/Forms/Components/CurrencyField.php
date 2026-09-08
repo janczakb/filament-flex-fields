@@ -9,6 +9,8 @@ use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
 use Bjanczak\FilamentFlexFields\StateCasts\CurrencyFieldStateCast;
 use Bjanczak\FilamentFlexFields\Support\CurrencyCountries;
+use Bjanczak\FilamentFlexFields\Support\CurrencyRegistry;
+use Bjanczak\FilamentFlexFields\Support\CurrencyRegistryQueue;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasPlaceholder;
@@ -55,6 +57,17 @@ class CurrencyField extends Field
 
         $this->rule(function (CurrencyField $component): Closure {
             return function (string $attribute, mixed $value, Closure $fail) use ($component): void {
+                if ($component->hasCurrencySelect() && is_array($value) && array_key_exists('currency', $value)) {
+                    $currencyCode = strtoupper((string) $value['currency']);
+                    $allowed = $component->getResolvedCurrencyCodes();
+
+                    if ($currencyCode !== '' && ! in_array($currencyCode, $allowed, true)) {
+                        $fail(__('filament-flex-fields::default.validation.currency.invalid_code'));
+
+                        return;
+                    }
+                }
+
                 $normalized = $component->normalizeState($value);
                 $amount = $component->extractAmount($normalized);
                 $currency = $component->extractCurrency($normalized);
@@ -329,10 +342,69 @@ class CurrencyField extends Field
     }
 
     /**
+     * Large `currencies([...])` whitelists share a deferred registry template
+     * (CountryRegistry pattern). Small lists and single-currency stay inline `@js`.
+     */
+    public function shouldUseCurrencyRegistry(): bool
+    {
+        $allowed = $this->getAllowedCurrencyCodes();
+
+        if ($allowed === null) {
+            return false;
+        }
+
+        return count($allowed) > CurrencyRegistry::INLINE_METADATA_MAX;
+    }
+
+    public function getCurrencyPool(): string
+    {
+        return CurrencyRegistry::POOL_ISO;
+    }
+
+    public function getCurrencyFilterKey(): ?string
+    {
+        if (! $this->shouldUseCurrencyRegistry()) {
+            return null;
+        }
+
+        return CurrencyRegistryQueue::registerCurrencyFilter($this->getResolvedCurrencyCodes());
+    }
+
+    /**
+     * @return array{code: string, symbol: string, name: string, decimals: int, locale: string}|null
+     */
+    public function getSelectedCurrencySeed(): ?array
+    {
+        $code = $this->getDefaultCurrencyCode();
+
+        if ($this->hasCurrencySelect()) {
+            try {
+                $state = $this->getState();
+            } catch (\Throwable) {
+                $state = null;
+            }
+
+            if (is_array($state) && filled($state['currency'] ?? null)) {
+                $code = strtoupper((string) $state['currency']);
+            }
+        }
+
+        $metadata = CurrencyCountries::metadata([$code]);
+
+        return $metadata[0] ?? null;
+    }
+
+    /**
      * @return list<array{code: string, symbol: string, name: string, decimals: int, locale: string}>
      */
     public function getCurrenciesMetadata(): array
     {
+        if ($this->shouldUseCurrencyRegistry()) {
+            $seed = $this->getSelectedCurrencySeed();
+
+            return $seed !== null ? [$seed] : [];
+        }
+
         return CurrencyCountries::metadata($this->getAllowedCurrencyCodes() ?? $this->getResolvedCurrencyCodes());
     }
 

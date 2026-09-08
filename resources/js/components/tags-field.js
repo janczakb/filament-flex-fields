@@ -38,6 +38,8 @@ export default function tagsFieldFormComponent({
         searchResults: [],
         searchPending: false,
         searchDebounceTimer: null,
+        searchRequestId: 0,
+        searchAbortController: null,
         suggestionsEngaged: false,
 
         init() {
@@ -54,6 +56,13 @@ export default function tagsFieldFormComponent({
             })
         },
 
+        destroy() {
+            clearTimeout(this.searchDebounceTimer)
+            this.searchAbortController?.abort?.()
+            this.searchAbortController = null
+            this.destroyTagsSuggestionsOverlay?.()
+        },
+
         scheduleSuggestionSearch(value) {
             if (! this.searchSuggestions || ! this.componentKey || ! this.$wire?.callSchemaComponentMethod) {
                 return;
@@ -64,6 +73,9 @@ export default function tagsFieldFormComponent({
             const query = String(value ?? '').trim();
 
             if (query === '' || query.length < this.minSearchLength) {
+                this.searchAbortController?.abort?.()
+                this.searchAbortController = null
+                this.searchRequestId += 1
                 this.searchResults = [];
                 this.searchPending = false;
 
@@ -80,6 +92,12 @@ export default function tagsFieldFormComponent({
                 return;
             }
 
+            const requestId = ++this.searchRequestId
+            this.searchAbortController?.abort?.()
+            this.searchAbortController = typeof AbortController !== 'undefined'
+                ? new AbortController()
+                : null
+
             this.searchPending = true;
 
             try {
@@ -89,11 +107,21 @@ export default function tagsFieldFormComponent({
                     { search: query },
                 );
 
+                if (requestId !== this.searchRequestId) {
+                    return
+                }
+
                 this.searchResults = Array.isArray(results) ? results : [];
             } catch {
+                if (requestId !== this.searchRequestId) {
+                    return
+                }
+
                 this.searchResults = [];
             } finally {
-                this.searchPending = false;
+                if (requestId === this.searchRequestId) {
+                    this.searchPending = false;
+                }
             }
         },
 

@@ -17,6 +17,9 @@ final class TodoListFieldConfigurator implements FieldConfigurator
         return $this->configureTodoListField($field, $config);
     }
 
+    /**
+     * @param  array<string, mixed>  $config
+     */
     public function configureTodoListField(TodoListField $field, array $config): TodoListField
     {
         $field = $field

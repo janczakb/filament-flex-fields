@@ -1,9 +1,12 @@
+import { ICON_VIRTUALIZE_THRESHOLD } from './virtualization-policy.js'
+import { createFffVirtualGridWindow } from './fff-virtual-adapter.js'
+
 export const DEFAULT_VIRTUAL_OVERSCAN_ROWS = 3
 
 export const ICON_PICKER_ROW_GAP = 6
 
 /** List layout virtualizes at this count; grid/icons always virtualize. */
-export const ICON_PICKER_VIRTUAL_SCROLL_THRESHOLD = 80
+export const ICON_PICKER_VIRTUAL_SCROLL_THRESHOLD = ICON_VIRTUALIZE_THRESHOLD
 
 export const ICON_PICKER_LOAD_MORE_SKELETON_ROWS = 2
 
@@ -76,7 +79,7 @@ export function resolveIconGridCellSize(containerWidth, columns, gap = ICON_PICK
 }
 
 /**
- * Fixed-stride virtual window — single code path for list, grid, and icons layouts.
+ * Virtual window for list / grid / icons — @tanstack/virtual-core via fff-virtual-adapter.
  */
 export function resolveVirtualWindow({
     items,
@@ -95,36 +98,30 @@ export function resolveVirtualWindow({
 
     const columns = resolveIconPickerColumns(layout, gridColumns)
     const stride = resolveIconPickerStride(layout, measuredStride)
-    const totalRows = Math.ceil(total / columns)
-    const trackHeight = resolveIconPickerTrackHeight(totalRows, stride)
-    const viewport = Math.max(viewportHeight, stride)
-    const visibleRows = Math.max(1, Math.ceil(viewport / stride))
-    const mountedRows = visibleRows + (overscanRows * 2)
-    const maxStartRow = Math.max(0, totalRows - mountedRows)
-    const anchorRow = Math.max(0, Math.floor(scrollTop / stride))
-    const startRow = Math.min(maxStartRow, Math.max(0, anchorRow - overscanRows))
-    const endRow = Math.min(totalRows, startRow + mountedRows)
-    const startIndex = startRow * columns
-    const endIndex = Math.min(total, endRow * columns)
-    const paddingTop = startRow * stride
-    const paddingBottom = resolveIconPickerBottomSpacer({
-        trackHeight,
-        offsetTop: paddingTop,
-        startRow,
-        endRow,
-        stride,
+    const windowed = createFffVirtualGridWindow({
+        count: total,
+        scrollTop,
+        viewportHeight: Math.max(viewportHeight, stride),
+        estimateSize: () => stride,
+        overscan: overscanRows,
+        lanes: columns,
     })
+    const startRow = Math.floor(windowed.startIndex / columns)
+    const endRow = Math.ceil(windowed.endIndex / columns)
+    // Keep spacer math and track height on the same TanStack total so scroll
+    // height does not thrash when the window slides (visual jump / e2e).
+    const trackHeight = windowed.totalSize
 
     return {
-        startIndex,
-        endIndex,
+        startIndex: windowed.startIndex,
+        endIndex: windowed.endIndex,
         startRow,
         endRow,
-        mountedRows,
-        slice: items.slice(startIndex, endIndex),
-        paddingTop,
-        paddingBottom,
-        offsetTop: paddingTop,
+        mountedRows: Math.max(0, endRow - startRow),
+        slice: items.slice(windowed.startIndex, windowed.endIndex),
+        paddingTop: windowed.paddingTop,
+        paddingBottom: windowed.paddingBottom,
+        offsetTop: windowed.paddingTop,
         trackHeight,
         stride,
         columns,

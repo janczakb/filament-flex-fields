@@ -3,6 +3,10 @@ import {
     createTimezonePickerMixin,
     FFF_TIMEZONE_VIRTUAL_THRESHOLD,
 } from '../support/timezone-picker-mixin.js'
+import {
+    resolveTimezonesFromRegistry,
+    resetTimezoneRegistryCache,
+} from '../core/timezone-registry.js'
 
 export { FFF_TIMEZONE_VIRTUAL_THRESHOLD }
 
@@ -16,6 +20,11 @@ export default function timezoneFieldFormComponent({
     state,
     statePath,
     timezones,
+    timezonePool = null,
+    timezoneFilterKey = null,
+    selectedTimezoneSeed = null,
+    sortPreferredFirst = false,
+    preferredTimezoneId = null,
     defaultTimezone,
     disabled,
     readOnly,
@@ -26,12 +35,18 @@ export default function timezoneFieldFormComponent({
     browserTimezoneDefault,
     allowedTimezoneIdentifiers,
     initialState = null,
+    locale = null,
     virtualScrollThreshold = FFF_TIMEZONE_VIRTUAL_THRESHOLD,
 }) {
     return mergeAlpineComponentData({
         state,
         statePath,
-        timezones,
+        timezones: Array.isArray(timezones) ? timezones : [],
+        timezonePool,
+        timezoneFilterKey,
+        selectedTimezoneSeed,
+        sortPreferredFirst,
+        preferredTimezoneId,
         defaultTimezone,
         disabled,
         readOnly,
@@ -42,7 +57,10 @@ export default function timezoneFieldFormComponent({
         browserTimezoneDefault,
         allowedTimezoneIdentifiers,
         initialState,
+        locale,
         virtualScrollThreshold,
+        timezonesLoaded: ! timezonePool,
+        timezonesLoading: false,
 
         get isLocked() {
             return this.disabled || this.readOnly
@@ -54,7 +72,75 @@ export default function timezoneFieldFormComponent({
 
         init() {
             this.applyBrowserTimezoneDefault()
-            this.initTimezonePicker()
+
+            const needsRegistryBeforeHandoff = Boolean(
+                this.timezonePool
+                && this.browserTimezoneDefault
+                && (this.state || this.$el?.dataset?.fffDetectedTimezone),
+            )
+
+            if (needsRegistryBeforeHandoff) {
+                void this.ensureTimezonesLoaded().then(() => {
+                    this.syncTriggerSsrFromSelection?.()
+                    this.initTimezonePicker()
+                })
+            } else {
+                this.initTimezonePicker()
+            }
+
+            document.addEventListener('livewire:navigated', () => {
+                if (! this.timezonePool) {
+                    return
+                }
+
+                resetTimezoneRegistryCache()
+                this.timezones = this.selectedTimezoneSeed ? [this.selectedTimezoneSeed] : []
+                this.timezonesLoaded = false
+            })
+        },
+
+        async ensureTimezonesLoaded() {
+            if (! this.timezonePool || this.timezonesLoaded) {
+                return
+            }
+
+            if (this.timezonesLoading) {
+                while (this.timezonesLoading) {
+                    await new Promise((resolve) => setTimeout(resolve, 16))
+                }
+
+                return
+            }
+
+            this.timezonesLoading = true
+
+            try {
+                resetTimezoneRegistryCache()
+
+                this.timezones = await resolveTimezonesFromRegistry({
+                    pool: this.timezonePool,
+                    timezoneFilterKey: this.timezoneFilterKey,
+                    preferredTimezoneId: this.preferredTimezoneId,
+                    sortPreferredFirst: this.sortPreferredFirst,
+                    locale: this.locale,
+                })
+
+                if (this.timezones.length === 0) {
+                    resetTimezoneRegistryCache()
+
+                    this.timezones = await resolveTimezonesFromRegistry({
+                        pool: this.timezonePool,
+                        timezoneFilterKey: this.timezoneFilterKey,
+                        preferredTimezoneId: this.preferredTimezoneId,
+                        sortPreferredFirst: this.sortPreferredFirst,
+                        locale: this.locale,
+                    })
+                }
+
+                this.timezonesLoaded = true
+            } finally {
+                this.timezonesLoading = false
+            }
         },
 
         /**
@@ -118,7 +204,10 @@ export default function timezoneFieldFormComponent({
         },
 
         detectBrowserTimezone() {
-            const allowed = new Set(this.allowedTimezoneIdentifiers ?? this.timezones.map((timezone) => timezone.id))
+            const fromList = Array.isArray(this.allowedTimezoneIdentifiers)
+                ? this.allowedTimezoneIdentifiers
+                : this.timezones.map((timezone) => timezone.id)
+            const allowed = new Set(fromList)
             const candidates = []
 
             try {
@@ -132,7 +221,7 @@ export default function timezoneFieldFormComponent({
             }
 
             for (const candidate of candidates) {
-                if (allowed.has(candidate)) {
+                if (allowed.size === 0 || allowed.has(candidate)) {
                     return candidate
                 }
             }
@@ -140,7 +229,18 @@ export default function timezoneFieldFormComponent({
             return null
         },
 
-        toggleMenu() {
+        async toggleMenu() {
+            if (this.isLocked) {
+                return
+            }
+
+            if (this.menuOpen) {
+                this.closeTimezoneMenu()
+
+                return
+            }
+
+            await this.ensureTimezonesLoaded()
             this.toggleTimezoneMenu()
         },
 

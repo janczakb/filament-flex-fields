@@ -6,8 +6,12 @@ import {
     filterHeadlessOptionTree,
     flattenHeadlessDropdownRowsForVirtualization,
     limitHeadlessOptionTree,
-    windowHeadlessVirtualRows,
 } from '../../resources/js/components/select-field/headless-select-options.js'
+import {
+    buildVirtualRowPrefixSums,
+    findVirtualRowIndexAtScrollTop,
+    windowHeadlessVirtualRows,
+} from '../fixtures/js/select-field/headless-virtual-prefix-sums.js'
 
 describe('headless-select-options', () => {
     it('inserts separators between option groups when enabled', () => {
@@ -122,5 +126,25 @@ describe('headless-select-options', () => {
 
         assert.equal(filtered.length, 1)
         assert.equal(filtered[0].value, 'draft')
+    })
+
+    it('binary-searches virtual row index from prefix sums of mixed heights', () => {
+        const flat = [
+            { type: 'group-header', height: 24 },
+            { type: 'option', height: 36 },
+            { type: 'option', height: 36 },
+            { type: 'separator', height: 17 },
+            { type: 'option', height: 36 },
+        ]
+        const prefixSums = buildVirtualRowPrefixSums(flat)
+
+        assert.deepEqual(prefixSums, [0, 24, 60, 96, 113, 149])
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 0), 0)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 24), 1)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 59), 1)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 60), 2)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 112), 3)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 113), 4)
+        assert.equal(findVirtualRowIndexAtScrollTop(prefixSums, 1000), 4)
     })
 })

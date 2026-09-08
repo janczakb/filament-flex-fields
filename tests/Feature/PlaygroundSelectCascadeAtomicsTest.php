@@ -195,3 +195,71 @@ it('cascade clear empty persists via playground store', function (): void {
 
     expect($store->get('select-field')['select__cascade_region'])->toBeNull();
 });
+
+it('dependsOn parent change clears region and drops stale option keys', function (): void {
+    TestableTranslatableForm::$formSchema = cascadeSchema();
+
+    $livewire = Livewire::test(TestableTranslatableForm::class)
+        ->set('data.select__cascade_country', 'us')
+        ->set('data.select__cascade_region', 'ca')
+        ->assertSet('data.select__cascade_region', 'ca');
+
+    // Rapid parent switches (mid-open / mid-fetch analogue): each change clears region
+    // via afterStateUpdated and options must track only the latest parent.
+    $livewire
+        ->set('data.select__cascade_country', 'pl')
+        ->assertSet('data.select__cascade_country', 'pl')
+        ->assertSet('data.select__cascade_region', null);
+
+    $regionField = $livewire->instance()->getSchema('form')->getComponentByStatePath('select__cascade_region');
+    $plOptions = collect($livewire->instance()->callSchemaComponentMethod($regionField->getKey(), 'getOptionsForJs'))
+        ->pluck('value')
+        ->all();
+
+    expect($plOptions)->toEqualCanonicalizing(['mz', 'wp', 'pm'])
+        ->and($plOptions)->not->toContain('ca')
+        ->and($plOptions)->not->toContain('tx')
+        ->and($plOptions)->not->toContain('ny');
+
+    $livewire
+        ->set('data.select__cascade_country', 'ae')
+        ->assertSet('data.select__cascade_country', 'ae')
+        ->assertSet('data.select__cascade_region', null);
+
+    $aeField = $livewire->instance()->getSchema('form')->getComponentByStatePath('select__cascade_region');
+    $aeOptions = collect($livewire->instance()->callSchemaComponentMethod($aeField->getKey(), 'getOptionsForJs'))
+        ->pluck('value')
+        ->all();
+
+    expect($aeOptions)->toEqualCanonicalizing(['du', 'az', 'sh'])
+        ->and($aeOptions)->not->toContain('mz')
+        ->and($aeOptions)->not->toContain('ca');
+});
+
+it('cascade remount does not resurrect a cleared region from a prior parent', function (): void {
+    TestableTranslatableForm::$formSchema = cascadeSchema();
+
+    $livewire = Livewire::test(TestableTranslatableForm::class)
+        ->set('data.select__cascade_country', 'us')
+        ->set('data.select__cascade_region', 'tx')
+        ->set('data.select__cascade_country', 'pl')
+        ->assertSet('data.select__cascade_region', null);
+
+    // Remount the Livewire component with the post-clear state (destroy mid-flow analogue).
+    $remounted = Livewire::test(TestableTranslatableForm::class, [
+        'data' => [
+            'select__cascade_country' => 'pl',
+            'select__cascade_region' => null,
+        ],
+    ])
+        ->assertSet('data.select__cascade_country', 'pl')
+        ->assertSet('data.select__cascade_region', null);
+
+    $regionField = $remounted->instance()->getSchema('form')->getComponentByStatePath('select__cascade_region');
+    $options = collect($remounted->instance()->callSchemaComponentMethod($regionField->getKey(), 'getOptionsForJs'))
+        ->pluck('value')
+        ->all();
+
+    expect($options)->toEqualCanonicalizing(['mz', 'wp', 'pm'])
+        ->and($options)->not->toContain('tx');
+});

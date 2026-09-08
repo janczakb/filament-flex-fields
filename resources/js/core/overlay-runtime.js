@@ -3,6 +3,7 @@ import { recordOverlayOpenLatency } from './overlay-telemetry-p95.js'
 import { resolveTeleportedMenuHorizontalLeft, resolveTeleportedMenuVerticalPlacement } from './teleported-menu-position.js'
 import { prefersReducedMotion, resolveTeleportedMenuZIndex } from './theme-utils.js'
 import { fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
+import { flushOverlaySheetToScreenBottom } from './overlay-sheet-scroll-lock.js'
 import { OVERLAY_SHEET_PANEL_Z_INDEX } from './overlay-backdrop.js'
 
 const OVERFLOW_SCROLL_RE = /(auto|scroll|overlay)/
@@ -247,8 +248,9 @@ export function createOverlayRuntime({ document, window }) {
             panel.style.setProperty('left', '0', 'important')
             panel.style.setProperty('right', '0', 'important')
             panel.style.setProperty('inset-inline', '0', 'important')
-            panel.style.setProperty('bottom', '0', 'important')
             panel.style.setProperty('top', 'auto', 'important')
+            panel.style.setProperty('margin-bottom', '0', 'important')
+            flushOverlaySheetToScreenBottom(panel, window)
         }
 
         if (anchor && typeof window.getComputedStyle === 'function') {
@@ -292,6 +294,12 @@ export function createOverlayRuntime({ document, window }) {
         }
 
         panel.style.removeProperty('--fff-overlay-sheet-max-height')
+        panel.style.removeProperty('backdrop-filter')
+        panel.style.removeProperty('-webkit-backdrop-filter')
+        panel.style.removeProperty('background')
+        panel.style.removeProperty('background-color')
+        panel.style.removeProperty('box-shadow')
+        delete panel.__fffMenuThemeKey
         positionPanel(entry)
     }
 

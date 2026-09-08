@@ -585,6 +585,11 @@ return [
             'negative' => 'The amount cannot be negative.',
             'min' => 'The amount must be at least :min.',
             'max' => 'The amount must not exceed :max.',
+            'invalid_code' => 'Please select a valid currency.',
+        ],
+        'tags' => [
+            'max' => 'Please select no more than :max tags.',
+            'suggestions_only' => 'Only suggested tags are allowed.',
         ],
         'map_picker' => [
             'required_field' => 'The :field field is required.',

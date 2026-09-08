@@ -34,6 +34,67 @@ it('loads overlay-runtime stylesheet before teleported-menu', function (): void 
         ->and(FlexFieldAssets::stylesheetsFor('select-field'))->toContain('teleported-menu');
 });
 
+it('keeps stylesheet dependency graph acyclic with select-field teleported-menu edge', function (): void {
+    $graph = FlexFieldAssets::STYLESHEET_DEPENDENCIES;
+
+    expect($graph['select-field'] ?? [])->toContain('teleported-menu');
+
+    foreach (array_keys($graph) as $root) {
+        $stack = [];
+        $visiting = [];
+        $visited = [];
+
+        $walk = function (string $node) use (&$walk, &$stack, &$visiting, &$visited, $graph): void {
+            if (isset($visited[$node])) {
+                return;
+            }
+
+            if (isset($visiting[$node])) {
+                throw new RuntimeException('Cycle detected in STYLESHEET_DEPENDENCIES: '.implode(' -> ', [...$stack, $node]));
+            }
+
+            $visiting[$node] = true;
+            $stack[] = $node;
+
+            foreach ($graph[$node] ?? [] as $dep) {
+                $walk($dep);
+            }
+
+            array_pop($stack);
+            unset($visiting[$node]);
+            $visited[$node] = true;
+        };
+
+        expect(fn () => $walk($root))->not->toThrow(RuntimeException::class);
+    }
+});
+
+it('shares select-menu and combobox-engine alpine chunks between phone-field and select-field', function (): void {
+    $manifest = FlexFieldAssets::alpineManifest();
+    $phoneChunks = $manifest['phone-field'] ?? [];
+    $selectChunks = $manifest['select-field'] ?? [];
+
+    expect($phoneChunks)->toBeArray()->not->toBeEmpty()
+        ->and($selectChunks)->toBeArray()->not->toBeEmpty();
+
+    $phoneSelectMenu = collect($phoneChunks)->first(fn (string $chunk): bool => str_contains($chunk, 'select-menu'));
+    $selectSelectMenu = collect($selectChunks)->first(fn (string $chunk): bool => str_contains($chunk, 'select-menu'));
+    $selectCombobox = collect($selectChunks)->first(fn (string $chunk): bool => str_contains($chunk, 'combobox-engine'));
+
+    expect($phoneSelectMenu)->toBeString()
+        ->and($selectSelectMenu)->toBeString()
+        ->and($phoneSelectMenu)->toBe($selectSelectMenu)
+        ->and($selectCombobox)->toBeString();
+
+    // Phone may share select-menu without needing the full combobox-engine entry;
+    // when both list combobox-engine, the hashed chunk name must match.
+    $phoneCombobox = collect($phoneChunks)->first(fn (string $chunk): bool => str_contains($chunk, 'combobox-engine'));
+
+    if (is_string($phoneCombobox)) {
+        expect($phoneCombobox)->toBe($selectCombobox);
+    }
+});
+
 it('dedupes teleported-menu when planning country timezone and currency fields', function (): void {
     $planned = FlexFieldAssets::planAssetsForComponents([
         'country-field',

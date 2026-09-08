@@ -19,7 +19,6 @@
     @apply w-full;
 }
 
-.fff-user-select.fff-select-field--multiple .fi-select-input div[x-ref='select'],
 .fff-user-select.fff-select-field--multiple .fi-select-input-ctn {
     height: var(--fff-user-select-trigger-min-h) !important;
     min-height: var(--fff-user-select-trigger-min-h) !important;
@@ -42,8 +41,7 @@
 .fi-input-wrp.fff-user-select.fff-select-field--multiple .fi-select-input,
 .fi-input-wrp.fff-user-select.fff-select-field--multiple .fff-select-field__shell,
 .fi-input-wrp.fff-user-select.fff-select-field--multiple .fff-lazy-alpine-gate,
-.fi-input-wrp.fff-user-select.fff-select-field--multiple .fff-select-field__interactive,
-.fi-input-wrp.fff-user-select.fff-select-field--multiple .fi-select-input > div[x-ref='select'] {
+.fi-input-wrp.fff-user-select.fff-select-field--multiple .fff-select-field__interactive {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
@@ -121,7 +119,6 @@
     align-items: center !important;
 }
 
-.fff-user-select--single .fi-select-input div[x-ref='select'],
 .fff-user-select--single .fi-select-input-ctn,
 .fff-user-select--single .fi-select-input-btn,
 .fff-user-select--single .fff-select-trigger-ssr,

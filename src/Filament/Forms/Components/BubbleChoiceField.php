@@ -26,7 +26,7 @@ class BubbleChoiceField extends Field
     protected array|Closure $options = [];
 
     /**
-     * @var array<string, array{label: string, image: ?string, color: ?string, selectedColor: ?string, disabled: bool}>|null
+     * @var array<string, array{label: string, description: ?string, image: ?string, imageMode: string, color: ?string, selectedColor: ?string, disabled: bool}>|null
      */
     protected ?array $normalizedOptionsCache = null;
 

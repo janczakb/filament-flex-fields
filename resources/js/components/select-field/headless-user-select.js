@@ -327,6 +327,20 @@ export function createHeadlessUserSelectMixin({
                 return null
             }
 
+            const query = String(this.comboboxQuery ?? '').trim()
+            const minLen = Number(this.minSearchLength ?? 0)
+            const awaitsMinSearchLength = this.hasDynamicSearchResults
+                && minLen > 0
+                && query.length < minLen
+
+            // Prefer the search prompt over skeleton while the query is still too short.
+            // Opening the menu must not flash loading when the user has not typed yet.
+            if (awaitsMinSearchLength) {
+                const total = this.comboboxFilteredOptions().meta.total
+
+                return total > 0 ? null : 'prompt'
+            }
+
             if (this.optionsLoading) {
                 return 'loading'
             }
@@ -335,18 +349,13 @@ export function createHeadlessUserSelectMixin({
                 return 'searching'
             }
 
-            const query = String(this.comboboxQuery ?? '').trim()
             const total = this.comboboxFilteredOptions().meta.total
-
-            if (this.hasDynamicSearchResults && query.length < this.minSearchLength) {
-                return 'prompt'
-            }
 
             if (total > 0) {
                 return null
             }
 
-            if (this.hasDynamicSearchResults && query.length >= this.minSearchLength) {
+            if (this.hasDynamicSearchResults && query.length >= minLen) {
                 return 'search'
             }
 

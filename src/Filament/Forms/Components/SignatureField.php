@@ -14,6 +14,7 @@ use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Field;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Model;
 use InvalidArgumentException;
 
 class SignatureField extends Field
@@ -81,6 +82,14 @@ class SignatureField extends Field
 
     protected string|Closure|null $storageDisk = null;
 
+    protected bool|Closure $spatieSinkEnabled = false;
+
+    protected string|Closure $spatieSinkCollection = 'signatures';
+
+    protected string|Closure|null $spatieSinkDisk = null;
+
+    protected string|Closure|null $spatieSinkUuidIn = null;
+
     protected bool|Closure $legalPackEnabled = false;
 
     protected bool|Closure $timestampSealEnabled = false;
@@ -103,18 +112,29 @@ class SignatureField extends Field
             }
 
             if ($component->isStoredFileReference($state)) {
+                $component->maybeSinkSignatureToSpatie(
+                    SignatureStorage::resolve($state, $component->getStorageDisk()) ?? $state,
+                );
+
                 return $state;
             }
 
-            if ($component->shouldStoreToDisk()) {
-                return SignatureStorage::store(
+            $normalized = $component->shouldStoreToDisk()
+                ? SignatureStorage::store(
                     $state,
                     $component->getStorageDirectory(),
                     $component->getStorageDisk(),
-                );
+                )
+                : $component->normalizeState($state);
+
+            if (is_string($normalized)) {
+                $svg = str_contains($state, '<svg')
+                    ? $state
+                    : (SignatureStorage::resolve($normalized, $component->getStorageDisk()) ?? $state);
+                $component->maybeSinkSignatureToSpatie($svg);
             }
 
-            return $component->normalizeState($state);
+            return $normalized;
         });
 
         $this->beforeStateDehydrated(function (SignatureField $component): void {
@@ -562,9 +582,94 @@ class SignatureField extends Field
         return $this;
     }
 
+    /**
+     * Explicit disk storage (ffstage: / SVG path state). Alias of storeToDisk().
+     */
+    public function disk(
+        string|Closure $directory = 'signatures',
+        string|Closure|null $disk = null,
+    ): static {
+        return $this->storeToDisk($directory, $disk);
+    }
+
+    /**
+     * Optional Spatie Media Library sink. Signature state stays SVG / ffstage: — UUID is optional metadata.
+     */
+    public function spatieSink(
+        string|Closure $collection = 'signatures',
+        string|Closure|null $disk = null,
+        string|Closure|null $uuidStatePath = null,
+    ): static {
+        $this->spatieSinkEnabled = true;
+        $this->spatieSinkCollection = $collection;
+
+        if ($disk !== null) {
+            $this->spatieSinkDisk = $disk;
+        }
+
+        if ($uuidStatePath !== null) {
+            $this->spatieSinkUuidIn = $uuidStatePath;
+        }
+
+        return $this;
+    }
+
     public function shouldStoreToDisk(): bool
     {
         return (bool) $this->evaluate($this->storeToDiskEnabled);
+    }
+
+    public function shouldSpatieSink(): bool
+    {
+        return (bool) $this->evaluate($this->spatieSinkEnabled);
+    }
+
+    public function getSpatieSinkCollection(): string
+    {
+        $collection = trim((string) $this->evaluate($this->spatieSinkCollection));
+
+        return $collection !== '' ? $collection : 'signatures';
+    }
+
+    public function getSpatieSinkDisk(): ?string
+    {
+        $disk = $this->evaluate($this->spatieSinkDisk);
+
+        return is_string($disk) && $disk !== '' ? $disk : null;
+    }
+
+    public function getSpatieSinkUuidInPath(): ?string
+    {
+        $path = $this->evaluate($this->spatieSinkUuidIn);
+
+        return is_string($path) && $path !== '' ? $path : null;
+    }
+
+    protected function maybeSinkSignatureToSpatie(string $svg): void
+    {
+        if (! $this->shouldSpatieSink()) {
+            return;
+        }
+
+        $record = $this->getRecord();
+
+        if (! $record instanceof Model) {
+            return;
+        }
+
+        $uuid = SignatureStorage::sinkToSpatie(
+            $svg,
+            $record,
+            $this->getSpatieSinkCollection(),
+            $this->getSpatieSinkDisk(),
+            $this->getName(),
+        );
+
+        $uuidPath = $this->getSpatieSinkUuidInPath();
+
+        if ($uuidPath !== null && is_string($uuid) && $uuid !== '') {
+            $this->makeSetUtility()($uuidPath, $uuid);
+        }
     }
 
     public function getStorageDirectory(): string

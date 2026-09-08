@@ -838,7 +838,7 @@ PHP),
                         ->createOptionUsing(function (array $data): string {
                             return 'created-'.str($data['code'] ?? $data['name'] ?? 'option')->slug().'-'.substr(uniqid(), -4);
                         })
-                        ->getOptionLabelUsing(function ($value): ?string {
+                        ->getOptionLabelUsing(function ($value): string {
                             $value = (string) $value;
 
                             return match ($value) {
@@ -874,7 +874,7 @@ PHP),
                 ->schema([
                     SelectField::make('select__scale_10k')
                         ->label('10k options (virtualized)')
-                        ->helperText('Headless combobox keeps a ~50-row window once options ≥ 100 — scroll or arrow through 10 000 rows without mounting the full DOM.')
+                        ->helperText('Headless combobox keeps a ~50-row DOM window once options ≥ 100 — scroll or arrow through all 10 000 rows without mounting the full list.')
                         ->options(fn (): array => $this->tenThousandOptions())
                         ->searchable()
                         ->placeholder('Search option…'),
@@ -976,6 +976,36 @@ SelectField::make('city')
     ->inlineSearch()
     ->clearable()
     ->extraAttributes(['dir' => 'rtl']);
+PHP),
+                ]),
+            Section::make('SelectField — Forbidden / colliding configs')
+                ->description('These combinations throw at configure time (or soft no-op). Shown as documentation only — demos above never call them.')
+                ->extraAttributes(['class' => 'fff-playground-section'])
+                ->schema([
+                    PlaygroundCodeSnippet::make(<<<'PHP'
+// Throws InvalidArgumentException — native HTML <select> cannot be searchable/multiple/HTML.
+SelectField::make('status')
+    ->options($status)
+    ->native(true)
+    ->searchable(); // conflict
+
+// Soft no-op: inlineSearch() is ignored when multiple() is set.
+SelectField::make('tags')
+    ->options($tags)
+    ->multiple()
+    ->inlineSearch();
+
+// Paginated search without getSearchResultsPageUsing(): first page only, hasMore=false
+// (never unbounded full-fetch + slice). Prefer:
+SelectField::make('users')
+    ->searchable()
+    ->paginatedSearchResults()
+    ->getSearchResultsUsing(fn (string $search): array => /* capped */)
+    ->getSearchResultsPageUsing(fn (string $search, ?string $cursor, int $pageSize): array => [
+        'items' => [],
+        'cursor' => null,
+        'hasMore' => false,
+    ]);
 PHP),
                 ]),
         ];

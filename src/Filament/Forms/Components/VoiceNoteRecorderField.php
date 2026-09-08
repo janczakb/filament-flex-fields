@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesConfiguredIcons;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\VoiceNoteSpatieRecorderField;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
 use Closure;
@@ -34,6 +35,26 @@ class VoiceNoteRecorderField extends FlexFileUpload
     protected string|BackedEnum|Htmlable|Closure|null $checkmarkIcon = null;
 
     protected string|Closure|null $storeWaveformIn = null;
+
+    /**
+     * Explicit disk driver (path state). Default for VoiceNoteRecorderField.
+     */
+    public function disk(string|Closure|null $name = null): static
+    {
+        if ($name === null) {
+            return $this;
+        }
+
+        return parent::disk($name);
+    }
+
+    /**
+     * Factory sugar for Spatie UUID-state voice notes.
+     */
+    public static function spatie(string $name): VoiceNoteSpatieRecorderField
+    {
+        return VoiceNoteSpatieRecorderField::make($name);
+    }
 
     protected function setUp(): void
     {

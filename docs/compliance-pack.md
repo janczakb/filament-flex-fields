@@ -66,7 +66,7 @@ Uses PHP `ext-intl` when available; deterministic fallbacks otherwise.
 
 ## Media, PCI & retention (operational)
 
-Enterprise media posture: [Media & Capture OS](/docs/media-capture-os).
+Enterprise media posture: [Media Ingress](/docs/media-capture-os).
 
 | Control | Env / hook |
 |---------|------------|
@@ -103,4 +103,4 @@ Flex Fields **does not** embed Stripe Elements or iframe-hosted PAN fields. For 
 3. Set `FLEX_FIELDS_PCI_REQUIRE_TOKENIZATION=true` in production.
 4. Prefer gateway-hosted fields (Stripe Elements, Adyen Drop-in) for raw PAN entry; use `CreditCardField` only when tokenization callback is wired.
 
-See [CreditCardField](/docs/creditcardfield) and [Media & Capture OS](/docs/media-capture-os).
+See [CreditCardField](/docs/creditcardfield) and [Media Ingress](/docs/media-capture-os).

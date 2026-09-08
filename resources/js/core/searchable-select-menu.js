@@ -14,8 +14,13 @@ import {
     removeOverlayBackdrop,
 } from './overlay-backdrop.js'
 import { resolveOverlayMode } from './overlay-mode.js'
-import { bindOverlaySheetDismiss, fitOverlaySheetToContent } from './overlay-sheet-dismiss.js'
-import { lockOverlaySheetScroll, unlockOverlaySheetScroll } from './overlay-sheet-scroll-lock.js'
+import { bindOverlaySheetDismiss, fitOverlaySheetToContent, OVERLAY_SHEET_GEOMETRY_EVENT } from './overlay-sheet-dismiss.js'
+import {
+    lockOverlaySheetScroll,
+    unlockOverlaySheetScroll,
+    bindOverlaySheetVisualViewport,
+    syncOverlaySheetToVisualViewport,
+} from './overlay-sheet-scroll-lock.js'
 import {
     resolveTeleportedMenuHorizontalLeft,
     resolveTeleportedMenuVerticalPlacement,
@@ -84,7 +89,11 @@ export function applyTeleportedMenuTheme(menu, { variant = 'default' } = {}) {
     }
 
     const isDark = resolveIsDark()
-    const themeKey = `${isDark ? 'd' : 'l'}:${variant}`
+    const isSheet = menu.classList?.contains?.('fff-overlay-sheet')
+        || menu.classList?.contains?.('fff-teleported-menu--sheet')
+        || menu.dataset?.fffOverlaySheet === 'true'
+        || menu.dataset?.fffOverlayPresentation === 'sheet'
+    const themeKey = `${isDark ? 'd' : 'l'}:${variant}:${isSheet ? 's' : 'p'}`
 
     if (menu.__fffMenuThemeKey === themeKey) {
         return
@@ -99,32 +108,47 @@ export function applyTeleportedMenuTheme(menu, { variant = 'default' } = {}) {
         ? 'rgb(39 39 42 / 0.9)'
         : 'rgb(39 39 42 / 0.92)'
     const darkMenuShadow = '0 4px 6px -1px rgb(0 0 0 / 0.28), 0 12px 28px -6px rgb(0 0 0 / 0.5)'
-    const menuBackground = isDark ? darkMenuBackground : lightMenuBackground
-    const menuShadow = isDark ? darkMenuShadow : lightMenuShadow
 
     menu.classList.add('fff-teleported-menu')
 
     if (isDark) {
-        menu.style.setProperty('--fff-select-menu-bg', darkMenuBackground)
+        menu.style.setProperty('--fff-select-menu-bg', isSheet ? '#27272a' : darkMenuBackground)
         menu.style.setProperty('--fff-select-menu-border', 'rgb(255 255 255 / 0.12)')
-        menu.style.setProperty('--fff-select-menu-shadow', darkMenuShadow)
+        menu.style.setProperty('--fff-select-menu-shadow', isSheet ? 'none' : darkMenuShadow)
         menu.style.setProperty('--fff-select-menu-hover', 'rgb(255 255 255 / 0.08)')
         menu.style.setProperty('--fff-select-menu-selected', 'transparent')
-        menu.style.setProperty('--fff-select-search-bg', 'rgb(39 39 42 / 0.55)')
+        menu.style.setProperty('--fff-select-search-bg', isSheet ? '#3f3f46' : 'rgb(39 39 42 / 0.55)')
         menu.style.setProperty('--fff-select-search-border', 'rgb(63 63 70)')
         menu.style.setProperty('--fff-phone-field-menu-text', 'rgb(250 250 250)')
         menu.style.setProperty('--fff-phone-field-menu-muted', 'rgb(212 212 216)')
     } else {
-        menu.style.setProperty('--fff-select-menu-bg', lightMenuBackground)
+        menu.style.setProperty('--fff-select-menu-bg', isSheet ? '#ffffff' : lightMenuBackground)
         menu.style.setProperty('--fff-select-menu-border', 'rgb(228 228 231 / 0.65)')
-        menu.style.setProperty('--fff-select-menu-shadow', lightMenuShadow)
+        menu.style.setProperty('--fff-select-menu-shadow', isSheet ? 'none' : lightMenuShadow)
         menu.style.setProperty('--fff-select-menu-hover', '#ebebec')
         menu.style.setProperty('--fff-select-menu-selected', 'transparent')
-        menu.style.setProperty('--fff-select-search-bg', 'rgb(255 255 255 / 0.55)')
+        menu.style.setProperty('--fff-select-search-bg', isSheet ? '#f4f4f5' : 'rgb(255 255 255 / 0.55)')
         menu.style.setProperty('--fff-select-search-border', 'rgb(228 228 231)')
         menu.style.setProperty('--fff-phone-field-menu-text', 'rgb(24 24 27)')
         menu.style.setProperty('--fff-phone-field-menu-muted', 'rgb(113 113 122)')
     }
+
+    // Sheets: opaque + no backdrop-filter (Apple safe-area sheet path).
+    if (isSheet) {
+        const sheetBg = isDark ? '#27272a' : '#ffffff'
+
+        menu.style.setProperty('background', sheetBg, 'important')
+        menu.style.setProperty('background-color', sheetBg, 'important')
+        menu.style.setProperty('box-shadow', 'none', 'important')
+        menu.style.setProperty('backdrop-filter', 'none', 'important')
+        menu.style.setProperty('-webkit-backdrop-filter', 'none', 'important')
+        menu.style.color = isDark ? 'rgb(250 250 250)' : 'rgb(24 24 27)'
+
+        return
+    }
+
+    const menuBackground = isDark ? darkMenuBackground : lightMenuBackground
+    const menuShadow = isDark ? darkMenuShadow : lightMenuShadow
 
     menu.style.setProperty('background', menuBackground, 'important')
     menu.style.setProperty('background-color', menuBackground, 'important')
@@ -264,6 +288,26 @@ function menuIsSheet(menu) {
         menu?.classList?.contains('fff-teleported-menu--sheet')
         || menu?.classList?.contains('fff-overlay-sheet'),
     )
+}
+
+/**
+ * @param {{ __fffSheetVisualViewportCleanup?: (() => void) | null, __fffSheetDismissCleanup?: (() => void) | null, __fffSheetScrollLocked?: boolean }} host
+ */
+function releaseOverlaySheetEnvironment(host) {
+    if (typeof host.__fffSheetVisualViewportCleanup === 'function') {
+        host.__fffSheetVisualViewportCleanup()
+        host.__fffSheetVisualViewportCleanup = null
+    }
+
+    if (typeof host.__fffSheetDismissCleanup === 'function') {
+        host.__fffSheetDismissCleanup()
+        host.__fffSheetDismissCleanup = null
+    }
+
+    if (host.__fffSheetScrollLocked) {
+        unlockOverlaySheetScroll(document)
+        host.__fffSheetScrollLocked = false
+    }
 }
 
 /**
@@ -477,7 +521,20 @@ function playSheetExit(menu, onDone) {
 
         finished = true
         cancelMenuCloseAnimation(menu)
-        menu.classList.remove('is-closing')
+        menu.classList.remove('is-closing', 'is-open', 'fff-overlay-sheet', 'fff-teleported-menu--sheet')
+        delete menu.dataset?.fffOverlaySheet
+        delete menu.dataset?.fffOverlayPresentation
+        clearOverlaySheetInlineStyles(menu)
+        removeSheetChrome(menu)
+
+        // Park off-flow so Safari cannot leave a glass ghost / half-screen tint.
+        if (typeof menu.style?.setProperty === 'function') {
+            menu.style.setProperty('visibility', 'hidden', 'important')
+            menu.style.setProperty('max-height', '0', 'important')
+            menu.style.setProperty('opacity', '0', 'important')
+            menu.style.setProperty('pointer-events', 'none', 'important')
+        }
+
         onDone?.()
     }
 
@@ -646,6 +703,9 @@ function clearOverlaySheetInlineStyles(menu) {
         'top',
         'transform',
         'transition',
+        'visibility',
+        'opacity',
+        'pointer-events',
     ]) {
         menu.style.removeProperty(property)
     }
@@ -655,7 +715,12 @@ function clearOverlaySheetInlineStyles(menu) {
     if (menu.dataset) {
         delete menu.dataset.fffSheetFittedHeight
         delete menu.dataset.fffOverlaySnap
+        delete menu.dataset.fffSheetLayoutViewport
+        delete menu.dataset.fffOverlaySheetMinHeight
     }
+
+    // Force panel glass to re-apply after leaving sheet (opaque / no-blur) chrome.
+    delete menu.__fffMenuThemeKey
 }
 
 /**
@@ -810,8 +875,11 @@ export function createSearchableSelectMenuMixin({
                                 this.measureVirtualListViewport()
                             }
 
+                            // Never glass-reveal while still :not(.is-positioned) — the closed
+                            // scale/opacity frame would paint invisible, then the first visible
+                            // frame would already be .is-open (fade-only / pop). Ready first.
                             this.updateMenuPosition({
-                                reveal: shouldReveal,
+                                reveal: false,
                                 markReady: false,
                             })
 
@@ -823,7 +891,20 @@ export function createSearchableSelectMenuMixin({
                                 // Sheet enter is owned by playSheetEnter() after overlay chrome is applied.
                                 if (! sheetMode) {
                                     currentMenu.classList.remove('is-closing')
-                                    currentMenu.classList.add('is-open')
+
+                                    if (shouldReveal) {
+                                        // Paint one closed glass frame, then open (Select parity).
+                                        void currentMenu.offsetWidth
+                                        requestAnimationFrame(() => {
+                                            if (! this[openKey] || this.__fffSheetClosing || menuIsSheet(currentMenu)) {
+                                                return
+                                            }
+
+                                            currentMenu.classList.add('is-open')
+                                        })
+                                    } else {
+                                        currentMenu.classList.add('is-open')
+                                    }
                                 }
                             }
                         }
@@ -860,8 +941,6 @@ export function createSearchableSelectMenuMixin({
                 return
             }
 
-            applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
-
             if (this.__fffOverlayManaged) {
                 const managedOverlayId = this.resolveMenuOverlayId()
                 const runtime = typeof window !== 'undefined' ? window.FffOverlayRuntime : null
@@ -877,6 +956,7 @@ export function createSearchableSelectMenuMixin({
                     this.__fffOverlayMode = desiredMode
                     applyOverlayPresentation(menu, desiredMode)
                     setOverlayPanelMode(managedOverlayId, desiredMode)
+                    applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
                     this.syncOpenOverlaySheetEnvironment(desiredMode, menu)
 
                     if (desiredMode === 'sheet') {
@@ -886,20 +966,28 @@ export function createSearchableSelectMenuMixin({
                         menu.style.setProperty('left', '0', 'important')
                         menu.style.setProperty('right', '0', 'important')
                         menu.style.setProperty('inset-inline', '0', 'important')
-                        menu.style.setProperty('bottom', '0', 'important')
                         menu.style.setProperty('width', '100%', 'important')
                         menu.style.setProperty('min-width', '0', 'important')
                         menu.style.setProperty('max-width', 'none', 'important')
                         menu.style.removeProperty('top')
                         menu.style.marginTop = '0'
                         menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
+                        syncOverlaySheetToVisualViewport(menu, window)
+
+                        // Refit when async content grows; skip pure keyboard resize.
+                        const fitted = Number(menu.dataset?.fffSheetFittedHeight || 0)
+                        const contentGrew = Number.isFinite(fitted)
+                            && fitted > 0
+                            && (menu.scrollHeight || 0) > fitted + 8
 
                         if (
                             this[openKey]
                             && menu.classList?.contains?.('is-open')
                             && menu.dataset?.fffSheetEntering !== 'true'
+                            && (! (Number.isFinite(fitted) && fitted > 0) || contentGrew)
                         ) {
                             fitOverlaySheetToContent(menu, window)
+                            syncOverlaySheetToVisualViewport(menu, window)
                         }
                     } else {
                         updateOverlayPanelPosition(managedOverlayId)
@@ -930,6 +1018,7 @@ export function createSearchableSelectMenuMixin({
 
             this.__fffOverlayMode = overlayMode
             applyOverlayPresentation(menu, overlayMode)
+            applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
             this.syncOpenOverlaySheetEnvironment(overlayMode, menu)
 
             if (overlayMode === 'sheet') {
@@ -939,13 +1028,13 @@ export function createSearchableSelectMenuMixin({
                 menu.style.setProperty('left', '0', 'important')
                 menu.style.setProperty('right', '0', 'important')
                 menu.style.setProperty('inset-inline', '0', 'important')
-                menu.style.setProperty('bottom', '0', 'important')
                 menu.style.setProperty('width', '100%', 'important')
                 menu.style.setProperty('min-width', '0', 'important')
                 menu.style.setProperty('max-width', 'none', 'important')
                 menu.style.removeProperty('top')
                 menu.style.marginTop = '0'
                 menu.classList.remove('fff-teleported-menu--above', 'fff-teleported-menu--below')
+                syncOverlaySheetToVisualViewport(menu, window)
 
                 // Mirror trigger writing direction so sheet search/options use [dir=rtl] CSS.
                 const sheetDirection = typeof window.getComputedStyle === 'function'
@@ -958,13 +1047,20 @@ export function createSearchableSelectMenuMixin({
                 }
 
                 // Never glass-reveal or flip is-open here — playSheetEnter owns enter.
-                // After enter, refit when Livewire/skeleton content changes height.
+                // Keyboard resize must not refit; async content growth must.
+                const fitted = Number(menu.dataset?.fffSheetFittedHeight || 0)
+                const contentGrew = Number.isFinite(fitted)
+                    && fitted > 0
+                    && (menu.scrollHeight || 0) > fitted + 8
+
                 if (
                     this[openKey]
                     && menu.classList?.contains?.('is-open')
                     && menu.dataset?.fffSheetEntering !== 'true'
+                    && (! (Number.isFinite(fitted) && fitted > 0) || contentGrew)
                 ) {
                     fitOverlaySheetToContent(menu, window)
+                    syncOverlaySheetToVisualViewport(menu, window)
                 }
 
                 return
@@ -1082,7 +1178,12 @@ export function createSearchableSelectMenuMixin({
                     this.__fffSheetScrollLocked = true
                 }
 
+                if (panel && ! this.__fffSheetVisualViewportCleanup) {
+                    this.__fffSheetVisualViewportCleanup = bindOverlaySheetVisualViewport(panel, window)
+                }
+
                 if (panel) {
+                    syncOverlaySheetToVisualViewport(panel, window)
                     // Numeric z-index — CSS var strings + first-paint "auto" used to put
                     // the dimmer above the sheet on the first mobile open.
                     if (typeof panel.style?.setProperty === 'function') {
@@ -1116,20 +1217,63 @@ export function createSearchableSelectMenuMixin({
                         && ! this.__fffSheetDismissCleanup
                         && typeof panel.addEventListener === 'function'
                     ) {
-                        this.__fffSheetDismissCleanup = bindOverlaySheetDismiss({
-                            panel,
-                            onDismiss: () => {
-                                if (this.__fffSheetClosing || ! this[openKey]) {
-                                    return
-                                }
+                        const onSheetGeometry = () => {
+                            if (typeof this.onOverlaySheetGeometry === 'function') {
+                                this.onOverlaySheetGeometry()
 
-                                // Exit transform already finished in bindOverlaySheetDismiss.
-                                this.__fffSheetClosing = true
-                                removeOverlayBackdrop(document, overlayId)
-                                this.__fffSheetClosing = false
-                                this[openKey] = false
-                            },
-                        })
+                                return
+                            }
+
+                            if (typeof this.measureVirtualListViewport === 'function') {
+                                this.measureVirtualListViewport()
+                            }
+                        }
+
+                        panel.addEventListener(OVERLAY_SHEET_GEOMETRY_EVENT, onSheetGeometry)
+                        this.__fffSheetDismissCleanup = (() => {
+                            const dismissCleanup = bindOverlaySheetDismiss({
+                                panel,
+                                onDismiss: () => {
+                                    if (this.__fffSheetClosing || ! this[openKey]) {
+                                        return
+                                    }
+
+                                    // Exit transform already finished in bindOverlaySheetDismiss.
+                                    this.__fffSheetClosing = true
+                                    removeOverlayBackdrop(document, overlayId)
+
+                                    if (panel) {
+                                        panel.classList.remove(
+                                            'is-open',
+                                            'is-closing',
+                                            'is-dismissing',
+                                            'fff-overlay-sheet',
+                                            'fff-teleported-menu--sheet',
+                                        )
+                                        delete panel.dataset?.fffOverlaySheet
+                                        delete panel.dataset?.fffOverlayPresentation
+                                        clearOverlaySheetInlineStyles(panel)
+                                        removeSheetChrome(panel)
+
+                                        if (typeof panel.style?.setProperty === 'function') {
+                                            panel.style.setProperty('visibility', 'hidden', 'important')
+                                            panel.style.setProperty('max-height', '0', 'important')
+                                            panel.style.setProperty('opacity', '0', 'important')
+                                            panel.style.setProperty('pointer-events', 'none', 'important')
+                                            panel.style.setProperty('box-shadow', 'none', 'important')
+                                        }
+                                    }
+
+                                    this.__fffSheetClosing = false
+                                    this[openKey] = false
+                                },
+                            })
+
+                            return () => {
+                                panel.removeEventListener(OVERLAY_SHEET_GEOMETRY_EVENT, onSheetGeometry)
+                                dismissCleanup()
+                            }
+                        })()
                     }
                 }
 
@@ -1137,16 +1281,7 @@ export function createSearchableSelectMenuMixin({
             }
 
             removeOverlayBackdrop(document, overlayId)
-
-            if (this.__fffSheetDismissCleanup) {
-                this.__fffSheetDismissCleanup()
-                this.__fffSheetDismissCleanup = null
-            }
-
-            if (this.__fffSheetScrollLocked) {
-                unlockOverlaySheetScroll(document)
-                this.__fffSheetScrollLocked = false
-            }
+            releaseOverlaySheetEnvironment(this)
         },
 
         closeTeleportedMenu() {
@@ -1370,6 +1505,7 @@ export function createSearchableSelectMenuMixin({
                                     ? this.position
                                     : null,
                             })
+                            applyTeleportedMenuTheme(menu, { variant: menuThemeVariant })
                             this.__fffOverlayManaged = true
                             this.__fffOverlayMode = overlayMode
                             // Lock scroll + backdrop before enter; bind dismiss after so
@@ -1419,16 +1555,7 @@ export function createSearchableSelectMenuMixin({
 
                 this.__fffSheetClosing = false
                 removeOverlayBackdrop(document, overlayExclusiveId)
-
-                if (this.__fffSheetDismissCleanup) {
-                    this.__fffSheetDismissCleanup()
-                    this.__fffSheetDismissCleanup = null
-                }
-
-                if (this.__fffSheetScrollLocked) {
-                    unlockOverlaySheetScroll(document)
-                    this.__fffSheetScrollLocked = false
-                }
+                releaseOverlaySheetEnvironment(this)
 
                 if (this.__fffOverlayManaged) {
                     closeOverlayPanel(overlayExclusiveId)
@@ -1456,5 +1583,153 @@ export function createSearchableSelectMenuMixin({
                 this.unbindMenuListeners()
             })
         },
+
+        /**
+         * Tear down listeners/overlay/exclusive lock when Alpine destroys the host.
+         * Livewire morph may skip Alpine destroy — pair with emergencySelectOverlayCleanup.
+         */
+        destroyTeleportedMenuLifecycle() {
+            const overlayId = typeof this.resolveMenuOverlayId === 'function'
+                ? this.resolveMenuOverlayId()
+                : null
+
+            if (this[openKey] && typeof this.closeTeleportedMenuImmediate === 'function') {
+                this.closeTeleportedMenuImmediate()
+            } else {
+                this[openKey] = false
+            }
+
+            const menu = typeof this.resolveMenuElement === 'function'
+                ? this.resolveMenuElement()
+                : null
+
+            if (menu) {
+                cancelMenuCloseAnimation(menu)
+                menu.classList.remove(
+                    'is-open',
+                    'is-closing',
+                    'fff-teleported-menu--sheet',
+                    'fff-teleported-menu--panel',
+                )
+                clearOverlaySheetInlineStyles(menu)
+                removeSheetChrome(menu)
+            }
+
+            if (overlayId) {
+                removeOverlayBackdrop(document, overlayId)
+            }
+
+            releaseOverlaySheetEnvironment(this)
+
+            if (overlayId) {
+                if (this.__fffOverlayManaged) {
+                    closeOverlayPanel(overlayId)
+                    this.__fffOverlayManaged = false
+                } else {
+                    releaseOverlayExclusive(overlayId)
+                }
+            }
+
+            this.__fffSheetClosing = false
+            this.__fffOverlayMode = null
+            this.unbindMenuListeners()
+
+            if (typeof this.__fffDropdownUnbind === 'function') {
+                this.__fffDropdownUnbind()
+                this.__fffDropdownUnbind = null
+            }
+        },
+    }
+}
+
+/**
+ * Emergency cleanup when Livewire morph removes a select host before Alpine destroy.
+ * Safe to call repeatedly; only clears open teleported select menus + sheet chrome.
+ *
+ * @param {ParentNode | null | undefined} root
+ */
+export function emergencySelectOverlayCleanup(root = typeof document !== 'undefined' ? document : null) {
+    if (! root || typeof root.querySelectorAll !== 'function') {
+        return
+    }
+
+    const menus = root.querySelectorAll?.(
+        '.fff-select-headless-menu.is-open, .fff-select-headless-menu.is-closing, .fff-teleported-menu.is-open, .fff-teleported-menu.is-closing, .fff-overlay-sheet.is-open',
+    ) ?? []
+
+    for (const menu of menus) {
+        cancelMenuCloseAnimation(menu)
+        menu.classList.remove(
+            'is-open',
+            'is-closing',
+            'fff-teleported-menu--sheet',
+            'fff-teleported-menu--panel',
+        )
+        clearOverlaySheetInlineStyles(menu)
+        removeSheetChrome(menu)
+
+        const overlayId = menu.getAttribute?.('data-fff-overlay-id')
+            ?? menu.dataset?.fffOverlayId
+            ?? null
+
+        if (overlayId) {
+            removeOverlayBackdrop(document, overlayId)
+            closeOverlayPanel(overlayId)
+            releaseOverlayExclusive(overlayId)
+        }
+    }
+
+    // Orphan sheet scroll lock: if no open sheet remains, unlock body.
+    if (typeof document !== 'undefined'
+        && ! document.querySelector('.fff-teleported-menu--sheet.is-open, .fff-overlay-sheet.is-open')) {
+        unlockOverlaySheetScroll(document)
+    }
+}
+
+let selectOverlayMorphHookRegistered = false
+
+/**
+ * Register once: when Livewire is about to morph away a subtree that still
+ * owns an open teleported select menu, force-hide overlays (Alpine destroy may not run).
+ */
+export function registerSelectOverlayMorphCleanup() {
+    if (selectOverlayMorphHookRegistered || typeof window === 'undefined') {
+        return
+    }
+
+    const Livewire = window.Livewire
+
+    if (! Livewire || typeof Livewire.hook !== 'function') {
+        return
+    }
+
+    selectOverlayMorphHookRegistered = true
+
+    Livewire.hook('morph.updating', ({ el, component, skip, toEl }) => {
+        void component
+        void skip
+        void toEl
+
+        if (! (el instanceof Element)) {
+            return
+        }
+
+        // Field shell removed, or wire:ignore island replaced — sweep open menus under el.
+        if (
+            el.matches?.('.fff-select-field, .fff-select-field__shell, [data-fff-select-field]')
+            || el.querySelector?.('.fff-select-headless-menu.is-open, .fff-teleported-menu.is-open')
+        ) {
+            emergencySelectOverlayCleanup(el)
+        }
+    })
+}
+
+if (typeof window !== 'undefined') {
+    const boot = () => registerSelectOverlayMorphCleanup()
+
+    if (window.Livewire) {
+        boot()
+    } else {
+        document.addEventListener('livewire:init', boot, { once: true })
     }
 }

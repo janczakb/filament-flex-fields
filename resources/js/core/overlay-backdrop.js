@@ -17,11 +17,16 @@ export function createOverlayBackdrop(document, overlayId, options = {}) {
         : OVERLAY_SHEET_BACKDROP_Z_INDEX
 
     if (existing && typeof existing === 'object') {
+        existing.classList.remove('is-leaving')
         existing.style?.setProperty?.('z-index', String(zIndex), 'important')
         if (existing.style) {
             existing.style.zIndex = String(zIndex)
+            existing.style.removeProperty('display')
         }
         ensureBackdropBehindPanel(existing, options.beforeElement)
+        requestAnimationFrame(() => {
+            existing.classList.add('is-visible')
+        })
 
         return existing
     }
@@ -87,23 +92,33 @@ function ensureBackdropBehindPanel(backdrop, panel) {
 }
 
 /**
+ * Remove immediately — delayed transitionend removal left a half-screen tint on iOS 26.
+ *
  * @param {Document} document
  * @param {string} overlayId
  */
 export function removeOverlayBackdrop(document, overlayId) {
-    const backdrop = document.querySelector?.(`[data-fff-overlay-backdrop="${overlayId}"]`)
+    const nodes = document.querySelectorAll?.(
+        overlayId
+            ? `[data-fff-overlay-backdrop="${overlayId}"]`
+            : '.fff-overlay-backdrop, [data-fff-overlay-backdrop]',
+    )
 
-    if (! backdrop || typeof backdrop.remove !== 'function') {
+    if (! nodes?.length) {
         return
     }
 
-    backdrop.classList.remove('is-visible')
-    backdrop.classList.add('is-leaving')
+    for (const backdrop of nodes) {
+        backdrop.classList.remove('is-visible', 'is-leaving')
 
-    const remove = () => {
-        backdrop.remove()
+        if (backdrop.style) {
+            backdrop.style.display = 'none'
+            backdrop.style.opacity = '0'
+            backdrop.style.pointerEvents = 'none'
+        }
+
+        if (typeof backdrop.remove === 'function') {
+            backdrop.remove()
+        }
     }
-
-    backdrop.addEventListener('transitionend', remove, { once: true })
-    window.setTimeout(remove, 200)
 }

@@ -155,7 +155,7 @@ See [Playground](/docs/index#playground) for setup.
 
 ### PCI & Media Capture OS
 
-CreditCardField integrates with [Media & Capture OS](/docs/media-capture-os) for enterprise PCI posture.
+CreditCardField integrates with [Media Ingress](/docs/media-capture-os) for enterprise PCI posture.
 
 | Env | Default | Purpose |
 |-----|---------|---------|

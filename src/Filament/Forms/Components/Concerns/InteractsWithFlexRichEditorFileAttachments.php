@@ -7,6 +7,12 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadMimePresets;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\ScopedDirectoryResolver;
+use Bjanczak\FilamentFlexFields\Support\Media\FlexMedia;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaContext;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaKind;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaPayload;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaStorageDriver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Refs\DiskMediaRef;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentIdResolver;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentPaths;
 use Bjanczak\FilamentFlexFields\Support\RichEditor\RichEditorAttachmentPruner;
@@ -229,10 +235,34 @@ trait InteractsWithFlexRichEditorFileAttachments
 
     public function persistFlexRichEditorFileAttachment(TemporaryUploadedFile $file): mixed
     {
+        $payload = MediaPayload::fromTemporaryUploadedFile($file);
+        $context = (new MediaContext(
+            kind: MediaKind::RichAttachment,
+            driver: $this->usesSpatieRichEditorFileAttachmentProvider()
+                ? MediaStorageDriver::Spatie
+                : MediaStorageDriver::Disk,
+            field: $this->getName(),
+            record: $this->getRecord(),
+            disk: $this->getFileAttachmentsDiskName(),
+            directory: $this->getFileAttachmentsDirectory(),
+        ))->withCorrelationId((string) Str::uuid());
+
+        if (! FlexMedia::ingress()->passesPrePersistScan($payload, $context)) {
+            return null;
+        }
+
         $file = $this->prepareRichEditorAttachmentForProviderSave($file);
 
         if (filled($savedFile = $this->defaultSaveUploadedFileAttachment($file))) {
             $this->queueSpatieVariantConversions($savedFile);
+
+            if (is_string($savedFile) && ! $this->usesSpatieRichEditorFileAttachmentProvider()) {
+                $ref = new DiskMediaRef($this->getFileAttachmentsDiskName(), $savedFile);
+
+                if (! FlexMedia::ingress()->assertCleanStored($ref, $context)) {
+                    return null;
+                }
+            }
 
             return $savedFile;
         }
@@ -250,7 +280,26 @@ trait InteractsWithFlexRichEditorFileAttachments
             rescue(fn () => $this->getFileAttachmentsDisk()->setVisibility($path, 'public'), report: false);
         }
 
-        return $this->postProcessStoredRichEditorAttachment($path);
+        $path = $this->postProcessStoredRichEditorAttachment($path);
+        $ref = new DiskMediaRef($this->getFileAttachmentsDiskName(), $path);
+
+        if (! FlexMedia::ingress()->assertCleanStored($ref, $context)) {
+            return null;
+        }
+
+        return $path;
+    }
+
+    /**
+     * Display URL via Media Ingress signed-URL capsule when available.
+     */
+    public function resolveFlexRichEditorAttachmentSignedUrl(string $path): ?string
+    {
+        return FlexMedia::signedUrl($this->getFileAttachmentsDiskName(), $path, [
+            'field' => $this->getName(),
+            'visibility' => $this->getFileAttachmentsVisibility(),
+            'kind' => MediaKind::RichAttachment->value,
+        ]);
     }
 
     public function postProcessStoredRichEditorAttachment(string $path): string

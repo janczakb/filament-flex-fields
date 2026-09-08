@@ -21,6 +21,7 @@ const VARIANTS = Object.freeze([
     { key: 'select__custom_value_user', multiple: false, filled: 'fred', alternate: 'jane', clearable: true },
     { key: 'select__grouped', multiple: false, filled: 'usa', alternate: 'uk', clearable: true },
     { key: 'select__disabled_animals', multiple: false, filled: 'dog', alternate: 'bird', clearable: true },
+    { key: 'select__async_paginated', multiple: false, filled: 'luke', alternate: 'leia', clearable: true },
     { key: 'select__dynamic_options', multiple: false, filled: 'published', alternate: 'draft', clearable: true },
     { key: 'select__truncate_labels', multiple: false, filled: 'enterprise_agreement', alternate: 'short', clearable: true },
     { key: 'select__reorderable', multiple: true, filled: ['tailwind', 'laravel', 'livewire', 'alpine'], alternate: ['alpine', 'tailwind'], clearable: true },

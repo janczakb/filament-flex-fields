@@ -198,68 +198,121 @@
     }
 }
 
-.fff-teleported-menu.fff-teleported-menu--sheet {
+/*
+ * Canonical mobile bottom-sheet chrome for every teleported menu.
+ * Consumers (Select, Phone, Country, Timezone, Currency, IconPicker, Tags,
+ * Address/Map, …) only add field-specific content rules — not this layout.
+ * JS always toggles both `--sheet` and `.fff-overlay-sheet` together.
+ */
+.fff-teleported-menu.fff-teleported-menu--sheet,
+.fff-teleported-menu.fff-overlay-sheet {
     --fff-overlay-sheet-enter-duration: 0.25s;
     --fff-overlay-sheet-exit-duration: 0.2s;
     --fff-overlay-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
-    --fff-overlay-sheet-pad-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    /*
+     * Apple path only: viewport-fit=cover + env(safe-area-inset-bottom) as
+     * INNER padding. Sheet stays position:fixed; bottom:0 — never lift via
+     * bottom/margin, never paint under Safari chrome with fake bleed shadows.
+     */
+    --fff-overlay-sheet-pad-bottom: env(safe-area-inset-bottom, 0px);
     --fff-overlay-sheet-min-height: 17.5rem;
     inset-inline: 0 !important;
     bottom: 0 !important;
     top: auto !important;
     left: 0 !important;
     right: 0 !important;
+    margin: 0 !important;
+    margin-bottom: 0 !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;
     /* Height is set by fitOverlaySheetToContent / drag snap (inline !important). */
     height: auto;
-    min-height: var(--fff-overlay-sheet-min-height);
+    min-height: var(--fff-overlay-sheet-min-height) !important;
     max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
     border-radius: 1.25rem 1.25rem 0 0 !important;
     opacity: 1 !important;
     pointer-events: none;
     transform: translate3d(0, 100%, 0) !important;
-    transform-origin: bottom center;
+    transform-origin: bottom center !important;
     will-change: transform;
     transition:
         transform var(--fff-overlay-sheet-enter-duration) var(--fff-overlay-sheet-ease) !important;
     display: flex !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
+    overflow: hidden !important;
     padding-bottom: var(--fff-overlay-sheet-pad-bottom) !important;
+    /* iOS: no backdrop-filter — glass samples page gray under the sheet. */
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    background: rgb(255 255 255 / 0.98) !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    --tw-shadow: 0 0 #0000 !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
     contain: layout paint;
     backface-visibility: hidden;
 }
 
-.dark .fff-teleported-menu.fff-teleported-menu--sheet {
-    background: rgb(39 39 42 / 0.98) !important;
+.dark .fff-teleported-menu.fff-teleported-menu--sheet,
+.dark .fff-teleported-menu.fff-overlay-sheet {
+    background: #27272a !important;
 }
 
-.fff-teleported-menu.fff-teleported-menu--sheet.is-open {
+.fff-teleported-menu.fff-teleported-menu--sheet.is-open,
+.fff-teleported-menu.fff-overlay-sheet.is-open {
     opacity: 1 !important;
-    pointer-events: auto;
+    pointer-events: auto !important;
     transform: translate3d(0, 0, 0) !important;
 }
 
+.fff-teleported-menu.fff-teleported-menu--sheet[data-fff-sheet-dragging='true'],
+.fff-teleported-menu.fff-overlay-sheet[data-fff-sheet-dragging='true'] {
+    touch-action: none !important;
+    transition: none !important;
+}
+
+/*
+ * iOS Safari auto-zooms focused form controls under 16px. Sheet search must
+ * stay at ≥16px so focus does not scale the whole drawer layout.
+ */
+.fff-teleported-menu.fff-teleported-menu--sheet .fff-teleported-menu__search,
+.fff-teleported-menu.fff-overlay-sheet .fff-teleported-menu__search,
+.fff-teleported-menu.fff-teleported-menu--sheet input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.fff-teleported-menu.fff-overlay-sheet input:not([type='checkbox']):not([type='radio']):not([type='range']),
+.fff-teleported-menu.fff-teleported-menu--sheet textarea,
+.fff-teleported-menu.fff-overlay-sheet textarea {
+    font-size: 16px !important;
+}
+
 .fff-teleported-menu.fff-teleported-menu--sheet.is-closing,
-.fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing {
+.fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing,
+.fff-teleported-menu.fff-overlay-sheet.is-closing,
+.fff-teleported-menu.fff-overlay-sheet.is-dismissing {
     opacity: 1 !important;
-    pointer-events: none;
+    pointer-events: none !important;
     /* Inline transform !important (drag) beats this; playSheetExit clears inline and uses this. */
     transform: translate3d(0, 100%, 0) !important;
     transition-duration: var(--fff-overlay-sheet-exit-duration) !important;
     transition-timing-function: var(--fff-overlay-sheet-ease) !important;
+    /* Keep full viewport width for the whole slide-down — never animate to trigger width. */
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    left: 0 !important;
+    right: 0 !important;
+    inset-inline: 0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
     .fff-teleported-menu.fff-teleported-menu--sheet,
+    .fff-teleported-menu.fff-overlay-sheet,
     .fff-teleported-menu.fff-teleported-menu--sheet.is-open,
+    .fff-teleported-menu.fff-overlay-sheet.is-open,
     .fff-teleported-menu.fff-teleported-menu--sheet.is-closing,
-    .fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing {
+    .fff-teleported-menu.fff-overlay-sheet.is-closing,
+    .fff-teleported-menu.fff-teleported-menu--sheet.is-dismissing,
+    .fff-teleported-menu.fff-overlay-sheet.is-dismissing {
         transition-duration: 0.01ms !important;
         transform: none !important;
     }

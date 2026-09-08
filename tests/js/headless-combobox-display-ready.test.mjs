@@ -777,6 +777,28 @@ test('optionsLimit caps static client-side lists like Filament', () => {
     assert.equal(limited[19].value, 'opt-19')
 })
 
+test('optionsLimit does not truncate lists that reach the virtualize threshold', () => {
+    const options = Array.from({ length: 150 }, (_, index) => ({
+        value: `opt-${index}`,
+        label: `Item ${index}`,
+    }))
+
+    const config = headlessComboboxAlpine({
+        state: null,
+        initialState: null,
+        searchable: true,
+        optionsLimit: 20,
+        virtualizeThreshold: 100,
+        options,
+    })
+
+    const tree = config.comboboxFilteredOptionTree()
+
+    assert.equal(tree.length, 150)
+    assert.equal(config.shouldVirtualizeDropdown(), true)
+    assert.equal(config.comboboxFilteredDropdownRowsWithoutSections().length < 150, true)
+})
+
 test('maxItems blocks extra multi-select picks and shows the Filament message', () => {
     const config = headlessComboboxAlpine({
         state: [],

@@ -124,13 +124,6 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu {
     max-width: min(22rem, calc(100vw - 2rem)) !important;
 }
 
-body > .fi-dropdown-panel.fff-icon-picker__panel.fff-teleported-menu--sheet,
-body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-}
-
 .fff-icon-picker__toolbar {
     display: grid;
     gap: 0 !important;
@@ -237,7 +230,9 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     display: block !important;
     position: relative;
     flex: 1 1 auto;
-    min-height: 10.5rem;
+    /* Locked viewport — no open→icons height jump while geometry settles. */
+    height: 14rem;
+    min-height: 14rem;
     max-height: 14rem;
     overflow: auto !important;
     overflow-anchor: none;
@@ -265,7 +260,9 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
 }
 
 .fff-icon-picker__results.is-loading {
-    min-height: 10.5rem;
+    height: 14rem;
+    min-height: 14rem;
+    max-height: 14rem;
 }
 
 .fff-icon-picker__track {
@@ -359,7 +356,7 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
 }
 
 .fff-icon-picker__results--grid {
-    --fff-icon-picker-grid-columns: 6;
+    --fff-icon-picker-grid-columns: 8;
 }
 
 .fff-icon-picker__option {
@@ -432,6 +429,13 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     height: auto;
     min-height: 0;
     max-height: none;
+}
+
+.fff-icon-picker__results--grid:not(.fff-icon-picker__results--icons-only) .fff-icon-picker__option--loading {
+    aspect-ratio: unset;
+    height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
+    min-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
+    max-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
 }
 
 .fff-icon-picker__results--grid .fff-icon-picker__option {
@@ -597,17 +601,54 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
 }
 
 .fff-icon-picker__initial-skeleton {
-    display: block;
-    width: 100%;
-    padding-block: 0.125rem;
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 6;
     box-sizing: border-box;
+    width: auto;
+    min-height: 10.5rem;
+    padding: 0.125rem;
+    margin: 0;
+    overflow: hidden;
     opacity: 1;
     transition: opacity 180ms ease;
-    overflow: hidden;
+    pointer-events: none;
+    background: var(--fff-icon-picker-skeleton-surface, #ffffff);
+}
+
+.dark .fff-icon-picker__initial-skeleton {
+    background: var(--fff-icon-picker-skeleton-surface-dark, rgb(24 24 27));
+}
+
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__initial-skeleton {
+    background: var(--fff-icon-picker-skeleton-surface, var(--color-white, #ffffff));
+}
+
+.dark .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__initial-skeleton {
+    background: var(--fff-icon-picker-skeleton-surface-dark, var(--color-gray-900, rgb(24 24 27)));
+}
+
+.fff-icon-picker__initial-skeleton.is-visible {
+    display: block !important;
 }
 
 .fff-icon-picker__initial-skeleton.is-fading {
     opacity: 0;
+}
+
+.fff-icon-picker__skeleton-grid {
+    display: grid;
+    gap: var(--fff-icon-picker-row-gap, 6px);
+    /* Same column count as the live track (default 8 — matches IconPickerField::$gridColumns). */
+    grid-template-columns: repeat(var(--fff-icon-picker-grid-columns, 8), minmax(0, 1fr));
+    grid-auto-rows: auto;
+    width: 100%;
+}
+
+.fff-icon-picker__results--list .fff-icon-picker__skeleton-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: var(--fff-icon-picker-row-height, 44px);
 }
 
 .fff-icon-picker__initial-skeleton .fff-icon-picker__grid,
@@ -625,16 +666,29 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     pointer-events: none;
 }
 
-/* Icons / grid: skeleton cells are 1:1 squares matching real icon boxes. */
+/*
+ * Icons-only: square cells sized by column width (same as live options).
+ * Do not use min-height floors — they inflate bones past the real ~36px cells.
+ */
 .fff-icon-picker__results--icons-only .fff-icon-picker__initial-skeleton .fff-icon-picker__option--loading,
-.fff-icon-picker__results--icons-only .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading,
-.fff-icon-picker__results--grid .fff-icon-picker__initial-skeleton .fff-icon-picker__option--loading,
-.fff-icon-picker__results--grid .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading {
+.fff-icon-picker__results--icons-only .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading {
     aspect-ratio: 1;
     width: 100%;
     height: auto;
     min-height: 0;
     max-height: none;
+    padding: 0;
+}
+
+/* Labelled grid: match measured cell height (row), not a column-width square. */
+.fff-icon-picker__results--grid:not(.fff-icon-picker__results--icons-only) .fff-icon-picker__initial-skeleton .fff-icon-picker__option--loading,
+.fff-icon-picker__results--grid:not(.fff-icon-picker__results--icons-only) .fff-icon-picker__load-more-tail .fff-icon-picker__option--loading {
+    aspect-ratio: unset;
+    width: 100%;
+    height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
+    min-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
+    max-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px));
+    padding: 0;
 }
 
 .fff-icon-picker__results--list .fff-icon-picker__initial-skeleton .fff-icon-picker__option,
@@ -655,12 +709,12 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     height: 100%;
     min-height: 0;
     border-radius: 0.5rem;
-    background: rgb(228 228 231);
+    background-color: rgb(212 212 216);
     animation: fff-icon-picker-skeleton-pulse 1.35s ease-in-out infinite;
 }
 
 .dark .fff-icon-picker__skeleton--cell {
-    background: rgb(82 82 91);
+    background-color: rgb(82 82 91);
 }
 
 .fff-icon-picker__skeleton {
@@ -843,6 +897,14 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     gap: 0 !important;
 }
 
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid:not(.fff-icon-picker__results--icons-only) .fff-icon-picker__initial-skeleton .fi-select-input-option.fff-icon-picker__option--loading,
+.fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--grid:not(.fff-icon-picker__results--icons-only) .fff-icon-picker__load-more-tail .fi-select-input-option.fff-icon-picker__option--loading {
+    aspect-ratio: unset !important;
+    height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px)) !important;
+    min-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px)) !important;
+    max-height: var(--fff-icon-picker-cell-size, var(--fff-icon-picker-row-height, 68px)) !important;
+}
+
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--list .fff-icon-picker__initial-skeleton .fi-select-input-option.fff-icon-picker__option--loading,
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__results--list .fff-icon-picker__load-more-tail .fi-select-input-option.fff-icon-picker__option--loading {
     aspect-ratio: unset !important;
@@ -862,13 +924,32 @@ body > .fi-dropdown-panel.fff-icon-picker__panel.fff-overlay-sheet {
     max-width: none !important;
     max-height: none !important;
     border-radius: 0.5rem !important;
-    background: rgb(228 228 231) !important;
+    /* Beat Select layout-grid `option > span { background: transparent !important }`. */
+    background-color: rgb(212 212 216) !important;
+    background-image: none !important;
     flex: 1 1 auto !important;
     align-self: stretch !important;
+    padding: 0 !important;
 }
 
 .dark .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__skeleton--cell {
-    background: rgb(82 82 91) !important;
+    background-color: rgb(82 82 91) !important;
+}
+
+/* Extra specificity vs Select grid option>span transparent rule (legacy span bones). */
+.fi-dropdown-panel.fff-select-dropdown-panel.fff-icon-picker__panel.fff-select-dropdown-panel--layout-grid
+    .fff-icon-picker__option--loading
+    > .fff-icon-picker__skeleton--cell {
+    background-color: rgb(212 212 216) !important;
+    background-image: none !important;
+    padding: 0 !important;
+}
+
+.dark
+    .fi-dropdown-panel.fff-select-dropdown-panel.fff-icon-picker__panel.fff-select-dropdown-panel--layout-grid
+    .fff-icon-picker__option--loading
+    > .fff-icon-picker__skeleton--cell {
+    background-color: rgb(82 82 91) !important;
 }
 
 .fi-dropdown-panel.fff-icon-picker__panel .fff-icon-picker__option-icon svg,

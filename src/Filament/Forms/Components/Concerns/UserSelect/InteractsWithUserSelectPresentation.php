@@ -6,6 +6,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\UserSel
 
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\UserSelect;
+use Bjanczak\FilamentFlexFields\Support\Translations;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -75,6 +76,28 @@ trait InteractsWithUserSelectPresentation
     public function shouldRenderMultipleUserTags(): bool
     {
         return $this->isMultiple();
+    }
+
+    /**
+     * @return array{
+     *     tryDifferentSearch: string,
+     *     minSearchLength: string,
+     *     noUsersAvailable: string,
+     * }
+     */
+    public function getUserSelectEmptyStateHintsForJs(): array
+    {
+        $minSearchLength = method_exists($this, 'getMinSearchLength')
+            ? (int) $this->getMinSearchLength()
+            : 0;
+
+        return [
+            'tryDifferentSearch' => Translations::get('filament-flex-fields::default.user_select_field.empty_hint.try_different_search'),
+            'minSearchLength' => Translations::get('filament-flex-fields::default.user_select_field.empty_hint.min_search_length', [
+                'count' => $minSearchLength,
+            ]),
+            'noUsersAvailable' => Translations::get('filament-flex-fields::default.user_select_field.empty_hint.no_users_available'),
+        ];
     }
 
     /**

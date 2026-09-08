@@ -5,6 +5,42 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [3.1.9] - 2026-09-08
+
+### Added
+
+- **Unified media uploads** — one shared upload path for files, images, voice notes, signatures, and rich-editor attachments. You can store on a normal disk (including S3) or with Spatie Media Library, with virus scanning, private download links, and clearer multi-tenant disk settings. See [Media Ingress](/docs/media-capture-os) and the [migration guide](/docs/media-ingress-migration).
+- **Spatie Media Library as a first-class choice** — pick Spatie per field (including voice notes), keep full image conversions on your model, and use Form Builder `storage_driver` (`disk` or `spatie`). Signatures can optionally copy into Spatie without changing how the signature is stored.
+- **Media documentation** — step-by-step examples for disk vs Spatie, S3, conversions, Form Builder, voice notes, signatures, and the rich editor.
+
+### Fixed
+
+- **Mobile select sheets (iOS Safari)** — bottom sheets stay flush with `viewport-fit=cover` and `env(safe-area-inset-bottom)` (inner padding only). Keyboard focus uses Apple’s Visual Viewport API so the sheet docks above the keyboard without a gap, async option loads refit height correctly, and page scroll stays locked while the sheet is open.
+- **Mobile sheet search** — search inputs use 16px text so Safari does not zoom the page on focus.
+- **Sheet drag-to-dismiss** — dismiss drag tracks the finger smoothly (no height thrash / jitter while pulling down).
+- **Desktop dropdown glass** — Select / User Select (and other teleported menus) keep backdrop blur on desktop panels; opaque no-blur styling stays limited to mobile sheets.
+- **Icon picker opening** — no more blank white flash when opening the picker; loading placeholders match real icon size and layout, and the panel height stays steady.
+- **Large select lists** — long option lists (including playground demos with thousands of items) scroll through the full set instead of stopping early.
+- **Select “create option”** — when creating new values is off, unknown options are rejected; when it is on, free-text values are allowed as intended.
+- **Invalid native select combinations** — native select can no longer be combined with search, multiple, or HTML options (clear error at setup).
+- **Select, Tags, and Icon picker search** — safer rate limiting and more reliable server validation for tag limits and suggestion-only mode.
+- **Currency field** — unknown currency codes are rejected instead of being quietly remapped.
+- **Select dropdowns** — menus close and clean up reliably when the page updates or the field is removed.
+- **Smoother large menus** — Select, Icon picker, phone/country/currency lists, dual listbox, todo list, and timezone menus stay responsive with big option sets.
+
+### Changed
+
+- **Timezone and currency pickers** — large built-in catalogs load more efficiently; small custom lists behave as before.
+- **User select in Studio / Form Builder** — clearer option handling when a model source and static options are both present.
+- **Select playground** — notes on configurations that are not allowed (for example native + searchable).
+
+### Docs
+
+- Clearer guides for Select (create option, search limits, pagination), User Select, Timezone, Currency, and Trusted Proxies for search.
+- Expanded Media Ingress / file upload docs for disk, Spatie, S3, and conversions.
+
 ## [3.1.8] - 2026-09-07
 
 ### Fixed
@@ -21,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 - **GitHub Actions pinned to SHA** — `checkout`, `setup-php`, and `setup-node` use full commit SHAs (Plumb / supply-chain hardening).
-- **Dependabot covers GitHub Actions** — `.github/dependabot.yml` now includes the `github-actions` ecosystem (with the same cooldown as Composer/npm).
+- **Dependabot covers GitHub Actions** — `.github/dependabot.yml` now includes the `github-actions` ecosystem with `cooldown.default-days` only (`semver-*-days` is invalid for Actions and fails GitHub’s config check).
 
 ### Changed
 

@@ -1,3 +1,5 @@
+import { computeFffVirtualWindow } from '../../core/fff-virtual-adapter.js'
+
 export function createAudioPool() {
     const cache = new Map()
 
@@ -166,23 +168,20 @@ export function virtualWindow(items, scrollTop, viewportHeight, itemHeight = 52,
     }
 
     const offsets = buildVirtualOffsets(list, getHeight)
-    const totalHeight = offsets[list.length]
-    const top = Math.max(0, Number(scrollTop) || 0)
-    const view = Math.max(1, Number(viewportHeight) || 1)
-    const pad = Math.max(0, Number(overscan) || 0)
-
-    let start = findVirtualIndexAtOffset(offsets, top)
-    start = Math.max(0, start - pad)
-
-    let end = findVirtualIndexAtOffset(offsets, top + view) + 1
-    end = Math.min(list.length, Math.max(start + 1, end + pad))
+    const windowed = computeFffVirtualWindow({
+        count: list.length,
+        scrollTop,
+        viewportHeight,
+        estimateSize: (index) => getHeight(list[index], index),
+        overscan: Math.max(0, Number(overscan) || 0),
+    })
 
     return {
-        start,
-        end,
-        offsetY: offsets[start],
-        totalHeight,
-        items: list.slice(start, end),
+        start: windowed.startIndex,
+        end: windowed.endIndex,
+        offsetY: windowed.paddingTop,
+        totalHeight: windowed.totalSize,
+        items: list.slice(windowed.startIndex, windowed.endIndex),
         offsets,
     }
 }

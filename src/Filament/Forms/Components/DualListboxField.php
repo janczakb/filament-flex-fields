@@ -609,24 +609,6 @@ class DualListboxField extends Field
     }
 
     /**
-     * @return list<array{value: string, label: string, description: ?string, disabled: bool}>
-     */
-    protected function getFullOptionsForJs(): array
-    {
-        return array_values(
-            collect($this->getNormalizedOptions())
-                ->map(fn (array $option, string $value): array => [
-                    'value' => $value,
-                    'label' => $option['label'],
-                    'description' => $option['description'],
-                    'disabled' => $option['disabled'],
-                ])
-                ->values()
-                ->all(),
-        );
-    }
-
-    /**
      * @return array<string | int>
      */
     public function getDisabledOptions(): array

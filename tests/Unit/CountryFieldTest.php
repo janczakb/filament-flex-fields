@@ -5,7 +5,6 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\CountryField;
 use Bjanczak\FilamentFlexFields\Support\Countries;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
-use InvalidArgumentException;
 
 it('exposes country field configuration api', function () {
     $field = CountryField::make('country')

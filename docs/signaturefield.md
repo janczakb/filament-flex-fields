@@ -68,12 +68,14 @@ State is a compact SVG string produced by `SignatureSvg::normalize()`. `null` or
 
 Use `normalizeState(mixed $state): ?string` to sanitize external SVG before setting state.
 
-### Legal pack & Media Capture OS
+### Legal pack & Media Ingress
 
-Enterprise e-sign metadata via [Media & Capture OS](/docs/media-capture-os):
+Enterprise e-sign metadata via [Media Ingress](/docs/media-capture-os):
 
 ```php
 SignatureField::make('contract_signature')
+    ->disk() // or ->storeToDisk()
+    ->spatieSink('signatures') // optional Media copy; state stays SVG / ffstage:
     ->legalPack()
     ->timestampSeal()
     ->legalMetadataIn('signature_legal')

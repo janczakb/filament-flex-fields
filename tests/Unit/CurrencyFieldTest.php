@@ -163,6 +163,20 @@ it('rejects negative amounts when not allowed', function () {
     expect($message)->toBe(__('filament-flex-fields::default.validation.currency.negative'));
 });
 
+it('rejects unknown currency codes instead of silently remapping', function () {
+    $field = CurrencyField::make('price')
+        ->currencies(['PLN', 'EUR']);
+
+    $rule = collect($field->getValidationRules())->first(fn (mixed $rule): bool => $rule instanceof Closure);
+
+    $message = null;
+    $rule('price', ['amount' => 1000, 'currency' => 'XXX'], function (string $failMessage) use (&$message): void {
+        $message = $failMessage;
+    });
+
+    expect($message)->toBe(__('filament-flex-fields::default.validation.currency.invalid_code'));
+});
+
 it('includes wrapper classes for size', function () {
     $field = CurrencyField::make('price')->size('sm');
 

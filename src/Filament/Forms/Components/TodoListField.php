@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components;
 
+use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\TodoListFieldAudio;
-use BackedEnum;
 use Closure;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Field;
@@ -500,7 +500,7 @@ class TodoListField extends Field
     {
         $this->paginated = $paginated;
 
-        if ($paginated !== false && $paginated !== null) {
+        if ($paginated !== false) {
             $this->infiniteScroll = true;
         }
 
@@ -929,9 +929,9 @@ class TodoListField extends Field
     protected function makeEditTodoItemAction(): Action
     {
         return Action::make('editTodoItem')
-            ->label(__('filament-flex-fields::default.todo_list.edit_item'))
-            ->modalHeading(__('filament-flex-fields::default.todo_list.edit_modal_heading'))
-            ->modalSubmitActionLabel(__('filament-flex-fields::default.todo_list.edit_save'))
+            ->label($this->todoListString('filament-flex-fields::default.todo_list.edit_item'))
+            ->modalHeading($this->todoListString('filament-flex-fields::default.todo_list.edit_modal_heading'))
+            ->modalSubmitActionLabel($this->todoListString('filament-flex-fields::default.todo_list.edit_save'))
             ->modalWidth(Width::Medium)
             ->fillForm(function (array $arguments, TodoListField $component): array {
                 $item = is_array($arguments['item'] ?? null)
@@ -946,7 +946,7 @@ class TodoListField extends Field
             ->schema(function (TodoListField $component): array {
                 $fields = [
                     FlexTextInput::make('label')
-                        ->label(__('filament-flex-fields::default.todo_list.edit_label'))
+                        ->label($component->todoListString('filament-flex-fields::default.todo_list.edit_label'))
                         ->placeholder($component->getCreatePlaceholder())
                         ->required()
                         ->maxLength(500)
@@ -955,7 +955,7 @@ class TodoListField extends Field
 
                 if ($component->canEditWithDescription()) {
                     $fields[] = FlexTextInput::make('description')
-                        ->label(__('filament-flex-fields::default.todo_list.edit_description'))
+                        ->label($component->todoListString('filament-flex-fields::default.todo_list.edit_description'))
                         ->placeholder($component->getCreateDescriptionPlaceholder())
                         ->maxLength(2000);
                 }
@@ -977,6 +977,13 @@ class TodoListField extends Field
                 $component->getLivewire()->dispatch($component->getEditSyncedEvent(), item: $updated);
             })
             ->visible(fn (TodoListField $component): bool => $component->canEdit());
+    }
+
+    protected function todoListString(string $key): string
+    {
+        $value = __($key);
+
+        return is_string($value) ? $value : $key;
     }
 
     /**

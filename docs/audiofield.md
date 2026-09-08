@@ -103,7 +103,7 @@ When transcription is enabled, the field renders:
 
 #### Transcript is not field state
 
-The transcript appears in `.fff-audio-field__transcript` for the current page session. It is **not** saved to the Eloquent attribute / form state. To persist text, bind a separate field (for example `Textarea`) or use server-side transcription on [VoiceNoteRecorderField](/docs/voicenoterecorderfield) via [Media & Capture OS](/docs/media-capture-os).
+The transcript appears in `.fff-audio-field__transcript` for the current page session. It is **not** saved to the Eloquent attribute / form state. To persist text, bind a separate field (for example `Textarea`) or use server-side transcription on [VoiceNoteRecorderField](/docs/voicenoterecorderfield) via [Media Ingress](/docs/media-capture-os).
 
 #### How it works
 

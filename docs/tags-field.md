@@ -114,6 +114,12 @@ See [Playground](/docs/index#playground) for setup.
 
 ---
 
+### Ops notes
+
+Async tag suggestion search (`getTagSearchResults`) shares the Select-family Livewire rate limit (`filament-flex-fields.select.search_rate_limit_per_minute`). Keys use the authenticated user id or `Request::ip()` — configure Laravel **TrustedProxies** behind a reverse proxy. Exceeding the limit returns an empty suggestion list (no exception). Client search also uses `searchRequestId` + `AbortController` so stale responses never overwrite newer typing.
+
+---
+
 ### Related components
 
 | Component | When to use instead |

@@ -631,6 +631,17 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | SelectField / Tags / IconPicker Livewire search
+    |--------------------------------------------------------------------------
+    | Rate limit uses authenticated user id when present, otherwise Request::ip()
+    | (TrustedProxies must be configured behind Cloudflare / ALB).
+    */
+    'select' => [
+        'search_rate_limit_per_minute' => (int) env('FLEX_FIELDS_SELECT_SEARCH_RATE_LIMIT', 60),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Field Intelligence (formulas)
     |--------------------------------------------------------------------------
     |

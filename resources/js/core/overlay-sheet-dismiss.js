@@ -1,3 +1,5 @@
+import { flushOverlaySheetToScreenBottom, syncOverlaySheetToVisualViewport } from './overlay-sheet-scroll-lock.js'
+
 const DRAG_THRESHOLD_PX = 8
 const DISMISS_FRACTION = 0.3
 const VELOCITY_THRESHOLD = 0.5
@@ -10,12 +12,86 @@ const SNAP_EASE = 'height 0.25s cubic-bezier(0.32, 0.72, 0, 1), max-height 0.25s
 const EXIT_EASE = 'transform 0.2s cubic-bezier(0.32, 0.72, 0, 1)'
 const EXIT_MS = 200
 
+export const OVERLAY_SHEET_GEOMETRY_EVENT = 'fff-overlay-sheet-geometry'
+
 /**
+ * Notify consumers (virtual lists) that sheet height / snap changed.
+ *
+ * @param {HTMLElement | null | undefined} panel
+ */
+export function notifyOverlaySheetGeometry(panel) {
+    if (! panel || typeof panel.dispatchEvent !== 'function') {
+        return
+    }
+
+    try {
+        panel.dispatchEvent(new CustomEvent(OVERLAY_SHEET_GEOMETRY_EVENT, {
+            bubbles: true,
+            detail: {
+                snap: panel.dataset?.fffOverlaySnap ?? null,
+                height: panel.getBoundingClientRect?.().height ?? 0,
+            },
+        }))
+    } catch {
+        // Ignore environments without CustomEvent.
+    }
+}
+
+/**
+ * @param {HTMLElement | Window | null | undefined} panelOrWin
+ * @param {Window} [win]
+ * @returns {{ panel: HTMLElement | null, win: Window }}
+ */
+function resolveSheetHeightArgs(panelOrWin, win) {
+    const looksLikeWindow = Boolean(
+        panelOrWin
+        && typeof panelOrWin.innerHeight === 'number'
+        && ! ('dataset' in panelOrWin)
+        && ! ('style' in panelOrWin && panelOrWin.style && typeof panelOrWin.style.setProperty === 'function'),
+    )
+
+    if (panelOrWin && ! looksLikeWindow) {
+        return {
+            panel: /** @type {HTMLElement} */ (panelOrWin),
+            win: win ?? globalThis.window,
+        }
+    }
+
+    return {
+        panel: null,
+        win: /** @type {Window} */ (panelOrWin ?? win ?? globalThis.window),
+    }
+}
+
+/**
+ * @param {HTMLElement | null | undefined} panel
  * @param {Window} win
  * @returns {number}
  */
-export function resolveOverlaySheetPeekHeight(win = globalThis.window) {
-    const viewport = win?.innerHeight ?? 0
+function resolveSheetLayoutViewportHeight(panel, win = globalThis.window) {
+    const frozen = Number.parseInt(panel?.dataset?.fffSheetLayoutViewport || '', 10)
+
+    if (Number.isFinite(frozen) && frozen > 0) {
+        return frozen
+    }
+
+    const height = win?.innerHeight ?? 0
+
+    if (panel?.dataset && height > 0) {
+        panel.dataset.fffSheetLayoutViewport = String(height)
+    }
+
+    return height
+}
+
+/**
+ * @param {HTMLElement | Window | null | undefined} [panelOrWin]
+ * @param {Window} [win]
+ * @returns {number}
+ */
+export function resolveOverlaySheetPeekHeight(panelOrWin = globalThis.window, win) {
+    const args = resolveSheetHeightArgs(panelOrWin, win)
+    const viewport = resolveSheetLayoutViewportHeight(args.panel, args.win)
 
     return Math.min(Math.round(viewport * PEEK_VIEWPORT_FRACTION), PEEK_MAX_PX)
 }
@@ -23,19 +99,24 @@ export function resolveOverlaySheetPeekHeight(win = globalThis.window) {
 /**
  * Minimum sheet height (never larger than the peek cap on short viewports).
  *
+ * @param {HTMLElement | Window | null | undefined} [panelOrWin]
  * @param {Window} [win]
  * @returns {number}
  */
-export function resolveOverlaySheetMinHeight(win = globalThis.window) {
-    return Math.min(OVERLAY_SHEET_MIN_HEIGHT_PX, resolveOverlaySheetPeekHeight(win))
+export function resolveOverlaySheetMinHeight(panelOrWin = globalThis.window, win) {
+    const args = resolveSheetHeightArgs(panelOrWin, win)
+
+    return Math.min(OVERLAY_SHEET_MIN_HEIGHT_PX, resolveOverlaySheetPeekHeight(args.panel, args.win))
 }
 
 /**
- * @param {Window} win
+ * @param {HTMLElement | Window | null | undefined} [panelOrWin]
+ * @param {Window} [win]
  * @returns {number}
  */
-export function resolveOverlaySheetExpandedHeight(win = globalThis.window) {
-    const viewport = win?.innerHeight ?? 0
+export function resolveOverlaySheetExpandedHeight(panelOrWin = globalThis.window, win) {
+    const args = resolveSheetHeightArgs(panelOrWin, win)
+    const viewport = resolveSheetLayoutViewportHeight(args.panel, args.win)
 
     return Math.round(viewport * EXPANDED_VIEWPORT_FRACTION)
 }
@@ -75,8 +156,8 @@ function setSheetTransform(panel, value) {
  * @returns {{ fitted: number, cap: number, canExpand: boolean }}
  */
 export function fitOverlaySheetToContent(panel, win = globalThis.window) {
-    const cap = resolveOverlaySheetPeekHeight(win)
-    const minHeight = resolveOverlaySheetMinHeight(win)
+    const cap = resolveOverlaySheetPeekHeight(panel, win)
+    const minHeight = resolveOverlaySheetMinHeight(panel, win)
 
     if (! panel) {
         return { fitted: cap, cap, canExpand: false }
@@ -106,8 +187,9 @@ export function fitOverlaySheetToContent(panel, win = globalThis.window) {
     setSheetStyle(panel, 'left', '0')
     setSheetStyle(panel, 'right', '0')
     setSheetStyle(panel, 'inset-inline', '0')
-    setSheetStyle(panel, 'bottom', '0')
     setSheetStyle(panel, 'top', 'auto')
+    // Physical screen bottom (under Safari chrome). Never lift for visualViewport.
+    flushOverlaySheetToScreenBottom(panel, win)
     setSheetStyle(panel, 'height', 'auto')
     setSheetStyle(panel, 'min-height', `${minHeight}px`)
     setSheetStyle(panel, 'max-height', `${cap}px`)
@@ -130,6 +212,7 @@ export function fitOverlaySheetToContent(panel, win = globalThis.window) {
     setSheetStyle(panel, 'max-height', `${fitted}px`)
     panel.style.setProperty('--fff-overlay-sheet-max-height', `${fitted}px`)
     panel.dataset.fffSheetFittedHeight = String(fitted)
+    panel.dataset.fffOverlaySheetMinHeight = String(minHeight)
 
     void panel.offsetHeight
 
@@ -142,6 +225,9 @@ export function fitOverlaySheetToContent(panel, win = globalThis.window) {
     const canExpand = measured > cap + 8 || overlaySheetCanExpand(panel, fitted)
 
     panel.dataset.fffOverlaySnap = canExpand ? 'peek' : 'content'
+
+    syncOverlaySheetToVisualViewport(panel, win)
+    notifyOverlaySheetGeometry(panel)
 
     return { fitted, cap, canExpand }
 }
@@ -283,10 +369,23 @@ export function resolveOverlaySheetSnap(input) {
 }
 
 /**
+ * Prefer screenY — clientY jitters on iOS when visualViewport pans mid-drag.
+ *
+ * @param {{ screenY?: number, clientY?: number }} event
+ * @returns {number}
+ */
+function pointerAxisY(event) {
+    if (typeof event?.screenY === 'number' && Number.isFinite(event.screenY)) {
+        return event.screenY
+    }
+
+    return Number(event?.clientY) || 0
+}
+
+/**
  * Bottom-sheet drag: pull down to dismiss / collapse, pull up to expand when content overflows.
  *
- * Downward dismiss uses translateY (not height shrink) so exit never jumps when
- * CSS `transform: … !important` on `.is-open` is overridden for the slide-away.
+ * Downward dismiss uses translateY only (never height) so layout cannot fight the finger.
  *
  * @param {{
  *   panel: HTMLElement,
@@ -310,6 +409,11 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
     let pointerId = null
     let startHeight = 0
     let dragOffsetY = 0
+    /** Cached at pointerdown — never remeasure during move (layout thrash → shake). */
+    let dragCanExpand = false
+    let dragWasExpanded = false
+    let dragPeek = 0
+    let dragExpanded = 0
 
     const peekHeight = () => {
         const fitted = Number.parseInt(panel.dataset.fffSheetFittedHeight || '', 10)
@@ -318,18 +422,22 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
             return fitted
         }
 
-        return resolveOverlaySheetPeekHeight(win)
+        return resolveOverlaySheetPeekHeight(panel, win)
     }
-    const expandedHeight = () => resolveOverlaySheetExpandedHeight(win)
+    const expandedHeight = () => resolveOverlaySheetExpandedHeight(panel, win)
 
     const clearInlineMotion = () => {
         if (typeof panel.style?.removeProperty === 'function') {
             panel.style.removeProperty('transition')
             panel.style.removeProperty('transform')
+            panel.style.removeProperty('touch-action')
         } else if (panel.style) {
             panel.style.transition = ''
             panel.style.transform = ''
+            panel.style.touchAction = ''
         }
+
+        delete panel.dataset?.fffSheetDragging
     }
 
     const applySnapHeight = (snap, { animate = true } = {}) => {
@@ -349,6 +457,10 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
 
             setSheetTransform(panel, 'translate3d(0, 0, 0)')
         }
+
+        // After layout commits so list clientHeight matches the new snap.
+        win.requestAnimationFrame?.(() => notifyOverlaySheetGeometry(panel))
+            ?? notifyOverlaySheetGeometry(panel)
     }
 
     const ensureInitialSnap = () => {
@@ -398,20 +510,32 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
             return
         }
 
+        const axisY = pointerAxisY(event)
+
         dragging = true
         dragActive = false
         pointerId = event.pointerId
-        startY = event.clientY
-        lastY = event.clientY
+        startY = axisY
+        lastY = axisY
         lastTs = event.timeStamp
         velocityY = 0
         dragOffsetY = 0
         startHeight = panel.getBoundingClientRect().height || peekHeight()
+        dragPeek = peekHeight()
+        dragExpanded = expandedHeight()
+        dragWasExpanded = panel.dataset.fffOverlaySnap === 'expanded'
+        dragCanExpand = dragWasExpanded || overlaySheetCanExpand(panel, dragPeek)
 
         if (typeof panel.style?.setProperty === 'function') {
             panel.style.setProperty('transition', 'none', 'important')
+            panel.style.setProperty('touch-action', 'none', 'important')
         } else if (panel.style) {
             panel.style.transition = 'none'
+            panel.style.touchAction = 'none'
+        }
+
+        if (panel.dataset) {
+            panel.dataset.fffSheetDragging = 'true'
         }
 
         panel.setPointerCapture?.(event.pointerId)
@@ -422,12 +546,13 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
             return
         }
 
-        const rawDelta = event.clientY - startY
+        const axisY = pointerAxisY(event)
+        const rawDelta = axisY - startY
         const now = event.timeStamp
         const dt = Math.max(1, now - lastTs)
 
-        velocityY = (event.clientY - lastY) / dt
-        lastY = event.clientY
+        velocityY = (axisY - lastY) / dt
+        lastY = axisY
         lastTs = now
 
         if (! dragActive) {
@@ -438,12 +563,15 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
             dragActive = true
         }
 
-        const wasExpanded = panel.dataset.fffOverlaySnap === 'expanded'
-        const canExpand = overlaySheetCanExpand(panel, peekHeight())
+        // Stop Safari from panning visualViewport mid-drag (clientY jitter).
+        if (typeof event.preventDefault === 'function') {
+            event.preventDefault()
+        }
+
         let deltaY = rawDelta
 
-        if (! wasExpanded && ! canExpand) {
-            // Content-sized sheet: only pull down (dismiss). Keep height stable.
+        if (! dragWasExpanded && ! dragCanExpand) {
+            // Content-sized sheet: only pull down (dismiss). Transform only.
             deltaY = Math.max(0, rawDelta)
             dragOffsetY = deltaY
             setSheetTransform(panel, `translate3d(0, ${deltaY}px, 0)`)
@@ -451,18 +579,16 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
             return
         }
 
-        if (! wasExpanded && canExpand) {
-            const maxUp = expandedHeight() - startHeight
+        if (! dragWasExpanded && dragCanExpand) {
+            const maxUp = Math.max(0, dragExpanded - startHeight)
             deltaY = Math.min(Math.max(rawDelta, -maxUp), startHeight)
         } else {
-            deltaY = Math.min(Math.max(rawDelta, -(expandedHeight() - startHeight)), startHeight)
+            deltaY = Math.min(Math.max(rawDelta, -(dragExpanded - startHeight)), startHeight)
         }
 
         if (deltaY > 0) {
-            // Pulling down: translate the sheet (matches exit animation).
+            // Pulling down: translate only — never rewrite height (layout ↔ transform fight).
             dragOffsetY = deltaY
-            setSheetStyle(panel, 'height', `${startHeight}px`)
-            setSheetStyle(panel, 'max-height', `${startHeight}px`)
             setSheetTransform(panel, `translate3d(0, ${deltaY}px, 0)`)
 
             return
@@ -484,6 +610,11 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
         dragging = false
         pointerId = null
         panel.releasePointerCapture?.(event.pointerId)
+        delete panel.dataset?.fffSheetDragging
+
+        if (typeof panel.style?.removeProperty === 'function') {
+            panel.style.removeProperty('touch-action')
+        }
 
         if (! dragActive) {
             clearInlineMotion()
@@ -493,24 +624,19 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
 
         dragActive = false
 
-        const deltaY = event.clientY - startY
-        const wasExpanded = panel.dataset.fffOverlaySnap === 'expanded'
-        const peek = peekHeight()
-        const expanded = expandedHeight()
-        const canExpand = overlaySheetCanExpand(panel, peek)
+        const deltaY = pointerAxisY(event) - startY
         const snap = resolveOverlaySheetSnap({
             deltaY,
             velocityY,
             startHeight,
-            peekHeight: peek,
-            expandedHeight: expanded,
-            canExpand,
-            wasExpanded,
+            peekHeight: dragPeek,
+            expandedHeight: dragExpanded,
+            canExpand: dragCanExpand,
+            wasExpanded: dragWasExpanded,
         })
 
         if (snap === 'dismiss') {
             const from = Math.max(dragOffsetY, deltaY, 0)
-            const to = Math.max(peek, startHeight, from + 24)
 
             // Pin the live drag offset before flipping classes — otherwise
             // `.is-dismissing { transform: 100% }` jumps from the finger.
@@ -525,7 +651,7 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
                 panel.style.transition = EXIT_EASE
             }
 
-            setSheetTransform(panel, `translate3d(0, ${to}px, 0)`)
+            setSheetTransform(panel, 'translate3d(0, 100%, 0)')
 
             let settled = false
             const finish = () => {
@@ -534,8 +660,21 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
                 }
 
                 settled = true
-                panel.classList.remove('is-dismissing')
-                clearInlineMotion()
+                panel.removeEventListener('transitionend', onEnd)
+                panel.classList.remove('is-dismissing', 'is-open')
+                if (typeof panel.style?.setProperty === 'function') {
+                    panel.style.setProperty('transition', 'none', 'important')
+                    panel.style.setProperty('transform', 'translate3d(0, 100%, 0)', 'important')
+                    panel.style.setProperty('visibility', 'hidden', 'important')
+                    panel.style.setProperty('opacity', '0', 'important')
+                    panel.style.setProperty('pointer-events', 'none', 'important')
+                    panel.style.removeProperty('height')
+                    panel.style.removeProperty('max-height')
+                    panel.style.removeProperty('min-height')
+                } else {
+                    clearInlineMotion()
+                }
+
                 onDismiss()
             }
 
@@ -548,7 +687,6 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
                     return
                 }
 
-                panel.removeEventListener('transitionend', onEnd)
                 finish()
             }
 
@@ -564,7 +702,8 @@ export function bindOverlaySheetDismiss({ panel, onDismiss, onCancel, window: wi
     }
 
     panel.addEventListener('pointerdown', handlePointerDown)
-    panel.addEventListener('pointermove', handlePointerMove)
+    // Non-passive so preventDefault can block iOS visualViewport pan during drag.
+    panel.addEventListener('pointermove', handlePointerMove, { passive: false })
     panel.addEventListener('pointerup', handlePointerUp)
     panel.addEventListener('pointercancel', handlePointerUp)
 

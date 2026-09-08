@@ -201,4 +201,19 @@ See [Playground](/docs/index#playground) for setup.
 |-----------|--------------|
 | **Virtual Scroll** | Efficiently renders long lists of timezones (~400+ zones) |
 | **SSR Label** | Renders the selected timezone label server-side for zero layout flash |
+| **Shared IANA registry** | Default full catalog is queued once per request (`TimezoneRegistry` / `#fff-timezone-registry-data`), not embedded in every field’s Alpine `@js` payload — same pattern as `CountryRegistry` |
 | **Teleport** | Uses `x-teleport="body"` to avoid overflow clipping in modals |
+
+#### Payload vs SSR trade-offs
+
+| Mode | HTML / Alpine payload | SSR trigger |
+|------|----------------------|-------------|
+| Default full IANA list | Compact shared registry template (once per page); field `@js` stays lean (`timezonePool` + optional filter key + `selectedTimezoneSeed`) | Selected value: seed row only. Empty + `browserTimezoneDefault()`: blocking boot reads the shared registry (not a per-field full catalog attribute) so the city label never swaps to Intl generics |
+| Explicit `timezones([...])` whitelist | Inline `@js` options for that subset only (no shared registry) | Same SSR seed / boot catalog for the whitelist |
+| `exceptTimezones([...])` on the full list | Shared registry + filter key of resolved ids | Same as default full list |
+
+Prefer `timezones([...])` when a form only needs a handful of zones so the shared full catalog is never queued. Prefer the default registry path when you need the full IANA list — one catalog for every TimezoneField on the page beats N copies inside `x-data`.
+
+### Ops notes
+
+Timezone search shares the Select-family Livewire search rate limit (`filament-flex-fields.select.search_rate_limit_per_minute`). Keys use the authenticated user id or `Request::ip()` — configure Laravel **TrustedProxies** when the app sits behind a reverse proxy so client IPs are not taken from spoofable forwarded headers.

@@ -6,19 +6,28 @@ namespace Bjanczak\FilamentFlexFields\Support\Media;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload\FlexFileUploadStorage;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
-use Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks;
-use Filament\Forms\Components\BaseFileUpload;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Drivers\SpatieMediaDriver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaContext;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaKind;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaPayload;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaStorageDriver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Refs\SpatieMediaRef;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\UnableToCheckFileExistence;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use RuntimeException;
 use Throwable;
 
+/**
+ * @deprecated Public adapter kept for BC. New code should use {@see MediaIngress} / {@see FlexMedia}.
+ * Internally delegates to stream-safe {@see SpatieMediaDriver}.
+ */
 final class SpatieMediaCaptureAdapter
 {
     /**
-     * Persist an upload through Spatie Media Library, then run the enterprise virus-scan hook.
+     * Persist an upload through Spatie Media Library via Media Ingress (stream/path safe).
      */
     public static function saveUploadedFile(
         FlexSpatieMediaLibraryFileUpload $component,
@@ -27,7 +36,7 @@ final class SpatieMediaCaptureAdapter
     ): ?string {
         $record ??= $component->getRecord();
 
-        if (! $record instanceof Model || ! method_exists($record, 'addMediaFromString')) {
+        if (! $record instanceof Model) {
             return null;
         }
 
@@ -39,68 +48,50 @@ final class SpatieMediaCaptureAdapter
             return null;
         }
 
-        if (! MediaCaptureOs::passesVirusScanForTemporaryFile($file)) {
-            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
-                'field' => $component->getName(),
-                'reason' => 'virus_scan',
-                'stage' => 'pre_persist',
-                'adapter' => 'spatie',
-            ]);
+        $payload = MediaPayload::fromTemporaryUploadedFile($file);
 
-            return null;
+        // Test doubles / remote temps without a local path: fall back to stream from get() only
+        // when no local path exists (never the preferred enterprise path).
+        if (! $payload->hasLocalPath()) {
+            $contents = rescue(fn (): string => (string) $file->get(), '', report: false);
+
+            if ($contents === '') {
+                return null;
+            }
+
+            $payload = MediaPayload::fromInlineString(
+                $contents,
+                rescue(fn (): string => (string) $file->getClientOriginalName(), 'upload.bin', report: false),
+            );
         }
+
+        $context = new MediaContext(
+            kind: MediaKind::Upload,
+            driver: MediaStorageDriver::Spatie,
+            field: $component->getName(),
+            record: $record,
+            collection: $component->getCollection() ?? 'default',
+            disk: $component->getDiskName(),
+            filename: $component->getUploadedFileNameForStorage($file),
+            mediaName: $component->getMediaName($file) ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+            conversionsDisk: $component->getConversionsDisk(),
+            customProperties: array_merge(
+                $component->getCustomProperties(),
+                self::enterpriseCustomProperties($component),
+            ),
+            manipulations: $component->getManipulations(),
+            properties: $component->getProperties(),
+            customHeaders: $component->getCustomHeaders(),
+            responsiveImages: $component->hasResponsiveImages(),
+        );
 
         try {
-            $mediaAdder = $record->addMediaFromString($file->get());
-
-            $filename = $component->getUploadedFileNameForStorage($file);
-
-            $media = $mediaAdder
-                ->addCustomHeaders($component->getCustomHeaders())
-                ->usingFileName($filename)
-                ->usingName($component->getMediaName($file) ?? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME))
-                ->storingConversionsOnDisk($component->getConversionsDisk() ?? '')
-                ->withCustomProperties(array_merge(
-                    $component->getCustomProperties(),
-                    self::enterpriseCustomProperties($component),
-                ))
-                ->withManipulations($component->getManipulations())
-                ->withResponsiveImagesIf($component->hasResponsiveImages())
-                ->withProperties($component->getProperties())
-                ->toMediaCollection($component->getCollection() ?? 'default', $component->getDiskName());
-        } catch (Throwable $throwable) {
-            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
-                'field' => $component->getName(),
-                'reason' => 'spatie_persist_failed',
-                'message' => $throwable->getMessage(),
-            ]);
-
+            $ref = FlexMedia::ingress()->persist($payload, $context);
+        } catch (RuntimeException) {
             return null;
         }
 
-        $uuid = (string) $media->getAttributeValue('uuid');
-
-        if (! self::passesVirusScanForMedia($component, $media)) {
-            rescue(fn () => $media->delete(), report: false);
-
-            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
-                'field' => $component->getName(),
-                'reason' => 'virus_scan',
-                'stage' => 'post_persist',
-                'adapter' => 'spatie',
-                'uuid' => $uuid,
-            ]);
-
-            return null;
-        }
-
-        ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_SUCCESS, [
-            'field' => $component->getName(),
-            'adapter' => 'spatie',
-            'uuid' => $uuid,
-        ]);
-
-        return $uuid;
+        return $ref instanceof SpatieMediaRef ? $ref->uuid : null;
     }
 
     /**
@@ -245,8 +236,12 @@ final class SpatieMediaCaptureAdapter
     /**
      * @return list<string>
      */
-    public static function pruneSpatieMedia(int $maxAgeDays, ?string $collection = null, bool $dryRun = false): array
-    {
+    public static function pruneSpatieMedia(
+        int $maxAgeDays,
+        ?string $collection = null,
+        bool $dryRun = false,
+        ?string $kind = null,
+    ): array {
         $mediaClass = 'Spatie\\MediaLibrary\\MediaCollections\\Models\\Media';
 
         if (! class_exists($mediaClass)) {
@@ -261,6 +256,10 @@ final class SpatieMediaCaptureAdapter
 
         if (filled($collection)) {
             $query->where('collection_name', $collection);
+        }
+
+        if (filled($kind)) {
+            $query->where('custom_properties->flex_capture->kind', $kind);
         }
 
         $deleted = [];
@@ -298,20 +297,6 @@ final class SpatieMediaCaptureAdapter
         return is_array($stamp) && filled($stamp['field'] ?? null);
     }
 
-    /**
-     * @param  object  $media
-     */
-    private static function passesVirusScanForMedia(FlexSpatieMediaLibraryFileUpload $component, object $media): bool
-    {
-        $scanPath = method_exists($media, 'getPath')
-            ? (string) $media->getPath()
-            : (method_exists($media, 'getPathRelativeToRoot')
-                ? (string) $media->getPathRelativeToRoot()
-                : (string) $media->getAttributeValue('uuid'));
-
-        return self::invokeVirusScan($component, $scanPath);
-    }
-
     private static function resolveSignedUrlForMedia(FlexSpatieMediaLibraryFileUpload $component, object $media): ?string
     {
         if (! method_exists($media, 'getPathRelativeToRoot')) {
@@ -319,11 +304,9 @@ final class SpatieMediaCaptureAdapter
         }
 
         /** @var FlexFileUploadStorage $component */
-        return $component->resolveMediaCaptureSignedUrl((string) $media->getPathRelativeToRoot());
-    }
-
-    private static function invokeVirusScan(FlexSpatieMediaLibraryFileUpload $component, string $path): bool
-    {
-        return MediaCaptureOs::passesVirusScan($path);
+        return FlexMedia::signedUrl($component->getDiskName(), (string) $media->getPathRelativeToRoot(), [
+            'visibility' => $component->getVisibility(),
+            'field' => $component->getName(),
+        ]) ?? $component->resolveMediaCaptureSignedUrl((string) $media->getPathRelativeToRoot());
     }
 }

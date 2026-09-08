@@ -43,3 +43,30 @@ test('createIconPickerComboboxBridge selects highlighted icon', () => {
 
     assert.equal(selected, 'heroicon-o-star')
 })
+
+test('createIconPickerComboboxBridge wires overlay virtual list mixin', () => {
+    const items = Array.from({ length: 120 }, (_, index) => ({
+        name: `icon-${index}`,
+        label: `Icon ${index}`,
+    }))
+
+    const component = {
+        loadedIconItems: items,
+        state: null,
+        activeIconIndex: -1,
+        selectIcon() {},
+        $watch() {},
+    }
+
+    createIconPickerComboboxBridge(component)
+
+    assert.equal(typeof component.onOverlayEngineScroll, 'function')
+    assert.equal(typeof component.shouldOverlayVirtualize, 'function')
+    assert.equal(component.shouldOverlayVirtualize(), true)
+
+    component.onOverlayEngineScroll({ target: { scrollTop: 440 } })
+
+    const meta = component.overlayEngineVirtualMeta().meta
+
+    assert.ok(meta.startIndex >= 5)
+})

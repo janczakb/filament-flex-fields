@@ -50,13 +50,16 @@ export function createIconPickerVirtualScrollMixin() {
         gridGeometryLocked: false,
         _gridContainerWidth: 0,
         iconLoadingPhase: 'idle',
+        iconSkeletonVisible: false,
         iconSkeletonFading: false,
+        iconResultsReady: false,
         loadingMore: false,
         iconScrollNearEnd: false,
         loadMoreObserver: null,
         _iconSkeletonShownAt: null,
         _iconSkeletonFadeTimer: null,
         _iconSkeletonHideTimer: null,
+        _iconRevealScheduled: false,
         _finishSkeletonWhenReady: false,
         _loadMoreShownAt: null,
         _loadMoreReleaseTimer: null,
@@ -226,8 +229,7 @@ export function createIconPickerVirtualScrollMixin() {
         },
 
         get showInitialSkeleton() {
-            return this.panelOpen
-                && (this.iconLoadingPhase === 'initial' || this.iconSkeletonFading)
+            return Boolean(this.panelOpen && this.iconSkeletonVisible)
         },
 
         get resultsGeometryReady() {
@@ -282,8 +284,11 @@ export function createIconPickerVirtualScrollMixin() {
 
         beginIconSkeletonPhase(phase = 'initial') {
             this.clearIconSkeletonTimers()
+            this._iconRevealScheduled = false
             this.iconLoadingPhase = phase
+            this.iconSkeletonVisible = true
             this.iconSkeletonFading = false
+            this.iconResultsReady = false
             this._finishSkeletonWhenReady = false
             this._iconSkeletonShownAt = Date.now()
 
@@ -294,20 +299,40 @@ export function createIconPickerVirtualScrollMixin() {
             })
         },
 
+        /**
+         * One reveal: mount track under the cover, fade bones, then drop the cover.
+         * Icons never paint alone before the cover — no blank pane, no double flash.
+         */
         finishIconSkeletonPhase() {
-            if (this.iconLoadingPhase === 'idle') {
+            if (! this.iconSkeletonVisible) {
                 return
             }
 
             if (! this.panelOpen) {
                 this.clearIconSkeletonTimers()
+                this._iconRevealScheduled = false
                 this.iconLoadingPhase = 'idle'
+                this.iconSkeletonVisible = false
                 this.iconSkeletonFading = false
+                this.iconResultsReady = false
                 this._finishSkeletonWhenReady = false
                 this._iconSkeletonShownAt = null
 
                 return
             }
+
+            if (
+                this.loadedIconItems.length === 0
+                && (this.initialLoadPending || this.iconResultsLoading || this.searchPending)
+            ) {
+                return
+            }
+
+            if (this._iconRevealScheduled) {
+                return
+            }
+
+            this._iconRevealScheduled = true
 
             const elapsed = Date.now() - (this._iconSkeletonShownAt ?? Date.now())
             const remaining = Math.max(0, ICON_PICKER_MIN_SKELETON_MS - elapsed)
@@ -315,13 +340,33 @@ export function createIconPickerVirtualScrollMixin() {
             this.clearIconSkeletonTimers()
 
             this._iconSkeletonFadeTimer = setTimeout(() => {
-                this.iconSkeletonFading = true
+                if (
+                    this.loadedIconItems.length === 0
+                    && (this.initialLoadPending || this.iconResultsLoading || this.searchPending)
+                ) {
+                    this._iconRevealScheduled = false
 
-                this._iconSkeletonHideTimer = setTimeout(() => {
-                    this.iconLoadingPhase = 'idle'
-                    this.iconSkeletonFading = false
-                    this._iconSkeletonHideTimer = null
-                }, ICON_PICKER_SKELETON_FADE_MS)
+                    return
+                }
+
+                // Paint icons under the opaque cover first, then fade the cover away.
+                this.iconResultsReady = true
+                this.prepareResultsGeometry?.()
+                this.afterVirtualResultsLayout?.({ preserveScroll: false })
+
+                this.$nextTick(() => {
+                    requestAnimationFrame(() => {
+                        this.iconSkeletonFading = true
+
+                        this._iconSkeletonHideTimer = setTimeout(() => {
+                            this.iconSkeletonVisible = false
+                            this.iconSkeletonFading = false
+                            this.iconLoadingPhase = 'idle'
+                            this._iconSkeletonHideTimer = null
+                            this._iconRevealScheduled = false
+                        }, ICON_PICKER_SKELETON_FADE_MS)
+                    })
+                })
             }, remaining)
         },
 

@@ -14,7 +14,7 @@
  * @param {Element} boot
  * @returns {Record<string, [string, string]>}
  */
-function parseCatalog(boot) {
+function parseInlineCatalog(boot) {
     try {
         const raw = JSON.parse(boot.getAttribute('data-fff-timezone-catalog') || '{}')
 
@@ -26,6 +26,63 @@ function parseCatalog(boot) {
     }
 
     return {}
+}
+
+/**
+ * Shared TimezoneRegistry template (CountryRegistry pattern) — preferred when
+ * the full IANA list is not inlined on the boot element.
+ *
+ * @returns {Record<string, [string, string]>}
+ */
+function parseRegistryCatalog() {
+    if (typeof document === 'undefined') {
+        return {}
+    }
+
+    const elements = document.querySelectorAll('#fff-timezone-registry-data')
+    const element = elements.length > 0 ? elements[elements.length - 1] : null
+
+    if (! element) {
+        return {}
+    }
+
+    const text = element.tagName === 'TEMPLATE'
+        ? element.innerHTML.trim()
+        : (element.textContent?.trim() ?? '')
+
+    if (! text) {
+        return {}
+    }
+
+    try {
+        const registry = JSON.parse(text)
+        const pool = registry?.pools?.iana ?? {}
+        const catalog = {}
+
+        for (const [id, compact] of Object.entries(pool)) {
+            if (compact?.l) {
+                catalog[id] = [String(compact.l), String(compact.o ?? '')]
+            }
+        }
+
+        return catalog
+    } catch {
+        return {}
+    }
+}
+
+/**
+ * @param {Element} boot
+ * @returns {Record<string, [string, string]>}
+ */
+function parseCatalog(boot) {
+    const inline = parseInlineCatalog(boot)
+
+    if (Object.keys(inline).length > 0) {
+        return inline
+    }
+
+    return parseRegistryCatalog()
 }
 
 /**

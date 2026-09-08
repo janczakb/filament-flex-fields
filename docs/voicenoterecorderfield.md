@@ -56,15 +56,22 @@ $record->voice_note; // 'voice-notes/01H….webm'
 #### Validation rules
 Inherits all `FileUpload` validation rules (`maxSize()`, `required()`, etc.). Default accepted MIME types include `audio/*`, `audio/mpeg`, `audio/wav`, `audio/webm`, `audio/aac`.
 
-### Media Capture OS metadata
+### Media Ingress metadata
 
-Integrates with [Media & Capture OS](/docs/media-capture-os) for transcription and waveform sidecars:
+Integrates with [Media Ingress](/docs/media-capture-os) for transcription and waveform sidecars.
 
 ```php
+// Disk (path state)
 VoiceNoteRecorderField::make('voice_note')
+    ->disk()
     ->directory('voice-notes')
     ->storeMetadataIn('voice_note_meta')
-    ->storeWaveformIn('voice_note_meta'); // defaults to storeMetadataIn path
+    ->storeWaveformIn('voice_note_meta');
+
+// Spatie (UUID state)
+VoiceNoteRecorderField::spatie('voice_note')
+    ->collection('voice-notes')
+    ->storeMetadataIn('voice_note_meta');
 ```
 
 | Sidecar key | When populated |

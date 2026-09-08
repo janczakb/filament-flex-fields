@@ -4,12 +4,19 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\FlexFileUpload;
 
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexImageUpload;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\VoiceNoteRecorderField;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadImageProcessor;
 use Bjanczak\FilamentFlexFields\Support\FileUpload\FileUploadMetadata;
-use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureTenantDiskResolver;
-use Bjanczak\FilamentFlexFields\Support\FileUpload\ScopedDirectoryResolver;
+use Bjanczak\FilamentFlexFields\Support\Media\FlexMedia;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
+use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureTenantDiskResolver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaContext;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaKind;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaPayload;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaStorageDriver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Refs\DiskMediaRef;
 use Closure;
 use Filament\Forms\Components\BaseFileUpload;
 use Illuminate\Database\Eloquent\Model;
@@ -213,14 +220,10 @@ trait FlexFileUploadStorage
 
     public function persistUploadedFileWithFlexProcessing(TemporaryUploadedFile $file): ?string
     {
-        if (! MediaCaptureOs::passesVirusScanForTemporaryFile($file)) {
-            ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
-                'field' => $this->getName(),
-                'reason' => 'virus_scan',
-                'stage' => 'pre_persist',
-                'adapter' => 'disk',
-            ]);
+        $payload = MediaPayload::fromTemporaryUploadedFile($file);
+        $context = $this->makeMediaIngressContext();
 
+        if (! FlexMedia::ingress()->passesPrePersistScan($payload, $context)) {
             return null;
         }
 
@@ -230,6 +233,8 @@ trait FlexFileUploadStorage
             ObservabilityHooks::record(ObservabilityHooks::EVENT_UPLOAD_FAIL, [
                 'field' => $this->getName(),
                 'reason' => 'persist_failed',
+                'adapter' => 'disk',
+                'correlation_id' => $context->correlationId,
             ]);
 
             return null;
@@ -248,8 +253,10 @@ trait FlexFileUploadStorage
             $storedPath = $processor->process($this->getDisk(), $storedPath);
         }
 
+        $ref = new DiskMediaRef($this->getDiskName(), $storedPath);
+
         if (! $this->passesMediaCaptureVirusScan($storedPath)) {
-            MediaCaptureOs::rejectStoredFile($this->getDiskName(), $storedPath);
+            FlexMedia::ingress()->reject($ref, $context);
 
             return null;
         }
@@ -267,9 +274,31 @@ trait FlexFileUploadStorage
             'field' => $this->getName(),
             'adapter' => 'disk',
             'path' => $storedPath,
+            'correlation_id' => $context->correlationId,
+            'kind' => $context->kind->value,
         ]);
 
         return $storedPath;
+    }
+
+    protected function makeMediaIngressContext(): MediaContext
+    {
+        $kind = MediaKind::Upload;
+
+        if (is_a($this, VoiceNoteRecorderField::class)) {
+            $kind = MediaKind::VoiceNote;
+        } elseif (is_a($this, FlexImageUpload::class)) {
+            $kind = MediaKind::Image;
+        }
+
+        return (new MediaContext(
+            kind: $kind,
+            driver: MediaStorageDriver::Disk,
+            field: $this->getName(),
+            record: $this->getRecord(),
+            disk: $this->getDiskName(),
+            directory: method_exists($this, 'getDirectory') ? $this->getDirectory() : null,
+        ))->withCorrelationId((string) Str::uuid());
     }
 
     /**
@@ -293,22 +322,14 @@ trait FlexFileUploadStorage
     }
 
     /**
-     * Resolve a display/download URL via MediaCaptureOs signed-upload resolver when registered.
+     * Resolve a display/download URL via Media Ingress signed-URL capsule when registered.
      */
     public function resolveMediaCaptureSignedUrl(string $path): ?string
     {
-        $resolver = MediaCaptureOs::signedUploadUrlResolver();
-
-        if ($resolver === null) {
-            return null;
-        }
-
-        $signed = $resolver($this->getDiskName(), $path, [
+        return FlexMedia::signedUrl($this->getDiskName(), $path, [
             'visibility' => $this->getVisibility(),
             'field' => $this->getName(),
         ]);
-
-        return is_string($signed) && filled($signed) ? $signed : null;
     }
 
     public function applyMediaCaptureStorageDefaults(): void

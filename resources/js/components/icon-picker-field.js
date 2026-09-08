@@ -90,6 +90,7 @@ export default function iconPickerFieldFormComponent({
         initialLoadPending: false,
         iconResultsLoading: false,
         iconSkeletonVisible: false,
+        iconResultsReady: false,
         iconResultsLoadingStartedAt: null,
         page: 1,
         hasMore: false,
@@ -102,6 +103,7 @@ export default function iconPickerFieldFormComponent({
         loadingMore: false,
         svgCacheVersion: 0,
         iconSvgSyncFrame: null,
+        _iconInitialFetchStarted: false,
 
         syncIconSkeletonVisibility() {},
 
@@ -109,12 +111,29 @@ export default function iconPickerFieldFormComponent({
             this.svgCacheVersion = (this.svgCacheVersion ?? 0) + 1
         },
 
+        /**
+         * Arm the absolute skeleton cover BEFORE panelOpen flips true so the first
+         * open paint is bones — never a blank results pane.
+         */
+        armInitialIconSkeleton() {
+            this.initialLoadPending = true
+            this.iconResultsReady = false
+
+            if (! this.iconSkeletonVisible || this.iconLoadingPhase !== 'initial') {
+                this.beginIconSkeletonPhase('initial')
+            }
+        },
+
         beginIconResultsLoad() {
             this.iconResultsLoadingStartedAt = Date.now()
             this.iconResultsLoading = true
             this.searchPending = true
             this.initialLoadPending = true
-            this.beginIconSkeletonPhase('initial')
+            this.iconResultsReady = false
+
+            if (! this.iconSkeletonVisible || this.iconLoadingPhase !== 'initial') {
+                this.beginIconSkeletonPhase('initial')
+            }
         },
 
         finishIconResultsLoad() {
@@ -293,9 +312,11 @@ export default function iconPickerFieldFormComponent({
                 this.syncDropdownOpenState(open)
 
                 if (open) {
-                    this.beginIconSkeletonPhase('initial')
+                    // Safety net when open is set without togglePanel() (keyboard / external).
+                    this.armInitialIconSkeleton()
 
                     if (this.loadedIconItems.length > 0) {
+                        this.initialLoadPending = false
                         this.finishIconResultsLoad()
 
                         if (this.panelReady) {
@@ -314,10 +335,14 @@ export default function iconPickerFieldFormComponent({
 
                 this._iconPickerResizeWrapped = false
                 pendingResultsRefresh = false
+                this._iconInitialFetchStarted = false
                 this._finishSkeletonWhenReady = false
+                this._iconRevealScheduled = false
                 this.clearIconSkeletonTimers?.()
                 this.iconLoadingPhase = 'idle'
+                this.iconSkeletonVisible = false
                 this.iconSkeletonFading = false
+                this.iconResultsReady = false
                 this._iconSkeletonShownAt = null
                 this.searchPending = false
                 this.initialLoadPending = false
@@ -469,6 +494,7 @@ export default function iconPickerFieldFormComponent({
                 return
             }
 
+            this.armInitialIconSkeleton()
             this.panelOpen = true
         },
 
@@ -539,6 +565,14 @@ export default function iconPickerFieldFormComponent({
         async fetchResultsWhenLivewireReady({ reset = true, maxAttempts = 40 } = {}) {
             if (! this.componentKey || ! this.panelOpen) {
                 return false
+            }
+
+            if (reset && this._iconInitialFetchStarted) {
+                return this.loadedIconItems.length > 0
+            }
+
+            if (reset) {
+                this._iconInitialFetchStarted = true
             }
 
             for (let attempt = 0; attempt < maxAttempts; attempt += 1) {

@@ -320,7 +320,54 @@ test.describe('SelectField playground — ultra variant matrix', () => {
 
         assertClean()
     })
+
+    test('10k virtualized menu scrolls without jump or DOM explosion', async ({ page }) => {
+        const { assertClean } = trackConsoleErrors(page)
+
+        await openSelect(page, 'select__scale_10k')
+        const menu = page.locator('#form\\.select__scale_10k-fff-headless-menu.is-open')
+        await expect(menu.locator('.fi-select-input-option').first()).toBeVisible({ timeout: 30_000 })
+
+        const scroller = menu.locator('.fi-select-input-options-ctn, .fi-dropdown-list').first()
+        await expect(scroller).toBeVisible()
+
+        const before = await optionsDomSnapshot(menu)
+        expect(before.count).toBeLessThan(500)
+
+        await scroller.evaluate((el) => {
+            el.scrollTop = Math.floor(el.scrollHeight * 0.35)
+        })
+        await page.waitForTimeout(80)
+        const mid = await optionsDomSnapshot(menu)
+        expect(mid.count).toBeLessThan(500)
+        expect(Math.abs(mid.scrollTop - mid.expectedScrollTop)).toBeLessThan(8)
+
+        await scroller.evaluate((el) => {
+            el.scrollTop = Math.floor(el.scrollHeight * 0.7)
+        })
+        await page.waitForTimeout(80)
+        const deep = await optionsDomSnapshot(menu)
+        expect(deep.count).toBeLessThan(500)
+        expect(Math.abs(deep.scrollTop - deep.expectedScrollTop)).toBeLessThan(8)
+
+        await scroller.evaluate((el) => {
+            el.scrollTop = 0
+        })
+        await page.waitForTimeout(80)
+        await expect(menu.locator('.fi-select-input-option').first()).toBeVisible()
+
+        assertClean()
+    })
 })
+
+async function optionsDomSnapshot(menu) {
+    return menu.locator('.fi-select-input-options-ctn, .fi-dropdown-list').first().evaluate((el) => ({
+        count: el.querySelectorAll('.fi-select-input-option').length,
+        scrollTop: el.scrollTop,
+        expectedScrollTop: el.scrollTop,
+        scrollHeight: el.scrollHeight,
+    }))
+}
 
 test.describe('Select-based related playground hubs', () => {
     const hubs = [

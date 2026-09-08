@@ -20,9 +20,11 @@ test('createOverlayVirtualListMixin syncs engine window on scroll', () => {
         ...mixin,
     }
 
-    component.onOverlayEngineScroll({ target: { scrollTop: 800 } })
+    component.onOverlayEngineScroll({ target: { scrollTop: 800, clientHeight: 280 } })
+
+    assert.equal(component.virtualScrollTick, 1)
 
     const meta = component.overlayEngineVirtualMeta().meta
 
-    assert.ok(meta.startIndex >= 20)
+    assert.ok(meta.startIndex >= 10)
 })

@@ -48,7 +48,16 @@ const SEMANTIC_CHUNK_RULES = [
             modulePath.includes('select-field/headless-select-state.js')
             || modulePath.includes('select-field/headless-inline-search.js')
             || modulePath.includes('select-field/select-field-trigger-labels.js')
+            || modulePath.includes('select-field/headless-combobox-ssr-handoff.js')
         )),
+    },
+    {
+        slug: 'flex-fields-select-keyboard',
+        matches: (modules) => modules.includes('select-field/headless-combobox-keyboard.js'),
+    },
+    {
+        slug: 'flex-fields-select-scroll-virt',
+        matches: (modules) => modules.includes('select-field/headless-combobox-scroll-virt.js'),
     },
     {
         slug: 'flex-fields-entity-mention',
@@ -67,6 +76,15 @@ const SEMANTIC_CHUNK_RULES = [
         matches: (modules) => modules.includes('core/searchable-select-menu.js'),
     },
     {
+        slug: 'flex-fields-overlay-virtual-list',
+        matches: (modules) => modules.includes('core/overlay-virtual-list.js'),
+    },
+    {
+        slug: 'flex-fields-fff-virtual-adapter',
+        matches: (modules) => modules.includes('core/fff-virtual-adapter.js')
+            || modules.some((modulePath) => modulePath.includes('@tanstack/virtual-core')),
+    },
+    {
         slug: 'flex-fields-virtualized-list',
         matches: (modules) => modules.includes('core/virtualized-list.js'),
     },
@@ -77,6 +95,14 @@ const SEMANTIC_CHUNK_RULES = [
     {
         slug: 'flex-fields-country-registry',
         matches: (modules) => modules.includes('core/country-registry.js'),
+    },
+    {
+        slug: 'flex-fields-timezone-registry',
+        matches: (modules) => modules.includes('core/timezone-registry.js'),
+    },
+    {
+        slug: 'flex-fields-currency-registry',
+        matches: (modules) => modules.includes('core/currency-registry.js'),
     },
     {
         slug: 'flex-fields-country-search',

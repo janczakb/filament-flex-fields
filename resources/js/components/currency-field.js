@@ -3,6 +3,10 @@ import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.
 import { createVirtualizedListMixin } from '../core/virtualized-list.js'
 import { normalizeLocale } from '../core/number-format.js'
 import { normalizeSearchQuery } from '../core/search-normalize.js'
+import {
+    resolveCurrenciesFromRegistry,
+    resetCurrencyRegistryCache,
+} from '../core/currency-registry.js'
 
 export { normalizeLocale }
 
@@ -640,6 +644,9 @@ export default function currencyFieldFormComponent({
     state,
     statePath,
     currencies,
+    currencyPool = null,
+    currencyFilterKey = null,
+    selectedCurrencySeed = null,
     defaultCurrency,
     hasCurrencySelect,
     locale,
@@ -658,7 +665,10 @@ export default function currencyFieldFormComponent({
     return {
         state,
         statePath,
-        currencies,
+        currencies: Array.isArray(currencies) ? currencies : [],
+        currencyPool,
+        currencyFilterKey,
+        selectedCurrencySeed,
         defaultCurrency,
         hasCurrencySelect,
         locale,
@@ -673,6 +683,8 @@ export default function currencyFieldFormComponent({
         placeholder,
         currencyLabel,
         searchPlaceholder,
+        currenciesLoaded: ! currencyPool,
+        currenciesLoading: false,
         currencyOpen: false,
         currencySearch: '',
         currencyMenuReady: false,
@@ -706,6 +718,7 @@ export default function currencyFieldFormComponent({
                 : this.defaultCurrency
 
             return this.currencies.find((currency) => currency.code === code)
+                ?? (this.selectedCurrencySeed?.code === code ? this.selectedCurrencySeed : null)
                 ?? this.currencies[0]
                 ?? { code: this.defaultCurrency, symbol: '', decimals: 2, locale: this.locale }
         },
@@ -793,6 +806,54 @@ export default function currencyFieldFormComponent({
 
             this.bindSelectMenuLifecycle()
             this.initOverlayMenuKeyboard()
+
+            document.addEventListener('livewire:navigated', () => {
+                if (! this.currencyPool) {
+                    return
+                }
+
+                resetCurrencyRegistryCache()
+                this.currencies = this.selectedCurrencySeed ? [this.selectedCurrencySeed] : []
+                this.currenciesLoaded = false
+            })
+        },
+
+        async ensureCurrenciesLoaded() {
+            if (! this.currencyPool || this.currenciesLoaded) {
+                return
+            }
+
+            if (this.currenciesLoading) {
+                while (this.currenciesLoading) {
+                    await new Promise((resolve) => setTimeout(resolve, 16))
+                }
+
+                return
+            }
+
+            this.currenciesLoading = true
+
+            try {
+                resetCurrencyRegistryCache()
+
+                this.currencies = await resolveCurrenciesFromRegistry({
+                    pool: this.currencyPool,
+                    currencyFilterKey: this.currencyFilterKey,
+                })
+
+                if (this.currencies.length === 0) {
+                    resetCurrencyRegistryCache()
+
+                    this.currencies = await resolveCurrenciesFromRegistry({
+                        pool: this.currencyPool,
+                        currencyFilterKey: this.currencyFilterKey,
+                    })
+                }
+
+                this.currenciesLoaded = true
+            } finally {
+                this.currenciesLoading = false
+            }
         },
 
         ensureState() {
@@ -1163,7 +1224,7 @@ export default function currencyFieldFormComponent({
             })
         },
 
-        toggleCurrencyMenu() {
+        async toggleCurrencyMenu() {
             if (this.isLocked || ! this.hasCurrencySelect) {
                 return
             }
@@ -1173,6 +1234,8 @@ export default function currencyFieldFormComponent({
 
                 return
             }
+
+            await this.ensureCurrenciesLoaded()
 
             this.currencyOpen = true
 

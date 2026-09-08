@@ -124,17 +124,6 @@
     --tw-shadow: 0 0 #0000 !important;
 }
 
-.fff-phone-field__country-menu.fff-teleported-menu--sheet {
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    /* Height comes from fitOverlaySheetToContent / drag snap. */
-    height: auto;
-    max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
-}
-
 .fff-phone-field__country-menu--sm {
     --fff-phone-field-menu-text-size: var(--fff-text-md);
     --fff-phone-field-menu-flag-size: 1rem;
@@ -152,19 +141,6 @@
 
 .fff-phone-field__country-menu.is-positioned {
     visibility: visible;
-}
-
-/* Opacity-only open on desktop panels — never kill bottom-sheet slide/drag transforms. */
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel):not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet),
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel):not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet).fff-teleported-menu--below:not(.is-open),
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel):not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet).fff-teleported-menu--above:not(.is-open),
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel):not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet).is-open,
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel):not(.fff-teleported-menu--sheet):not(.fff-overlay-sheet).is-closing {
-    transform: none;
-}
-
-.fff-phone-field__country-menu.fff-teleported-menu:not(.fi-dropdown-panel) {
-    transition: opacity 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .fff-phone-field__country-menu .fff-phone-field__flag {

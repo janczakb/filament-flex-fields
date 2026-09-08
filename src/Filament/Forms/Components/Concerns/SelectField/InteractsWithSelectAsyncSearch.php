@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\SelectF
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\SelectField;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\ObservabilityHooks;
 use Bjanczak\FilamentFlexFields\Support\Select\EntityMentionQuery;
+use Bjanczak\FilamentFlexFields\Support\Select\SelectSearchRateLimiter;
 use Closure;
 use Filament\Support\Components\Attributes\ExposedLivewireMethod;
 use Illuminate\Support\Arr;
@@ -42,7 +43,8 @@ trait InteractsWithSelectAsyncSearch
 
         ObservabilityHooks::record(ObservabilityHooks::EVENT_SELECT_SEARCH, [
             'field' => $this->getName(),
-            'query' => trim($search),
+            'query_hash' => $this->hashSearchQueryForObservability($search),
+            'query_len' => mb_strlen(trim($search)),
             'source' => 'options',
         ]);
 
@@ -61,7 +63,8 @@ trait InteractsWithSelectAsyncSearch
 
         ObservabilityHooks::record(ObservabilityHooks::EVENT_SELECT_SEARCH, [
             'field' => $this->getName(),
-            'query' => trim((string) $search),
+            'query_hash' => $this->hashSearchQueryForObservability((string) $search),
+            'query_len' => mb_strlen(trim((string) $search)),
             'source' => 'relationship',
         ]);
 
@@ -72,13 +75,17 @@ trait InteractsWithSelectAsyncSearch
     #[Renderless]
     public function getSearchResultsForJs(string $search): array
     {
+        if (! $this->allowSelectSearchRequest()) {
+            return [];
+        }
+
         if ($this->hasPaginatedSearchResults()) {
             return array_map(
                 fn (array $item): array => [
                     'label' => (string) ($item['label'] ?? ''),
                     'value' => (string) ($item['value'] ?? ''),
                 ],
-                $this->getSearchResultsPageForJs($search)['items'],
+                $this->resolveSearchResultsPageForJs($search)['items'],
             );
         }
 
@@ -154,6 +161,22 @@ trait InteractsWithSelectAsyncSearch
     #[Renderless]
     public function getSearchResultsPageForJs(string $search, ?string $cursor = null): array
     {
+        if (! $this->allowSelectSearchRequest()) {
+            return [
+                'items' => [],
+                'cursor' => null,
+                'hasMore' => false,
+            ];
+        }
+
+        return $this->resolveSearchResultsPageForJs($search, $cursor);
+    }
+
+    /**
+     * @return array{items: list<array<string, mixed>>, cursor: ?string, hasMore: bool}
+     */
+    protected function resolveSearchResultsPageForJs(string $search, ?string $cursor = null): array
+    {
         $search = $this->resolveEntityMentionSearchQuery($search);
         $pageSize = $this->getSearchResultsPageSize();
         $cacheKey = $this->searchCacheKey($search.'|'.($cursor ?? '0').'|'.$pageSize);
@@ -169,8 +192,9 @@ trait InteractsWithSelectAsyncSearch
 
         ObservabilityHooks::record(ObservabilityHooks::EVENT_SELECT_SEARCH, [
             'field' => $this->getName(),
-            'query' => trim($search),
-            'source' => $this->getSearchResultsPageUsing instanceof Closure ? 'page' : 'page-slice',
+            'query_hash' => $this->hashSearchQueryForObservability($search),
+            'query_len' => mb_strlen(trim($search)),
+            'source' => $this->getSearchResultsPageUsing instanceof Closure ? 'page' : 'page-slice-capped',
             'cursor' => $cursor,
         ]);
 
@@ -184,15 +208,23 @@ trait InteractsWithSelectAsyncSearch
             return $this->searchResultsCache[$cacheKey] = $this->normalizeSearchResultsPagePayload($result);
         }
 
-        $offset = is_numeric($cursor) ? max(0, (int) $cursor) : 0;
+        // Without getSearchResultsPageUsing, never load+slice an unbounded result set.
+        // Return at most one page from parent search and stop (hasMore=false).
+        if ($cursor !== null && $cursor !== '' && $cursor !== '0') {
+            return $this->searchResultsCache[$cacheKey] = [
+                'items' => [],
+                'cursor' => null,
+                'hasMore' => false,
+            ];
+        }
+
         $allResults = parent::getSearchResultsForJs($search);
-        $items = array_slice($allResults, $offset, $pageSize);
-        $nextOffset = $offset + count($items);
+        $items = array_slice($allResults, 0, $pageSize);
 
         return $this->searchResultsCache[$cacheKey] = [
             'items' => array_values($items),
-            'cursor' => $nextOffset < count($allResults) ? (string) $nextOffset : null,
-            'hasMore' => $nextOffset < count($allResults),
+            'cursor' => null,
+            'hasMore' => false,
         ];
     }
 
@@ -263,5 +295,15 @@ trait InteractsWithSelectAsyncSearch
     protected function searchCacheKey(?string $search): string
     {
         return md5($this->getName().'|'.trim((string) $search));
+    }
+
+    protected function allowSelectSearchRequest(): bool
+    {
+        return app(SelectSearchRateLimiter::class)->attempt((string) $this->getName());
+    }
+
+    protected function hashSearchQueryForObservability(string $search): string
+    {
+        return hash('sha256', trim($search));
     }
 }

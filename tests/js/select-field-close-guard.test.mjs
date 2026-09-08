@@ -4,7 +4,7 @@ import { describe, it } from 'node:test'
 import {
     bumpSelectCloseToken,
     shouldCommitDeferredClose,
-} from '../../resources/js/components/select-field/select-field-close-guard.js'
+} from '../fixtures/js/select-field/select-field-close-guard.js'
 
 describe('select-field close guard', () => {
     it('bumps a monotonic close token', () => {

@@ -17,6 +17,23 @@ class FakeCaptureMediaModel extends Model
         return new FakeCaptureMediaAdder($this, $content);
     }
 
+    public function addMedia(string $path): FakeCaptureMediaAdder
+    {
+        $content = is_file($path) ? (string) file_get_contents($path) : '';
+
+        return new FakeCaptureMediaAdder($this, $content);
+    }
+
+    /**
+     * @param  resource  $stream
+     */
+    public function addMediaFromStream(mixed $stream): FakeCaptureMediaAdder
+    {
+        $content = is_resource($stream) ? (string) stream_get_contents($stream) : '';
+
+        return new FakeCaptureMediaAdder($this, $content);
+    }
+
     public function getRelationValue($key)
     {
         if ($key === 'media') {
@@ -182,6 +199,10 @@ final class FakeCaptureMedia
             'uuid' => $this->uuid,
             'file_name' => $this->fileName,
             'name' => $this->name,
+            'disk' => $this->disk,
+            'size' => strlen($this->content),
+            'mime_type' => 'application/octet-stream',
+            'custom_properties' => $this->customProperties,
             default => null,
         };
     }

@@ -8,6 +8,18 @@ namespace Bjanczak\FilamentFlexFields\Tests\Support;
  * Canonical map of every SelectField (and parity Select) demo on the select-field playground.
  * Used to generate atomic Livewire / DB / clear-empty matrices.
  *
+ * Compatibility matrix (forbidden / soft collisions — assert in SelectField / eligibility tests):
+ * - native + searchable|multiple|allowHtml → InvalidArgumentException (fail-fast)
+ * - inlineSearch + multiple → inlineSearch ignored (hasInlineSearch false)
+ * - item-card + clearable default → clearable false unless explicitly overridden
+ * - keepSelectedInDropdown + single → no-op
+ * - paginatedSearchResults without getSearchResultsPageUsing → first page only, hasMore=false
+ * - allowCreateOption off → free-text values are not accepted from the create row (UI); package
+ *   static-options validation rejects unknown keys (Rule::in-equivalent) unless relationship /
+ *   getSearchResultsUsing; allowCreateOption on → created string keys are intentional
+ * - UserSelect optionModel + static options → model wins (Studio configurator)
+ * - searchable menu open + second field → exclusive close via flex-dropdown coordinator
+ *
  * @phpstan-type Variant array{
  *     label: string,
  *     multiple: bool,

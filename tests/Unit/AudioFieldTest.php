@@ -10,7 +10,6 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Filament\Support\Icons\Heroicon;
-use InvalidArgumentException;
 
 it('exposes audio field configuration api', function () {
     $field = AudioField::make('voice')

@@ -137,16 +137,24 @@ export function wireExclusiveFlexDropdown(component, {
     const ownerKey = component.$el
 
     if (! (ownerKey instanceof Element)) {
-        return
+        return () => {}
     }
 
-    bindFlexDropdown(ownerKey, {
+    // Prior bind must be released before re-wire (Livewire remount / init twice).
+    if (typeof component.__fffDropdownUnbind === 'function') {
+        component.__fffDropdownUnbind()
+        component.__fffDropdownUnbind = null
+    }
+
+    const unbind = bindFlexDropdown(ownerKey, {
         ownerIdPrefix,
         getController: () => createFlexDropdownController(component, {
             openKey,
             closeMethod,
         }),
     })
+
+    component.__fffDropdownUnbind = unbind
 
     component.$watch(openKey, (open) => {
         if (! open) {
@@ -159,6 +167,8 @@ export function wireExclusiveFlexDropdown(component, {
             openExclusiveFlexDropdown(ownerId)
         }
     })
+
+    return unbind
 }
 
 export function createExclusiveDropdownMixin({

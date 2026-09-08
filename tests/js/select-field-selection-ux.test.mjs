@@ -5,7 +5,7 @@ import {
     pruneKnownSelectedToState,
     resolveSelectedValueKeys,
     syncKnownSelectedFromState,
-} from '../../resources/js/components/select-field/select-field-selection-ux.js'
+} from '../fixtures/js/select-field/select-field-selection-ux.js'
 
 describe('select-field selection UX helpers', () => {
     it('resolves multiple and single selected keys without allocating for empty multi', () => {

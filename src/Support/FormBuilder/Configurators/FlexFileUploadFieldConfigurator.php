@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexFileUpload;
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Spatie\FlexSpatieMediaLibraryFileUpload;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
 
@@ -15,16 +16,22 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
      */
     public function configure(Component $field, array $config): Component
     {
-        assert($field instanceof FlexFileUpload);
+        assert(
+            $field instanceof FlexFileUpload
+            || $field instanceof FlexSpatieMediaLibraryFileUpload
+        );
 
+        /** @var FlexFileUpload|FlexSpatieMediaLibraryFileUpload $field */
         return $this->configureFlexFileUploadField($field, $config);
     }
 
     /**
      * @param  array<string, mixed>  $config
      */
-    public function configureFlexFileUploadField(FlexFileUpload $field, array $config): FlexFileUpload
-    {
+    public function configureFlexFileUploadField(
+        FlexFileUpload|FlexSpatieMediaLibraryFileUpload $field,
+        array $config,
+    ): FlexFileUpload|FlexSpatieMediaLibraryFileUpload {
         if (filled($config['disk'] ?? null)) {
             $field->disk((string) $config['disk']);
         }
@@ -61,53 +68,53 @@ final class FlexFileUploadFieldConfigurator implements FieldConfigurator
             $field->maxFiles((int) $config['max_files']);
         }
 
-        if (array_key_exists('max_total_size_kb', $config)) {
+        if (array_key_exists('max_total_size_kb', $config) && method_exists($field, 'maxTotalSizeKb')) {
             $field->maxTotalSizeKb((int) $config['max_total_size_kb']);
         }
 
-        if (array_key_exists('documents_only', $config) && (bool) $config['documents_only']) {
+        if (array_key_exists('documents_only', $config) && (bool) $config['documents_only'] && method_exists($field, 'documentsOnly')) {
             $field->documentsOnly();
         }
 
-        if (array_key_exists('images_only', $config) && (bool) $config['images_only']) {
+        if (array_key_exists('images_only', $config) && (bool) $config['images_only'] && method_exists($field, 'imagesOnly')) {
             $field->imagesOnly();
         }
 
-        if (array_key_exists('variant', $config) && filled($config['variant'])) {
+        if (array_key_exists('variant', $config) && filled($config['variant']) && method_exists($field, 'variant')) {
             $field->variant((string) $config['variant']);
         }
 
-        if (array_key_exists('size', $config) && filled($config['size'])) {
+        if (array_key_exists('size', $config) && filled($config['size']) && method_exists($field, 'size')) {
             $field->size($config['size']);
         }
 
-        if (array_key_exists('store_metadata_in', $config) && filled($config['store_metadata_in'])) {
+        if (array_key_exists('store_metadata_in', $config) && filled($config['store_metadata_in']) && method_exists($field, 'storeMetadataIn')) {
             $field->storeMetadataIn((string) $config['store_metadata_in']);
         }
 
-        if (array_key_exists('scoped_directory', $config)) {
+        if (array_key_exists('scoped_directory', $config) && method_exists($field, 'scopedDirectory')) {
             if ((bool) $config['scoped_directory']) {
                 $field->scopedDirectory(is_string($config['scoped_directory']) ? $config['scoped_directory'] : 'uploads');
             }
         }
 
-        if (array_key_exists('optimize_images', $config)) {
+        if (array_key_exists('optimize_images', $config) && method_exists($field, 'optimizeImages')) {
             $field->optimizeImages((bool) $config['optimize_images']);
         }
 
-        if (array_key_exists('max_image_width', $config)) {
+        if (array_key_exists('max_image_width', $config) && method_exists($field, 'maxImageWidth')) {
             $field->maxImageWidth((int) $config['max_image_width']);
         }
 
-        if (array_key_exists('max_image_height', $config)) {
+        if (array_key_exists('max_image_height', $config) && method_exists($field, 'maxImageHeight')) {
             $field->maxImageHeight((int) $config['max_image_height']);
         }
 
-        if (array_key_exists('allow_url_upload', $config) && (bool) $config['allow_url_upload']) {
+        if (array_key_exists('allow_url_upload', $config) && (bool) $config['allow_url_upload'] && method_exists($field, 'allowUrlUpload')) {
             $field->allowUrlUpload();
         }
 
-        if (array_key_exists('allow_webcam_upload', $config) && (bool) $config['allow_webcam_upload']) {
+        if (array_key_exists('allow_webcam_upload', $config) && (bool) $config['allow_webcam_upload'] && method_exists($field, 'allowWebcamUpload')) {
             $field->allowWebcamUpload();
         }
 

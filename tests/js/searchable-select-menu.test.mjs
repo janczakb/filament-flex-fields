@@ -470,6 +470,118 @@ describe('searchable select menu scroll reposition', () => {
         }
     })
 
+    it('first panel open paints closed glass before adding is-open', () => {
+        const mixin = createSearchableSelectMenuMixin({
+            openKey: 'menuOpen',
+            menuRef: 'menuMenu',
+            triggerRef: 'menuTrigger',
+            minMenuWidth: 288,
+            matchTriggerWidth: false,
+        })
+
+        const trigger = {
+            getBoundingClientRect: () => ({
+                top: 40,
+                bottom: 72,
+                left: 40,
+                right: 240,
+                width: 200,
+                height: 32,
+            }),
+        }
+
+        const classes = new Set()
+        const menu = {
+            style: {
+                width: '',
+                setProperty() {},
+                removeProperty() {},
+            },
+            classList: {
+                add(...names) {
+                    for (const name of names) {
+                        classes.add(name)
+                    }
+                },
+                remove(...names) {
+                    for (const name of names) {
+                        classes.delete(name)
+                    }
+                },
+                toggle(name, force) {
+                    if (force === true) {
+                        classes.add(name)
+                    } else if (force === false) {
+                        classes.delete(name)
+                    }
+                },
+                contains: (name) => classes.has(name),
+            },
+            getBoundingClientRect: () => ({
+                top: 100,
+                bottom: 300,
+                left: 40,
+                right: 328,
+                width: 288,
+                height: 200,
+            }),
+            offsetWidth: 288,
+        }
+
+        let runNextTick = null
+        const component = {
+            ...mixin,
+            menuOpen: true,
+            menuReady: false,
+            $nextTick(callback) {
+                runNextTick = callback
+            },
+            $refs: {
+                menuTrigger: trigger,
+                menuMenu: menu,
+            },
+        }
+
+        globalThis.window.matchMedia = (query) => ({
+            matches: false,
+            media: query,
+            addListener() {},
+            removeListener() {},
+        })
+        globalThis.matchMedia = globalThis.window.matchMedia
+        globalThis.window.innerWidth = 1280
+        globalThis.window.innerHeight = 800
+
+        component.scheduleMenuPosition()
+
+        const frames = []
+        const originalRaf = globalThis.requestAnimationFrame
+        globalThis.requestAnimationFrame = (cb) => {
+            frames.push(cb)
+
+            return frames.length
+        }
+
+        try {
+            runNextTick()
+            frames.shift()()
+
+            // First-open defers finishAnchor one rAF.
+            assert.ok(frames.length >= 1)
+            frames.shift()()
+
+            assert.equal(component.menuReady, true)
+            assert.equal(classes.has('is-open'), false, 'closed glass frame must paint before is-open')
+
+            assert.ok(frames.length >= 1)
+            frames.shift()()
+
+            assert.equal(classes.has('is-open'), true)
+        } finally {
+            globalThis.requestAnimationFrame = originalRaf
+        }
+    })
+
     it('sets menuReady synchronously on re-anchor when already positioned', () => {
         const mixin = createSearchableSelectMenuMixin({
             openKey: 'menuOpen',

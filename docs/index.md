@@ -1,12 +1,14 @@
 ---
 title: Filament Flex Fields
-description: 68 Filament v5 form components, layout primitives, and an optional JSON custom-field layer — one design system, lazy assets, zero Node.js in production.
+description: Filament v5 form fields plugin for Laravel — 79 components, virtualized Select with async search, Spatie Media Library & disk/S3 uploads, JSON custom fields without EAV, surveys, maps, signatures, lazy assets.
 icon: rocket
 ---
 
-**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for Laravel admin panels: **68 custom components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** without EAV tables or per-attribute migrations.
+**Filament Flex Fields** is the all-in-one **Filament form fields / form components plugin** for [Filament v5](https://filamentphp.com) Laravel admin panels: **79 custom components**, a unified `--fff-*` design system, first-class **Spatie Media Library** and disk/S3 uploads (**Media Ingress**), and an optional **JSON custom-field layer** without EAV tables.
 
-Use any field as a standalone drop-in, or wire dynamic schemas through `HasFlexFields` and `FlexFieldFormBuilder`. Pre-built CSS and JavaScript ship in the package — **no Node.js in production**.
+Use any field as a standalone drop-in, or wire dynamic schemas through `HasFlexFields` and `FlexFieldFormBuilder`. Pre-built CSS and JavaScript ship in the package — **no Node.js in production**. Built so you do not install a separate plugin for each field type.
+
+**Standouts:** [`SelectField`](/docs/selectfield) — **virtualized lists**, **async Livewire search**, rich option rows, mobile bottom sheets · [`FlexSpatieMediaLibraryFileUpload`](/docs/flexfileupload-and-fleximageupload) / disk uploads · phone, currency, maps, signatures, rich editor, NPS/matrix surveys — one coherent kit.
 
 > **Premium companion — [Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)**  
 > Drag-and-drop Studio, public fill & embed, submissions, Insights, and integrations — a **commercial** Filament plugin built on Flex Fields.  
@@ -76,12 +78,12 @@ Optional Spatie packages (sluggable, translatable, media library, tags) integrat
 
 | Category | Count | Highlights |
 | --- | ---: | --- |
-| Form fields | 56 | `PhoneField`, `CurrencyField`, `MatrixChoiceField`, `FlexFileUpload`, `MapPickerField`, `IconPickerField` |
-| Layout & schema | 9 | `ItemCardGroup`, `SegmentTabs`, `CoverCard`, `TranslatableFields` |
-| Table columns | 3 | `UserColumn`, `RatingColumn`, `IconColumn` |
-| **Total** | **68** | |
+| Form fields | 64 | `SelectField` (virtualized + async), `PhoneField`, `CurrencyField`, `MatrixChoiceField`, Media Ingress uploads, `MapPickerField`, `IconPickerField` |
+| Layout & schema | 8 | `ItemCardGroup`, `SegmentTabs`, `CoverCard`, `TranslatableFields` |
+| Table columns | 7 | `UserColumn`, `RatingColumn`, `IconColumn`, `ProgressColumn`, `StatusChipColumn`, `MapPinColumn`, `SignaturePreviewColumn` |
+| **Total** | **79** | |
 
-Every component loads **only its own CSS and JS** when rendered — including inside Filament modals and slide-overs.
+Every component loads **only its own CSS and JS** when rendered — including inside Filament modals and slide-overs. `HoldConfirmAction` is documented under Actions and is not counted in the 79.
 
 ---
 
@@ -96,6 +98,8 @@ Every component loads **only its own CSS and JS** when rendered — including in
 | [Form layout patterns](/docs/form-layout-patterns) | Combine layout primitives into rich admin UIs |
 | [Layout components — quick comparison](/docs/layout-components-quick-comparison) | Pick the right card or tab layout |
 | [Deprecated class aliases](/docs/deprecated-class-aliases) | Legacy class names and migration paths |
+| [Media Ingress](/docs/media-capture-os) | Disk vs Spatie, S3, conversions, AV/quarantine, FormBuilder, voice/signature/rich editor |
+| [Media Ingress migration](/docs/media-ingress-migration) | Upgrade checklist from MediaCaptureOs / old Spatie adapter paths |
 
 ### Text & input
 
@@ -107,7 +111,7 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Choice & selection
 
-[SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [ImageChoiceCards](/docs/imagechoicecards) · [FlexChecklist](/docs/flexchecklist) · [TodoListField](/docs/todolistfield) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [SelectField](/docs/selectfield) · [IconPickerField](/docs/icon-picker-field) · [UserSelect](/docs/userselect) · [DualListboxField](/docs/duallistboxfield) · [BubbleChoiceField](/docs/bubblechoicefield)
+[SelectField](/docs/selectfield) *(virtualized · async search · mobile sheet)* · [UserSelect](/docs/userselect) · [TagsField](/docs/tags-field) · [IconPickerField](/docs/icon-picker-field) · [DualListboxField](/docs/duallistboxfield) · [SwitchField](/docs/switchfield) · [SegmentControl](/docs/segmentcontrol) · [ChoiceCards](/docs/choicecards) · [ChoiceCheckboxCards](/docs/choicecheckboxcards) · [ImageChoiceCards](/docs/imagechoicecards) · [FlexChecklist](/docs/flexchecklist) · [TodoListField](/docs/todolistfield) · [BubbleChoiceField](/docs/bubblechoicefield) · [FlexRadiolist](/docs/flexradiolist) · [MatrixChoiceField](/docs/matrixchoicefield) · [FlexMatrixTable](/docs/flex-matrix-table)
 
 ### Date & time
 
@@ -115,11 +119,11 @@ Every component loads **only its own CSS and JS** when rendered — including in
 
 ### Media, color & location
 
-[ColorSwatchField](/docs/colorswatchfield) · [FlexColorPickerField](/docs/flexcolorpickerfield) · [FlexFileUpload & FlexImageUpload](/docs/flexfileupload-and-fleximageupload) · [VideoField](/docs/videofield) · [AudioField](/docs/audiofield) · [VoiceNoteRecorderField](/docs/voicenoterecorderfield) · [MapPickerField](/docs/mappickerfield) · [SignatureField](/docs/signaturefield) · [CreditCardField](/docs/creditcardfield) · [BarcodeScannerField](/docs/barcode-scanner-field)
+[Media Ingress](/docs/media-capture-os) · [FlexFileUpload & FlexImageUpload](/docs/flexfileupload-and-fleximageupload) *(disk or Spatie)* · [ColorSwatchField](/docs/colorswatchfield) · [FlexColorPickerField](/docs/flexcolorpickerfield) · [VideoField](/docs/videofield) *(YouTube · Vimeo · HTML5)* · [AudioField](/docs/audiofield) · [VoiceNoteRecorderField](/docs/voicenoterecorderfield) · [MapPickerField](/docs/mappickerfield) · [SignatureField](/docs/signaturefield) · [CreditCardField](/docs/creditcardfield) · [BarcodeScannerField](/docs/barcode-scanner-field)
 
 ### Rating & tables
 
-[RatingField](/docs/ratingfield) · [RatingColumn](/docs/ratingcolumn) · [IconColumn](/docs/iconcolumn) · [UserColumn](/docs/usercolumn)
+[RatingField](/docs/ratingfield) · [NpsField](/docs/nps-field) · [UserColumn](/docs/usercolumn) · [RatingColumn](/docs/ratingcolumn) · [IconColumn](/docs/iconcolumn) · [Admin columns](/docs/admin-columns) *(Progress · StatusChip · MapPin · SignaturePreview)*
 
 ### Layout & display
 

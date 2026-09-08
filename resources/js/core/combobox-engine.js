@@ -1,6 +1,9 @@
 import { normalizeSearchQuery } from './search-normalize.js'
+import { SELECT_VIRTUALIZE_THRESHOLD } from './virtualization-policy.js'
 
-export const DEFAULT_VIRTUALIZE_THRESHOLD = 100
+export { createOverlayVirtualListMixin } from './overlay-virtual-list.js'
+
+export const DEFAULT_VIRTUALIZE_THRESHOLD = SELECT_VIRTUALIZE_THRESHOLD
 export const DEFAULT_VIRTUAL_WINDOW_SIZE = 50
 
 function defaultGetOptionLabel(option) {

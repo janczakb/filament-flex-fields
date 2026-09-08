@@ -26,6 +26,19 @@ describe('overlay-sheet-dismiss', () => {
         assert.equal(resolveOverlaySheetPeekHeight(win), 512)
     })
 
+    it('freezes layout viewport height so keyboard resize cannot grow caps', () => {
+        const panel = { dataset: {} }
+        const win = { innerHeight: 800 }
+
+        assert.equal(resolveOverlaySheetPeekHeight(panel, win), 400)
+        assert.equal(panel.dataset.fffSheetLayoutViewport, '800')
+
+        win.innerHeight = 500
+
+        assert.equal(resolveOverlaySheetPeekHeight(panel, win), 400)
+        assert.equal(resolveOverlaySheetExpandedHeight(panel, win), 640)
+    })
+
     it('floors fitted height so empty states are not clipped', () => {
         const classList = new Set()
         const style = {
@@ -289,6 +302,7 @@ describe('overlay-sheet-dismiss', () => {
 
         assert.equal(styleProps.transform?.value, 'translate3d(0, 120px, 0)')
         assert.equal(styleProps.transform?.priority, 'important')
+        // Downward dismiss must not rewrite height mid-drag (layout thrash → shake).
         assert.equal(styleProps.height?.value, '400px')
 
         fire('pointerup', {
@@ -299,7 +313,7 @@ describe('overlay-sheet-dismiss', () => {
 
         assert.equal(classList.has('is-dismissing'), true)
         assert.equal(classList.has('is-open'), false)
-        assert.match(styleProps.transform?.value ?? '', /translate3d\(0, \d+px, 0\)/)
+        assert.match(styleProps.transform?.value ?? '', /translate3d\(0, 100%, 0\)/)
         assert.equal(dismissed, 0)
 
         fire('transitionend', {
@@ -309,7 +323,122 @@ describe('overlay-sheet-dismiss', () => {
 
         assert.equal(dismissed, 1)
         assert.equal(classList.has('is-dismissing'), false)
+        assert.equal(styleProps.visibility?.value, 'hidden')
 
         cleanup()
+    })
+
+    it('downward drag uses screenY and never mutates height while pulling down', () => {
+        globalThis.Element = class Element {}
+
+        const styleProps = {}
+        const listeners = {}
+        let heightWrites = 0
+        const panel = {
+            style: {
+                setProperty(name, value, priority) {
+                    styleProps[name] = { value, priority }
+                    this[name] = value
+
+                    if (name === 'height') {
+                        heightWrites += 1
+                    }
+                },
+                removeProperty(name) {
+                    delete styleProps[name]
+                    this[name] = ''
+                },
+                height: '400px',
+            },
+            dataset: {
+                fffSheetFittedHeight: '400',
+                fffOverlaySnap: 'peek',
+            },
+            classList: {
+                add() {},
+                remove() {},
+                contains: () => false,
+            },
+            getBoundingClientRect: () => ({ height: 400 }),
+            // Would thrash every move if canExpand were recomputed on pointermove.
+            querySelectorAll: () => {
+                throw new Error('querySelectorAll must not run during pointermove')
+            },
+            scrollHeight: 900,
+            addEventListener(type, handler) {
+                if (! listeners[type]) {
+                    listeners[type] = []
+                }
+
+                listeners[type].push(handler)
+            },
+            removeEventListener(type, handler) {
+                listeners[type] = (listeners[type] || []).filter((entry) => entry !== handler)
+            },
+            setPointerCapture() {},
+            releasePointerCapture() {},
+        }
+
+        const cleanup = bindOverlaySheetDismiss({
+            panel,
+            onDismiss: () => {},
+            window: { innerHeight: 800, setTimeout: () => 1 },
+        })
+
+        const writesAfterBind = heightWrites
+        const handle = new Element()
+        handle.closest = (sel) => (String(sel).includes('handle') ? handle : null)
+
+        const fire = (type, event) => {
+            for (const handler of listeners[type] || []) {
+                handler(event)
+            }
+        }
+
+        fire('pointerdown', {
+            pointerType: 'touch',
+            pointerId: 7,
+            screenY: 400,
+            clientY: 100,
+            timeStamp: 0,
+            target: handle,
+            button: 0,
+        })
+
+        // clientY jumps (simulated visualViewport pan) but screenY tracks the finger.
+        fire('pointermove', {
+            pointerId: 7,
+            screenY: 520,
+            clientY: 40,
+            timeStamp: 16,
+            preventDefault() {},
+        })
+
+        assert.equal(styleProps.transform?.value, 'translate3d(0, 120px, 0)')
+        assert.equal(heightWrites, writesAfterBind, 'downward drag must not rewrite height')
+
+        cleanup()
+    })
+
+    it('notifies listeners when sheet snap height is applied', async () => {
+        const { notifyOverlaySheetGeometry, OVERLAY_SHEET_GEOMETRY_EVENT } = await import(
+            '../../resources/js/core/overlay-sheet-dismiss.js'
+        )
+
+        let received = null
+        const panel = {
+            dataset: { fffOverlaySnap: 'expanded' },
+            getBoundingClientRect: () => ({ height: 640 }),
+            dispatchEvent(event) {
+                received = event
+                return true
+            },
+        }
+
+        notifyOverlaySheetGeometry(panel)
+
+        assert.equal(received?.type, OVERLAY_SHEET_GEOMETRY_EVENT)
+        assert.equal(received?.detail?.snap, 'expanded')
+        assert.equal(received?.detail?.height, 640)
     })
 })

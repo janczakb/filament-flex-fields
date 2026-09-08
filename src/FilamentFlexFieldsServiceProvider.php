@@ -21,6 +21,7 @@ use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
 use Bjanczak\FilamentFlexFields\Policies\FlexFieldGroupPolicy;
 use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
+use Bjanczak\FilamentFlexFields\Support\CurrencyRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\Enterprise\SiemBridge;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAlpineQueue;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
@@ -36,6 +37,7 @@ use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
 use Bjanczak\FilamentFlexFields\Support\Media\CaptureRetentionSchedule;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureOs;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaIngress;
 use Bjanczak\FilamentFlexFields\Support\RichEditorGravityIcons;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupRegistrySync;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
@@ -44,6 +46,7 @@ use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldSchemaResolver;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldStudio;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldTableBuilder;
 use Bjanczak\FilamentFlexFields\Support\Theme\FlexFieldsTheme;
+use Bjanczak\FilamentFlexFields\Support\TimezoneRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\Translatable\RegistersTranslatableFieldMacros;
 use Bjanczak\FilamentFlexFields\Support\Upgrade\V3AutoUpgrade;
 use Bjanczak\FilamentFlexFields\Support\UserSelectQueryCache;
@@ -89,10 +92,13 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         $this->app->scoped(FlexFieldStylesheetQueue::class);
         $this->app->scoped(FlexFieldAlpineQueue::class);
         $this->app->scoped(CountryRegistryQueue::class);
+        $this->app->scoped(TimezoneRegistryQueue::class);
+        $this->app->scoped(CurrencyRegistryQueue::class);
         $this->app->scoped(CalculatorPanelMount::class);
         $this->app->scoped(UserSelectQueryCache::class);
         $this->app->singleton(IconCatalogResolver::class);
         $this->app->singleton(IconSvgCache::class);
+        $this->app->singleton(MediaIngress::class);
         $this->app->singleton(FlexFieldsTheme::class, function (): FlexFieldsTheme {
             $theme = new FlexFieldsTheme;
 

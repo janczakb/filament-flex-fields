@@ -1,15 +1,24 @@
 @php
+    use Bjanczak\FilamentFlexFields\Support\CurrencyRegistry;
+    use Bjanczak\FilamentFlexFields\Support\CurrencyRegistryQueue;
+
     $statePath = $getStatePath();
     $isDisabled = $isDisabled();
     $isReadOnly = $isReadOnly();
     $wrapperClasses = $getWrapperClasses();
     $hasCurrencySelect = $hasCurrencySelect();
+    $usesCurrencyRegistry = $field->shouldUseCurrencyRegistry();
     $currencies = $getCurrenciesMetadata();
     $defaultCurrency = $getDefaultCurrencyCode();
     $hasError = filled($statePath) && $errors->has($statePath);
     $livewireKey = $getLivewireKey();
     $initialDisplay = $field->getInitialDisplay();
     $placeholder = $getPlaceholder() ?? __('filament-flex-fields::default.currency.placeholder');
+
+    if ($usesCurrencyRegistry) {
+        CurrencyRegistryQueue::enqueue(CurrencyRegistry::POOL_ISO);
+        $field->getCurrencyFilterKey();
+    }
 @endphp
 
 <x-dynamic-component
@@ -32,6 +41,9 @@
             state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')") }},
             statePath: @js($statePath),
             currencies: @js($currencies),
+            currencyPool: @js($usesCurrencyRegistry ? $field->getCurrencyPool() : null),
+            currencyFilterKey: @js($usesCurrencyRegistry ? $field->getCurrencyFilterKey() : null),
+            selectedCurrencySeed: @js($usesCurrencyRegistry ? $field->getSelectedCurrencySeed() : null),
             defaultCurrency: @js($defaultCurrency),
             hasCurrencySelect: @js($hasCurrencySelect),
             locale: @js($getLocale()),
@@ -65,6 +77,7 @@
         role="group"
         aria-label="{{ $getLabel() }}"
     >
+        {!! CurrencyRegistryQueue::renderScriptOnce() !!}
         <div @class([
             'fff-currency-field__shell fff-flex-text-input__shell',
             'is-invalid' => $hasError,

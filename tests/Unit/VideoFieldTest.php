@@ -10,7 +10,6 @@ use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\VideoSources;
 use Filament\Support\Icons\Heroicon;
-use InvalidArgumentException;
 
 it('exposes video field configuration api', function () {
     $field = VideoField::make('clip')

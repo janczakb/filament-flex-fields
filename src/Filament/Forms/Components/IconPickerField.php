@@ -11,6 +11,7 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\HasSelectFiel
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogIndex;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconSvgCache;
+use Bjanczak\FilamentFlexFields\Support\Select\SelectSearchRateLimiter;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasAffixes;
@@ -385,6 +386,7 @@ class IconPickerField extends Field
     public function searchIcons(string $query = '', ?string $set = null, int $page = 1): array
     {
         $query = trim($query);
+        $page = max(1, min($page, 500));
         $perPage = $this->getPerPage();
         $includeSetSummaries = $page === 1 && $query === '' && $set === null;
 
@@ -539,6 +541,16 @@ class IconPickerField extends Field
     #[Renderless]
     public function getIconPickerSearchResults(string $query = '', ?string $set = null, int $page = 1): array
     {
+        if (! app(SelectSearchRateLimiter::class)->attempt((string) $this->getName())) {
+            return [
+                'icons' => [],
+                'page' => max(1, $page),
+                'perPage' => $this->getPerPage(),
+                'hasMore' => false,
+                'sets' => [],
+            ];
+        }
+
         $results = $this->searchIcons($query, $set, $page);
 
         if ($this->getSearchResultsLayout() !== 'list') {
@@ -558,6 +570,10 @@ class IconPickerField extends Field
     #[Renderless]
     public function getIconPickerSvgPreviews(array $icons = []): array
     {
+        if (! app(SelectSearchRateLimiter::class)->attempt((string) $this->getName())) {
+            return [];
+        }
+
         if (count($icons) > self::MAX_SVG_PREVIEW_BATCH) {
             $icons = array_slice($icons, 0, self::MAX_SVG_PREVIEW_BATCH);
         }

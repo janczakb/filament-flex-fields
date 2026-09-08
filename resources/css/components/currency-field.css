@@ -109,25 +109,12 @@
     @apply fixed z-[80] flex flex-col overflow-hidden;
     min-width: 12rem;
     max-height: 16rem;
-    opacity: 0;
-    pointer-events: none;
+    visibility: hidden;
 }
 
-.fff-currency-field__currency-menu.fff-teleported-menu--sheet {
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-    height: auto;
-    max-height: var(--fff-overlay-sheet-max-height, min(50vh, 32rem));
-    opacity: 1;
-    pointer-events: auto;
-}
-
+/* Desktop panel only — glass opacity/transform owned by teleported-menu.css (.is-open) */
 .fff-currency-field__currency-menu.is-positioned {
-    opacity: 1;
-    pointer-events: auto;
+    visibility: visible;
 }
 
 .fff-currency-field__currency-menu--sm {

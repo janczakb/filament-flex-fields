@@ -204,4 +204,15 @@ See [Playground](/docs/index#playground) for setup.
 |-----------|--------------|
 | **SSR Pre-render** | `getInitialDisplay()` renders segments server-side to prevent layout flash |
 | **Memoized Metadata** | Currency metadata (symbols, decimals) is cached for Alpine |
+| **Deferred currency registry** | Large `currencies([...])` whitelists (more than 12 codes) share a compact `#fff-currency-registry-data` template; the picker loads metadata on open |
 | **Efficient Validation** | Normalizes state to minor units for consistent server-side validation |
+
+#### Payload vs SSR trade-offs
+
+| Mode | Alpine `@js` currencies | SSR / trigger |
+|------|-------------------------|---------------|
+| Single currency (default — no `currencies()`) | One metadata row only; no picker | Digit SSR via `getInitialDisplay()` |
+| Small whitelist (`≤ 12` codes) | Inline full metadata for those codes | Currency chip SSR from initial display / seed |
+| Large whitelist (`> 12` codes) | Seed row + `currencyPool` / filter key; shared registry template once per request | Chip still SSR from `selectedCurrencySeed`; menu hydrates from registry on first open |
+
+Keep small multi-currency pickers inline for simplest HTML. Use a large whitelist only when needed — the registry path avoids repeating dozens of symbol/name/locale objects inside every field’s `x-data`.

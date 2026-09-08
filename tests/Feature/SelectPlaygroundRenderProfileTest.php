@@ -72,3 +72,28 @@ it('renders the unified select playground quickly', function (): void {
 
     expect($ms)->toBeLessThan(1000);
 });
+
+it('keeps Filament default optionsLimit on the 10k playground field (virt bypasses the cap at runtime)', function (): void {
+    $playground = app(SelectPlayground::class);
+
+    $flatten = function (array $components) use (&$flatten): array {
+        $out = [];
+
+        foreach ($components as $component) {
+            $out[] = $component;
+
+            if (method_exists($component, 'getDefaultChildComponents')) {
+                $out = [...$out, ...$flatten($component->getDefaultChildComponents())];
+            }
+        }
+
+        return $out;
+    };
+
+    $field = collect($flatten($playground->components()))
+        ->first(fn ($component): bool => $component instanceof SelectField
+            && $component->getName() === 'select__scale_10k');
+
+    expect($field)->toBeInstanceOf(SelectField::class)
+        ->and($field->getOptionsLimit())->toBe(50);
+});

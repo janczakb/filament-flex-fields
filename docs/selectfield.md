@@ -1,6 +1,6 @@
 ---
 title: "SelectField"
-description: Styled Filament Select with pill trigger, rich option rows, grid layout, and multi-select chips.
+description: Filament v5 Select with virtualized lists, async Livewire search, rich option rows, multi-select chips, create-option flows, and a mobile bottom sheet — full native Select API.
 ---
 
 ![SelectField mobile bottom sheet](/art/drawer-mobile.webp)
@@ -9,7 +9,7 @@ description: Styled Filament Select with pill trigger, rich option rows, grid la
 
 ### Summary
 
-Styled Filament **Select** with pill trigger, rich option rows, grid layout, and multi-select chips. Extends Filament `Select` — **all native Select APIs remain available**. On phones and tablets, searchable menus open as a **bottom sheet** (drag handle, search in the sheet header, checkmark selection) instead of a desktop dropdown.
+Production-ready Filament **Select** for large catalogs and rich UX: pill trigger, **virtualized option lists**, **async / paginated Livewire search**, rich rows (avatar, badge, description), grid layouts, multi-select chips, create-option / smart suggest, and a **mobile bottom sheet** (drag handle, sheet search, checkmarks). Extends Filament `Select` — **all native Select APIs remain available**.
 
 | | |
 |---|---|
@@ -154,6 +154,7 @@ SelectField::make('states')
     ]);
 ```
 
+On **single**-select fields this is a no-op (`shouldKeepSelectedOptionsInDropdown()` stays `false`).
 ---
 
 ### State & validation
@@ -184,7 +185,7 @@ SelectField::make('category_id')
 | Rule | When |
 |------|------|
 | `nullable` | Always (unless `required()`) |
-| `Rule::in(...)` | Value must match a configured option key (Filament “valid option” / label check) |
+| Package static-option check (equivalent to `Rule::in`) | Applied automatically on `setUp` when `options()` is configured, `allowCreateOption()` is **off**, and the field is **not** using `relationship()` / `getSearchResultsUsing()` (Filament already validates those). Rejects free-text keys that are not in the option list. When `allowCreateOption()` is **on**, created string keys are intentional — the package skips this check (and Filament’s label probe); validate shape/length in the app if needed (see [Smart suggest](#smart-suggest-recentoptions-suggestedoptions-allowcreateoption)). |
 | `required` | When `->required()` |
 | `array` + `min:N` | When `->minItems(N)` on a multi-select |
 | `array` + `max:N` | When `->maxItems(N)` on a multi-select |
@@ -248,7 +249,9 @@ SelectField::make('user_id')
     ->inlineSearch();
 ```
 
-When closed, the trigger input shows the selected label. When focused or open on **desktop**, the same input stays editable and keeps that label until you type or clear it; clearing the input clears the selection. On **mobile** (bottom sheet / drawer), search moves into the sheet header — the trigger cannot accept keyboard input while the drawer covers it. Use the default field clear (×) next to the chevron to reset the value — inline mode does not render a separate search-query × on desktop (that control exists in the dropdown/sheet search header). Multi-select fields should use dropdown search instead (`searchable()` without `inlineSearch()`).
+When closed, the trigger input shows the selected label. When focused or open on **desktop**, the same input stays editable and keeps that label until you type or clear it; clearing the input clears the selection. On **mobile** (bottom sheet / drawer), search moves into the sheet header — the trigger cannot accept keyboard input while the drawer covers it. Use the default field clear (×) next to the chevron to reset the value — inline mode does not render a separate search-query × on desktop (that control exists in the dropdown/sheet search header).
+
+**Ignored with `multiple()`:** `hasInlineSearch()` is `false` when the field is multi-select, even if you chain `inlineSearch()`. Multi-select fields should use dropdown / sheet header search (`searchable()` without relying on `inlineSearch()`).
 
 For RTL layouts, set `extraAttributes(['dir' => 'rtl'])` on the field — the teleported **panel** and mobile **sheet** (bottom drawer) both copy the trigger writing direction onto the menu (`dir="rtl"`), so search icons, checkmarks (`inset-inline-end`), and option text mirror correctly. Search inputs use `dir="auto"` so Hebrew/Arabic queries get an RTL caret while Latin queries keep a normal LTR caret.
 
@@ -268,11 +271,34 @@ SelectField::make('project_id')
 
 Requires `searchable()`. When the query has **no exact label match**, a **Create “…”** row appears at the top of the list (label from `filament-flex-fields::default.select_field.smart_suggest.create`). Choosing that row commits the trimmed search string as the field value — **same string for both value and label**. No modal opens and **no PHP callback runs at click time**.
 
+Created string keys are **intentional state**. With `allowCreateOption()` on, the package does **not** apply its static-option `Rule::in`-equivalent (and skips Filament’s “must resolve a label” probe), so a POSTed create string can pass server validation. Constrain shape and length yourself:
+
+```php
+SelectField::make('slug')
+    ->searchable()
+    ->options([
+        'inbox' => 'Inbox',
+        'drafts' => 'Drafts',
+    ])
+    ->allowCreateOption()
+    ->rule('string')
+    ->rule('max:64')
+    ->rule('regex:/^[a-z0-9][a-z0-9\-]*$/i');
+
+// Multiple — each chip is a string; nest rules if you store an array:
+SelectField::make('labels')
+    ->multiple()
+    ->searchable()
+    ->options(['bug' => 'Bug', 'docs' => 'Docs'])
+    ->allowCreateOption()
+    ->nestedRecursiveRules(['string', 'max:32', 'regex:/^[a-z0-9\-]+$/i']);
+```
+
 | | Single (`allowCreateOption()`) | Multiple (`->multiple()->allowCreateOption()`) |
 |--|--|--|
 | State after create | `string` (the typed text) | `array` of strings (each create adds a chip) |
 | Dropdown | Create row when search ≠ any option label | Same; created values become chips |
-| Server / DB | Not created automatically | Same |
+| Server / DB | Not created automatically; package does not block the new string key | Same |
 
 Persist or insert in the database yourself — typically on form save, or immediately with `live()` + `afterStateUpdated()`:
 
@@ -460,6 +486,33 @@ The trigger shows a loading indicator while the first page loads or while a new 
 
 Closure-based `options()` still lazy-load on first open (`select__dynamic_options` in the playground).
 
+> **Pagination note:** true “load more” paging requires `getSearchResultsPageUsing()`. Without it, the field may still call a non-paginated search callback and will set `hasMore=false` after the first page so the client does not spin forever.
+
+> **Search rate limit:** Livewire search endpoints for Select / Tags / IconPicker are capped by `filament-flex-fields.select.search_rate_limit_per_minute` (default 60/min per actor+field). The limiter keys on the authenticated user id when present, otherwise `Request::ip()` — configure Laravel **TrustedProxies** correctly behind a load balancer so spoofed `X-Forwarded-For` headers are not trusted.
+
+---
+
+### FlexFieldFormBuilder / Studio config
+
+`SelectFieldConfigurator` (Studio / `FlexFieldFormBuilder`) maps these config keys onto the fluent API:
+
+| Config key | Maps to |
+|------------|---------|
+| `options` | `options()` — Studio list rows `{ value, label }` are normalized to `value => label` |
+| `searchable` | `searchable()` |
+| `multiple` | `multiple()` |
+| `native` | `native()` |
+| `clearable` | `clearable()` |
+| `variant` | `variant()` |
+| `size` | `size()` |
+| `inline_search` | `inlineSearch()` (ignored when `multiple` is true) |
+| `keep_selected_options_in_dropdown` | `keepSelectedOptionsInDropdown()` (no-op unless multiple) |
+| `rich_options` / `option_view` / `option_layout` / `chip_color` / … | matching SelectField methods |
+
+**PHP-only (not configured from Studio):** async search (`getSearchResultsUsing()`, `getSearchResultsPageUsing()`, `paginatedSearchResults()`), `relationship()`, `dependsOn()`, create/edit option modals, and other Livewire search contracts. Wire those on the field in PHP.
+
+`variant('item-card')` defaults clearable off unless `clearable` is set explicitly in config or via `clearable()`.
+
 ---
 
 ### Playground
@@ -481,7 +534,7 @@ See [Playground](/docs/index#playground) for setup.
 | Filament API | Support | Notes |
 |--------------|---------|-------|
 | `options([...])` / `options(fn)` | Yes | Static payload or `getOptionsForJs` on open (closures deferred until open) |
-| `native(false)` | Always on | Headless JS select; `setUp()` forces non-native |
+| `native(false)` | Always on | Headless JS select; `setUp()` forces non-native. `native(true)` with `searchable()` / `multiple()` / `allowHtml()` throws `InvalidArgumentException` |
 | `searchable()` / `searchable(bool\|Closure)` / `searchable(['col', …])` | Yes | Client filter or relationship SQL columns |
 | `getSearchResultsUsing()` + `getOptionLabelUsing()` | Yes | Async search + label hydrate; required for valid-option validation |
 | `getOptionLabelsUsing()` (multiple) | Yes | Same as Filament multi-select |
@@ -491,7 +544,7 @@ See [Playground](/docs/index#playground) for setup.
 | `noSearchResultsMessage()` | Yes | Including static searchable lists |
 | `noOptionsMessage()` | Yes | Empty list / preload with no rows |
 | `searchDebounce()` | Yes | Default 1000 ms (same as Filament) |
-| `optionsLimit()` | Yes | Caps rendered options (default 50) |
+| `optionsLimit()` | Yes | Caps rendered options when the list is below the virtualize threshold (default 50, Filament parity). At ≥ virtualize threshold, virtualization owns the DOM budget and the limit is not applied to the in-memory list |
 | `multiple()` | Yes | Array state; cast on the model |
 | `reorderable()` | Yes | Drag chips when multiple |
 | `minItems()` | Yes | PHP `array` + `min:N` validation (same as Filament — no client gate) |
@@ -695,3 +748,9 @@ On large schemas, prefer `skipRenderAfterStateUpdated()` or `partiallyRenderComp
 | **Search Cache** | Memoizes search results to reduce server round-trips |
 | **Virtualized rows** | Flat and grouped lists virtualize from 100 visible rows (~50-row window) |
 | **Paginated search** | `paginatedSearchResults()` appends pages via scroll sentinel |
+
+### Destroy / morph cleanup
+
+Headless Select tears down cleanly when Alpine destroys the component: cancel in-flight relationship search, unbind menu listeners, release teleported overlay / sheet scroll-lock, and unregister from the flex-dropdown coordinator.
+
+Livewire morph can remove a field node before Alpine finishes `destroy()` (modal / slide-over close, navigate). The teleported menu layer also hooks `Livewire.hook('morph.updating')` for emergency overlay cleanup so orphan menus and body scroll-locks do not stick.

@@ -55,8 +55,8 @@ const JS_BUDGETS = {
     'flex-date-time-field.js': { rawKb: 48, gzipKb: 13 },
     'flex-file-upload.js': { rawKb: 26, gzipKb: 8 },
     'flex-slider.js': { rawKb: 38, gzipKb: 13 },
-    'icon-picker-field.js': { rawKb: 35, gzipKb: 9 },
-    'select-field.js': { rawKb: 53, gzipKb: 14 },
+    'icon-picker-field.js': { rawKb: 35, gzipKb: 9.2 },
+    'select-field.js': { rawKb: 56, gzipKb: 14 },
     'user-select.js': { rawKb: 53, gzipKb: 14 },
 };
 

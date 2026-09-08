@@ -1,8 +1,10 @@
 import { test, expect } from '@playwright/test'
 
 import { trackConsoleErrors, waitForSelectCoordinatorAttached } from './helpers/console-errors.mjs'
+import { gotoPlaygroundPage } from './global-setup.mjs'
+import { closeSelectMenu, openSelect } from './helpers/select-playground.mjs'
 
-const playgroundPaths = ['/select-field', '/user-select']
+const playgroundSlugs = ['select-field', 'user-select']
 
 const selectFieldSmokeTargets = [
     { label: 'basic status', selector: '[id$="select__basic"].fi-select-input-btn, [id$="select__basic"] .fi-select-input-btn' },
@@ -20,11 +22,11 @@ const userSelectSmokeTargets = [
 
 test.describe('Flex Fields playground select fields', () => {
 
-    for (const path of playgroundPaths) {
-        test(`${path} loads without JS errors and attaches coordinators`, async ({ page }) => {
-            const { errors, assertClean } = trackConsoleErrors(page)
+    for (const slug of playgroundSlugs) {
+        test(`/${slug} loads without JS errors and attaches coordinators`, async ({ page }) => {
+            const { assertClean } = trackConsoleErrors(page)
 
-            await page.goto(path)
+            await gotoPlaygroundPage(page, slug)
 
             await expect(page.locator('.fi-select-input-btn').first()).toBeVisible()
             await waitForSelectCoordinatorAttached(page)
@@ -41,7 +43,7 @@ test.describe('Flex Fields playground select fields', () => {
     test('select-field playground opens key variants without JS errors', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)
 
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
         for (const target of selectFieldSmokeTargets) {
@@ -49,8 +51,9 @@ test.describe('Flex Fields playground select fields', () => {
 
             await expect(trigger, `Missing trigger for ${target.label}`).toBeVisible()
             await trigger.click()
-            await expect(page.locator('.fff-select-dropdown-panel, .fi-dropdown-panel').first()).toBeVisible()
+            await expect(page.locator('body > .fff-select-dropdown-panel.is-open, body > .fi-dropdown-panel.fff-select-dropdown-panel.is-open').first()).toBeVisible()
             await page.keyboard.press('Escape')
+            await expect(page.locator('body > .fff-select-dropdown-panel.is-open')).toHaveCount(0)
         }
 
         assertClean()
@@ -59,35 +62,30 @@ test.describe('Flex Fields playground select fields', () => {
     test('select-field close then rapid reopen keeps the live menu', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)
 
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
-        const trigger = page.locator('[id$="select__basic"].fi-select-input-btn, [id$="select__basic"] .fi-select-input-btn').first()
-
-        await expect(trigger).toBeVisible()
-        await trigger.click()
-
-        const panel = page.locator('body > .fff-select-dropdown-panel, body > .fi-dropdown-panel.fff-select-dropdown-panel').first()
-
+        await openSelect(page, 'select__basic')
+        const panel = page.locator('#form\\.select__basic-fff-headless-menu.is-open')
         await expect(panel).toBeVisible()
-        await page.keyboard.press('Escape')
-        await trigger.click()
-        await expect(panel).toBeVisible()
-        await expect(panel).toHaveClass(/is-open/)
-        await expect(panel).not.toHaveCSS('display', 'none')
+        await closeSelectMenu(page)
+        await expect(page.locator('#form\\.select__basic-fff-headless-menu.is-open')).toHaveCount(0)
+        await openSelect(page, 'select__basic')
+        await expect(page.locator('#form\\.select__basic-fff-headless-menu.is-open')).toBeVisible()
+        await expect(page.locator('#form\\.select__basic-fff-headless-menu.is-open')).not.toHaveCSS('display', 'none')
 
         assertClean()
     })
 
     test('rich options list icons stay compact in the dropdown', async ({ page }) => {
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
         const trigger = page.locator('[id$="select__rich"].fi-select-input-btn, [id$="select__rich"] .fi-select-input-btn').first()
 
         await trigger.click()
 
-        const icon = page.locator('body > .fff-select-dropdown-panel .fff-select-option__icon').first()
+        const icon = page.locator('body > .fff-select-dropdown-panel.is-open .fff-select-option__icon').first()
 
         await expect(icon).toBeVisible()
 
@@ -101,7 +99,7 @@ test.describe('Flex Fields playground select fields', () => {
     test('user-select playground opens single and multiple fields without JS errors', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)
 
-        await page.goto('/user-select')
+        await gotoPlaygroundPage(page, 'user-select')
         await waitForSelectCoordinatorAttached(page)
 
         for (const target of userSelectSmokeTargets) {
@@ -109,8 +107,9 @@ test.describe('Flex Fields playground select fields', () => {
 
             await expect(trigger, `Missing trigger for ${target.label}`).toBeVisible()
             await trigger.click()
-            await expect(page.locator('.fff-select-dropdown-panel, .fi-dropdown-panel').first()).toBeVisible()
+            await expect(page.locator('body > .fff-select-dropdown-panel.is-open, body > .fi-dropdown-panel.fff-select-dropdown-panel.is-open').first()).toBeVisible()
             await page.keyboard.press('Escape')
+            await expect(page.locator('body > .fff-select-dropdown-panel.is-open')).toHaveCount(0)
         }
 
         assertClean()
@@ -119,14 +118,14 @@ test.describe('Flex Fields playground select fields', () => {
     test('multiple checklist toggles options inside the teleported panel', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)
 
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
         const trigger = page.locator('[id$="select__multiple_checklist"].fi-select-input-btn, [id$="select__multiple_checklist"] .fi-select-input-btn').first()
 
         await trigger.click()
 
-        const panel = page.locator('body > .fff-select-dropdown-panel, body > .fi-dropdown-panel.fff-select-dropdown-panel').first()
+        const panel = page.locator('body > .fff-select-dropdown-panel.is-open, body > .fi-dropdown-panel.fff-select-dropdown-panel.is-open').first()
         const firstOption = panel.locator('.fi-select-input-option').first()
 
         await expect(firstOption).toBeVisible()
@@ -140,27 +139,27 @@ test.describe('Flex Fields playground select fields', () => {
     test('multiple chips field opens teleported panel', async ({ page }) => {
         const { assertClean } = trackConsoleErrors(page)
 
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
         const trigger = page.locator('[id$="select__multiple"].fi-select-input-btn, [id$="select__multiple"] .fi-select-input-btn').first()
 
         await trigger.click()
-        await expect(page.locator('body > .fff-select-dropdown-panel .fi-select-input-option').first()).toBeVisible()
+        await expect(page.locator('body > .fff-select-dropdown-panel.is-open .fi-select-input-option').first()).toBeVisible()
         await page.keyboard.press('Escape')
 
         assertClean()
     })
 
     test('teleported select panel renders in body portal', async ({ page }) => {
-        await page.goto('/select-field')
+        await gotoPlaygroundPage(page, 'select-field')
         await waitForSelectCoordinatorAttached(page)
 
         const trigger = page.locator('[id$="select__searchable"].fi-select-input-btn, [id$="select__searchable"] .fi-select-input-btn').first()
 
         await trigger.click()
 
-        const panel = page.locator('body > .fff-select-dropdown-panel, body > .fi-dropdown-panel.fff-select-dropdown-panel').first()
+        const panel = page.locator('body > .fff-select-dropdown-panel.is-open, body > .fi-dropdown-panel.fff-select-dropdown-panel.is-open').first()
 
         await expect(panel).toBeVisible()
         await expect(panel).toHaveClass(/fff-teleported-menu|fff-select-dropdown-panel/)

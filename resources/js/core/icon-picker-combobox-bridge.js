@@ -1,4 +1,4 @@
-import { createComboboxEngine, DEFAULT_VIRTUAL_WINDOW_SIZE } from './combobox-engine.js'
+import { createComboboxEngine, DEFAULT_VIRTUAL_WINDOW_SIZE, createOverlayVirtualListMixin } from './combobox-engine.js'
 import { ICON_PICKER_VIRTUAL_SCROLL_THRESHOLD } from './icon-picker-virtual-window.js'
 
 function iconItemToOption(item) {
@@ -51,7 +51,13 @@ export function createIconPickerComboboxBridge(component, {
 
     component._overlayEngine = component._iconEngine
     component.iconListRowHeight = 44
-    component.virtualScrollTick = 0
+    component.overlayVirtualizeThreshold = virtualizeThreshold
+    Object.assign(component, createOverlayVirtualListMixin({
+        engineKey: '_overlayEngine',
+        rowHeight: 44,
+        thresholdKey: 'overlayVirtualizeThreshold',
+    }))
+    component.overlayVirtualizeThreshold = virtualizeThreshold
 
     component.syncIconComboboxOptions = function syncIconComboboxOptions() {
         const items = resolveItems.call(this).map(iconItemToOption)

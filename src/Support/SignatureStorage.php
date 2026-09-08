@@ -4,11 +4,20 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Support;
 
+use Bjanczak\FilamentFlexFields\Support\Media\FlexMedia;
 use Bjanczak\FilamentFlexFields\Support\Media\MediaCaptureTenantDiskResolver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaContext;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaKind;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaPayload;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\MediaStorageDriver;
+use Bjanczak\FilamentFlexFields\Support\Media\Pipeline\Refs\DiskMediaRef;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use InvalidArgumentException;
 
+/**
+ * @deprecated Prefer SignatureField::disk() / Media Ingress disk driver. Kept as internal store behind SignatureField.
+ */
 final class SignatureStorage
 {
     public const string TOKEN_PREFIX = 'ffstage:';
@@ -22,19 +31,68 @@ final class SignatureStorage
         }
 
         $svg = SignatureSvg::normalize($svg) ?? $svg;
-        $disk = Storage::disk(self::resolveDiskName($diskName));
-        $directory = trim($directory, '/');
-        $filename = Str::uuid()->toString().'.svg';
-        $relativePath = $directory.'/'.$filename;
 
-        $disk->makeDirectory($directory);
-        $disk->put($relativePath, $svg, [
-            'visibility' => 'private',
-            'ContentType' => 'image/svg+xml',
-            'mimetype' => 'image/svg+xml',
-        ]);
+        $context = new MediaContext(
+            kind: MediaKind::Signature,
+            driver: MediaStorageDriver::Disk,
+            field: 'signature',
+            disk: self::resolveDiskName($diskName),
+            directory: trim($directory, '/'),
+            filename: null,
+            mediaName: 'signature',
+        );
 
-        return self::TOKEN_PREFIX.$relativePath;
+        $payload = MediaPayload::fromInlineString($svg, 'signature.svg', 'image/svg+xml');
+        $ref = FlexMedia::persist($payload, $context);
+
+        if (! $ref instanceof DiskMediaRef) {
+            throw new InvalidArgumentException('Unable to persist signature SVG via Media Ingress.');
+        }
+
+        return self::TOKEN_PREFIX.$ref->path;
+    }
+
+    /**
+     * Optional Spatie sink — copies SVG bytes into Media Library. Does not change SignatureField state.
+     */
+    public static function sinkToSpatie(
+        string $svg,
+        Model $record,
+        string $collection = 'signatures',
+        ?string $diskName = null,
+        ?string $field = 'signature',
+    ): ?string {
+        $svg = trim($svg);
+
+        if ($svg === '' || ! str_contains($svg, '<svg') || ! SignatureSvg::isValid($svg)) {
+            return null;
+        }
+
+        $svg = SignatureSvg::normalize($svg) ?? $svg;
+
+        $context = new MediaContext(
+            kind: MediaKind::Signature,
+            driver: MediaStorageDriver::Spatie,
+            field: $field,
+            record: $record,
+            collection: $collection,
+            disk: $diskName,
+            filename: 'signature.svg',
+            mediaName: 'signature',
+            customProperties: [
+                'flex_capture' => [
+                    'field' => $field,
+                    'collection' => $collection,
+                    'kind' => MediaKind::Signature->value,
+                    'sink' => true,
+                ],
+            ],
+        );
+
+        $payload = MediaPayload::fromInlineString($svg, 'signature.svg', 'image/svg+xml');
+        $ref = FlexMedia::persist($payload, $context);
+
+        return $ref?->mediaUuid();
     }
 
     public static function resolve(?string $state, ?string $diskName = null): ?string
@@ -85,6 +143,7 @@ final class SignatureStorage
 
         return MediaCaptureTenantDiskResolver::resolveDisk(null, [
             'adapter' => 'signature_storage',
+            'kind' => MediaKind::Signature->value,
         ]);
     }
 }

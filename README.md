@@ -1,15 +1,20 @@
 <p align="center" class="filament-hidden">
-    <img src="art/field-flex-thumb-r.webp" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — 72 custom form components and JSON custom fields for Filament v5 Laravel admin panels" class="filament-hidden">
+    <img src="art/field-flex-thumb-r.webp" width="100%" style="border-radius: 12px;" alt="Filament Flex Fields — the Filament v5 form fields plugin for Laravel: 79 custom components, virtualized Select, Spatie Media Library uploads, JSON custom fields, lazy assets" class="filament-hidden">
 </p>
 
 <h1 align="center">Filament Flex Fields</h1>
 
-<p align="center"><strong>Filament v5 · Laravel admin forms · 72 custom components · one design system</strong><br>Replace a patchwork of field plugins with one cohesive form layer — lazy assets, optional JSON custom fields, built-in Playground.</p>
-<p align="center">Pre-built CSS/JS · no Node.js in production · standalone fields or dynamic schemas · full per-component docs</p>
+<p align="center"><strong>The Filament v5 form fields plugin teams use instead of stitching many single-purpose packages</strong><br>
+<strong>79 custom components</strong> · one design system · lazy CSS/JS · optional JSON custom fields · built-in Playground</p>
+
+<p align="center">
+Virtualized Select with async Livewire search · Spatie Media Library &amp; disk/S3 uploads · phone, maps, signatures, rich editor, surveys — one cohesive kit for Laravel admin forms.
+</p>
+<p align="center">Pre-built assets · <strong>no Node.js in production</strong> · standalone fields or dynamic JSON schemas · docs for every component</p>
 
 <p align="center">
     <a href="https://flex-fields.bjanczak.com/" target="_blank" rel="noopener noreferrer">
-        <img src="art/docs-button-v2.webp" width="210" alt="Documentation — flex-fields.mintlify.app">
+        <img src="art/docs-button-v2.webp" width="210" alt="Read the Filament Flex Fields documentation at flex-fields.bjanczak.com">
     </a>
 </p>
 
@@ -28,29 +33,133 @@
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
 </p>
 
----
-
-### Premium companion — [Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)
-
-Need a **drag-and-drop form Studio**, public fill & embed, submissions, Insights, and integrations on top of these same components? That’s **Flex Forms** — a **premium commercial** Filament plugin built on Flex Fields.
-
-<p align="center">
-  <a href="https://github.com/janczakb/filament-flex-forms">
-    <img src="https://raw.githubusercontent.com/janczakb/filament-flex-forms/main/art/field-forms-thumb-radius.webp" width="200" alt="Filament Flex Forms — premium Studio for Filament">
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0"><strong>Buy Flex Forms</strong></a>
-  ·
-  <a href="https://flexforms.bjanczak.com">Docs</a>
-  ·
-  <a href="https://github.com/janczakb/filament-flex-forms">GitHub</a>
-</p>
+<p align="center"><strong>Source-available.</strong> Free for most internal Filament admin panels under Permitted Free Use — commercial license only when you ship Flex Fields as a material SaaS dependency or redistribute it. See <a href="#license">License</a>.</p>
 
 ---
 
-**Filament Flex Fields** is a [Filament v5](https://filamentphp.com) plugin for **Laravel admin panels**: **72 custom form components**, a unified `--fff-*` design system, and an optional **JSON custom-field layer** (no EAV, no per-attribute migrations). Use any field standalone, or wire schemas through `FlexFieldFormBuilder` + `HasFlexFields`.
+**Filament Flex Fields** is an all-in-one **Filament form fields / form components plugin** for [Filament v5](https://filamentphp.com) and Laravel admin panels: **79 custom components** (64 form fields, 8 layout & schema pieces, 7 table columns), a unified `--fff-*` design system, first-class **Spatie Media Library** and disk/S3 uploads (**Media Ingress**), and an optional **JSON custom-field layer** without EAV tables.
+
+If you need a drop-in select, phone, map, signature, survey grid, rich editor, or Spatie upload that looks and behaves like one product — this package is built for that, so you do not install a separate plugin for each field type.
+
+<details>
+<summary>Need a drag-and-drop form Studio on top? → Filament Flex Forms (premium companion)</summary>
+
+**[Filament Flex Forms](https://github.com/janczakb/filament-flex-forms)** is a separate commercial product: Studio, public fill & embed, submissions, Insights, and integrations — built on these same Flex Fields components.
+
+[Buy Flex Forms](https://shop.bjanczak.com/checkout/buy/3d3a0d72-c9d5-4cfd-90c9-26869c444bb0) · [Docs](https://flexforms.bjanczak.com) · [GitHub](https://github.com/janczakb/filament-flex-forms)
+
+</details>
+
+---
+
+## Filament v5 form components in one plugin
+
+| Approach | Best for | What you need |
+|----------|----------|---------------|
+| **Standalone components** | Fixed forms — profiles, checkout, CMS pages | Import the field class and use Filament’s fluent API |
+| **JSON custom fields** | CRM attributes, tenant settings, variable product fields | `HasFlexFields` + schemas in config or Field groups |
+
+Both modes share the same component library, design tokens, and lazy asset loading.
+
+### Filament select with virtualization & async search
+
+`SelectField` extends Filament’s built-in `Select` with a headless combobox: **virtualized scrolling** for thousands of options, **async Livewire search** with pagination and rate limits, rich option rows (avatars, badges, descriptions), multi-select chips, create-option / smart suggest, grid layouts, and a **mobile bottom sheet** instead of a cramped desktop menu. `UserSelect` reuses the same Alpine entry; Icon picker shares the combobox engine; Tags, Phone, Country, and related pickers share the teleported **select-menu** stack — shared CSS/JS loads once per page. Full native Select API remains available.
+
+→ [SelectField docs](https://flex-fields.bjanczak.com/docs/selectfield)
+
+### Filament Spatie Media Library uploads (or plain disk / S3)
+
+Use `FlexSpatieMediaLibraryFileUpload` or Media Ingress (`disk` | `spatie`) for files, images, voice notes, signatures, and rich-editor attachments — including **S3**, Spatie conversions, signed URLs, and virus-scan hooks — without a separate upload-only plugin. Spatie packages are optional (`composer suggest`).
+
+→ [Media Ingress](https://flex-fields.bjanczak.com/docs/media-capture-os) · [File & image upload](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload)
+
+### Filament custom fields in a JSON column (no EAV)
+
+Add `HasFlexFields`, store values in one JSON column, define schemas in PHP config / Field groups admin, and render with `FlexFieldFormBuilder` / `FlexFieldStudio`. Conditions, formulas, tenant packs, and RBAC — same components as standalone forms.
+
+→ [Docs index — JSON flex fields](https://flex-fields.bjanczak.com/docs/index) · config: `config/filament-flex-fields.php`
+
+### Instead of installing many Filament field plugins
+
+| Instead of a separate plugin for… | Use in Flex Fields |
+|-----------------------------------|--------------------|
+| Select / combobox / icon picker / tags | `SelectField`, `IconPickerField`, `TagsField`, `UserSelect` |
+| Spatie media / styled file uploads | Media Ingress + `FlexFileUpload` / `FlexSpatieMediaLibraryFileUpload` |
+| Custom fields / EAV attribute tables | `HasFlexFields` JSON layer |
+| Phone, country, currency, maps, address | First-party fields in this kit |
+| Signature, barcode, NPS, matrix surveys | First-party fields in this kit |
+| Settings cards, tabs, progress UI | Layout & schema components + table columns |
+
+One design system, one lazy asset pipeline, one Playground — not a patchwork of unrelated CSS/JS.
+
+---
+
+## Why Flex Fields?
+
+### Who it's for
+
+Teams building **Filament v5** backends that need more than stock inputs — **CRM** custom attributes, **CMS** editors, **SaaS** onboarding, **marketplaces** with configurable product fields, ops tools with barcodes and maps, or any admin UI that should feel like **one product**.
+
+### At a glance
+
+| | **Flex Fields** | **Typical approach** |
+|---|-----------------|----------------------|
+| **Scope** | **79** fields, layouts, and table columns — one package | Many single-purpose Filament plugins |
+| **Select & pickers** | Virtualized lists, async search, mobile bottom sheets, rich option rows | Basic dropdowns that struggle at scale |
+| **Media** | Media Ingress — disk or Spatie, S3, virus scan, image conversions | Separate upload plugins per storage backend |
+| **Design** | One `--fff-*` system — sizes, focus, menus, dark mode | Mixed UI from unrelated packages |
+| **Flexibility** | Standalone fields **or** dynamic JSON on models — same components | Usually one mode only |
+| **Performance** | Lazy per-field CSS/JS, shared chunks, pre-built `dist/` — no npm in your app | Global bundles or consumer-side builds |
+| **DX** | Playground for every component + dedicated doc per field | Trial-and-error per plugin |
+
+### Standout capabilities
+
+**SelectField & family** — headless combobox with **virtualized scrolling** for thousands of options, **async / Livewire search**, rich rows (avatars, badges, descriptions), multi-select chips, create-option flows, grid layouts, and a **mobile bottom sheet**. `UserSelect` reuses the same Select entry; `IconPickerField` shares the combobox engine + teleported menu; Tags, Phone, Country, Timezone, Currency, Address, Map, and Social Links share the **select-menu** overlay stack — CSS/JS chunks load **once per page**, not once per field instance.
+
+**Media Ingress** — one upload path for files, images, voice notes, signatures, and rich-editor attachments. Choose **disk** (including **S3**) or **Spatie Media Library** with full `registerMediaConversions()` support, virus scanning, private signed URLs, and multi-tenant disk rules. See [Media Ingress](https://flex-fields.bjanczak.com/docs/media-capture-os).
+
+**Rich interactions** — signature pads, barcode/QR camera scanning, Mapbox maps & address autocomplete, international phones, multi-currency money, weekly schedules, NPS/CSAT, animated todos, bubble multi-select, dual listboxes, and a YouTube/Vimeo/HTML5 video player.
+
+**JSON custom fields** — define schemas in config or Field groups admin; store values in one JSON column via `HasFlexFields`. Conditions, formulas, tenant packs, and RBAC through `FlexFieldFormBuilder` / `FlexFieldStudio`.
+
+<a id="lazy-assets--shared-chunks"></a>**Lazy assets (no duplicate CSS/JS)** — each field queues only what it needs; request-scoped queues + SPA injector ensure the same stylesheet or hashed chunk is fetched **once** even if five SelectFields (or Select + Tags + Phone) appear on one form. Heavy libraries live in shared esbuild chunks (`select-menu`, `combobox-engine`, `phone-lib`, …). Pre-built `resources/dist/` means **no Node.js or Vite in your Laravel project**.
+
+<details>
+<summary>Asset pipeline (technical)</summary>
+
+1. **Lean core** — `core.css`: design tokens and shared hint chrome only.
+2. **Conditional critical preload** — teleported menus and hold-confirm only when needed.
+3. **Per-component queues** — Blade `@include(…load-stylesheet)` enqueues CSS + Alpine chunks; `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue` dedupe within the request (5× ChoiceCards → 1× CSS).
+4. **Batch markers + injector** — `emit-assets` outputs `data-fff-asset-batch` spans; `flex-field-asset-injector.js` injects missing `<link>` / `modulepreload`, dedupes by href, and caches in-flight fetches across Livewire morph / Filament navigation (modal FOUC prevention).
+5. **Lazy Alpine mount** — heavy fields can defer init until visible (`x-intersect`).
+6. **`loadedOnRequest()`** — unused Filament-registered CSS never auto-loads via `@filamentStyles`.
+
+See [Performance-first assets](#performance-first-assets) for the Select-family share map, classes, and bundle metrics.
+
+</details>
+
+<a id="dynamic-custom-fields-json"></a>**Playground & docs** — preview components in your panel; every field documented with methods, validation, and examples at [flex-fields.bjanczak.com](https://flex-fields.bjanczak.com/docs/index).
+
+---
+
+## Table of contents
+
+- [Filament v5 form components in one plugin](#filament-v5-form-components-in-one-plugin)
+- [Why Flex Fields?](#why-flex-fields)
+- [Quick start](#quick-start)
+- [Custom Components (79)](#custom-components-79)
+- [Use cases](#use-cases)
+- [Screenshots](#screenshots)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Setup](#setup)
+- [Quick usage](#quick-usage)
+- [Playground](#playground)
+- [Documentation](#documentation)
+- [FAQ](#faq)
+- [Upgrading](#upgrading)
+- [Performance-first assets](#performance-first-assets)
+- [License](#license)
 
 ---
 
@@ -74,139 +183,201 @@ public function panel(Panel $panel): Panel
 }
 ```
 
-Then drop any component into a form — e.g. `MatrixChoiceField::make('priorities')`. Full install options (path repo, config, translations): [Installation](#installation). **Already installed?** See [Upgrading](#upgrading) below.
+Then drop any component into a form — e.g. `SelectField::make('status')->searchable()` or `MatrixChoiceField::make('priorities')`. Full install options: [Installation](#installation). **Already installed?** See [Upgrading](#upgrading).
 
-**Fresh install:** all v3 Select (headless combobox), schema conditions, FormBuilder, and playground demos work out of the box — no `php artisan migrate` required. Optional: `php artisan fff:v3:upgrade` only refreshes the asset registry marker.
-
----
-
-## Upgrading
-
-When a new version is released, update the package and sync Filament assets into `public/`. **You do not need Node.js, npm, or `npm run build` in your Laravel app** — the plugin ships pre-built CSS/JS in `resources/dist/`.
-
-### Standard upgrade (Packagist)
-
-```bash
-composer update janczakb/filament-flex-fields
-php artisan filament:assets
-```
-
-That is the full required workflow for most apps.
-
-`php artisan filament:assets` syncs **both** Filament CSS/JS/Alpine bundles and bundled static media (MP3, emoji images, etc.) into `public/filament-flex-fields-assets/`. Fields resolve those files through `FlexFieldAssets::assetUrl()` with automatic cache busting.
-
-### Path repository (monorepo / local package)
-
-```bash
-composer update janczakb/filament-flex-fields
-php artisan filament:assets
-```
-
-After updating the package, run `php artisan filament:assets` in your Laravel app to sync bundled media and Filament assets into `public/`.
-
-### Automate asset sync (recommended)
-
-Add this to your host app `composer.json` so `filament:assets` runs after every `composer install` / `composer update`:
-
-```json
-"scripts": {
-    "post-autoload-dump": [
-        "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-        "@php artisan package:discover --ansi",
-        "@php artisan filament:assets --ansi"
-    ]
-}
-```
-
-With that hook in place, `composer update janczakb/filament-flex-fields` alone is enough.
-
-### What you usually do **not** need on upgrade
-
-| Step | Needed? |
-|------|---------|
-| `npm install` / `npm run build` in the host app | **No** — assets are pre-built in the package |
-| Manual copy of `public/filament-flex-fields-assets/` | **No** — synced automatically by `filament:assets` (or on non-production app boot) |
-| `php artisan vendor:publish --tag=filament-flex-fields-config` | **No** — unless [CHANGELOG](CHANGELOG.md) documents a new config key you want to set |
-| `php artisan vendor:publish --tag=filament-flex-fields-translations` | **No** — see [Updating translations after a plugin upgrade](#updating-translations-after-a-plugin-upgrade) |
-| `php artisan optimize:clear` | **Only** if the panel still serves stale CSS/JS after `filament:assets` (rare) |
-
-### After upgrading in the browser
-
-If a field looks unstyled after deploy, hard-refresh the Filament panel (`Cmd+Shift+R` / `Ctrl+Shift+R`) once so the browser drops cached asset URLs.
-
-### Version-specific notes
-
-Read [CHANGELOG.md](CHANGELOG.md) for breaking changes, new config keys, and migration steps for a given release.
+**Fresh install:** Select (virtualized combobox), schema conditions, FormBuilder, and playground demos work out of the box — no migrations required for core fields. Optional: `php artisan fff:v3:upgrade` refreshes the asset registry marker.
 
 ---
 
-## Why Flex Fields?
+## Custom Components (79)
 
-### Who it's for
+Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
 
-Teams building **Filament v5** backends that need more than native inputs — **CRM** custom attributes, **CMS** page builders, **SaaS** onboarding, **marketplaces** with configurable product fields, or any admin UI that should look and behave like one product, not ten plugins stitched together.
+Full API for each component: **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)**.
 
-### At a glance
+### Flagship highlights
 
-| | **Flex Fields** | **Typical approach** |
-|---|-----------------|----------------------|
-| **Scope** | **72** fields, layouts, and table columns — one package | Many single-purpose Filament plugins |
-| **Design** | One `--fff-*` system — sizes, focus, menus, dark mode | Mixed UI from unrelated packages |
-| **Flexibility** | Standalone fields **or** dynamic JSON on models — same components | Usually one mode only |
-| **Depth** | Validation, formatting, and interaction built in — not thin wrappers | Basic inputs; edge cases left to you |
-| **Performance** | Lazy per-field CSS/JS in `<head>`, shared chunks, pre-built `dist/` — no npm in your app | Global bundles or consumer-side builds |
-| **DX** | Playground for every component + dedicated doc per field | Trial-and-error per plugin |
-
-### What's inside
-
-**72 components** — 60 form fields, 9 layout/schema pieces, 3 table columns, plus `HoldConfirmAction`. Matrix grids, slugs, translatable groups, media, ratings, signatures, layouts — [full list](#custom-components-72).
-
-**One design system** — shared `sm` / `md` / `lg` sizes, `--fff-*` tokens, glass searchable menus, dark mode, consistent focus rings.
-
-<a id="lazy-assets--shared-chunks"></a>**Lazy assets** — each field loads only its CSS/JS; heavy libraries share chunks and preload once per page. Pre-built `resources/dist/` means **no Node.js or Vite in your Laravel project**.
-
-<details>
-<summary>Asset pipeline (technical)</summary>
-
-1. **Lean core** — `core.css` (~20 KB): tokens and hint chrome only.
-2. **Conditional critical preload** — `teleported-menu` at `HEAD_END` only when a dropdown field is on the page (`FlexFieldStylesheetQueue::needsTeleportedMenu()`). Hold-confirm preloads per action via `@push` in `hold-confirm.blade.php`, not globally.
-3. **Per-component bundles** — queued when the field renders, deduped per request via `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue`. Alpine entries register once; manifest chunks load on demand.
-4. **Head delivery** — `emit-assets` pushes `<link>` / `modulepreload` via `@stack('styles')` on full pages; Livewire partials emit inline asset batches.
-5. **SPA injector** — `flex-field-asset-injector.js` loads missing lazy CSS/JS on morph and navigation, with FOUC prevention inside Filament modals.
-6. **Lazy Alpine mount** — heavy fields defer `x-data` init until `x-intersect` (see `lazy-alpine-mount` Blade component).
-
-See [Performance-first assets](#performance-first-assets) for classes, manifest, and bundle metrics.
-
-</details>
-
-<a id="dynamic-custom-fields-json"></a>**JSON custom fields** — define schemas in PHP config, `FlexFieldSchemaRegistry`, or the optional **Field groups** admin; store values in one JSON column via `HasFlexFields`. `FlexFieldStudio` wires forms, tables, and infolists in one line; `FlexFieldFormBuilder` renders 72+ field types with conditions, formulas, tenant packs, and RBAC. Ideal for CMS, multi-tenant SaaS, and CRM-style attributes. Options: [config/filament-flex-fields.php](config/filament-flex-fields.php). **Optional:** database-backed field groups + version history — see [Flex Field Groups](https://flex-fields.bjanczak.com/docs/flex-field-groups) (`FLEX_FIELDS_SCHEMA_RESOURCE_ENABLED`, migrations ship with the package).
-
-**Playground & docs** — local preview of all 72 components; every field documented in `docs/` with methods, validation, and examples.
+| Capability | Where |
+|------------|--------|
+| **Virtualized option lists** (thousands of rows without DOM meltdown) | `SelectField`, `IconPickerField`, `TagsField`, `TodoListField` |
+| **Async / Livewire search** with pagination & rate limits | `SelectField`, `UserSelect`, relationship-backed pickers |
+| **Mobile bottom sheets** for searchable menus | `SelectField` and shared combobox family |
+| **Disk or Spatie Media Library** (S3-ready) via Media Ingress | File / image / voice / signature / rich-editor attachments |
+| **Survey & configurator UX** | `MatrixChoiceField`, `NpsField`, `BubbleChoiceField`, `ChoiceCards` |
 
 ---
 
-## Table of contents
+### Text & input (13)
 
-- [Quick start](#quick-start)
-- [Upgrading](#upgrading)
-- [Why Flex Fields?](#why-flex-fields)
-- [Screenshots](#screenshots)
-- [Custom Components (72)](#custom-components-72)
-- [Use cases](#use-cases)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Setup](#setup)
-- [Quick usage](#quick-usage)
-- [Playground](#playground)
-- [Documentation](#documentation)
-- [FAQ](#faq)
-- [Performance-first assets](#performance-first-assets)
+| Component | What you get |
+|-----------|----------------|
+| [`FlexTextInput`](https://flex-fields.bjanczak.com/docs/flextextinput) | Production text field — speech dictation, emoji picker, password strength meter, clearable, prefix/suffix chrome |
+| [`FlexTextareaField`](https://flex-fields.bjanczak.com/docs/flextextareafield) | Autosizing textarea with smooth height animation and character counter |
+| [`FlexRichEditor`](https://flex-fields.bjanczak.com/docs/flex-rich-editor) | JSON-first rich text — toolbar a11y, responsive images, limits, fullscreen, autosave; optional Spatie attachments & image variants |
+| [`PhoneField`](https://flex-fields.bjanczak.com/docs/phonefield) | International phones with country flags, libphonenumber validation, and E.164-ready state |
+| [`CountryField`](https://flex-fields.bjanczak.com/docs/countryfield) | Searchable country picker with flags — same combobox UX as Select |
+| [`TimezoneField`](https://flex-fields.bjanczak.com/docs/timezonefield) | IANA timezones with UTC offset, browser detection helpers, and searchable list |
+| [`LinkPreviewField`](https://flex-fields.bjanczak.com/docs/link-preview-field) | URL input with live Open Graph preview (horizontal, vertical, or full-width) |
+| [`BarcodeScannerField`](https://flex-fields.bjanczak.com/docs/barcode-scanner-field) | Barcode & QR — Filament modal camera, format whitelist, EAN/UPC checksum, BarcodeDetector + ZXing, torch & camera flip |
+| [`SocialLinksField`](https://flex-fields.bjanczak.com/docs/social-links-field) | Social profile links — platform picker, URL validation, custom platforms, reorder |
+| [`SlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Slug with permalink preview, uniqueness checks, regenerate & copy actions |
+| [`TitleSlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Title + slug pair with live URL preview; optional Spatie Sluggable |
+| [`AddressAutocompleteField`](https://flex-fields.bjanczak.com/docs/addressautocompletefield) | Mapbox address search with structured place storage |
+| [`FlexVerificationCode`](https://flex-fields.bjanczak.com/docs/flexverificationcode) | OTP / 2FA digit groups with paste support and masked modes |
+
+### Number & range (7)
+
+| Component | What you get |
+|-----------|----------------|
+| [`NumberStepper`](https://flex-fields.bjanczak.com/docs/numberstepper) | Accessible +/- stepper with min/max, step, and keyboard control |
+| [`CalculatorField`](https://flex-fields.bjanczak.com/docs/calculator-field) | Money/number input with shared calculator panel (desktop float + mobile sheet) and per-field memory |
+| [`CurrencyField`](https://flex-fields.bjanczak.com/docs/currencyfield) | Multi-currency money with locale formatting, currency switcher, and precision control |
+| [`FlexSlider`](https://flex-fields.bjanczak.com/docs/flexslider) | Styled range slider with live value display |
+| [`TrackSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Track slider — single value, percentage, or min/max range |
+| [`PriceRangeField`](https://flex-fields.bjanczak.com/docs/pricerangefield) | Dual-handle price filter with optional histogram |
+| [`TrafficSplit`](https://flex-fields.bjanczak.com/docs/trafficsplit) | Weighted A/B-style traffic allocation UI |
+
+### Choice & selection (18)
+
+| Component | What you get |
+|-----------|----------------|
+| [`SelectField`](https://flex-fields.bjanczak.com/docs/selectfield) | **Flagship select** — extends Filament `Select` with headless combobox UI: **virtualized scrolling** (from ~100 options), **async Livewire search** + paginated results, rich rows (avatar, badge, description), multi-select chips, grid option layouts, **create-option** / smart suggest, inline search, relationship mode, and a **mobile bottom sheet** (drag handle, sheet search, checkmarks). Full native Select API retained. |
+| [`UserSelect`](https://flex-fields.bjanczak.com/docs/userselect) | User picker on the Select engine — avatar stacks, verification badges, searchable relationships |
+| [`TagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Tag pills with inline remove, combobox search, and free-create flows |
+| [`FlexSpatieTagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Spatie Tags sync on models using `HasTags` |
+| [`IconPickerField`](https://flex-fields.bjanczak.com/docs/icon-picker-field) | Blade-icons picker — lazy SVG, **virtual scroll**, paginated search, W3C ARIA patterns |
+| [`DualListboxField`](https://flex-fields.bjanczak.com/docs/duallistboxfield) | Two-panel transfer list with reorder and bulk move |
+| [`SwitchField`](https://flex-fields.bjanczak.com/docs/switchfield) | Animated toggle — row or inline layouts |
+| [`CellSwitch`](https://flex-fields.bjanczak.com/docs/switchfield) | Compact switch for dense UIs / table cells |
+| [`SegmentControl`](https://flex-fields.bjanczak.com/docs/segmentcontrol) | Segmented control for mutually exclusive choices |
+| [`ChoiceCards`](https://flex-fields.bjanczak.com/docs/choicecards) | Rich single-select cards with icons and descriptions |
+| [`ChoiceCheckboxCards`](https://flex-fields.bjanczak.com/docs/choicecheckboxcards) | Multi-select card grid |
+| [`ImageChoiceCards`](https://flex-fields.bjanczak.com/docs/imagechoicecards) | Full-bleed image cards — single or multi |
+| [`FlexChecklist`](https://flex-fields.bjanczak.com/docs/flexchecklist) | Animated checklist with icons and helper text |
+| [`TodoListField`](https://flex-fields.bjanczak.com/docs/todolistfield) | Animated todos — celebrations, sub-stacks, undo, reorder, search, **virtualized scroll** |
+| [`BubbleChoiceField`](https://flex-fields.bjanczak.com/docs/bubblechoicefield) | Pannable bubble multi-select with center magnification |
+| [`FlexRadiolist`](https://flex-fields.bjanczak.com/docs/flexradiolist) | Animated radio list with icons and descriptions |
+| [`MatrixChoiceField`](https://flex-fields.bjanczak.com/docs/matrixchoicefield) | Survey / configurator matrix — radio or checkbox per row, cell/row disable rules |
+| [`FlexMatrixTable`](https://flex-fields.bjanczak.com/docs/flex-matrix-table) | Advanced matrix with full Filament components inside cells |
+
+### Date & time (11)
+
+| Component | What you get |
+|-----------|----------------|
+| [`FlexDateField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented date input without calendar popover |
+| [`FlexDatePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Date picker with calendar popover |
+| [`FlexTimeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented time (12h / 24h, optional seconds) |
+| [`FlexTimeSegmentsField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Column time picker (`HH:MM`) |
+| [`ScheduleField`](https://flex-fields.bjanczak.com/docs/schedule-field) | Weekly opening hours — day toggles, slots, breaks, copy-to-weekdays, timezone |
+| [`FlexDateTimePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Combined date + time |
+| [`FlexDateRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start / end date range |
+| [`FlexDurationField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Duration (hours / minutes) |
+| [`FlexTimeRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start / end time range |
+| [`FlexMonthPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Month picker |
+| [`FlexYearPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Year picker |
+
+### Media, color & location (13)
+
+> **[Media Ingress](https://flex-fields.bjanczak.com/docs/media-capture-os)** — one pipeline for disk or Spatie Media Library (S3-ready), virus scanning hooks, signed URLs, image conversions, retention, and FormBuilder wiring. Migration notes: [Media Ingress migration](https://flex-fields.bjanczak.com/docs/media-ingress-migration).
+
+| Component | What you get |
+|-----------|----------------|
+| [`FlexFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Styled uploads — webcam capture, URL import, security presets, Media Ingress disk/Spatie path |
+| [`FlexImageUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Image-focused upload with optimize / resize options |
+| [`FlexSpatieMediaLibraryFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | First-class Spatie Media Library field (UUID state, conversions via model) |
+| [`VoiceNoteRecorderField`](https://flex-fields.bjanczak.com/docs/voicenoterecorderfield) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
+| [`VoiceNoteSpatieRecorderField`](https://flex-fields.bjanczak.com/docs/voicenoterecorderfield) | Voice notes stored through Spatie Media Library |
+| [`VideoField`](https://flex-fields.bjanczak.com/docs/videofield) | Video URL / embed player — **YouTube, Vimeo, and HTML5** sources |
+| [`AudioField`](https://flex-fields.bjanczak.com/docs/audiofield) | Audio URL / player with waveform; optional client-side Whisper transcription |
+| [`MapPickerField`](https://flex-fields.bjanczak.com/docs/mappickerfield) | Interactive Mapbox pin — drag marker, reverse geocode, address autofill |
+| [`SignatureField`](https://flex-fields.bjanczak.com/docs/signaturefield) | Canvas signature pad — SVG/`ffstage:` state; optional Spatie sink for archival |
+| [`CreditCardField`](https://flex-fields.bjanczak.com/docs/creditcardfield) | Card preview with Luhn validation and CVV flip animation |
+| [`ColorSwatchField`](https://flex-fields.bjanczak.com/docs/colorswatchfield) | Preset color swatches |
+| [`FlexColorPickerField`](https://flex-fields.bjanczak.com/docs/flexcolorpickerfield) | Advanced picker — grid, eyedropper, custom formats |
+| [`CellSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Compact track slider for dense layouts |
+
+### Rating & surveys (2)
+
+| Component | What you get |
+|-----------|----------------|
+| [`RatingField`](https://flex-fields.bjanczak.com/docs/ratingfield) | Star rating input with half-star and size options |
+| [`NpsField`](https://flex-fields.bjanczak.com/docs/nps-field) | NPS, CSAT & Likert — pills, segments, and emoji variants |
+
+### Layout & display — schemas (8)
+
+| Component | What you get |
+|-----------|----------------|
+| [`SegmentTabs`](https://flex-fields.bjanczak.com/docs/segmenttabs) | Tabbed segment navigation for multi-section forms |
+| [`TranslatableFields`](https://flex-fields.bjanczak.com/docs/translatablefields) | Locale tabs around any fields (JSON or Spatie Translatable) |
+| [`ItemCard`](https://flex-fields.bjanczak.com/docs/itemcard) | Single settings-style card row |
+| [`ItemCardGroup`](https://flex-fields.bjanczak.com/docs/itemcardgroup) | Polished card group for settings pages |
+| [`ItemCardStack`](https://flex-fields.bjanczak.com/docs/itemcardstack) | Stacked cards for profile / settings editors |
+| [`CoverCard`](https://flex-fields.bjanczak.com/docs/covercard) | Hero cover card for tabbed editors |
+| [`ProgressBar`](https://flex-fields.bjanczak.com/docs/progressbar) | Linear, pill, or segment progress |
+| [`ProgressCircle`](https://flex-fields.bjanczak.com/docs/progresscircle) | Circular or semicircle progress |
+
+`TranslatableTabs` is a legacy alias of `TranslatableFields` (not counted separately). Ready-made recipes: [Form layout patterns](https://flex-fields.bjanczak.com/docs/index#form-layout-patterns).
+
+### Table columns (7)
+
+| Component | What you get |
+|-----------|----------------|
+| [`UserColumn`](https://flex-fields.bjanczak.com/docs/usercolumn) | Avatar + name/email with hover card |
+| [`RatingColumn`](https://flex-fields.bjanczak.com/docs/ratingcolumn) | Star rating display |
+| [`IconColumn`](https://flex-fields.bjanczak.com/docs/iconcolumn) | Blade-icons display for `IconPickerField` values |
+| [`MapPinColumn`](https://flex-fields.bjanczak.com/docs/admin-columns) | Location label with optional lat/lng metadata |
+| [`ProgressColumn`](https://flex-fields.bjanczak.com/docs/admin-columns) | Numeric or ratio completion with optional value label |
+| [`SignaturePreviewColumn`](https://flex-fields.bjanczak.com/docs/admin-columns) | Inline SVG signature thumbnail in table rows |
+| [`StatusChipColumn`](https://flex-fields.bjanczak.com/docs/admin-columns) | Colored status chips from strings or `{label, color}` arrays |
+
+### Actions (not in the 79)
+
+| Component | What you get |
+|-----------|----------------|
+| [`HoldConfirmAction`](https://flex-fields.bjanczak.com/docs/hold-confirm-action) | Press-and-hold Filament actions for destructive or irreversible operations |
+
+**Total: 79 custom components** — **64** form fields (including 3 Spatie variants) + **8** layout/schema + **7** table columns.
+
+---
+
+## Use cases
+
+| Scenario | Recommended components |
+|----------|------------------------|
+| **CRM / SaaS custom attributes** | JSON flex fields + `SelectField` (async/virtualized), `PhoneField`, `CountryField`, `UserSelect` |
+| **CMS / page builder** | `TitleSlugField`, `TranslatableFields`, `FlexRichEditor`, `FlexFileUpload` / Spatie uploads |
+| **Large option catalogs** | `SelectField` + `IconPickerField` — virtualization, async search, mobile sheets |
+| **Product configurator** | `MatrixChoiceField`, `ChoiceCards`, `PriceRangeField`, `ColorSwatchField` |
+| **Surveys & assessments** | `NpsField`, `TodoListField`, `BubbleChoiceField`, `MatrixChoiceField`, `FlexRadiolist`, `RatingField` |
+| **SaaS onboarding** | `ChoiceCards`, `SegmentTabs`, `CoverCard`, `ProgressCircle` |
+| **E-commerce filters** | `PriceRangeField`, `TrackSlider`, `DualListboxField`, `CalculatorField` |
+| **User profile settings** | `ItemCardGroup`, `PhoneField`, `TimezoneField`, `SignatureField`, `SocialLinksField` |
+| **Ops / warehouse** | `BarcodeScannerField`, `MapPickerField`, `VoiceNoteRecorderField` |
+| **Payment forms** | `CreditCardField`, `FlexVerificationCode` |
+| **Location services** | `MapPickerField`, `AddressAutocompleteField`, `MapPinColumn` |
+| **A/B configuration** | `TrafficSplit`, `SegmentControl` |
 
 ---
 
 ## Screenshots
 
 <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; width: 100%;">
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/selectfield"><img src="art/drawer-mobile.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="Filament SelectField - virtualized searchable select with async Livewire search, rich option rows, and mobile bottom sheet drawer"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">SelectField — Virtualized Select, Async Search & Mobile Sheet</p>
+  </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload"><img src="art/sc-31.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexFileUpload — Webcam & URL File Import</p>
+  </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/phonefield"><img src="art/phone-field.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">PhoneField — International Phone Input</p>
+  </div>
+  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
+    <a href="https://flex-fields.bjanczak.com/docs/icon-picker-field"><img src="art/sc-32.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="IconPickerField - Highly optimized searchable SVG icon picker with virtual scrolling, asynchronous preview loading, and WAI-ARIA combobox accessibility"></a>
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">IconPickerField — Virtual Scrolling & W3C ARIA</p>
+  </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/bubblechoicefield"><img src="art/bubble.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BubbleChoiceField - Panable bubble multi-select with center magnification, fringe shrink, and scalloped selection morph for Filament forms"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">BubbleChoiceField — Magnifying Bubble Multi-Select</p>
@@ -226,10 +397,6 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/calculator-field"><img src="art/sc-34.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="CalculatorField - Numeric input with shared iOS-style calculator panel, per-field session memory, floating desktop panel, and mobile bottom sheet"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">CalculatorField — Shared Floating Calculator Panel</p>
-  </div>
-  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="https://flex-fields.bjanczak.com/docs/selectfield"><img src="art/drawer-mobile.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SelectField - Searchable options open as a mobile bottom sheet drawer with drag handle, search header, and checkmark selection"></a>
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">SelectField — Mobile Bottom Sheet Drawer</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/signaturefield"><img src="art/sc-1.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="SignatureField - HTML5 canvas handwriting signature pad for Filament forms, allowing touch-friendly signatures with WebP export"></a>
@@ -320,10 +487,6 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">SlugField & TranslatableFields — Translatable SEO Slugs</p>
   </div>
   <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="https://flex-fields.bjanczak.com/docs/phonefield"><img src="art/phone-field.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="PhoneField - International phone number input field with country flag selectors, calling code auto-detection, and libphonenumber validation"></a>
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">PhoneField — International Phone Input</p>
-  </div>
-  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
     <a href="https://flex-fields.bjanczak.com/docs/colorswatchfield"><img src="art/sc-24.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="ColorSwatchField - Interactive color swatch picker supporting circle/square shapes, size configurations, and focus indicators"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">ColorSwatchField — Preset Color Swatches</p>
   </div>
@@ -351,165 +514,11 @@ See [Performance-first assets](#performance-first-assets) for classes, manifest,
     <a href="https://flex-fields.bjanczak.com/docs/barcode-scanner-field"><img src="art/sc-30.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="BarcodeScannerField - Barcode and QR input with Filament modal camera scanner, format filtering, EAN/UPC checksum validation, and hybrid native + ZXing engines"></a>
     <p style="margin-top: 8px; font-weight: 600; color: #374151;">BarcodeScannerField — Camera Barcode & QR Scanner</p>
   </div>
-  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload"><img src="art/sc-31.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="FlexFileUpload - Styled file upload with webcam capture, URL import, and security presets"></a>
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">FlexFileUpload — Webcam & URL File Import</p>
-  </div>
-  <div style="flex-grow: 1; width: 48%; min-width: 280px; text-align: center; box-sizing: border-box; padding: 10px;">
-    <a href="https://flex-fields.bjanczak.com/docs/icon-picker-field"><img src="art/sc-32.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="IconPickerField - Highly optimized searchable SVG icon picker with virtual scrolling, asynchronous preview loading, and WAI-ARIA combobox accessibility"></a>
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">IconPickerField — Virtual Scrolling & W3C ARIA</p>
-  </div>
   <div style="flex-grow: 1; width: 100%; text-align: center; box-sizing: border-box; padding: 10px;">
-    <img src="art/more.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground displaying form fields, custom layouts, and UI components in Filament Flex Fields">
-    <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 72 Components & Visual Playground</p>
+    <img src="art/more.webp" width="100%" style="border-radius: 12px; border: 1px solid #e5e7eb;" alt="And More - Overview of the interactive Developer Playground with 79 Filament Flex Fields components">
+    <p style="margin-top: 8px; font-weight: 600; color: #374151;">And More — 79 Components & Visual Playground</p>
   </div>
 </div>
-
----
-
-## Custom Components (72)
-
-Every item below is a **custom class shipped by this package** — own Blade views, CSS, and configuration API. This list does **not** include native Filament fields (`TextInput`, `TagsInput`, `Repeater`, etc.) used only as passthrough inside `FlexFieldFormBuilder`.
-
-Full API for each component: **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)**.
-
-### Text & input (13)
-
-| Component | Description |
-|-----------|-------------|
-| [`FlexTextInput`](https://flex-fields.bjanczak.com/docs/flextextinput) | Enhanced text input — speech dictation, emoji picker, password strength, clearable |
-| [`FlexTextareaField`](https://flex-fields.bjanczak.com/docs/flextextareafield) | Animated autosizing textarea with character counter |
-| [`FlexRichEditor`](https://flex-fields.bjanczak.com/docs/flex-rich-editor) | JSON-first rich editor — responsive images, limits, fullscreen, autosave, optional Spatie |
-| [`PhoneField`](https://flex-fields.bjanczak.com/docs/phonefield) | International phone input with libphonenumber validation |
-| [`CountryField`](https://flex-fields.bjanczak.com/docs/countryfield) | Searchable country picker with flags |
-| [`TimezoneField`](https://flex-fields.bjanczak.com/docs/timezonefield) | IANA timezone picker with UTC offset display |
-| [`LinkPreviewField`](https://flex-fields.bjanczak.com/docs/link-preview-field) | URL input with live Open Graph preview card (horizontal, vertical, or full-width layouts) |
-| [`BarcodeScannerField`](https://flex-fields.bjanczak.com/docs/barcode-scanner-field) | Barcode/QR input — Filament modal camera scanner, format whitelist, EAN/UPC checksum, hybrid BarcodeDetector + ZXing, torch & front/back switch, iOS-safe preview *(v2.6.0)* |
-| [`SocialLinksField`](https://flex-fields.bjanczak.com/docs/social-links-field) | Social profile links — platform picker, URL validation, custom platforms, reorder |
-| [`SlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Slug input with permalink preview, uniqueness, regenerate/copy actions |
-| [`TitleSlugField`](https://flex-fields.bjanczak.com/docs/slugfield-and-titleslugfield) | Title + slug pair with live URL preview and optional Spatie Sluggable |
-| [`AddressAutocompleteField`](https://flex-fields.bjanczak.com/docs/addressautocompletefield) | Mapbox-powered address search with structured storage |
-| [`FlexVerificationCode`](https://flex-fields.bjanczak.com/docs/flexverificationcode) | OTP / 2FA verification code input with grouping |
-
-### Number & range (7)
-
-| Component | Description |
-|-----------|-------------|
-| [`NumberStepper`](https://flex-fields.bjanczak.com/docs/numberstepper) | +/- numeric stepper control |
-| [`CalculatorField`](https://flex-fields.bjanczak.com/docs/calculator-field) | Numeric input with shared iOS-style calculator panel and per-field session memory *(v2.8.1)* |
-| [`CurrencyField`](https://flex-fields.bjanczak.com/docs/currencyfield) | Multi-currency money input with locale-aware formatting |
-| [`FlexSlider`](https://flex-fields.bjanczak.com/docs/flexslider) | Styled range slider with value display |
-| [`TrackSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Track-style slider — single value, percentage, or min/max range |
-| [`PriceRangeField`](https://flex-fields.bjanczak.com/docs/pricerangefield) | Dual-handle price filter with histogram |
-| [`TrafficSplit`](https://flex-fields.bjanczak.com/docs/trafficsplit) | Weighted segment split control (A/B-style traffic allocation) |
-
-### Choice & selection (18)
-
-| Component | Description |
-|-----------|-------------|
-| [`SwitchField`](https://flex-fields.bjanczak.com/docs/switchfield) | Animated toggle switch with row/inline layouts |
-| [`CellSwitch`](https://flex-fields.bjanczak.com/docs/switchfield) | Compact `SwitchField` variant for table cells |
-| [`SegmentControl`](https://flex-fields.bjanczak.com/docs/segmentcontrol) | Segmented button control |
-| [`ChoiceCards`](https://flex-fields.bjanczak.com/docs/choicecards) | Rich card-based radio selection |
-| [`ChoiceCheckboxCards`](https://flex-fields.bjanczak.com/docs/choicecheckboxcards) | Rich card-based multi-select |
-| [`ImageChoiceCards`](https://flex-fields.bjanczak.com/docs/imagechoicecards) | Full-bleed image choice cards — single or multi select |
-| [`FlexChecklist`](https://flex-fields.bjanczak.com/docs/flexchecklist) | Animated checklist with icons and descriptions |
-| [`TodoListField`](https://flex-fields.bjanczak.com/docs/todolistfield) | Animated todo list with celebrations, sub-stacks, undo, reorder, search, and virtualized scroll *(v3.1)* |
-| [`BubbleChoiceField`](https://flex-fields.bjanczak.com/docs/bubblechoicefield) | Pannable bubble multi-select with center magnification and scalloped selection morph *(v3.1)* |
-| [`FlexRadiolist`](https://flex-fields.bjanczak.com/docs/flexradiolist) | Animated radio list with icons and descriptions |
-| [`MatrixChoiceField`](https://flex-fields.bjanczak.com/docs/matrixchoicefield) | Survey / configurator matrix grid — radio or checkbox per row |
-| [`FlexMatrixTable`](https://flex-fields.bjanczak.com/docs/flex-matrix-table) | Advanced matrix grid with full Filament components inside cells |
-| [`SelectField`](https://flex-fields.bjanczak.com/docs/selectfield) | Rich select with avatars, badges, and descriptions |
-| [`UserSelect`](https://flex-fields.bjanczak.com/docs/userselect) | User picker with avatar stacks and verification badges |
-| [`DualListboxField`](https://flex-fields.bjanczak.com/docs/duallistboxfield) | Two-panel reorderable transfer list |
-| [`TagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Tag input — pills below the field with inline remove buttons |
-| [`IconPickerField`](https://flex-fields.bjanczak.com/docs/icon-picker-field) | Searchable blade-icons picker with lazy SVG rendering, virtual scroll, and paginated search *(v2.7.0)* |
-| [`FlexSpatieTagsField`](https://flex-fields.bjanczak.com/docs/tags-field) | Spatie Tags integration for `TagsField` |
-
-### Date & time (11)
-
-| Component | Description |
-|-----------|-------------|
-| [`FlexDateField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented date input without calendar popover |
-| [`FlexDatePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Date picker with calendar popover |
-| [`FlexTimeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Segmented time input (12h / 24h, seconds optional) |
-| [`FlexTimeSegmentsField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Dropdown time picker (hour / minute columns, `HH:MM`) |
-| [`ScheduleField`](https://flex-fields.bjanczak.com/docs/schedule-field) | Weekly opening-hours editor — day toggles, slots, breaks, copy-to-weekdays, timezone |
-| [`FlexDateTimePicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Combined date + time picker |
-| [`FlexDateRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start/end date range |
-| [`FlexDurationField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Duration input (hours / minutes) |
-| [`FlexTimeRangeField`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Start/end time range |
-| [`FlexMonthPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Month picker |
-| [`FlexYearPicker`](https://flex-fields.bjanczak.com/docs/date-and-time-fields) | Year picker |
-
-### Media, color & location (12)
-
-> **Media & Capture OS** — enterprise AV, PCI tokenization, Spatie integration, retention, legal signature audit: [docs/media-capture-os.md](/docs/media-capture-os).
-
-| Component | Description |
-|-----------|-------------|
-| [`ColorSwatchField`](https://flex-fields.bjanczak.com/docs/colorswatchfield) | Preset color swatch picker |
-| [`FlexColorPickerField`](https://flex-fields.bjanczak.com/docs/flexcolorpickerfield) | Advanced color picker with grid and eyedropper |
-| [`FlexFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Styled file upload with webcam capture, URL import, and security presets *(v2.6.1)* |
-| [`FlexImageUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Image upload with processing options |
-| [`FlexSpatieMediaLibraryFileUpload`](https://flex-fields.bjanczak.com/docs/flexfileupload-and-fleximageupload) | Spatie Media Library upload integration |
-| [`VideoField`](https://flex-fields.bjanczak.com/docs/videofield) | Video URL / player with YouTube support |
-| [`AudioField`](https://flex-fields.bjanczak.com/docs/audiofield) | Audio URL / player with waveform; optional client-side Whisper transcription |
-| [`VoiceNoteRecorderField`](https://flex-fields.bjanczak.com/docs/voicenoterecorderfield) | In-browser voice recorder — waveform, local playback, deferred or immediate upload |
-| [`MapPickerField`](https://flex-fields.bjanczak.com/docs/mappickerfield) | Interactive map pin picker with draggable marker and address autofill |
-| [`SignatureField`](https://flex-fields.bjanczak.com/docs/signaturefield) | Canvas signature pad |
-| [`CreditCardField`](https://flex-fields.bjanczak.com/docs/creditcardfield) | Card preview with Luhn validation and CVV flip |
-| [`CellSlider`](https://flex-fields.bjanczak.com/docs/trackslider) | Compact `TrackSlider` variant for table cells |
-
-### Rating (2)
-
-| Component | Description |
-|-----------|-------------|
-| [`RatingField`](https://flex-fields.bjanczak.com/docs/ratingfield) | Star rating input |
-| [`NpsField`](https://flex-fields.bjanczak.com/docs/nps-field) | NPS, CSAT & Likert survey scales — pills, segments, and emoji variants *(v2.8.0)* |
-
-### Layout & display — schemas (9)
-
-| Component | Description |
-|-----------|-------------|
-| [`SegmentTabs`](https://flex-fields.bjanczak.com/docs/segmenttabs) | Tabbed segment navigation for forms |
-| [`TranslatableFields`](https://flex-fields.bjanczak.com/docs/translatablefields) | Locale tabs wrapping any fields (JSON or Spatie Translatable) |
-| [`TranslatableTabs`](https://flex-fields.bjanczak.com/docs/translatablefields) | Legacy alias for `TranslatableFields` |
-| [`ItemCard`](https://flex-fields.bjanczak.com/docs/itemcard) | Single settings-style card row |
-| [`ItemCardGroup`](https://flex-fields.bjanczak.com/docs/itemcardgroup) | Polished card-based settings group |
-| [`ItemCardStack`](https://flex-fields.bjanczak.com/docs/itemcardstack) | Stacked card layout for profile / settings pages |
-| [`CoverCard`](https://flex-fields.bjanczak.com/docs/covercard) | Hero cover card for tabbed editors |
-| [`ProgressBar`](https://flex-fields.bjanczak.com/docs/progressbar) | Linear, pill, or segment progress bar |
-| [`ProgressCircle`](https://flex-fields.bjanczak.com/docs/progresscircle) | Circular or semicircle progress indicator |
-
-Ready-made layout recipes: [Form layout patterns](https://flex-fields.bjanczak.com/docs/index#form-layout-patterns).
-
-### Table columns (3)
-
-| Component | Description |
-|-----------|-------------|
-| [`UserColumn`](https://flex-fields.bjanczak.com/docs/usercolumn) | Avatar + name/email display with hover card |
-| [`RatingColumn`](https://flex-fields.bjanczak.com/docs/ratingcolumn) | Star rating display in Filament tables |
-| [`IconColumn`](https://flex-fields.bjanczak.com/docs/iconcolumn) | Blade-icons display for `IconPickerField` values *(v2.7.0)* |
-
-**Total: 72 custom components** (60 form fields + 9 layout/schema + 3 table columns). **HoldConfirmAction** (press-and-hold Filament actions) is documented in the playground but not counted in the 72.
-
----
-
-## Use cases
-
-| Scenario | Recommended components |
-|----------|------------------------|
-| **CRM / SaaS custom attributes** | JSON flex fields + `PhoneField`, `CountryField`, `UserSelect` |
-| **CMS / page builder** | `TitleSlugField`, `TranslatableFields`, `FlexFileUpload`, `FlexImageUpload` |
-| **Product configurator** | `MatrixChoiceField`, `ChoiceCards`, `PriceRangeField`, `ColorSwatchField` |
-| **Surveys & assessments** | `NpsField`, `TodoListField`, `BubbleChoiceField`, `MatrixChoiceField`, `FlexRadiolist`, `RatingField` |
-| **SaaS onboarding** | `ChoiceCards`, `SegmentTabs`, `CoverCard`, `ProgressCircle` |
-| **E-commerce filters** | `PriceRangeField`, `TrackSlider`, `DualListboxField`, `CalculatorField` |
-| **User profile settings** | `ItemCardGroup`, `PhoneField`, `TimezoneField`, `SignatureField` |
-| **Payment forms** | `CreditCardField`, `FlexVerificationCode` |
-| **Location services** | `MapPickerField`, `AddressAutocompleteField` |
-| **A/B configuration** | `TrafficSplit`, `SegmentControl` |
 
 ---
 
@@ -566,6 +575,14 @@ php artisan filament:assets
 ```
 
 Auto-discovered via `composer.json` → `extra.laravel.providers`.
+
+### TrustedProxies (enterprise / reverse proxy)
+
+Select, Tags, and IconPicker Livewire search endpoints share `SelectSearchRateLimiter`. Keys prefer the authenticated user id; guests fall back to `Request::ip()`.
+
+Behind Cloudflare, AWS ALB, or another reverse proxy, configure Laravel **TrustedProxies** (or `TrustProxies` middleware) so client IPs are derived correctly. Do not read `X-Forwarded-For` manually in application code — a misconfigured trust list would let clients spoof identities and bypass or poison rate limits.
+
+See also [SelectField](https://flex-fields.bjanczak.com/docs/selectfield) search rate-limit notes.
 
 **Asset sync on every Composer run** — optional but recommended; see [Automate asset sync](#automate-asset-sync-recommended) in [Upgrading](#upgrading).
 
@@ -805,6 +822,8 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 | Document | Contents |
 |----------|----------|
 | **[https://flex-fields.bjanczak.com/docs/index](https://flex-fields.bjanczak.com/docs/index)** | Complete per-component API — every method, option, validation rule, config key, and example |
+| **[SelectField](https://flex-fields.bjanczak.com/docs/selectfield)** | Virtualized select, async search, mobile bottom sheet, rich options |
+| **[Media Ingress](https://flex-fields.bjanczak.com/docs/media-capture-os)** | Disk vs Spatie, S3, conversions, voice/signature/rich-editor |
 | **[https://flex-fields.bjanczak.com/docs/shared-concepts](https://flex-fields.bjanczak.com/docs/shared-concepts)** | Asset pipeline, overlay coordinator, `wire:ignore` + Livewire sync patterns |
 | **[CHANGELOG.md](CHANGELOG.md)** | Version history and release notes |
 | **config/filament-flex-fields.php** | Schemas, UI defaults, playground, Mapbox, audit |
@@ -813,20 +832,45 @@ Example slugs: `matrix-choice`, `choice-cards`, `tags-field`, `title-slug-field`
 
 ## FAQ
 
+
+**What is the best Filament form fields plugin for Filament v5?**
+For teams that want **one kit** instead of many single-purpose packages: Flex Fields ships **79** components with a shared design system, **virtualized Select** + async search, **Spatie Media Library / disk / S3** uploads, optional **JSON custom fields**, surveys, maps, signatures, and a Playground — documented per component.
+
+**Is Flex Fields an alternative to installing many Filament field plugins?**
+Yes. One package covers select/combobox, Spatie & disk uploads, phone, maps, signature, NPS/matrix surveys, layouts, and table columns — with one `--fff-*` design system and lazy CSS/JS.
+
+**Does it support Filament Spatie Media Library file uploads?**
+Yes — `FlexSpatieMediaLibraryFileUpload` plus the Media Ingress Spatie path for voice notes and related media. Spatie is optional via `composer suggest`.
+
+**Can I store Filament custom fields as JSON (no EAV tables)?**
+Yes — `HasFlexFields` stores values in a JSON column; schemas live in config or Field groups. Same field components as standalone forms.
+
+**How is SelectField different from Filament’s built-in Select?**
+Same public Select API, plus virtualized lists, async/paginated Livewire search, rich option rows, create-option flows, and a mobile bottom sheet. See [SelectField](https://flex-fields.bjanczak.com/docs/selectfield).
+
+**Is Flex Fields free / open source?**
+It is **source-available** and dual-licensed — **not** OSI “open source.” Free under Permitted Free Use for typical internal admin panels; commercial license for product SaaS / redistribution. See [License](#license).
+
 **Why choose Flex Fields over multiple Filament field plugins?**
-One design system, one asset pipeline, one Playground, and **72** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
+One design system, one asset pipeline, one Playground, and **79** components that work together — standalone or as dynamic JSON attributes. You avoid conflicting CSS, duplicate JS, and inconsistent field APIs.
 
 **Do I need Node.js to use this package?**
 No. Pre-built CSS/JS are committed to `resources/dist/`.
 
 **How does asset loading work?**
-Each component loads its own CSS/JS on demand. Shared libraries are split into cached chunks and loaded once per page. See [Performance-first assets](#performance-first-assets).
+Each component queues only its CSS/JS. Request-scoped queues (`FlexFieldStylesheetQueue`, `FlexFieldAlpineQueue`) and the SPA injector ensure the same file is fetched **once** per page — even with many SelectFields or Select + Tags + Phone together. Shared stacks (`select-menu`, `combobox-engine`, …) are esbuild chunks. See [Performance-first assets](#performance-first-assets).
+
+**Do Select-based fields duplicate CSS/JS?**
+No. Overlay menu CSS/JS and combobox chunks are shared across the select family; each field adds only a thin entry + private styles. Details in [Select-family: what is shared](#select-family-what-is-shared).
 
 **Can I use components without the JSON flex-field system?**
 Yes. Import any component directly into Filament forms — the JSON column and `HasFlexFields` trait are optional.
 
 **How many components are included?**
-**72** custom UI classes with own views and CSS — listed in [Custom Components (72)](#custom-components-72).
+**79** custom UI classes with own views and CSS — listed in [Custom Components (79)](#custom-components-79).
+
+**Does SelectField support large lists and async search?**
+Yes. `SelectField` virtualizes from ~100 options, supports Livewire async / paginated search, rich option rows, multi-select, create-option flows, and a mobile bottom sheet. See [SelectField docs](https://flex-fields.bjanczak.com/docs/selectfield).
 
 **Does it work with Filament v4?**
 No — this package targets **Filament v5** only.
@@ -839,32 +883,108 @@ No. Sluggable, Translatable, and Media Library integrations are optional `compos
 
 ---
 
+## Upgrading
+
+When a new version is released, update the package and sync Filament assets into `public/`. **You do not need Node.js, npm, or `npm run build` in your Laravel app** — the plugin ships pre-built CSS/JS in `resources/dist/`.
+
+### Standard upgrade (Packagist)
+
+```bash
+composer update janczakb/filament-flex-fields
+php artisan filament:assets
+```
+
+That is the full required workflow for most apps.
+
+`php artisan filament:assets` syncs **both** Filament CSS/JS/Alpine bundles and bundled static media (MP3, emoji images, etc.) into `public/filament-flex-fields-assets/`. Fields resolve those files through `FlexFieldAssets::assetUrl()` with automatic cache busting.
+
+### Path repository (monorepo / local package)
+
+```bash
+composer update janczakb/filament-flex-fields
+php artisan filament:assets
+```
+
+### Automate asset sync (recommended)
+
+Add this to your host app `composer.json` so `filament:assets` runs after every `composer install` / `composer update`:
+
+```json
+"scripts": {
+    "post-autoload-dump": [
+        "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+        "@php artisan package:discover --ansi",
+        "@php artisan filament:assets --ansi"
+    ]
+}
+```
+
+### What you usually do **not** need on upgrade
+
+| Step | Needed? |
+|------|---------|
+| `npm install` / `npm run build` in the host app | **No** — assets are pre-built in the package |
+| Manual copy of `public/filament-flex-fields-assets/` | **No** — synced by `filament:assets` |
+| Publish config / translations | **Only** when CHANGELOG documents new keys you want to set |
+| `php artisan optimize:clear` | **Only** if the panel still serves stale CSS/JS (rare) |
+
+### After upgrading in the browser
+
+Hard-refresh the Filament panel (`Cmd+Shift+R` / `Ctrl+Shift+R`) once if a field looks unstyled after deploy.
+
+### Version-specific notes
+
+Read [CHANGELOG.md](CHANGELOG.md) for breaking changes, new config keys, and migration steps.
+
+---
+
 ## Performance-first assets
 
 This is the technical reference for [Lazy assets & shared chunks](#lazy-assets--shared-chunks) above.
 
-#### CSS delivery pipeline
+### No duplicate CSS/JS on a page
+
+| Guarantee | How |
+|-----------|-----|
+| 5× the same field | `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue` — request-scoped dedup; second enqueue returns empty |
+| Select + Tags + Phone on one form | Shared chunks (`select-menu`, `flex-dropdown-coordinator`, …) preload **once**; each field keeps a thin Alpine entry + private CSS only |
+| Livewire morph / modal / navigate | `flex-field-asset-injector.js` dedupes by href and reuses in-flight fetch promises |
+| Unused fields | Filament assets registered with `loadedOnRequest()` — nothing global until a field renders |
+
+### Select-family: what is shared
+
+| Layer | Shared once when any consumer renders | Used by |
+|-------|----------------------------------------|---------|
+| **Teleported menu CSS** (`teleported-menu`, `overlay-runtime`) | Yes — **canonical dropdown + mobile sheet chrome** (full-bleed, slide, handle, safe-area) | Select, UserSelect, IconPicker, Tags, Phone, Country, Timezone, Currency, Address, Map, Social Links, Schedule |
+| **`select-field.css`** (trigger / chips chrome) | Yes when declared as a dep | Select, UserSelect, IconPicker, Tags, Address/Map dropdown |
+| **`select-menu` JS** (overlay / bottom sheet) | Yes | Select, UserSelect, IconPicker, Tags, Phone, Country, Timezone, Currency, Address, Map, Social Links, Schedule |
+| **`combobox-engine` JS** (headless listbox) | Yes | **SelectField**, **UserSelect**, **IconPickerField** |
+| **Virtual adapter** (`fff-virtual-adapter`) | Yes | Select, IconPicker, Phone, Country, Currency, Timezone/Schedule, DualListbox (virt only) |
+| Thin Alpine entry (`select-field.js`, `tags-field.js`, …) | Per component type (still once per type via queue) | Each field |
+
+`UserSelect` extends `SelectField` and reuses the **same** `select-field.js` entry. `DualListboxField` is **not** on the select-menu stack — it only shares virtualization helpers.
+
+### CSS delivery pipeline
 
 | Step | Class / file | Role |
 |------|----------------|------|
 | 1 | Field blade `@include(…load-stylesheet)` | Registers needed bundles when the field is on the page |
 | 2 | `FlexFieldStylesheetQueue` / `FlexFieldAlpineQueue` | Request-scoped dedup — 5× `ChoiceCards` → 1× `choice-cards.css` |
-| 3 | `emit-assets` (via `load-stylesheet`) | Full-page: `@push('styles')` into `<head>`; Livewire partial: inline `<link>` / `modulepreload` batches |
+| 3 | `emit-assets` (via `load-stylesheet`) | Emits hidden `data-fff-asset-batch` markers with stylesheet + chunk hrefs (full page and Livewire partials) |
 | 4 | `queued-stylesheets` render hook | Flushes any remaining `pending()` queues at `STYLES_AFTER` and `BODY_END` |
-| 5 | Filament `@stack('styles')` in `layout/base.blade.php` | Renders pushed links in `<head>` before content paint |
-| 6 | `flex-field-asset-injector.js` | SPA/morph: loads missing lazy assets, dedupes hrefs, prevents modal FOUC |
-| 7 | `loadedOnRequest()` on Filament CSS assets | Prevents unused bundles from auto-loading via `@filamentStyles` |
+| 5 | `flex-field-asset-injector.js` | Injects missing `<link>` / `modulepreload`, dedupes hrefs, prevents modal FOUC |
+| 6 | `loadedOnRequest()` on Filament CSS assets | Prevents unused bundles from auto-loading via `@filamentStyles` |
 
-Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` and resolved depth-first in `stylesheetsFor()` (e.g. `schedule-field` → `timezone-field` → `flex-time-segments`).
+Dependency order is declared in `FlexFieldAssets::STYLESHEET_DEPENDENCIES` and resolved depth-first in `stylesheetsFor()` (e.g. `schedule-field` → `timezone-field` → `flex-time-segments`; `tags-field` → `select-field` → `teleported-menu`).
 
-#### JavaScript delivery pipeline
+### JavaScript delivery pipeline
 
 | Step | Class / file | Role |
 |------|----------------|------|
 | 1 | `x-load` + thin `{component}.js` entry | Alpine factory only — heavy libs in shared chunks |
-| 2 | esbuild `splitting: true` + semantic chunk names | `flex-fields-phone-lib-*`, `flex-fields-emoji-*`, … |
+| 2 | esbuild `splitting: true` + semantic chunk names | `flex-fields-select-menu-*`, `flex-fields-combobox-engine-*`, `flex-fields-phone-lib-*`, … |
 | 3 | `alpine-manifest.json` | Maps each field → chunk list for preload |
-| 4 | `FlexFieldAlpineQueue` | Dedup `modulepreload` in `<head>` — one fetch per chunk per request |
+| 4 | `FlexFieldAlpineQueue` | Dedup `modulepreload` — one fetch per chunk per request |
 | 5 | `flex-field-asset-injector.js` | Loads missing chunks from morph batches; in-flight promise cache prevents duplicate fetches |
 | 6 | Dynamic `import()` where possible | e.g. libphonenumber, emoji picker — parse cost deferred until interaction |
 
@@ -875,16 +995,16 @@ Pre-built assets ship in `resources/dist/`. The table below lists sample bundle 
 <!-- bundle-summary:start -->
 | Field / component | JS (KB) | CSS (KB) |
 |-------------------|--------:|---------:|
-| core (always) | — | 31.4 (gzip 6.6) |
-| PhoneField | 6.2 (gzip 2) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + phone-lib 185.1 (gzip 43.4) + search-normalize 0.1 (gzip 0.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 13.8 (gzip 2.7) + deps 30 |
-| CountryField | 4.2 (gzip 1.5) + country-registry 4 (gzip 1.7) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) + virtualized-list 1.8 (gzip 0.6) | 9.3 (gzip 2) + deps 30 |
-| FlexTextInput | 11.2 (gzip 3.3) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + shared 37.4 (gzip 13.4) + theme-utils 0.6 (gzip 0.3) | 22.1 (gzip 3.7) + deps 3 |
-| TagsField | 6 (gzip 2.1) + flex-dropdown-coordinator 1.7 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) | 2.3 (gzip 0.7) + deps 150.2 |
+| core (always) | — | 32.7 (gzip 6.7) |
+| PhoneField | 6.3 (gzip 2) + country-registry 4 (gzip 1.7) + fff-virtual-adapter 29.5 (gzip 8.6) + flex-dropdown-coordinator 1.8 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + phone-lib 184.7 (gzip 43.2) + search-normalize 0.1 (gzip 0.1) + select-menu 40 (gzip 10.4) + theme-utils 0.6 (gzip 0.3) + virtualized-list 0 (gzip 0) | 14.1 (gzip 2.7) + deps 31.1 |
+| CountryField | 4.2 (gzip 1.5) + country-registry 4 (gzip 1.7) + fff-virtual-adapter 29.5 (gzip 8.6) + flex-dropdown-coordinator 1.8 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 40 (gzip 10.4) + theme-utils 0.6 (gzip 0.3) + virtualized-list 0 (gzip 0) | 9.3 (gzip 2) + deps 31.1 |
+| FlexTextInput | 11.2 (gzip 3.3) + emoji 19.7 (gzip 6.2) lazy + flex-dropdown-coordinator 1.8 (gzip 0.8) + flex-text-input-caret 0.7 (gzip 0.4) + shared 37.4 (gzip 13.4) + theme-utils 0.6 (gzip 0.3) | 23 (gzip 3.8) + deps 3 |
+| TagsField | 6.6 (gzip 2.2) + flex-dropdown-coordinator 1.8 (gzip 0.8) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + search-normalize 0.1 (gzip 0.1) + select-menu 40 (gzip 10.4) + theme-utils 0.6 (gzip 0.3) | 2.3 (gzip 0.7) + deps 151.3 |
 | RatingField | 0.7 (gzip 0.3) | 4.7 (gzip 1.4) |
 | SwitchField | Alpine inline | 12.8 (gzip 2.5) |
-| UserSelect | 52.5 (gzip 13.1) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.2 (gzip 1.3) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) | 13.6 (gzip 2.3) + deps 133.9 |
-| MapPickerField | 7.5 (gzip 2.6) + flex-dropdown-coordinator 1.7 (gzip 0.8) + mapbox 15.5 (gzip 4.7) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) | 9 (gzip 2.2) + deps 31.6 |
-| SelectField | 52.5 (gzip 13.1) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire 15.8 (gzip 4) + components-select-field-headless-select-options 3.2 (gzip 1.3) + entity-mention 1.9 (gzip 0.8) + flex-dropdown-coordinator 1.7 (gzip 0.8) + flex-text-input-caret 0.5 (gzip 0.3) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 37.4 (gzip 9.8) + theme-utils 0.6 (gzip 0.3) | 116.1 (gzip 13.9) + deps 8 |
+| UserSelect | 55.4 (gzip 13.8) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire-search 15.9 (gzip 4.1) + entity-mention 1.9 (gzip 0.8) + fff-virtual-adapter 29.5 (gzip 8.6) + flex-dropdown-coordinator 1.8 (gzip 0.8) + flex-text-input-caret 0.7 (gzip 0.4) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 40 (gzip 10.4) + select-trigger 3.9 (gzip 1.5) + theme-utils 0.6 (gzip 0.3) | 13.4 (gzip 2.2) + deps 134.1 |
+| MapPickerField | 7.5 (gzip 2.6) + flex-dropdown-coordinator 1.8 (gzip 0.8) + mapbox 15.5 (gzip 4.7) + observability 0.2 (gzip 0.2) + overlay-menu-keyboard 2.9 (gzip 1.1) + select-menu 40 (gzip 10.4) + theme-utils 0.6 (gzip 0.3) | 9 (gzip 2.2) + deps 32.7 |
+| SelectField | 55.4 (gzip 13.8) + combobox-engine 4.2 (gzip 1.8) + components-select-field-headless-combobox-livewire-search 15.9 (gzip 4.1) + entity-mention 1.9 (gzip 0.8) + fff-virtual-adapter 29.5 (gzip 8.6) + flex-dropdown-coordinator 1.8 (gzip 0.8) + flex-text-input-caret 0.7 (gzip 0.4) + observability 0.2 (gzip 0.2) + overlay-scrollbar 1.9 (gzip 0.8) + search-normalize 0.1 (gzip 0.1) + select-menu 40 (gzip 10.4) + select-trigger 3.9 (gzip 1.5) + theme-utils 0.6 (gzip 0.3) | 116.2 (gzip 13.9) + deps 8.1 |
 
 Sample bundles (10 of **69** production CSS files). Full per-file metrics — every component, shared chunk, and gzip size — live in [`resources/dist/bundle-metrics.json`](resources/dist/bundle-metrics.json) (regenerated on `npm run build`). JS = entry + preloaded chunks from `alpine-manifest.json`; CSS `+ deps` = declared stylesheet dependencies.
 <!-- bundle-summary:end -->
@@ -934,3 +1054,4 @@ Questions: open a GitHub issue or email [barek122@gmail.com](mailto:barek122@gma
 ---
 
 <p align="center">Made with ❤️ by <a href="mailto:barek122@gmail.com">Bartłomiej Janczak</a></p>
+

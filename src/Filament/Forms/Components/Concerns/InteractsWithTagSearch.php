@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns;
 
+use Bjanczak\FilamentFlexFields\Support\Select\SelectSearchRateLimiter;
 use Closure;
 use Filament\Support\Components\Attributes\ExposedLivewireMethod;
 use Livewire\Attributes\Renderless;
@@ -83,6 +84,10 @@ trait InteractsWithTagSearch
     #[Renderless]
     public function getTagSearchResults(string $search): array
     {
+        if (! app(SelectSearchRateLimiter::class)->attempt((string) $this->getName())) {
+            return [];
+        }
+
         return $this->searchTagSuggestions($search);
     }
 }

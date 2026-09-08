@@ -73,8 +73,8 @@ $typeToConfigurators = [
 
 $handlerOnlyKeys = [
     'slug' => ['title_slug', 'title_field', 'required_title_locales'],
-    'file' => ['use_spatie_media_library', 'directory'],
-    'image' => ['use_spatie_media_library', 'directory'],
+    'file' => ['storage_driver', 'use_spatie_media_library', 'directory'],
+    'image' => ['storage_driver', 'use_spatie_media_library', 'directory'],
     'integer' => ['allow_decimals'],
 ];
 

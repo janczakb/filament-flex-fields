@@ -9,11 +9,14 @@
     --fff-overlay-sheet-enter-duration: 0.25s;
     --fff-overlay-sheet-exit-duration: 0.2s;
     --fff-overlay-sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
-    --fff-overlay-sheet-pad-bottom: max(0.75rem, env(safe-area-inset-bottom, 0px));
+    /* Safe-area = INNER padding only. Sheet paint stays at bottom: 0. */
+    --fff-overlay-sheet-pad-bottom: env(safe-area-inset-bottom, 0px);
     --fff-overlay-sheet-min-height: 17.5rem;
 }
 
-.fff-overlay-panel {
+/* Generic overlay panels only — teleported menus own glass scale in teleported-menu.css.
+   Applying this fade+nudge on .fff-teleported-menu made phone/country/etc look like a plain fade. */
+.fff-overlay-panel:not(.fff-teleported-menu) {
     opacity: 0;
     pointer-events: none;
     transform: translateY(0.375rem);
@@ -22,7 +25,7 @@
         transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.fff-overlay-panel.is-open {
+.fff-overlay-panel:not(.fff-teleported-menu).is-open {
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
@@ -34,6 +37,8 @@
     inset-inline: 0 !important;
     bottom: 0 !important;
     top: auto !important;
+    margin: 0 !important;
+    margin-bottom: 0 !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;
@@ -45,16 +50,19 @@
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding-bottom: var(--fff-overlay-sheet-pad-bottom, max(0.75rem, env(safe-area-inset-bottom, 0px)));
+    /* Safe-area = padding only; sheet paint stays flush to the viewport bottom. */
+    padding-bottom: var(--fff-overlay-sheet-pad-bottom, env(safe-area-inset-bottom, 0px));
     opacity: 1;
     pointer-events: none;
     transform: translate3d(0, 100%, 0);
     will-change: transform;
     transition:
         transform var(--fff-overlay-sheet-enter-duration) var(--fff-overlay-sheet-ease);
-    /* Blur during slide is expensive on mobile GPUs. */
+    /* iOS sheets must not use glass — samples page gray at the bottom edge. */
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    background: #ffffff;
+    box-shadow: none;
     contain: layout paint;
     backface-visibility: hidden;
 }
@@ -64,9 +72,17 @@
     transform: translate3d(0, 0, 0);
 }
 
+.fff-overlay-sheet[data-fff-sheet-dragging='true'] {
+    touch-action: none !important;
+    transition: none !important;
+}
+
+.dark .fff-overlay-sheet {
+    background: #27272a;
+}
+
 /* Kill legacy pseudo handle — only `.fff-overlay-sheet__handle` may render the grabber. */
-.fff-overlay-sheet::before,
-.fff-overlay-sheet::after {
+.fff-overlay-sheet::before {
     content: none !important;
     display: none !important;
     width: 0 !important;
@@ -77,16 +93,8 @@
     border: 0 !important;
 }
 
-html.fff-overlay-sheet-open,
-html.fff-overlay-sheet-open body {
-    overflow: hidden !important;
+html.fff-overlay-sheet-open {
     overscroll-behavior: none;
-    touch-action: none;
-}
-
-html.fff-overlay-sheet-open .fff-overlay-sheet,
-html.fff-overlay-sheet-open .fff-overlay-sheet * {
-    touch-action: pan-y;
 }
 
 html.fff-overlay-sheet-open .fff-overlay-sheet__handle,
@@ -120,6 +128,7 @@ html.fff-overlay-sheet-open .fff-overlay-sheet__handle * {
     position: fixed;
     inset: 0;
     z-index: 50;
+    /* Semi-transparent: Safari 26 clips fully opaque fixed layers at the toolbar. */
     background: rgb(0 0 0 / 0.35);
     opacity: 0;
     pointer-events: none;
@@ -180,9 +189,9 @@ html.fff-overlay-sheet-open .fff-overlay-sheet__handle * {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .fff-overlay-panel,
+    .fff-overlay-panel:not(.fff-teleported-menu),
     .fff-overlay-sheet,
-    .fff-overlay-panel.is-open,
+    .fff-overlay-panel:not(.fff-teleported-menu).is-open,
     .fff-overlay-sheet.is-open,
     .fff-overlay-sheet.is-dismissing,
     .fff-overlay-sheet.is-closing,
