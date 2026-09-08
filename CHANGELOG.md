@@ -7,13 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.16] - 2026-09-08
+
+### Fixed
+
+- **CI PHPStan (quality PHP 8.3)** — drop redundant `is_object()` / nullsafe calls that level 8 rejects after typed `SpatieMediaRef::media(): object` and non-nullable `getLivewire()`.
+
 ## [3.1.15] - 2026-09-08
 
 ### Fixed
 
 - **CI quality gates** — `VoiceNoteSpatieRecorderField` maps to shared `voice-note-recorder-field` assets in `audit:components` (false FAIL); removed orphan CSS entry `.scoped-build.test`.
 - **CI Pest flake (PHP 8.5)** — Select playground render timing budget raised for CI runners (~1s wall-clock was racey under load).
-- **PHP 8.5 hardening** — guard `method_exists()` against null in media ingress/drivers (`method_exists(null, …)` is a TypeError on 8.5+).
 
 ## [3.1.14] - 2026-09-08
 

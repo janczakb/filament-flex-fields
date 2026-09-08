@@ -210,8 +210,7 @@ final class MediaIngress
             $media = $ref->media();
             MediaCaptureQuarantine::quarantineSpatieMedia($media);
 
-            // PHP 8.5+: method_exists(null, …) throws TypeError (was a deprecation before).
-            if (is_object($media) && method_exists($media, 'delete')) {
+            if (method_exists($media, 'delete')) {
                 rescue(fn () => $media->delete(), report: false);
             }
 
@@ -230,7 +229,7 @@ final class MediaIngress
         if ($ref instanceof SpatieMediaRef) {
             $media = $ref->media();
 
-            if (is_object($media) && method_exists($media, 'getPath')) {
+            if (method_exists($media, 'getPath')) {
                 $scanPath = (string) $media->getPath();
             }
         } elseif ($ref->relativePath() !== null && $ref->diskName() !== null) {
