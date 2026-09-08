@@ -40,7 +40,7 @@
         "tailwindcss": "^4.3.3"
     },
     "dependencies": {
-        "@gravity-ui/icons": "^2.20.0",
+        "@gravity-ui/icons": "^2.22.0",
         "@internationalized/date": "^3.12.4",
         "@tanstack/virtual-core": "^3.17.9",
         "@zxing/browser": "^0.2.1",
