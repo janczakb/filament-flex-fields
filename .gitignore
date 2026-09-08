@@ -7,6 +7,7 @@
 #   - tests/                                  — PHPUnit & Pest suite
 #   - resources/js/, resources/css/           — frontend source (dist/ is pre-built)
 #   - package.json, package-lock.json         — Node build toolchain
+#   - composer.lock                           — reproducible CI (export-ignored from Composer dist)
 #   - src/Support/Playground/, FlexFieldsPlayground page — optional dev UI in the package
 #   - resources/dist/                         — pre-built CSS/JS for consumers without Node
 
@@ -74,7 +75,6 @@ pnpm-debug.log*
 # Maintainer-only docs — not for public GitHub (customer docs live in docs/)
 /DEVELOPMENT.md
 /COMPONENTS.md
-/composer.lock
 
 .cursor/
 .tmp/

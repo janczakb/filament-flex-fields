@@ -28,9 +28,11 @@ Virtualized Select with async Livewire search · Spatie Media Library &amp; disk
 </p>
 
 <p align="center">
+    <a href="https://github.com/janczakb/filament-flex-fields/actions/workflows/flex-fields-ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/janczakb/filament-flex-fields/flex-fields-ci.yml?branch=main&style=flat-square&label=CI" alt="CI"></a>
     <img src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square&logo=php&logoColor=white" alt="PHP 8.3+">
     <img src="https://img.shields.io/badge/Laravel-11%2B-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 11+">
     <img src="https://img.shields.io/badge/Filament-5.x-F59E0B?style=flat-square" alt="Filament 5.x">
+    <a href="SUPPORT.md"><img src="https://img.shields.io/badge/Filament_compat-CI_matrix-0ea5e9?style=flat-square" alt="Filament compatibility matrix"></a>
 </p>
 
 <p align="center"><strong>Source-available.</strong> Free for most internal Filament admin panels under Permitted Free Use — commercial license only when you ship Flex Fields as a material SaaS dependency or redistribute it. See <a href="#license">License</a>.</p>

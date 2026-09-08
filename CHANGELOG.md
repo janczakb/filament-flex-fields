@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.11] - 2026-09-08
+
+### Fixed
+
+- **CI reproducibility** — `composer.lock` is tracked in git (removed from `.gitignore`; still `export-ignore` for Composer dist) so Actions no longer floating-resolves Filament (root cause of failed [Release 3.1.10](https://github.com/janczakb/filament-flex-fields/actions/runs/34242023026) / [Release 3.1.9](https://github.com/janczakb/filament-flex-fields/actions/runs/34229936169) Pest jobs).
+
+### Tests
+
+- World-class CI: PHP **8.3/8.4/8.5** quality matrix, Filament **5.7.8 × ^5.8** compat matrix, non-blocking **`5.x-dev` canary**, `composer audit`, Actions `checkout@v7.0.1` / `setup-node@v7.0.0`, and [SUPPORT.md](SUPPORT.md) compatibility policy.
+- npm: `@tiptap/core` / `@tiptap/extension-youtube` 3.31.x, `@gravity-ui/icons` 2.22.0, `@playwright/test` ^1.62.1.
+
 ## [3.1.10] - 2026-09-08
 
 ### Fixed
@@ -18,9 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Package test suite locked/run against **filament/schemas v5.8.1**; added `TranslatableFieldsFilament58SmokeTest` covering LSP signature, `Schema` / Closure-`Schema` templates, repeated `getChildSchema()` resolution, cache invalidation, and JSON hydration via `fillStateWithNull()`.
 - Select HTML smokes accept Filament 5.8 / Laravel 13.31+ `Js::from()` encoding (`JSON.parse('{\u0022…\u0022:…}')`) via `tests/Support/AlpineJsHtml.php`.
-- **Enterprise Filament guardrails** — `FilamentOverrideCompatibilityTest` + `FilamentOverrideSignatureGuard` assert critical overrides stay LSP-compatible; CI job `filament-compat` matrix runs on **5.7.8** and **^5.8** (weekly schedule + `workflow_dispatch`); Dependabot groups `filament/*`; Composer script `composer test:filament-compat`.
-- CI pins `actions/checkout@v7.0.1` + `actions/setup-node@v7.0.0` (Node 20 deprecation) and fails fast if `composer.lock` is missing from the git checkout (root cause of [Release 3.1.9 CI](https://github.com/janczakb/filament-flex-fields/actions/runs/34229936169) resolving Filament 5.8 against the pre-#61 `schema()` signature).
-- npm: `@tiptap/core` / `@tiptap/extension-youtube` 3.31.x, `@gravity-ui/icons` 2.22.0, `@playwright/test` ^1.62.1.
+- **Enterprise Filament guardrails** — `FilamentOverrideCompatibilityTest` + `FilamentOverrideSignatureGuard` assert critical overrides stay LSP-compatible; CI job `filament-compat` matrix; Dependabot groups `filament/*`; Composer script `composer test:filament-compat`.
 
 ## [3.1.9] - 2026-09-08
 
