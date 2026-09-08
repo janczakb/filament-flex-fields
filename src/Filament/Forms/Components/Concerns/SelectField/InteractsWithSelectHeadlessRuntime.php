@@ -159,7 +159,7 @@ trait InteractsWithSelectHeadlessRuntime
     protected function resolveHeadlessLivewireId(): ?string
     {
         try {
-            return $this->getLivewire()->getId();
+            return $this->getLivewire()?->getId();
         } catch (\Throwable) {
             return null;
         }

@@ -51,7 +51,7 @@ final class SpatieMediaDriver implements MediaDriver
         try {
             $mediaAdder = $this->createMediaAdder($record, $payload);
 
-            if (! method_exists($mediaAdder, 'addCustomHeaders')) {
+            if (! is_object($mediaAdder) || ! method_exists($mediaAdder, 'addCustomHeaders')) {
                 return null;
             }
 
