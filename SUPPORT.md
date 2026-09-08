@@ -14,7 +14,7 @@ We aim to keep the plugin green on the **latest Filament 5.x stable** within **1
 
 ## How we catch Filament breaks (class of [#61](https://github.com/janczakb/filament-flex-fields/issues/61))
 
-1. **`composer.lock` is committed** for reproducible CI. It remains `export-ignore` in `.gitattributes` so Composer dist installs for customers stay unconstrained by our lock.
+1. **`composer.lock` is committed** for reproducible CI. It remains `export-ignore` in `.gitattributes` so Composer dist installs for customers stay unconstrained by our lock. Lock generation uses **`config.platform.php = 8.3.33`** so deps resolve for the minimum supported PHP (avoid Symfony 8.1+ which needs PHP ≥ 8.4).
 2. **`FilamentOverrideCompatibilityTest`** — reflection LSP checks on critical overrides (`schema()`, Select, RichEditor, …).
 3. **`filament-compat` matrix** — Pest compatibility suites on PHP × Filament axes.
 4. **`filament-dev` canary** — installs `filament/filament:5.x-dev` to surface breaks before a tag.

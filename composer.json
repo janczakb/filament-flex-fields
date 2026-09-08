@@ -105,6 +105,9 @@
     },
     "config": {
         "sort-packages": true,
+        "platform": {
+            "php": "8.3.33"
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
