@@ -1176,3 +1176,139 @@ test('logic: ensureAssets boots unprepared segment overflow shells inside modal 
     assert.equal(scrollElement.classList.contains('fff-segment-scroll-shadow--preparing'), false)
     assert.equal(scrollElement.scrollLeft, 40)
 })
+
+test('logic: shared table-columns consumer-id collapses deps and uninstalls user-display', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const display = css('user-display')
+    const column = css('user-column')
+
+    body.appendChild(createAssetBatch([display], [], {
+        consumerComponent: 'user-display',
+        livewireKey: 'table-columns',
+    }))
+    body.appendChild(createAssetBatch([column], [], {
+        consumerComponent: 'user-column',
+        livewireKey: 'table-columns',
+    }))
+
+    await ensurePage(injector, head, document)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    injector.uninstallUnretainedAssets()
+
+    assert.equal(headHas(head, 'user-display'), false)
+    assert.equal(headHas(head, 'user-column'), true)
+    assert.equal(retainedHas(injector, document, display), false)
+    assert.equal(retainedHas(injector, document, column), true)
+})
+
+test('logic: root table-columns.user-column consumer retains full dep URL set', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const display = css('user-display')
+    const column = css('user-column')
+
+    body.appendChild(createAssetBatch([display, column], [], {
+        consumerComponent: 'user-column',
+        livewireKey: 'table-columns.user-column',
+    }))
+
+    await ensurePage(injector, head, document)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    injector.uninstallUnretainedAssets()
+
+    assert.equal(headHas(head, 'user-display'), true)
+    assert.equal(headHas(head, 'user-column'), true)
+    assert.equal(retainedHas(injector, document, display), true)
+    assert.equal(retainedHas(injector, document, column), true)
+})
+
+test('logic: Livewire-scoped table consumer teardown uninstalls column CSS', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const display = css('user-display')
+    const column = css('user-column')
+
+    const batch = createAssetBatch([display, column], [], {
+        consumerComponent: 'user-column',
+        livewireKey: 'lw1.user-column',
+    })
+    const table = createElement('div')
+    table.appendChild(batch)
+    body.appendChild(table)
+
+    await ensurePage(injector, head, document)
+    assert.equal(headHas(head, 'user-display'), true)
+    assert.equal(headHas(head, 'user-column'), true)
+
+    // Fixture DOM: disconnect the consumer node itself (mirrors Livewire morph teardown).
+    batch.remove()
+    table.remove()
+    await ensurePage(injector, head, document)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    injector.uninstallUnretainedAssets()
+
+    assert.equal(headHas(head, 'user-display'), false)
+    assert.equal(headHas(head, 'user-column'), false)
+})
+
+test('logic: Livewire-scoped table consumer retains CSS for 500ms anti-flash window', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const display = css('user-display')
+    const column = css('user-column')
+
+    body.appendChild(createAssetBatch([display, column], [], {
+        consumerComponent: 'user-column',
+        livewireKey: 'lw1.user-column',
+    }))
+
+    await ensurePage(injector, head, document)
+
+    const samples = []
+    const deadline = Date.now() + 500
+
+    while (Date.now() < deadline) {
+        samples.push({
+            display: headHas(head, 'user-display'),
+            column: headHas(head, 'user-column'),
+        })
+        await new Promise((resolve) => setTimeout(resolve, 50))
+        injector.uninstallUnretainedAssets()
+    }
+
+    assert.equal(samples.length > 0, true)
+    for (const sample of samples) {
+        assert.equal(sample.display, true)
+        assert.equal(sample.column, true)
+    }
+})
+
+test('logic: consumer-less batch loads then uninstalls; consumer batch retains', async () => {
+    const { document, window, head, body } = createDom()
+    const injector = createFlexFieldAssetInjector({ document, window })
+    const href = css('item-card')
+
+    // Legacy consumer-less marker (pre-fix) — injector loads then refCount hits 0.
+    const orphan = createElement('span')
+    orphan.attributes = {
+        'data-fff-asset-batch': '',
+        'data-fff-stylesheets': JSON.stringify([href]),
+        'data-fff-chunks': '[]',
+    }
+    body.appendChild(orphan)
+
+    await ensurePage(injector, head, document)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    injector.uninstallUnretainedAssets()
+    assert.equal(headHas(head, 'item-card'), false)
+
+    body.appendChild(createAssetBatch([href], [], {
+        consumerComponent: 'item-card',
+        livewireKey: 'page.item-card',
+    }))
+    await ensurePage(injector, head, document)
+    await new Promise((resolve) => setTimeout(resolve, 200))
+    injector.uninstallUnretainedAssets()
+    assert.equal(headHas(head, 'item-card'), true)
+})

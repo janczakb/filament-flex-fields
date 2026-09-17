@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\ProgressColumnRenderCache;
 use Closure;
@@ -13,6 +14,8 @@ use Illuminate\Contracts\View\View;
 
 class ProgressColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
+
     protected string|ControlSize|Closure $progressDisplaySize = 'md';
 
     protected string|Closure|null $progressDisplayColor = 'primary';
@@ -127,17 +130,20 @@ class ProgressColumn extends TextColumn
             'showValue' => $this->shouldShowValue(),
         ], JSON_THROW_ON_ERROR));
 
-        return ProgressColumnRenderCache::remember($cacheKey, function () use ($normalized): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.progress-column', [
-                'percentage' => $normalized['percentage'],
-                'label' => $normalized['label'],
-                'size' => $this->getProgressDisplaySize(),
-                'color' => $this->getProgressColor(),
-                'showValue' => $this->shouldShowValue(),
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'progress-column',
+            ProgressColumnRenderCache::remember($cacheKey, function () use ($normalized): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.progress-column', [
+                    'percentage' => $normalized['percentage'],
+                    'label' => $normalized['label'],
+                    'size' => $this->getProgressDisplaySize(),
+                    'color' => $this->getProgressColor(),
+                    'showValue' => $this->shouldShowValue(),
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 }

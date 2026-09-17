@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\MapPinColumnRenderCache;
@@ -14,6 +15,8 @@ use Illuminate\Contracts\View\View;
 
 class MapPinColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
+
     protected string|ControlSize|Closure $pinDisplaySize = 'md';
 
     protected bool|Closure $shouldShowLabel = true;
@@ -133,17 +136,20 @@ class MapPinColumn extends TextColumn
             'showLabel' => $this->shouldShowLabel(),
         ], JSON_THROW_ON_ERROR));
 
-        return MapPinColumnRenderCache::remember($cacheKey, function () use ($location): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.map-pin-column', [
-                'label' => $location['label'],
-                'coordinates' => $location['coordinates'],
-                'size' => $this->getPinDisplaySize(),
-                'icon' => $this->getPinIcon(),
-                'showLabel' => $this->shouldShowLabel(),
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'map-pin-column',
+            MapPinColumnRenderCache::remember($cacheKey, function () use ($location): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.map-pin-column', [
+                    'label' => $location['label'],
+                    'coordinates' => $location['coordinates'],
+                    'size' => $this->getPinDisplaySize(),
+                    'icon' => $this->getPinIcon(),
+                    'showLabel' => $this->shouldShowLabel(),
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 }

@@ -14,9 +14,11 @@ use Bjanczak\FilamentFlexFields\Assets\FlexFieldsAlpineComponent;
 use Bjanczak\FilamentFlexFields\Assets\FlexFieldsCss;
 use Bjanczak\FilamentFlexFields\Console\BuildIconManifestCommand;
 use Bjanczak\FilamentFlexFields\Console\ExportAssetRegistryCommand;
+use Bjanczak\FilamentFlexFields\Console\InstallWhisperRuntimeCommand;
 use Bjanczak\FilamentFlexFields\Console\MakeFlexFieldSchemaMigrationCommand;
 use Bjanczak\FilamentFlexFields\Console\PruneCaptureMediaCommand;
 use Bjanczak\FilamentFlexFields\Console\UpgradeToV3Command;
+use Bjanczak\FilamentFlexFields\Console\WhisperRuntimeStatusCommand;
 use Bjanczak\FilamentFlexFields\Models\FlexFieldGroup;
 use Bjanczak\FilamentFlexFields\Policies\FlexFieldGroupPolicy;
 use Bjanczak\FilamentFlexFields\Support\CalculatorPanelMount;
@@ -226,6 +228,8 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
             $this->commands([
                 BuildIconManifestCommand::class,
                 ExportAssetRegistryCommand::class,
+                InstallWhisperRuntimeCommand::class,
+                WhisperRuntimeStatusCommand::class,
                 PruneCaptureMediaCommand::class,
                 UpgradeToV3Command::class,
                 MakeFlexFieldSchemaMigrationCommand::class,

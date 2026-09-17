@@ -26,6 +26,8 @@ class ItemCardStack extends Component
     {
         parent::setUp();
 
+        // Non-inheritable: stack needs a Livewire key for CRG, without polluting child field keys.
+        $this->key('item-card-stack', isInheritable: false);
         $this->gap(false);
         $this->columns(1);
     }

@@ -125,7 +125,15 @@ export default function audioFieldFormComponent({
         },
 
         get transcriptionEnabled() {
-            return this.transcription !== null
+            return this.transcription !== null && this.transcription.available !== false
+        },
+
+        get transcriptionRuntimeMissing() {
+            return this.transcription?.available === false
+        },
+
+        get transcriptionInstallCommand() {
+            return this.transcription?.installCommand ?? 'php artisan fff:whisper:install'
         },
 
         get transcriptionSettingsVisible() {

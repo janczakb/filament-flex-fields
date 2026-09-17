@@ -5,6 +5,7 @@
     $id = $getId();
     $tabPersistKey = $getTabPersistKey();
     $label = $getLabel();
+    $helperText = $getHelperText();
     $size = $getSize();
     $variant = $getVariant();
     $color = $getColor();
@@ -132,4 +133,10 @@
             {{ $tab }}
         @endif
     @endforeach
+
+    @if (filled($helperText))
+        <div class="fff-segment-tabs__helper-text">
+            {{ $helperText }}
+        </div>
+    @endif
 </div>

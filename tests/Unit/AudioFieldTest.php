@@ -9,6 +9,7 @@ use Bjanczak\FilamentFlexFields\Support\AudioWaveformGenerator;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldFormBuilder;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\WhisperRuntime;
 use Filament\Support\Icons\Heroicon;
 
 it('exposes audio field configuration api', function () {
@@ -139,6 +140,8 @@ it('registers audio field playground variants', function () {
 });
 
 it('exposes whisper transcription configuration on audio field', function () {
+    WhisperRuntime::fakeInstalled(true);
+
     $field = AudioField::make('voice')
         ->transcription()
         ->whisperModel('Xenova/whisper-small')
@@ -147,7 +150,8 @@ it('exposes whisper transcription configuration on audio field', function () {
         ->whisperQuantized(true)
         ->whisperTask('translate');
 
-    expect($field->isTranscriptionEnabled())->toBeTrue()
+    expect($field->wantsTranscription())->toBeTrue()
+        ->and($field->isTranscriptionEnabled())->toBeTrue()
         ->and($field->getWhisperModel())->toBe('Xenova/whisper-small')
         ->and($field->isWhisperMultilingual())->toBeTrue()
         ->and($field->getWhisperLanguage())->toBe('pl')
@@ -156,11 +160,28 @@ it('exposes whisper transcription configuration on audio field', function () {
 
     $config = $field->getTranscriptionAlpineConfig();
 
-    expect($config)->toHaveKeys(['model', 'quantized', 'multilingual', 'language', 'task', 'models', 'languages', 'runtimeModuleUrl', 'runtimeWasmBaseUrl'])
+    expect($config)->toHaveKeys(['available', 'model', 'quantized', 'multilingual', 'language', 'task', 'models', 'languages', 'runtimeModuleUrl', 'runtimeWasmBaseUrl'])
+        ->and($config['available'])->toBeTrue()
         ->and($config['model'])->toBe('Xenova/whisper-small')
         ->and($config['language'])->toBe('pl')
         ->and($config['runtimeModuleUrl'])->toContain('whisper/transformers.min.js')
         ->and($config['runtimeWasmBaseUrl'])->toContain('whisper/');
+});
+
+it('soft-disables transcription ui when whisper runtime is not installed', function () {
+    WhisperRuntime::fakeInstalled(false);
+
+    $field = AudioField::make('voice')->transcription();
+
+    expect($field->wantsTranscription())->toBeTrue()
+        ->and($field->isTranscriptionEnabled())->toBeFalse()
+        ->and($field->isTranscriptionRuntimeMissing())->toBeTrue();
+
+    $config = $field->getTranscriptionAlpineConfig();
+
+    expect($config['available'])->toBeFalse()
+        ->and($config['reason'])->toBe('runtime_missing')
+        ->and($config['installCommand'])->toBe('php artisan fff:whisper:install');
 });
 
 it('rejects invalid whisper task', function () {

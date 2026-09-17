@@ -1,4 +1,6 @@
 import { resolveOverlayMode } from '../../core/overlay-mode.js'
+import { forceHideForeignSelectMenus } from '../../core/searchable-select-menu.js'
+import { openExclusiveFlexDropdown, resolveDropdownOwnerId } from '../../core/flex-dropdown-coordinator.js'
 import { syncDropdownScrollbarInset } from './headless-combobox-scroll-virt.js'
 import {
     scheduleInlineSearchCaretAtEnd,
@@ -16,6 +18,14 @@ export function createHeadlessComboboxOpenCloseMixin() {
         comboboxOpenMenu() {
             if (this.disabled) {
                 return
+            }
+
+            forceHideForeignSelectMenus(this.resolveMenuElement?.() ?? this.$refs?.headlessMenu ?? null)
+
+            const ownerId = resolveDropdownOwnerId(this.$el, 'fff-headless-select')
+
+            if (ownerId) {
+                openExclusiveFlexDropdown(ownerId)
             }
 
             this.ensureInlineSearchInputValueBeforeOpen()

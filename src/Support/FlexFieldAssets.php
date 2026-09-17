@@ -226,6 +226,9 @@ class FlexFieldAssets
         'date-time-fields' => ['flex-time-segments'],
         'field-intelligence' => ['number-stepper', 'select-field', 'flex-textarea', 'currency-field'],
         'focus-outline' => ['select-field', 'flex-textarea', 'phone-field', 'credit-card'],
+        // Schema conditions demos SelectField + FlexTextInput — select must be in the
+        // blocking playground bundle or Filament’s fi-input-wrp chrome flashes on reload.
+        'schema-conditions' => ['select-field'],
         'translatable-fields' => ['flex-text-input', 'flex-textarea'],
     ];
 
@@ -581,6 +584,40 @@ class FlexFieldAssets
     }
 
     /**
+     * Stable CRG consumer-id for emit-assets. Never returns blank — keyless schema
+     * components (ItemCardStack::make()) must still retain lazy CSS after injector boot.
+     */
+    public static function resolveAssetConsumerLivewireKey(string $component, ?string $livewireKey = null): string
+    {
+        if (filled($livewireKey)) {
+            return $livewireKey;
+        }
+
+        $component = self::resolveCanonicalComponent($component);
+        $livewire = \Livewire\Livewire::current();
+        $livewireId = is_object($livewire) ? $livewire->getId() : null;
+
+        if (filled($livewireId)) {
+            return $livewireId.'.'.$component;
+        }
+
+        return 'page.'.$component;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public static function consumerAttributesForComponent(string $component, ?string $livewireKey = null): array
+    {
+        $canonical = self::resolveCanonicalComponent($component);
+
+        return self::consumerAttributesFor(
+            self::resolveAssetConsumerLivewireKey($canonical, $livewireKey),
+            $canonical,
+        );
+    }
+
+    /**
      * @return array<string, array{
      *     componentId: string,
      *     stylesheets: list<string>,
@@ -847,7 +884,14 @@ class FlexFieldAssets
     {
         $runningInConsole ??= app()->runningInConsole();
 
-        return ! (app()->isProduction() && ! $runningInConsole);
+        // Console (filament:assets, deploy hooks) may always sync.
+        if ($runningInConsole) {
+            return true;
+        }
+
+        // HTTP auto-publish is local/testing DX only — never staging/production
+        // (avoids re-copying large static trees onto ephemeral disks every request).
+        return app()->environment('local', 'testing');
     }
 
     public static function publishRegisteredFilamentAssetsIfStale(Filesystem $filesystem): void
@@ -893,6 +937,12 @@ class FlexFieldAssets
 
         foreach ($filesystem->allFiles($source) as $file) {
             $relativePath = str_replace('\\', '/', substr($file->getPathname(), strlen($source) + 1));
+
+            // Whisper / ONNX runtime is opt-in via `fff:whisper:install` — never auto-copied.
+            if ($relativePath === 'whisper' || str_starts_with($relativePath, 'whisper/')) {
+                continue;
+            }
+
             $target = $destination.'/'.$relativePath;
 
             if (is_file($target) && filemtime($file->getPathname()) <= filemtime($target)) {

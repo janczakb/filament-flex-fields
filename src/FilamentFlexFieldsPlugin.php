@@ -12,6 +12,7 @@ namespace Bjanczak\FilamentFlexFields;
 
 use Bjanczak\FilamentFlexFields\Enums\Density;
 use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundCluster;
+use Bjanczak\FilamentFlexFields\Filament\Pages\FlexFieldsPlaygroundIndexPage;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupResourceRegistrar;
 use Bjanczak\FilamentFlexFields\Support\Theme\FlexFieldsTheme;
@@ -70,6 +71,7 @@ class FilamentFlexFieldsPlugin implements Plugin
         if (FlexFieldsPlaygroundRegistry::isEnabled()) {
             $panel->pages([
                 FlexFieldsPlaygroundCluster::class,
+                FlexFieldsPlaygroundIndexPage::class,
                 ...FlexFieldsPlaygroundRegistry::pageConfigurations(),
             ]);
         }

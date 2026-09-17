@@ -60,7 +60,7 @@
         })"
             x-init="init()"
             x-on:keydown.escape.stop="comboboxOpen && comboboxCloseMenu()"
-            x-on:click.outside="if (isEventInsideHeadlessMenu($event)) { return }; comboboxCloseMenu()"
+            x-on:click.outside="if (isEventInsideHeadlessMenu($event)) { return }; comboboxCloseMenu({ immediate: true })"
             @class([
                 'fff-select-field__interactive',
             ])

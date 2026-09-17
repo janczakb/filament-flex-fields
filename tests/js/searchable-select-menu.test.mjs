@@ -118,6 +118,11 @@ describe('searchable select menu scroll reposition', () => {
 
                 return bodyChildren.find((node) => node.dataset?.fffOverlayBackdrop === match[1]) ?? null
             },
+            addEventListener() {},
+            removeEventListener() {},
+            querySelectorAll() {
+                return []
+            },
         }
         globalThis.window = {
             Alpine: { store: () => null },
@@ -849,21 +854,96 @@ describe('searchable select menu scroll reposition', () => {
             'foreign-menu': foreign,
         }
 
+        const previousGetElementById = globalThis.document.getElementById
+        const previousQuerySelector = globalThis.document.querySelector
+        const previousQuerySelectorAll = globalThis.document.querySelectorAll
+
         globalThis.document.getElementById = (id) => elementsById[id] ?? null
         globalThis.document.querySelector = () => null
         globalThis.document.querySelectorAll = () => [foreign, own]
 
-        const resolved = resolveSearchableSelectMenuElement({
-            $refs: { headlessMenu: foreign },
-            menuDomId: 'own-menu',
-            componentKey: 'data.select__scale_10k',
-        }, 'headlessMenu')
+        try {
+            const resolved = resolveSearchableSelectMenuElement({
+                $refs: { headlessMenu: foreign },
+                menuDomId: 'own-menu',
+                componentKey: 'data.select__scale_10k',
+            }, 'headlessMenu')
 
-        assert.equal(resolved, own)
+            assert.equal(resolved, own)
 
-        forceHideForeignSelectMenus(own)
-        // foreign loses is-open/is-closing; own is skipped
-        assert.equal(typeof foreign.classList.remove, 'function')
+            forceHideForeignSelectMenus(own)
+            // foreign loses is-open/is-closing; own is skipped
+            assert.equal(typeof foreign.classList.remove, 'function')
+        } finally {
+            globalThis.document.getElementById = previousGetElementById
+            globalThis.document.querySelector = previousQuerySelector
+            globalThis.document.querySelectorAll = previousQuerySelectorAll
+        }
+    })
+
+    it('force-hides foreign teleported menus and closes Alpine open state', async () => {
+        const { forceHideForeignSelectMenus } = await import(
+            '../../resources/js/core/searchable-select-menu.js'
+        )
+
+        const foreign = {
+            classList: {
+                classes: new Set(['is-open', 'fff-teleported-menu']),
+                remove(...names) {
+                    for (const name of names) {
+                        this.classes.delete(name)
+                    }
+                },
+                contains(name) {
+                    return this.classes.has(name)
+                },
+            },
+        }
+
+        const own = {
+            classList: {
+                classes: new Set(['is-open']),
+                remove() {},
+                contains(name) {
+                    return this.classes.has(name)
+                },
+            },
+        }
+
+        let closed = false
+        const previousQuerySelectorAll = globalThis.document.querySelectorAll
+        const previousAlpine = globalThis.window?.Alpine
+
+        globalThis.window = globalThis.window ?? {}
+        globalThis.window.Alpine = {
+            $data(el) {
+                if (el === foreign) {
+                    return {
+                        countryOpen: true,
+                        closeTeleportedMenuImmediate() {
+                            closed = true
+                            this.countryOpen = false
+                        },
+                    }
+                }
+
+                return null
+            },
+        }
+
+        globalThis.document.querySelectorAll = () => [foreign, own]
+
+        try {
+            forceHideForeignSelectMenus(own)
+
+            assert.equal(closed, true)
+            assert.equal(foreign.classList.classes.has('is-open'), false)
+        } finally {
+            globalThis.document.querySelectorAll = previousQuerySelectorAll
+            if (previousAlpine) {
+                globalThis.window.Alpine = previousAlpine
+            }
+        }
     })
 
     it('closes exclusive sibling immediately without waiting for glass exit', () => {

@@ -8,11 +8,13 @@ use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\HasControlSize;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldFocusOutline;
 use Bjanczak\FilamentFlexFields\Concerns\HasFieldRounding;
+use Bjanczak\FilamentFlexFields\Enums\PhoneNationalFormat;
 use Bjanczak\FilamentFlexFields\StateCasts\PhoneFieldStateCast;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistry;
 use Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\PhoneCountries;
+use Bjanczak\FilamentFlexFields\Support\PhoneNumberInsights;
 use Closure;
 use Filament\Forms\Components\Concerns\CanBeReadOnly;
 use Filament\Forms\Components\Concerns\HasPlaceholder;
@@ -60,6 +62,33 @@ class PhoneField extends Field
     protected bool|Closure $mobileOnly = false;
 
     protected bool|Closure $fixedLineOnly = false;
+
+    /**
+     * Explicit libphonenumber types. When set, overrides mobileOnly/fixedLineOnly sugar.
+     *
+     * @var list<PhoneNumberType|string|int>|Closure|null
+     */
+    protected array|Closure|null $allowTypes = null;
+
+    protected bool|Closure $strictTypes = false;
+
+    protected bool|Closure $validateForRegion = false;
+
+    protected PhoneNationalFormat|string|Closure $nationalFormat = PhoneNationalFormat::National;
+
+    /**
+     * Optional dehydrated format keys: international, rfc3966.
+     *
+     * @var list<string>|Closure
+     */
+    protected array|Closure $includeFormats = [];
+
+    /**
+     * Optional dehydrated metadata keys: carrier, geo, timezones, type.
+     *
+     * @var list<string>|Closure
+     */
+    protected array|Closure $includeMetadata = [];
 
     protected bool|Closure $browserLocaleDefault = false;
 
@@ -249,6 +278,87 @@ class PhoneField extends Field
     }
 
     /**
+     * Restrict accepted libphonenumber number types.
+     *
+     * @param  list<PhoneNumberType|string|int>|Closure|null  $types
+     */
+    public function allowTypes(array|Closure|null $types): static
+    {
+        $this->allowTypes = $types;
+
+        return $this;
+    }
+
+    /**
+     * When true, FIXED_LINE_OR_MOBILE is not auto-accepted alongside MOBILE / FIXED_LINE.
+     */
+    public function strictTypes(bool|Closure $condition = true): static
+    {
+        $this->strictTypes = $condition;
+
+        return $this;
+    }
+
+    /**
+     * Use {@see PhoneNumberUtil::isValidNumberForRegion()} against the selected country.
+     */
+    public function validateForRegion(bool|Closure $condition = true): static
+    {
+        $this->validateForRegion = $condition;
+
+        return $this;
+    }
+
+    public function nationalFormat(PhoneNationalFormat|string|Closure $format): static
+    {
+        $this->nationalFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * Digits-only `national` after successful normalize (opt-in; default remains NATIONAL).
+     */
+    public function nationalDigitsOnly(bool|Closure $condition = true): static
+    {
+        if ($condition instanceof Closure) {
+            $this->nationalFormat = function () use ($condition): PhoneNationalFormat {
+                return ((bool) $this->evaluate($condition))
+                    ? PhoneNationalFormat::Digits
+                    : PhoneNationalFormat::National;
+            };
+
+            return $this;
+        }
+
+        $this->nationalFormat = ((bool) $condition)
+            ? PhoneNationalFormat::Digits
+            : PhoneNationalFormat::National;
+
+        return $this;
+    }
+
+    /**
+     * @param  list<string>|Closure  $formats  `international`, `rfc3966`
+     */
+    public function includeFormats(array|Closure $formats): static
+    {
+        $this->includeFormats = $formats;
+
+        return $this;
+    }
+
+    /**
+     * @param  list<string>|Closure  $metadata  `carrier`, `geo`, `timezones`, `type`
+     */
+    public function includeMetadata(array|Closure $metadata): static
+    {
+        $this->includeMetadata = $metadata;
+
+        return $this;
+    }
+
+    /**
      * @return list<string>|null
      */
     public function getAllowedCountryCodes(): ?array
@@ -315,6 +425,93 @@ class PhoneField extends Field
     public function isFixedLineOnly(): bool
     {
         return (bool) $this->evaluate($this->fixedLineOnly);
+    }
+
+    /**
+     * @return list<PhoneNumberType>|null
+     */
+    public function getAllowedTypes(): ?array
+    {
+        $explicit = $this->evaluate($this->allowTypes);
+
+        if (is_array($explicit) && $explicit !== []) {
+            return PhoneNumberInsights::normalizeAllowedTypes($explicit);
+        }
+
+        if ($this->isMobileOnly() && $this->isFixedLineOnly()) {
+            throw new InvalidArgumentException('PhoneField cannot require both mobileOnly() and fixedLineOnly().');
+        }
+
+        if ($this->isMobileOnly()) {
+            return [PhoneNumberType::MOBILE];
+        }
+
+        if ($this->isFixedLineOnly()) {
+            return [PhoneNumberType::FIXED_LINE];
+        }
+
+        return null;
+    }
+
+    public function usesStrictTypes(): bool
+    {
+        return (bool) $this->evaluate($this->strictTypes);
+    }
+
+    public function shouldValidateForRegion(): bool
+    {
+        return (bool) $this->evaluate($this->validateForRegion);
+    }
+
+    public function getNationalFormat(): PhoneNationalFormat
+    {
+        $format = $this->evaluate($this->nationalFormat);
+
+        if ($format instanceof PhoneNationalFormat) {
+            return $format;
+        }
+
+        return PhoneNationalFormat::tryFrom(strtolower((string) $format))
+            ?? throw new InvalidArgumentException("Unsupported phone national format [{$format}].");
+    }
+
+    public function storesNationalDigitsOnly(): bool
+    {
+        return $this->getNationalFormat() === PhoneNationalFormat::Digits;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getIncludedFormats(): array
+    {
+        $formats = $this->evaluate($this->includeFormats);
+
+        if (! is_array($formats)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_map(
+            static fn (mixed $format): string => strtolower((string) $format),
+            $formats,
+        )));
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getIncludedMetadata(): array
+    {
+        $metadata = $this->evaluate($this->includeMetadata);
+
+        if (! is_array($metadata)) {
+            return [];
+        }
+
+        return array_values(array_unique(array_map(
+            static fn (mixed $item): string => strtolower((string) $item),
+            $metadata,
+        )));
     }
 
     public function getCountryPool(): string
@@ -427,13 +624,65 @@ class PhoneField extends Field
     }
 
     /**
+     * Resolved input placeholder: custom value, else libphonenumber example for country/type, else lang default.
+     */
+    public function getPhonePlaceholder(): string
+    {
+        $custom = $this->getPlaceholder();
+
+        if (filled($custom)) {
+            return (string) $custom;
+        }
+
+        $example = $this->getExampleNationalPlaceholder();
+
+        if (filled($example)) {
+            return $example;
+        }
+
+        return (string) __('filament-flex-fields::default.phone.placeholder');
+    }
+
+    /**
+     * National-formatted example for the current default country and type constraints.
+     */
+    public function getExampleNationalPlaceholder(): ?string
+    {
+        try {
+            $util = PhoneNumberUtil::getInstance();
+            $country = $this->getDefaultCountryCode();
+            $allowedTypes = $this->getAllowedTypes();
+
+            $example = match (true) {
+                $allowedTypes !== null && count($allowedTypes) === 1 => $util->getExampleNumberForType($country, $allowedTypes[0]),
+                $this->isMobileOnly() => $util->getExampleNumberForType($country, PhoneNumberType::MOBILE),
+                $this->isFixedLineOnly() => $util->getExampleNumberForType($country, PhoneNumberType::FIXED_LINE),
+                default => $util->getExampleNumber($country),
+            };
+
+            if ($example === null) {
+                return null;
+            }
+
+            return PhoneNumberInsights::formatNationalDisplay(
+                $example,
+                $util,
+                $this->storesNationalDigitsOnly(),
+            );
+        } catch (NumberParseException | InvalidArgumentException) {
+            return null;
+        }
+    }
+
+    /**
      * @param  array<string, mixed>|string|null  $state
-     * @return array{country: string, national: string, e164: string}
+     * @return array<string, mixed>
      */
     public function normalizeState(mixed $state): array
     {
         $defaultCountry = $this->getDefaultCountryCode();
         $allowed = PhoneCountries::resolve($this->getAllowedCountryCodes(), $this->getExceptCountryCodes());
+        $digitsOnly = $this->storesNationalDigitsOnly();
 
         if (is_string($state)) {
             $state = $this->parseStringState($state, $defaultCountry, $allowed);
@@ -449,8 +698,9 @@ class PhoneField extends Field
             $country = $defaultCountry;
         }
 
-        $national = preg_replace('/\D/', '', (string) ($state['national'] ?? '')) ?? '';
+        $national = PhoneNumberInsights::nationalDigits((string) ($state['national'] ?? ''));
         $e164 = trim((string) ($state['e164'] ?? ''));
+        $extra = [];
 
         if ($national !== '') {
             try {
@@ -459,7 +709,14 @@ class PhoneField extends Field
 
                 if ($util->isValidNumber($parsed)) {
                     $e164 = $util->format($parsed, PhoneNumberFormat::E164);
-                    $national = $util->format($parsed, PhoneNumberFormat::NATIONAL);
+                    $national = PhoneNumberInsights::formatNationalDisplay($parsed, $util, $digitsOnly);
+                    $extra = PhoneNumberInsights::enrich(
+                        $parsed,
+                        $util,
+                        $this->getIncludedFormats(),
+                        $this->getIncludedMetadata(),
+                        $this->getLocale(),
+                    );
                 } elseif ($e164 === '') {
                     $e164 = PhoneCountries::dialCode($country).$national;
                 }
@@ -476,38 +733,49 @@ class PhoneField extends Field
             'country' => $country,
             'national' => $national,
             'e164' => $e164,
+            ...$extra,
         ];
     }
 
     /**
-     * @param  array{country: string, national: string, e164: string}  $state
+     * @param  array<string, mixed>  $state
      */
     public function getPhoneValidationMessage(array $state): ?string
     {
-        if ($state['national'] === '') {
+        if (($state['national'] ?? '') === '') {
             return null;
         }
 
-        if ($this->isMobileOnly() && $this->isFixedLineOnly()) {
-            throw new InvalidArgumentException('PhoneField cannot require both mobileOnly() and fixedLineOnly().');
-        }
+        // Surface mobile+fixed conflict early (also throws from getAllowedTypes()).
+        $allowedTypes = $this->getAllowedTypes();
 
         try {
             $util = PhoneNumberUtil::getInstance();
-            $parsed = $util->parse($state['national'], $state['country']);
+            $raw = filled($state['e164'] ?? null)
+                ? (string) $state['e164']
+                : (string) $state['national'];
+            $parsed = $util->parse($raw, (string) $state['country']);
 
             if (! $util->isValidNumber($parsed)) {
                 return __('filament-flex-fields::default.validation.phone.invalid');
             }
 
-            $type = $util->getNumberType($parsed);
-
-            if ($this->isMobileOnly() && ! in_array($type, [PhoneNumberType::MOBILE, PhoneNumberType::FIXED_LINE_OR_MOBILE], true)) {
-                return __('filament-flex-fields::default.validation.phone.mobile_only');
+            if ($this->shouldValidateForRegion() && ! $util->isValidNumberForRegion($parsed, (string) $state['country'])) {
+                return __('filament-flex-fields::default.validation.phone.invalid_for_region');
             }
 
-            if ($this->isFixedLineOnly() && ! in_array($type, [PhoneNumberType::FIXED_LINE, PhoneNumberType::FIXED_LINE_OR_MOBILE], true)) {
-                return __('filament-flex-fields::default.validation.phone.fixed_line_only');
+            $type = $util->getNumberType($parsed);
+
+            if ($allowedTypes !== null && ! PhoneNumberInsights::typeIsAllowed($type, $allowedTypes, $this->usesStrictTypes())) {
+                if ($this->isMobileOnly() && $this->getEvaluatedAllowTypes() === null) {
+                    return __('filament-flex-fields::default.validation.phone.mobile_only');
+                }
+
+                if ($this->isFixedLineOnly() && $this->getEvaluatedAllowTypes() === null) {
+                    return __('filament-flex-fields::default.validation.phone.fixed_line_only');
+                }
+
+                return __('filament-flex-fields::default.validation.phone.type_not_allowed');
             }
         } catch (NumberParseException) {
             return __('filament-flex-fields::default.validation.phone.invalid');
@@ -517,12 +785,23 @@ class PhoneField extends Field
     }
 
     /**
+     * @return list<PhoneNumberType|string|int>|null
+     */
+    protected function getEvaluatedAllowTypes(): ?array
+    {
+        $explicit = $this->evaluate($this->allowTypes);
+
+        return is_array($explicit) && $explicit !== [] ? $explicit : null;
+    }
+
+    /**
      * @param  list<string>  $allowed
-     * @return array{country: string, national: string, e164: string}
+     * @return array<string, mixed>
      */
     protected function parseStringState(string $value, string $defaultCountry, array $allowed): array
     {
         $value = trim($value);
+        $digitsOnly = $this->storesNationalDigitsOnly();
 
         if ($value === '') {
             return [
@@ -541,15 +820,30 @@ class PhoneField extends Field
                 $region = $defaultCountry;
             }
 
-            return [
+            $base = [
                 'country' => $region,
-                'national' => $util->format($parsed, PhoneNumberFormat::NATIONAL),
+                'national' => PhoneNumberInsights::formatNationalDisplay($parsed, $util, $digitsOnly),
                 'e164' => $util->format($parsed, PhoneNumberFormat::E164),
             ];
+
+            if ($util->isValidNumber($parsed)) {
+                return [
+                    ...$base,
+                    ...PhoneNumberInsights::enrich(
+                        $parsed,
+                        $util,
+                        $this->getIncludedFormats(),
+                        $this->getIncludedMetadata(),
+                        $this->getLocale(),
+                    ),
+                ];
+            }
+
+            return $base;
         } catch (NumberParseException) {
             return [
                 'country' => $defaultCountry,
-                'national' => preg_replace('/\D/', '', $value) ?? '',
+                'national' => PhoneNumberInsights::nationalDigits($value),
                 'e164' => '',
             ];
         }

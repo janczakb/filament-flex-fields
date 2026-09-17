@@ -72,6 +72,7 @@ All methods accept `Closure` unless noted.
 | `fullWidth(bool\|Closure $on)` | Setup | `false` | Stretch tabs to full container width. |
 | `iconOnly(bool\|Closure $on)` | Setup | `false` | Hide tab labels; show icons only. |
 | `expandSelectedLabel(bool\|Closure $on)` | Setup | `false` | Animate the selected tab to a wider width. |
+| `helperText(string\|Htmlable\|Closure\|null $text)` | Setup | `null` | Helper copy below the tab panels (same idea as form fields). |
 | `size(string\|Closure $size)` | Setup | `'md'` | Control size: `sm`, `md`, `lg`. |
 
 #### SegmentTab API

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Concerns\ResolvesUserDisplay;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\UserColumnRenderCache;
 use Bjanczak\FilamentFlexFields\Support\UserColumnSharedStackCache;
@@ -20,6 +21,7 @@ use Illuminate\Support\Collection;
 
 class UserColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
     use ResolvesUserDisplay;
 
     protected int|Closure $maxVisibleAvatars = 4;
@@ -164,11 +166,11 @@ class UserColumn extends TextColumn
             return '';
         }
 
-        if (count($users) === 1) {
-            return $this->renderRichUser($users[0]);
-        }
+        $html = count($users) === 1
+            ? $this->renderRichUser($users[0])
+            : $this->renderAvatarStack($users);
 
-        return $this->renderAvatarStack($users);
+        return $this->withFlexFieldColumnAssets('user-column', $html);
     }
 
     /**

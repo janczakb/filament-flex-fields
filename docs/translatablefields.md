@@ -531,6 +531,7 @@ TranslatableFields::make('field_name')
 | `fullWidth(bool\|Closure $condition = true)` | Stretch tabs to full container width. |
 | `iconOnly(bool\|Closure $condition = true)` | Hide tab labels; show icons only. |
 | `expandSelectedLabel(bool\|Closure $condition = true)` | Animate selected tab to wider width. |
+| `helperText(string\|Htmlable\|Closure\|null $text)` | Helper copy below the tab panels (field-style). |
 | `size(string\|ControlSize\|Closure $size)` | See [Control size](/docs/shared-concepts). |
 
 ### Global defaults

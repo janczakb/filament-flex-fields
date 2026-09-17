@@ -7,6 +7,7 @@
 
 @source "../views/partials/playground/**/*.blade.php";
 @source "../views/pages/flex-fields-playground-component.blade.php";
+@source "../views/pages/flex-fields-playground-index.blade.php";
 
 @import "./playground/playground.css";
 @import "./playground/user-column-playground.css";

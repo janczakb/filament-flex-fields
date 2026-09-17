@@ -64,3 +64,9 @@ it('still publishes stale package assets on production console commands', functi
 
     expect(FlexFieldAssets::shouldPublishStalePackageAssets(runningInConsole: true))->toBeTrue();
 });
+
+it('does not publish stale package assets on staging web requests', function () {
+    app()->detectEnvironment(fn (): string => 'staging');
+
+    expect(FlexFieldAssets::shouldPublishStalePackageAssets(runningInConsole: false))->toBeFalse();
+});

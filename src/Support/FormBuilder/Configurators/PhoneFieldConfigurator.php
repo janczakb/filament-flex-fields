@@ -58,8 +58,40 @@ final class PhoneFieldConfigurator implements FieldConfigurator
             $field->fixedLineOnly((bool) $config['fixed_line_only']);
         }
 
+        if (array_key_exists('allow_types', $config) && is_array($config['allow_types'])) {
+            $field->allowTypes($config['allow_types']);
+        }
+
+        if (array_key_exists('strict_types', $config)) {
+            $field->strictTypes((bool) $config['strict_types']);
+        }
+
+        if (array_key_exists('validate_for_region', $config)) {
+            $field->validateForRegion((bool) $config['validate_for_region']);
+        }
+
+        if (array_key_exists('national_format', $config) && filled($config['national_format'])) {
+            $field->nationalFormat((string) $config['national_format']);
+        }
+
+        if (array_key_exists('include_formats', $config) && is_array($config['include_formats'])) {
+            $field->includeFormats($config['include_formats']);
+        }
+
+        if (array_key_exists('include_metadata', $config) && is_array($config['include_metadata'])) {
+            $field->includeMetadata($config['include_metadata']);
+        }
+
+        if (array_key_exists('browser_locale_default', $config)) {
+            $field->browserLocaleDefault((bool) $config['browser_locale_default']);
+        }
+
+        if (array_key_exists('browser_locale_sort_first', $config)) {
+            $field->browserLocaleSortFirst((bool) $config['browser_locale_sort_first']);
+        }
+
         if (array_key_exists('locale', $config) && filled($config['locale'])) {
-            $field->locale($config['locale']);
+            $field->locale((string) $config['locale']);
         }
 
         return $field;

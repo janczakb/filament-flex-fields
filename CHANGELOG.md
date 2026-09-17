@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.18] - 2026-09-17
+
+### Fixed
+
+- **ItemCardStack / form layout CSS uninstall** — central `FlexFieldAssets::resolveAssetConsumerLivewireKey()` + `consumerAttributesForComponent()` guarantee every emit batch has a CRG consumer (`{livewireId}.{component}` / `page.{component}` when Filament `getLivewireKey()` is null). `emit-assets` defense-in-depth never ships consumer-less markers; `ItemCardStack` / `ItemCardGroup` default keys use `isInheritable: false` so CRG ownership does not double child field paths. Consumer-less batches previously loaded then got uninstalled (~150ms), so production forms looked broken while playground bundles stayed protected.
+- **UserColumn / table lazy CSS flash** — table columns emit Livewire-scoped CRG consumers from the first cell (`{livewireId}.{component}`) with the full root URL set; `load-stylesheet` matches that ownership model; `queued-stylesheets` stays a safety net with `table-columns.{root}`. Shared `table-columns` ids previously collapsed deps and uninstalled CSS after ~150ms.
+- **Schema conditions playground FOUC** — hub now bundles `select-field` CSS (with Flex Text Input); core anti-FOUC paints Select / Flex Text Input chrome before lazy sheets so border color no longer jumps on reload.
+- **TranslatableFields / SegmentTabs `helperText()`** — schema layout now supports field-style helper copy below the tab panels (previously threw `BadMethodCallException`).
+
+### Changed
+
+- **Whisper runtime opt-in (#64)** — ~40 MB `@xenova/transformers` ONNX/WASM is **removed from the Composer package** and no longer auto-copied to `public/` by `publishStaticAssetsIfStale()`. Install with `php artisan fff:whisper:install` (SHA-256 pinned via `WhisperRuntimeManifest`); inspect with `fff:whisper:status`; CI gate with `fff:whisper:install --check`. `AudioField::transcription()` soft-disables the Transcribe UI until the runtime is present (player always works). Source maps are not installed. HTTP auto-publish of package static assets is limited to `local`/`testing` (staging no longer re-copies on every request). Upgrade: apps that use transcription should run `fff:whisper:install` once per environment after updating to 3.1.18+.
+- **PhoneField** — docs lock `national` after normalize as libphonenumber NATIONAL formatting; schema defaults/configurator triple-sync for `browser_locale_*` and `locale` (parity with CountryField); additive playground demos (`fixedLineOnly`, `exceptCountries`, `searchable(false)`, `readOnly`); PHP example national placeholders when no custom placeholder; soft client `isPossiblePhoneNumber` hint from existing `libphonenumber-js/min` (CSS/aria only, non-blocking).
+- **Phone / Country / Select overlays** — exclusive open is claimed before async country load; `forceHideForeignSelectMenus` also closes teleported phone/country menus (Alpine `closeTeleportedMenuImmediate`) so only one dropdown stays open across phone ↔ select; playground Non-searchable uses the full country list (`searchable(false)` only).
+- **PhoneField** — `allowTypes()` / `strictTypes()`, `validateForRegion()`, `nationalDigitsOnly()` (default NATIONAL stays BC), `includeFormats(['international','rfc3966'])`, `includeMetadata(['carrier','geo','timezones','type'])` via PHP libphonenumber mappers (zero phone-lib JS cost); schema + Flex Forms validator parity.
+- **Playground catalog** — new `/admin/flex-fields-playground/index` homepage lists every hub by category with GitHub `art/*.webp` previews (Gravity icon fallback when art is missing); cluster entry redirects here.
+
 ## [3.1.17] - 2026-09-08
 
 ### Fixed

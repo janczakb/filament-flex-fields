@@ -119,6 +119,27 @@ it('bundles focus chrome for the focus-outline playground hub', function () {
         ->toContain('.fff-credit-card');
 });
 
+it('bundles select field chrome for the schema-conditions playground hub', function () {
+    expect(FlexFieldAssets::resolveStylesheetComponent('schema-conditions'))
+        ->toBe('flex-text-input')
+        ->and(FlexFieldAssets::playgroundStylesheetsFor('schema-conditions'))
+        ->toBe([
+            'emoji-picker',
+            'flex-text-input',
+            'overlay-runtime',
+            'teleported-menu',
+            'select-field',
+        ]);
+
+    $bundlePath = FlexFieldAssets::playgroundBundlePathForSlug('schema-conditions');
+
+    expect(is_file($bundlePath))->toBeTrue()
+        ->and(filesize($bundlePath))->toBeGreaterThan(1000)
+        ->and((string) file_get_contents($bundlePath))
+        ->toContain('.fff-flex-text-input')
+        ->toContain('.fi-input-wrp.fff-select-field');
+});
+
 it('keeps flex text input in its own bundle separate from phone field', function () {
     $phoneCss = file_get_contents(__DIR__.'/../../resources/dist/css/phone-field.css');
     $flexTextInputCss = file_get_contents(__DIR__.'/../../resources/dist/css/flex-text-input.css');
@@ -228,9 +249,47 @@ it('emits pending assets inline when a field registers stylesheets', function ()
     expect($blade)
         ->toContain('FlexFieldStylesheetQueue::enqueueFor')
         ->toContain('FlexFieldAlpineQueue::enqueueChunksFor')
+        ->toContain('FlexFieldAssets::stylesheetsFor')
+        ->toContain('FlexFieldAssets::alpineChunksFor')
+        ->toContain('resolvedLivewireKey')
         ->toContain('emit-assets')
         ->toContain('markStylesheetsEmitted')
         ->not->toContain('@pushOnce');
+});
+
+it('never emits stylesheet batches without a CRG consumer id', function () {
+    FlexFieldStylesheetQueue::reset();
+
+    $html = view('filament-flex-fields::partials.load-stylesheet', [
+        'component' => 'item-card',
+        'livewireKey' => null,
+    ])->render();
+
+    expect($html)
+        ->toContain('data-fff-asset-batch')
+        ->toContain('data-fff-asset-consumer="item-card"')
+        ->toContain('data-fff-asset-consumer-id="page.item-card"')
+        ->toContain('flex-fields-item-card.css');
+});
+
+it('resolves asset consumer livewire keys for keyless schema components', function () {
+    expect(FlexFieldAssets::resolveAssetConsumerLivewireKey('item-card', null))
+        ->toBe('page.item-card')
+        ->and(FlexFieldAssets::resolveAssetConsumerLivewireKey('item-card', 'lw1.form.brand_id'))
+        ->toBe('lw1.form.brand_id');
+});
+
+it('emit-assets always attaches CRG consumer attrs even when livewireKey is omitted', function () {
+    $html = view('filament-flex-fields::partials.emit-assets', [
+        'stylesheets' => ['item-card'],
+        'chunks' => [],
+        'consumerComponent' => 'item-card',
+        'livewireKey' => null,
+    ])->render();
+
+    expect($html)
+        ->toContain('data-fff-asset-consumer="item-card"')
+        ->toContain('data-fff-asset-consumer-id="page.item-card"');
 });
 
 it('emits pending assets from a single queued-stylesheets injector', function () {

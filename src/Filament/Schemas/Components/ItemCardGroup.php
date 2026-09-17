@@ -44,6 +44,7 @@ class ItemCardGroup extends Component
     {
         parent::setUp();
 
+        $this->key('item-card-group', isInheritable: false);
         $this->gap(false);
         $this->columns(1);
     }

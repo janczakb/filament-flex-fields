@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\StatusChipColumnRenderCache;
 use Closure;
@@ -13,6 +14,8 @@ use Illuminate\Contracts\View\View;
 
 class StatusChipColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
+
     protected string|ControlSize|Closure $chipDisplaySize = 'md';
 
     protected string|Closure|null $chipDisplayColor = null;
@@ -114,15 +117,18 @@ class StatusChipColumn extends TextColumn
             'size' => $this->getChipDisplaySize(),
         ], JSON_THROW_ON_ERROR));
 
-        return StatusChipColumnRenderCache::remember($cacheKey, function () use ($chip, $color): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.status-chip-column', [
-                'label' => $chip['label'],
-                'size' => $this->getChipDisplaySize(),
-                'color' => $color,
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'status-chip-column',
+            StatusChipColumnRenderCache::remember($cacheKey, function () use ($chip, $color): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.status-chip-column', [
+                    'label' => $chip['label'],
+                    'size' => $this->getChipDisplaySize(),
+                    'color' => $color,
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 }

@@ -201,7 +201,12 @@ it('exposes item card stack spacing configuration via fluent api', function () {
     $stack = ItemCardStack::make()
         ->stackGap('lg');
 
-    expect($stack->getStackGap())->toBe('lg');
+    expect($stack->getStackGap())->toBe('lg')
+        ->and($stack->getKey(isAbsolute: false))->toBe('item-card-stack');
+});
+
+it('gives item card group a non-inheritable default key for CRG consumers', function () {
+    expect(ItemCardGroup::make('General')->getKey(isAbsolute: false))->toBe('item-card-group');
 });
 
 it('rejects unsupported item card stack spacing values', function () {

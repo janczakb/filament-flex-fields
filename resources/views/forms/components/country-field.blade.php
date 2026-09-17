@@ -52,7 +52,7 @@
             locale: @js($field->getLocale()),
         })"
         x-init="init()"
-        x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeMenu()"
+        x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeTeleportedMenuImmediate()"
         x-on:keydown.escape.window="closeMenu()"
         @class([
             'fff-country-field',
@@ -190,7 +190,7 @@
                     x-ref="countryMenu"
                     x-show="menuOpen"
                     x-cloak
-                    x-bind:class="{ 'is-positioned': menuReady }"
+                    x-bind:class="{ 'is-open': menuOpen, 'is-positioned': menuReady }"
                     x-on:click.stop
                     x-on:keydown="onCountryMenuKeydown($event)"
                     role="listbox"

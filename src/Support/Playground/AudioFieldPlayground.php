@@ -68,7 +68,7 @@ class AudioFieldPlayground
                         ]),
                 ]),
             Section::make('Speech-to-text (Whisper Web)')
-                ->description('Same AudioField with optional client-side Whisper transcription (@xenova/transformers). Models download on first Transcribe click — inspired by Xenova/whisper-web.')
+                ->description('Optional client-side Whisper transcription. Requires `php artisan fff:whisper:install` once per app — without the runtime, fields show an install CTA instead of the Transcribe UI. Model weights still download from Hugging Face on first use.')
                 ->extraAttributes(['class' => 'fff-playground-section'])
                 ->schema([
                     Grid::make(['default' => 1, 'lg' => 2])

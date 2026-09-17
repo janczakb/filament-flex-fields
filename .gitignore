@@ -76,5 +76,6 @@ pnpm-debug.log*
 /DEVELOPMENT.md
 /COMPONENTS.md
 
+artifacts/
+
 .cursor/
-.tmp/

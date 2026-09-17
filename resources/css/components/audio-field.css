@@ -341,6 +341,18 @@
     @apply flex w-full flex-col gap-3;
 }
 
+.fff-audio-field.has-transcription-cta .fff-audio-field__transcription-cta {
+    @apply rounded-xl border border-amber-200/80 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-950/40 dark:text-amber-100;
+}
+
+.fff-audio-field__transcription-cta-text {
+    @apply m-0;
+}
+
+.fff-audio-field__transcription-cta-command {
+    @apply mt-2 block overflow-x-auto rounded-md bg-white/80 px-2 py-1.5 font-mono text-xs text-zinc-800 dark:bg-zinc-950/60 dark:text-zinc-100;
+}
+
 .fff-audio-field__stt-actions {
     @apply flex w-full flex-col gap-3;
 }

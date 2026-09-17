@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs;
 use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\SegmentTabs\SegmentTab;
+use Bjanczak\FilamentFlexFields\Filament\Schemas\Components\TranslatableFields;
 use Bjanczak\FilamentFlexFields\Support\Composition\SegmentTabsV2;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
@@ -53,6 +54,25 @@ it('exposes segment tabs configuration via fluent api', function () {
         ->and($general->getIcon())->toBe(GravityIcon::Person)
         ->and($general->getTooltip())->toBe('General settings')
         ->and($general->canConcealComponents())->toBeTrue();
+});
+
+it('supports field-style helper text on segment tabs and translatable fields', function () {
+    $tabs = SegmentTabs::make('Settings')
+        ->helperText('Shown below the tab panels.');
+
+    $translatable = TranslatableFields::make('description')
+        ->helperText('Editorial HTML for every locale.');
+
+    expect($tabs->getHelperText())->toBe('Shown below the tab panels.')
+        ->and($translatable->getHelperText())->toBe('Editorial HTML for every locale.');
+
+    $blade = file_get_contents(__DIR__.'/../../resources/views/schemas/components/segment-tabs.blade.php');
+    $foreachPos = strpos($blade, '@foreach ($tabs as $tab)');
+    $helperPos = strpos($blade, 'fff-segment-tabs__helper-text');
+
+    expect($foreachPos)->not->toBeFalse()
+        ->and($helperPos)->not->toBeFalse()
+        ->and($helperPos)->toBeGreaterThan($foreachPos);
 });
 
 it('loads segment control styles for segment tabs', function () {

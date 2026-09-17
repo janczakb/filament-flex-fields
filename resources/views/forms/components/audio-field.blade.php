@@ -22,7 +22,7 @@
 >
     <div
         wire:ignore
-        wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getSrc(), $audioSrc, $waveformIsCustom, $field->isTranscriptionEnabled()])), 0, 64) }}"
+        wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled, $isReadOnly, $getSize(), $getSrc(), $audioSrc, $waveformIsCustom, $field->wantsTranscription(), $field->isTranscriptionEnabled()])), 0, 64) }}"
         @class([
             'fff-audio-field',
             'fff-audio-field--'.$getSize(),
@@ -31,6 +31,7 @@
             'is-read-only' => $isReadOnly,
             'is-empty' => blank($audioSrc),
             'has-transcription' => $field->isTranscriptionEnabled(),
+            'has-transcription-cta' => $field->isTranscriptionRuntimeMissing(),
         ])
         role="group"
         aria-label="{{ $getLabel() }}"
@@ -165,6 +166,13 @@
                 @include('filament-flex-fields::forms.components.partials.audio-field-transcription-panel', [
                     'settingsVisible' => $field->isTranscriptionSettingsVisible(),
                 ])
+            @elseif ($field->isTranscriptionRuntimeMissing())
+                <div class="fff-audio-field__transcription-cta" role="status">
+                    <p class="fff-audio-field__transcription-cta-text">
+                        {{ __('filament-flex-fields::default.audio.transcription_runtime_missing') }}
+                    </p>
+                    <code class="fff-audio-field__transcription-cta-command">{{ \Bjanczak\FilamentFlexFields\Support\WhisperRuntimeManifest::INSTALL_COMMAND }}</code>
+                </div>
             @endif
         </div>
     </div>

@@ -6,6 +6,8 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundBuilder;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
 use Bjanczak\FilamentFlexFields\Support\PhoneCountries;
+use Bjanczak\FilamentFlexFields\Support\Playground\PhoneFieldPlayground;
+use Bjanczak\FilamentFlexFields\Support\Playground\PlaygroundCodeSnippet;
 use Filament\Support\Icons\Heroicon;
 
 it('exposes phone field configuration api', function () {
@@ -245,3 +247,156 @@ it('rejects unsupported mobile and fixed line combination', function () {
         'e164' => '+48512345678',
     ]);
 })->throws(InvalidArgumentException::class);
+
+it('locks national formatting characterization for PL US and DE', function () {
+    expect(PhoneField::make('phone')->defaultCountry('PL')->normalizeState([
+        'country' => 'PL',
+        'national' => '512345678',
+        'e164' => '',
+    ]))->toMatchArray([
+        'country' => 'PL',
+        'national' => '512 345 678',
+        'e164' => '+48512345678',
+    ]);
+
+    expect(PhoneField::make('phone')->defaultCountry('US')->normalizeState([
+        'country' => 'US',
+        'national' => '2025551234',
+        'e164' => '',
+    ]))->toMatchArray([
+        'country' => 'US',
+        'national' => '(202) 555-1234',
+        'e164' => '+12025551234',
+    ]);
+
+    expect(PhoneField::make('phone')->defaultCountry('DE')->normalizeState([
+        'country' => 'DE',
+        'national' => '15123456789',
+        'e164' => '',
+    ]))->toMatchArray([
+        'country' => 'DE',
+        'national' => '01512 3456789',
+        'e164' => '+4915123456789',
+    ]);
+});
+
+it('rejects fixed line numbers when mobile only', function () {
+    $field = PhoneField::make('phone')->defaultCountry('PL')->mobileOnly();
+
+    expect($field->getPhoneValidationMessage([
+        'country' => 'PL',
+        'national' => '123456789',
+        'e164' => '+48123456789',
+    ]))->toBe(__('filament-flex-fields::default.validation.phone.mobile_only'));
+});
+
+it('accepts fixed line and rejects mobile when fixed line only', function () {
+    $field = PhoneField::make('phone')->defaultCountry('PL')->fixedLineOnly();
+
+    expect($field->getPhoneValidationMessage([
+        'country' => 'PL',
+        'national' => '123456789',
+        'e164' => '+48123456789',
+    ]))->toBeNull()
+        ->and($field->getPhoneValidationMessage([
+            'country' => 'PL',
+            'national' => '512345678',
+            'e164' => '+48512345678',
+        ]))->toBe(__('filament-flex-fields::default.validation.phone.fixed_line_only'));
+});
+
+it('uses libphonenumber example national placeholders when custom placeholder is absent', function () {
+    $default = PhoneField::make('phone')->defaultCountry('PL');
+    $mobile = PhoneField::make('phone')->defaultCountry('PL')->mobileOnly();
+    $fixed = PhoneField::make('phone')->defaultCountry('PL')->fixedLineOnly();
+    $custom = PhoneField::make('phone')->defaultCountry('PL')->placeholder('Custom phone');
+
+    expect($default->getExampleNationalPlaceholder())->toBe('12 345 67 89')
+        ->and($mobile->getExampleNationalPlaceholder())->toBe('512 345 678')
+        ->and($fixed->getExampleNationalPlaceholder())->toBe('12 345 67 89')
+        ->and($default->getPhonePlaceholder())->toBe('12 345 67 89')
+        ->and($custom->getPhonePlaceholder())->toBe('Custom phone');
+});
+
+it('ships a hand-written PhoneField usage snippet with real playground APIs', function (): void {
+    expect(PlaygroundCodeSnippet::playgroundDeclaresSnippet(PhoneFieldPlayground::class))->toBeTrue();
+
+    $components = (new PhoneFieldPlayground)->components();
+    $snippet = collect($components)->first(
+        fn ($component): bool => $component instanceof \Filament\Schemas\Components\View
+            && $component->getView() === 'filament-flex-fields::partials.playground.code-snippet',
+    );
+
+    expect($snippet)->not->toBeNull();
+
+    $code = $snippet->getViewData()['tabs'][0]['code'] ?? '';
+
+    expect($code)
+        ->toContain('PhoneField::make(')
+        ->toContain('->defaultCountry(')
+        ->toContain('->mobileOnly()')
+        ->toContain('->browserLocaleDefault()')
+        ->toContain('->nationalDigitsOnly()')
+        ->toContain('->includeMetadata(')
+        ->toContain('->allowTypes(')
+        ->not->toContain("PhoneField::make('basic')")
+        ->not->toContain("->variant('primary')");
+});
+
+it('stores digits-only national when opted in', function () {
+    $field = PhoneField::make('phone')->defaultCountry('PL')->nationalDigitsOnly();
+
+    expect($field->normalizeState([
+        'country' => 'PL',
+        'national' => '512345678',
+        'e164' => '',
+    ]))->toMatchArray([
+        'country' => 'PL',
+        'national' => '512345678',
+        'e164' => '+48512345678',
+    ]);
+});
+
+it('rejects numbers that fail isValidNumberForRegion', function () {
+    $field = PhoneField::make('phone')->defaultCountry('DE')->validateForRegion();
+
+    // Valid PL mobile presented as DE region — valid globally, invalid for DE.
+    expect($field->getPhoneValidationMessage([
+        'country' => 'DE',
+        'national' => '512345678',
+        'e164' => '+48512345678',
+    ]))->toBe(__('filament-flex-fields::default.validation.phone.invalid_for_region'));
+});
+
+it('enforces allowTypes and enriches optional format/metadata keys', function () {
+    $field = PhoneField::make('phone')
+        ->defaultCountry('PL')
+        ->allowTypes(['MOBILE'])
+        ->includeFormats(['international', 'rfc3966'])
+        ->includeMetadata(['carrier', 'geo', 'timezones', 'type']);
+
+    expect($field->getPhoneValidationMessage([
+        'country' => 'PL',
+        'national' => '123456789',
+        'e164' => '+48123456789',
+    ]))->toBe(__('filament-flex-fields::default.validation.phone.type_not_allowed'));
+
+    $normalized = $field->normalizeState([
+        'country' => 'PL',
+        'national' => '512345678',
+        'e164' => '',
+    ]);
+
+    expect($normalized)->toMatchArray([
+        'country' => 'PL',
+        'national' => '512 345 678',
+        'e164' => '+48512345678',
+        'international' => '+48 512 345 678',
+        'rfc3966' => 'tel:+48-512-345-678',
+        'type' => 'MOBILE',
+    ])
+        ->and($normalized['carrier'])->toBeString()
+        ->and($normalized['geo'])->toBeString()
+        ->and($normalized['timezones'])->toBeArray()
+        ->and($normalized['timezones'])->not->toBeEmpty();
+});

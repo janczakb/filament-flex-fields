@@ -162,6 +162,8 @@ html.dark .fff-flex-fields-assets-skeleton::before,
 /*
  * Anti-FOUC: Filament paints .fi-input-wrp with ring-gray-950/10 before lazy
  * component CSS arrives — reads as a black flash on reload/focus restore.
+ * Tokens come from base.css (always in core); match lazy component chrome so
+ * late stylesheet injection cannot animate a border/bg jump.
  */
 .fff-flex-text-input .fff-flex-text-input__wrapper.fi-input-wrp,
 .fff-flex-text-input .fff-flex-text-input__wrapper.fi-input-wrp:focus-within,
@@ -179,7 +181,16 @@ html.dark .fff-flex-fields-assets-skeleton::before,
     --tw-ring-offset-shadow: 0 0 #0000 !important;
 }
 
-/* Select chrome lives on .fi-input-wrp — kill only Filament’s ring, not the border. */
+/* FlexTextInput / Phone shell chrome before lazy flex-text-input.css. */
+.fff-flex-text-input__shell {
+    border: var(--fff-field-border-width, 1px) solid var(--fff-field-border, #e5e7eb);
+    border-radius: var(--fff-global-radius, 0.75rem);
+    background: var(--fff-field-bg, #fff);
+    box-shadow: var(--fff-field-shadow, none);
+    transition: none;
+}
+
+/* Select chrome lives on .fi-input-wrp — kill Filament ring AND paint final chrome. */
 .fi-input-wrp.fff-select-field,
 .fi-input-wrp.fff-select-field:focus-within,
 .fi-input-wrp.fff-select-field:not(.fi-disabled):not(:has(.fi-ac-action:focus)):focus-within {
@@ -187,4 +198,10 @@ html.dark .fff-flex-fields-assets-skeleton::before,
     --tw-ring-offset-shadow: 0 0 #0000 !important;
     --tw-ring-color: transparent !important;
     --tw-ring-width: 0px !important;
+    --tw-shadow: 0 0 #0000 !important;
+    border: var(--fff-field-border-width, 1px) solid var(--fff-field-border, #e5e7eb);
+    border-radius: var(--fff-global-radius, 0.75rem);
+    background-color: var(--fff-field-bg, #fff);
+    box-shadow: var(--fff-field-shadow, none) !important;
+    transition: none;
 }

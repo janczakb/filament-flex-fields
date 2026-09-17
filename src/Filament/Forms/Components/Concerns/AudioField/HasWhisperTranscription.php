@@ -7,6 +7,8 @@ namespace Bjanczak\FilamentFlexFields\Filament\Forms\Components\Concerns\AudioFi
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\WhisperLanguageCatalog;
 use Bjanczak\FilamentFlexFields\Support\WhisperModelCatalog;
+use Bjanczak\FilamentFlexFields\Support\WhisperRuntime;
+use Bjanczak\FilamentFlexFields\Support\WhisperRuntimeManifest;
 use Closure;
 use InvalidArgumentException;
 
@@ -75,9 +77,25 @@ trait HasWhisperTranscription
         return $this;
     }
 
-    public function isTranscriptionEnabled(): bool
+    /**
+     * Developer requested transcription (independent of whether the runtime is installed).
+     */
+    public function wantsTranscription(): bool
     {
         return (bool) $this->evaluate($this->transcriptionEnabled);
+    }
+
+    /**
+     * Transcription UI is active only when requested and the Whisper runtime is installed.
+     */
+    public function isTranscriptionEnabled(): bool
+    {
+        return $this->wantsTranscription() && WhisperRuntime::isInstalled();
+    }
+
+    public function isTranscriptionRuntimeMissing(): bool
+    {
+        return $this->wantsTranscription() && ! WhisperRuntime::isInstalled();
     }
 
     public function isTranscriptionSettingsVisible(): bool
@@ -135,29 +153,24 @@ trait HasWhisperTranscription
     }
 
     /**
-     * @return array{
-     *     model: string,
-     *     quantized: bool,
-     *     multilingual: bool,
-     *     language: ?string,
-     *     task: string,
-     *     settingsVisible: bool,
-     *     runtimeModuleUrl: string,
-     *     runtimeWasmBaseUrl: string,
-     *     models: list<array{id: string, multilingual: bool, distil: bool, sizes: list<int>}>,
-     *     languages: list<array{code: ?string, label: string}>
-     * }
+     * @return array<string, mixed>
      */
     public function getTranscriptionAlpineConfig(): array
     {
-        if (! $this->isTranscriptionEnabled()) {
+        if (! $this->wantsTranscription()) {
             return [];
         }
 
-        /** @var array<string, mixed> $config */
-        $config = config('filament-flex-fields.audio.transcription', []);
+        if (! WhisperRuntime::isInstalled()) {
+            return [
+                'available' => false,
+                'reason' => 'runtime_missing',
+                'installCommand' => WhisperRuntimeManifest::INSTALL_COMMAND,
+            ];
+        }
 
         return [
+            'available' => true,
             'model' => $this->getWhisperModel(),
             'quantized' => $this->isWhisperQuantized(),
             'multilingual' => $this->isWhisperMultilingual(),

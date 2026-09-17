@@ -83,6 +83,46 @@ class PhoneFieldPlayground
                 'national' => '512345678',
                 'e164' => '+48512345678',
             ],
+            'phone__fixed_line_only' => [
+                'country' => 'PL',
+                'national' => '123456789',
+                'e164' => '+48123456789',
+            ],
+            'phone__except_countries' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__non_searchable' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__read_only' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__digits_national' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__validate_region' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__enriched' => [
+                'country' => 'PL',
+                'national' => '512345678',
+                'e164' => '+48512345678',
+            ],
+            'phone__allow_types_voip' => [
+                'country' => 'US',
+                'national' => '',
+                'e164' => '',
+            ],
         ];
     }
 
@@ -139,6 +179,47 @@ class PhoneFieldPlayground
                                 ->defaultCountry('PL')
                                 ->mobileOnly()
                                 ->helperText('Validates mobile numbers only.'),
+                            PhoneField::make('phone__fixed_line_only')
+                                ->label('Fixed line only')
+                                ->defaultCountry('PL')
+                                ->fixedLineOnly()
+                                ->helperText('Validates fixed-line numbers only.'),
+                            PhoneField::make('phone__except_countries')
+                                ->label('Except countries')
+                                ->defaultCountry('PL')
+                                ->exceptCountries(['RU', 'BY', 'CN'])
+                                ->helperText('All regions except the excluded list.'),
+                            PhoneField::make('phone__non_searchable')
+                                ->label('Non-searchable picker')
+                                ->defaultCountry('PL')
+                                ->searchable(false)
+                                ->helperText('Full country list without search (use Limited countries for a whitelist).'),
+                            PhoneField::make('phone__read_only')
+                                ->label('Read only')
+                                ->defaultCountry('PL')
+                                ->readOnly()
+                                ->helperText('Value visible, not editable.'),
+                            PhoneField::make('phone__digits_national')
+                                ->label('Digits-only national')
+                                ->defaultCountry('PL')
+                                ->nationalDigitsOnly()
+                                ->helperText('After normalize, national is digits only (opt-in; default stays NATIONAL).'),
+                            PhoneField::make('phone__validate_region')
+                                ->label('Validate for region')
+                                ->defaultCountry('PL')
+                                ->validateForRegion()
+                                ->helperText('Uses isValidNumberForRegion against the selected country.'),
+                            PhoneField::make('phone__enriched')
+                                ->label('Enriched metadata')
+                                ->defaultCountry('PL')
+                                ->includeFormats(['international', 'rfc3966'])
+                                ->includeMetadata(['carrier', 'geo', 'timezones', 'type'])
+                                ->helperText('State also stores international, rfc3966, carrier, geo, timezones, type (PHP only).'),
+                            PhoneField::make('phone__allow_types_voip')
+                                ->label('Allow VOIP types')
+                                ->defaultCountry('US')
+                                ->allowTypes(['VOIP', 'MOBILE'])
+                                ->helperText('allowTypes() — accepts VOIP or mobile (plus FIXED_LINE_OR_MOBILE unless strictTypes).'),
                             PhoneField::make('phone__no_prefix')
                                 ->label('Without dial prefix')
                                 ->defaultCountry('FR')
@@ -174,6 +255,59 @@ class PhoneFieldPlayground
                                 ->disabled(),
                         ]),
                 ]),
+            PlaygroundCodeSnippet::make(<<<'PHP'
+use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
+use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+
+// Basic — searchable country picker, E.164 validation
+PhoneField::make('phone')
+    ->label('Phone number')
+    ->defaultCountry('PL')
+    ->required();
+
+// Limited countries + mobile only
+PhoneField::make('phone')
+    ->label('Limited countries')
+    ->countries(['PL', 'US', 'DE', 'GB', 'FR'])
+    ->defaultCountry('PL')
+    ->mobileOnly();
+
+// Browser locale default + sort-first
+PhoneField::make('phone')
+    ->label('Browser locale')
+    ->browserLocaleDefault()
+    ->browserLocaleSortFirst();
+
+// Localized country names
+PhoneField::make('phone')
+    ->countries(['PL', 'US', 'DE'])
+    ->locale('pl');
+
+// Fixed line only / except countries / non-searchable / read-only
+PhoneField::make('phone')->defaultCountry('PL')->fixedLineOnly();
+PhoneField::make('phone')->defaultCountry('PL')->exceptCountries(['RU', 'BY', 'CN']);
+PhoneField::make('phone')->defaultCountry('PL')->searchable(false);
+PhoneField::make('phone')->defaultCountry('PL')->readOnly();
+
+// Opt-in storage / validation (P2)
+PhoneField::make('phone')->defaultCountry('PL')->nationalDigitsOnly();
+PhoneField::make('phone')->defaultCountry('PL')->validateForRegion();
+PhoneField::make('phone')
+    ->defaultCountry('PL')
+    ->includeFormats(['international', 'rfc3966'])
+    ->includeMetadata(['carrier', 'geo', 'timezones', 'type']);
+PhoneField::make('phone')
+    ->defaultCountry('US')
+    ->allowTypes(['VOIP', 'MOBILE']);
+
+// Presentation
+PhoneField::make('phone')->defaultCountry('FR')->internationalPrefix(false);
+PhoneField::make('phone')->defaultCountry('PL')->suffixIcon(GravityIcon::Handset);
+PhoneField::make('phone')->size('sm')->defaultCountry('DE');
+PhoneField::make('phone')->variant('secondary')->defaultCountry('PL');
+PhoneField::make('phone')->variant('soft')->defaultCountry('PL');
+PhoneField::make('phone')->size('lg')->defaultCountry('GB');
+PHP, filename: 'phone-field-usage.php'),
         ];
     }
 }

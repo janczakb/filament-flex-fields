@@ -195,6 +195,16 @@ it('keeps playground-only demo styles out of the core bundle', function () {
         ->and($playgroundCss)->toContain('.fff-code-snippet');
 });
 
+it('paints select and flex text input chrome in core to prevent reload FOUC', function () {
+    $coreCss = file_get_contents(__DIR__.'/../../resources/dist/css/core.css');
+
+    expect($coreCss)
+        ->toContain('.fi-input-wrp.fff-select-field')
+        ->toContain('--fff-field-border')
+        ->toContain('.fff-flex-text-input__shell')
+        ->toContain('--tw-ring-shadow:0 0 #0000!important');
+});
+
 it('dedupes playground base chrome from per-slug bundles', function () {
     $playgroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground.css');
     $selectFieldPlaygroundCss = file_get_contents(__DIR__.'/../../resources/dist/css/playground-select-field.css');

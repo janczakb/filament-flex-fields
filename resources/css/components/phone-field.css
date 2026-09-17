@@ -262,6 +262,16 @@
     height: var(--fff-phone-field-suffix-size) !important;
 }
 
+.fff-phone-field__shell.is-possibly-invalid:not(.is-invalid) {
+    border-color: rgb(245 158 11) !important;
+    box-shadow: 0 0 0 3px rgb(245 158 11 / 0.2) !important;
+}
+
+.dark .fff-phone-field__shell.is-possibly-invalid:not(.is-invalid) {
+    border-color: rgb(251 191 36) !important;
+    box-shadow: 0 0 0 3px rgb(251 191 36 / 0.25) !important;
+}
+
 .fff-phone-field__shell.is-invalid,
 .fi-fo-field:has([data-validation-error]) .fff-phone-field__shell,
 .fi-fo-field-wrp:has([data-validation-error]) .fff-phone-field__shell,

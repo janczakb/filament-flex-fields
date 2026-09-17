@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\IconColumnRenderCache;
 use Bjanczak\FilamentFlexFields\Support\Icons\IconCatalogResolver;
@@ -17,6 +18,8 @@ use Illuminate\Contracts\View\View;
 
 class IconColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
+
     protected string|ControlSize|Closure $iconDisplaySize = 'md';
 
     /**
@@ -143,20 +146,23 @@ class IconColumn extends TextColumn
 
         $cacheKey = $this->renderCacheKey($icon);
 
-        return IconColumnRenderCache::remember($cacheKey, function () use ($icon): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.icon-column', [
-                'icon' => $icon,
-                'iconHtml' => $this->renderIconHtml($icon),
-                'size' => $this->getIconDisplaySize(),
-                'color' => $this->getIconDisplayColor(),
-                'label' => $this->resolveIconLabel($icon),
-                'showLabel' => $this->shouldShowLabel(),
-                'showName' => $this->shouldShowName(),
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'icon-column',
+            IconColumnRenderCache::remember($cacheKey, function () use ($icon): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.icon-column', [
+                    'icon' => $icon,
+                    'iconHtml' => $this->renderIconHtml($icon),
+                    'size' => $this->getIconDisplaySize(),
+                    'color' => $this->getIconDisplayColor(),
+                    'label' => $this->resolveIconLabel($icon),
+                    'showLabel' => $this->shouldShowLabel(),
+                    'showName' => $this->shouldShowName(),
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 
     public function renderIconHtml(string $icon): string

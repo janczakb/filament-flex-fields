@@ -38,6 +38,8 @@ class SegmentTabs extends Component
 
     protected bool|Closure $expandSelectedLabel = false;
 
+    protected string|Htmlable|Closure|null $helperText = null;
+
     final public function __construct(string|Htmlable|Closure|null $label = null)
     {
         $this->label($label);
@@ -169,6 +171,32 @@ class SegmentTabs extends Component
         $this->expandSelectedLabel = $condition;
 
         return $this;
+    }
+
+    /**
+     * Field-style helper copy below the tab panels (TranslatableFields / SegmentTabs).
+     * Schema layout components do not use Filament Forms HasHelperText (that requires belowContent).
+     */
+    public function helperText(string|Htmlable|Closure|null $text): static
+    {
+        $this->helperText = $text;
+
+        return $this;
+    }
+
+    public function getHelperText(): string|Htmlable|null
+    {
+        $text = $this->evaluate($this->helperText);
+
+        if ($text instanceof Htmlable) {
+            return $text;
+        }
+
+        if (! is_string($text) || blank($text)) {
+            return null;
+        }
+
+        return $text;
     }
 
     public function getVariant(): string

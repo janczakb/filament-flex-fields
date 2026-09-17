@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\SignaturePreviewColumnRenderCache;
 use Bjanczak\FilamentFlexFields\Support\SignatureSvg;
@@ -15,6 +16,8 @@ use Illuminate\Support\HtmlString;
 
 class SignaturePreviewColumn extends TextColumn
 {
+    use EmitsFlexFieldTableColumnAssets;
+
     protected string|ControlSize|Closure $previewDisplaySize = 'md';
 
     protected bool|Closure $shouldShowEmptyPlaceholder = true;
@@ -89,7 +92,7 @@ class SignaturePreviewColumn extends TextColumn
 
         if ($svg === null || SignatureSvg::isEmpty($svg)) {
             return $this->shouldShowEmptyPlaceholder()
-                ? $this->renderEmptyPlaceholder()
+                ? $this->withFlexFieldColumnAssets('signature-preview-column', $this->renderEmptyPlaceholder())
                 : '';
         }
 
@@ -99,15 +102,18 @@ class SignaturePreviewColumn extends TextColumn
             'size' => $this->getPreviewDisplaySize(),
         ], JSON_THROW_ON_ERROR));
 
-        return SignaturePreviewColumnRenderCache::remember($cacheKey, function () use ($svg): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.signature-preview-column', [
-                'svg' => new HtmlString($svg),
-                'size' => $this->getPreviewDisplaySize(),
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'signature-preview-column',
+            SignaturePreviewColumnRenderCache::remember($cacheKey, function () use ($svg): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.signature-preview-column', [
+                    'svg' => new HtmlString($svg),
+                    'size' => $this->getPreviewDisplaySize(),
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 
     protected function renderEmptyPlaceholder(): string

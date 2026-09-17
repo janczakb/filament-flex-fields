@@ -1,8 +1,9 @@
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createSearchableSelectMenuMixin, forceHideForeignSelectMenus } from '../core/searchable-select-menu.js'
 import { createVirtualizedListMixin } from '../core/virtualized-list.js'
 import { resolveCountriesFromRegistry, resetCountryRegistryCache } from '../core/country-registry.js'
 import { createCountrySearchMixin } from '../core/country-search.js'
 import { createCountryListKeyboardMixin } from '../core/country-list-keyboard.js'
+import { openExclusiveFlexDropdown, resolveDropdownOwnerId } from '../core/flex-dropdown-coordinator.js'
 
 let libPhoneNumberModule = null
 let libPhoneNumberPromise = null
@@ -145,6 +146,8 @@ export default function phoneFieldFormComponent({
         countryMenuResizeHandler: null,
         phoneLibReady: false,
         resolvedDialPrefix: null,
+        possibleInvalid: false,
+        possibleCheckTimer: null,
         ...selectMenu,
         ...virtualList,
         ...countrySearch,
@@ -176,6 +179,8 @@ export default function phoneFieldFormComponent({
                 if (this.state.national) {
                     this.syncCurrentInput()
                 }
+
+                this.schedulePossibleCheck()
             })
 
             document.addEventListener('livewire:navigated', () => {
@@ -242,6 +247,37 @@ export default function phoneFieldFormComponent({
             this.phoneLibReady = true
         },
 
+        schedulePossibleCheck() {
+            if (this.possibleCheckTimer) {
+                clearTimeout(this.possibleCheckTimer)
+            }
+
+            this.possibleCheckTimer = setTimeout(() => {
+                this.refreshPossibleHint()
+            }, 180)
+        },
+
+        async refreshPossibleHint() {
+            const digits = String(this.inputValue ?? '').replace(/\D/g, '')
+
+            if (digits === '') {
+                this.possibleInvalid = false
+
+                return
+            }
+
+            await this.ensurePhoneLibLoaded()
+
+            try {
+                const { isPossiblePhoneNumber } = await loadLibPhoneNumber()
+                const country = this.state?.country ?? this.defaultCountry
+
+                this.possibleInvalid = ! isPossiblePhoneNumber(digits, country)
+            } catch (error) {
+                this.possibleInvalid = false
+            }
+        },
+
         async syncCurrentInput() {
             await this.ensurePhoneLibLoaded()
 
@@ -250,6 +286,7 @@ export default function phoneFieldFormComponent({
             this.inputValue = synced.formatted
             this.state.national = synced.national
             this.state.e164 = synced.e164
+            this.schedulePossibleCheck()
         },
 
         get dialPrefix() {
@@ -336,6 +373,7 @@ export default function phoneFieldFormComponent({
             this.inputValue = synced.formatted
             this.state.national = synced.national
             this.state.e164 = synced.e164
+            this.schedulePossibleCheck()
         },
 
         async onPhoneFocus() {
@@ -360,6 +398,8 @@ export default function phoneFieldFormComponent({
                 this.state.e164 = synced.e164
             }
 
+            this.schedulePossibleCheck()
+
             this.$nextTick(() => {
                 this.$refs.phoneInput?.focus()
             })
@@ -374,6 +414,16 @@ export default function phoneFieldFormComponent({
                 this.closeTeleportedMenu()
 
                 return
+            }
+
+            // Close sibling phone/select overlays before async country/lib load
+            // so only one dropdown stays open while this field warms up.
+            forceHideForeignSelectMenus(this.resolveMenuElement?.() ?? null)
+
+            const ownerId = resolveDropdownOwnerId(this.$el, 'fff-phone-country')
+
+            if (ownerId) {
+                openExclusiveFlexDropdown(ownerId)
             }
 
             await Promise.all([

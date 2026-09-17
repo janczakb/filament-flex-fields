@@ -13,9 +13,7 @@
     $initialCountryCode = is_array($stateValue) && filled($stateValue['country'] ?? null)
         ? strtoupper((string) $stateValue['country'])
         : $defaultCountry;
-    $placeholder = filled($getPlaceholder())
-        ? $getPlaceholder()
-        : __('filament-flex-fields::default.phone.placeholder');
+    $placeholder = $getPhonePlaceholder();
     $hasError = filled($statePath) && $errors->has($statePath);
     $initialNational = is_array($stateValue) ? (string) ($stateValue['national'] ?? '') : '';
     $initialInputValue = PhoneCountries::formatNationalDisplay($initialNational, $initialCountryCode);
@@ -59,7 +57,7 @@
             locale: @js($field->getLocale()),
         })"
         x-init="init()"
-        x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeCountryMenu()"
+        x-on:click.outside="if ($refs.countryMenu?.contains($event.target)) { return }; closeTeleportedMenuImmediate()"
         x-on:keydown.escape.window="closeCountryMenu()"
         @class([
             'fff-phone-field',
@@ -76,10 +74,13 @@
         aria-label="{{ $getLabel() }}"
     >
         {!! \Bjanczak\FilamentFlexFields\Support\CountryRegistryQueue::renderScriptOnce() !!}
-        <div @class([
-            'fff-phone-field__shell fff-flex-text-input__shell',
-            'is-invalid' => $hasError,
-        ])>
+        <div
+            @class([
+                'fff-phone-field__shell fff-flex-text-input__shell',
+                'is-invalid' => $hasError,
+            ])
+            x-bind:class="{ 'is-possibly-invalid': possibleInvalid }"
+        >
             <div class="fff-phone-field__row fff-flex-text-input__row">
                 <div class="fff-phone-field__country">
                     <button
@@ -133,7 +134,7 @@
                             x-ref="countryMenu"
                             x-show="countryOpen"
                             x-cloak
-                            x-bind:class="{ 'is-positioned': countryMenuReady }"
+                            x-bind:class="{ 'is-open': countryOpen, 'is-positioned': countryMenuReady }"
                             x-on:click.stop
                             x-on:keydown="onCountryMenuKeydown($event)"
                             role="listbox"
@@ -231,6 +232,7 @@
                             placeholder="{{ e($placeholder) }}"
                             autocomplete="tel-national"
                             inputmode="tel"
+                            x-bind:aria-invalid="possibleInvalid ? 'true' : null"
                             @disabled($isDisabled)
                             @readonly($isReadOnly)
                         />

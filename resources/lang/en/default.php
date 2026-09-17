@@ -261,6 +261,7 @@ return [
         'transcription_error_failed' => 'Transcription failed. Try a smaller model or check the console.',
         'transcription_error_model_timeout' => 'Whisper model download timed out. Enable Quantized in settings or try again on a faster connection.',
         'transcription_error_runtime_unconfigured' => 'Whisper runtime assets are not configured on this page.',
+        'transcription_runtime_missing' => 'Speech-to-text is unavailable until the Whisper runtime is installed on this app:',
     ],
 
     'signature' => [
@@ -580,6 +581,8 @@ return [
             'invalid' => 'Please enter a valid phone number.',
             'mobile_only' => 'Please enter a valid mobile phone number.',
             'fixed_line_only' => 'Please enter a valid landline phone number.',
+            'type_not_allowed' => 'Please enter a phone number of an allowed type.',
+            'invalid_for_region' => 'Please enter a phone number valid for the selected country.',
         ],
         'currency' => [
             'negative' => 'The amount cannot be negative.',

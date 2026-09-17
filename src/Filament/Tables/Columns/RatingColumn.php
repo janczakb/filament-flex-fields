@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Filament\Tables\Columns;
 use BackedEnum;
 use Bjanczak\FilamentFlexFields\Concerns\CalculatesRatingFill;
 use Bjanczak\FilamentFlexFields\Enums\ControlSize;
+use Bjanczak\FilamentFlexFields\Filament\Tables\Columns\Concerns\EmitsFlexFieldTableColumnAssets;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldStylesheetQueue;
 use Bjanczak\FilamentFlexFields\Support\RatingColumnRenderCache;
 use Closure;
@@ -20,6 +21,7 @@ use InvalidArgumentException;
 class RatingColumn extends TextColumn
 {
     use CalculatesRatingFill;
+    use EmitsFlexFieldTableColumnAssets;
 
     protected int|Closure $ratingMax = 5;
 
@@ -148,21 +150,24 @@ class RatingColumn extends TextColumn
 
         $cacheKey = $this->renderCacheKey($value);
 
-        return RatingColumnRenderCache::remember($cacheKey, function () use ($value): string {
-            /** @var View $view */
-            $view = view('filament-flex-fields::tables.columns.rating-column', [
-                'value' => $value,
-                'max' => $this->getMax(),
-                'size' => $this->getRatingDisplaySize(),
-                'color' => $this->getRatingColor(),
-                'icon' => $this->getRatingIcon(),
-                'items' => $this->getItemIndexes(),
-                'showValue' => $this->shouldShowValue(),
-                'fillPercentageFor' => fn (int $index): float => $this->getFillPercentageForValue($value, $index),
-            ]);
+        return $this->withFlexFieldColumnAssets(
+            'rating-column',
+            RatingColumnRenderCache::remember($cacheKey, function () use ($value): string {
+                /** @var View $view */
+                $view = view('filament-flex-fields::tables.columns.rating-column', [
+                    'value' => $value,
+                    'max' => $this->getMax(),
+                    'size' => $this->getRatingDisplaySize(),
+                    'color' => $this->getRatingColor(),
+                    'icon' => $this->getRatingIcon(),
+                    'items' => $this->getItemIndexes(),
+                    'showValue' => $this->shouldShowValue(),
+                    'fillPercentageFor' => fn (int $index): float => $this->getFillPercentageForValue($value, $index),
+                ]);
 
-            return $view->render();
-        });
+                return $view->render();
+            }),
+        );
     }
 
     protected function renderCacheKey(float $value): string

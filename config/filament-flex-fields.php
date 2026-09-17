@@ -24,7 +24,9 @@ return [
     |--------------------------------------------------------------------------
     |
     | Powers AudioField::transcription() using @xenova/transformers in-browser.
-    | Models download from Hugging Face on first "Transcribe Audio" click.
+    | The ONNX/WASM runtime is NOT shipped in Composer — run
+    | `php artisan fff:whisper:install` once per app. Model weights still download
+    | from Hugging Face on first "Transcribe Audio" click.
     |
     */
     'audio' => [

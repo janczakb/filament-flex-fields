@@ -148,6 +148,7 @@ return [
         'transcription_error_failed' => 'Transkrypcja nie powiodła się. Spróbuj mniejszego modelu.',
         'transcription_error_model_timeout' => 'Przekroczono czas pobierania modelu Whisper. Włącz Quantized w ustawieniach lub spróbuj ponownie.',
         'transcription_error_runtime_unconfigured' => 'Zasoby runtime Whisper nie są skonfigurowane na tej stronie.',
+        'transcription_runtime_missing' => 'Transkrypcja mowy jest niedostępna, dopóki nie zainstalujesz runtime Whisper w tej aplikacji:',
     ],
 
     'geocoding' => [
@@ -397,6 +398,8 @@ return [
             'invalid' => 'Podaj prawidlowy numer telefonu.',
             'mobile_only' => 'Podaj prawidlowy numer telefonu komorkowego.',
             'fixed_line_only' => 'Podaj prawidlowy numer telefonu stacjonarnego.',
+            'type_not_allowed' => 'Podaj numer telefonu dozwolonego typu.',
+            'invalid_for_region' => 'Podaj numer telefonu prawidlowy dla wybranego kraju.',
         ],
         'currency' => [
             'negative' => 'Kwota nie moze byc ujemna.',

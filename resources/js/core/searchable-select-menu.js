@@ -232,8 +232,10 @@ export function resolveSearchableSelectMenuElement(component, menuRef = 'menuMen
 }
 
 /**
- * Hide any other SelectField glass menus that are still painted open.
+ * Hide any other Select / teleported menus that are still painted open.
  * Belt-and-suspenders when exclusive close is delayed by exit animation.
+ * Also flips Alpine open state via closeTeleportedMenuImmediate when available
+ * so phone/country/select share one exclusive overlay globally.
  *
  * @param {HTMLElement | null} ownMenu
  */
@@ -242,13 +244,34 @@ export function forceHideForeignSelectMenus(ownMenu = null) {
         return
     }
 
-    for (const menu of document.querySelectorAll('.fff-select-headless-menu.is-open, .fff-select-headless-menu.is-closing')) {
+    const menus = document.querySelectorAll(
+        [
+            '.fff-select-headless-menu.is-open',
+            '.fff-select-headless-menu.is-closing',
+            '.fff-teleported-menu.is-open',
+            '.fff-teleported-menu.is-closing',
+        ].join(', '),
+    )
+
+    for (const menu of menus) {
         if (ownMenu && menu === ownMenu) {
             continue
         }
 
         cancelMenuCloseAnimation(menu)
         menu.classList.remove('is-open', 'is-closing')
+
+        try {
+            const data = typeof window !== 'undefined'
+                ? window.Alpine?.$data?.(menu)
+                : null
+
+            if (data && typeof data.closeTeleportedMenuImmediate === 'function') {
+                data.closeTeleportedMenuImmediate()
+            }
+        } catch {
+            // Foreign / destroyed Alpine scopes — visual hide above is enough.
+        }
     }
 }
 

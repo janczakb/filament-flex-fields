@@ -1,8 +1,9 @@
-import { createSearchableSelectMenuMixin } from '../core/searchable-select-menu.js'
+import { createSearchableSelectMenuMixin, forceHideForeignSelectMenus } from '../core/searchable-select-menu.js'
 import { createVirtualizedListMixin } from '../core/virtualized-list.js'
 import { resolveCountriesFromRegistry, resetCountryRegistryCache } from '../core/country-registry.js'
 import { createCountrySearchMixin } from '../core/country-search.js'
 import { createCountryListKeyboardMixin } from '../core/country-list-keyboard.js'
+import { openExclusiveFlexDropdown, resolveDropdownOwnerId } from '../core/flex-dropdown-coordinator.js'
 
 const selectMenu = createSearchableSelectMenuMixin({
     triggerRef: 'countryTrigger',
@@ -248,6 +249,14 @@ export default function countryFieldFormComponent({
                 this.closeTeleportedMenu()
 
                 return
+            }
+
+            forceHideForeignSelectMenus(this.resolveMenuElement?.() ?? null)
+
+            const ownerId = resolveDropdownOwnerId(this.$el, 'fff-country-field')
+
+            if (ownerId) {
+                openExclusiveFlexDropdown(ownerId)
             }
 
             await this.ensureCountriesLoaded()

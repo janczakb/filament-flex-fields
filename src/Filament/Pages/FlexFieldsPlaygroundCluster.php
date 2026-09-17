@@ -54,13 +54,7 @@ class FlexFieldsPlaygroundCluster extends Cluster
 
     public function mount(): void
     {
-        $firstSlug = FlexFieldsPlaygroundRegistry::firstSlug();
-
-        if (blank($firstSlug)) {
-            abort(404);
-        }
-
-        redirect(FlexFieldsPlaygroundComponentPage::getUrl(configuration: $firstSlug));
+        redirect(FlexFieldsPlaygroundIndexPage::getUrl());
     }
 
     /**
@@ -68,7 +62,15 @@ class FlexFieldsPlaygroundCluster extends Cluster
      */
     public function getSubNavigation(): array
     {
-        $items = [];
+        $items = [
+            NavigationItem::make('All components')
+                ->icon('heroicon-o-squares-2x2')
+                ->url(FlexFieldsPlaygroundIndexPage::getUrl())
+                ->sort(-100)
+                ->isActiveWhen(fn (): bool => request()->routeIs(
+                    FlexFieldsPlaygroundIndexPage::getRouteName(),
+                ) || str_ends_with(rtrim(request()->path(), '/'), '/flex-fields-playground/index')),
+        ];
 
         foreach (FlexFieldsPlaygroundRegistry::ordered() as $slug => $definition) {
             $item = NavigationItem::make($definition['label'])

@@ -251,7 +251,7 @@ FFART (Flex Field Asset Runtime) is the third pillar of the asset pipeline along
 
 `emit-assets` is **batch-only**: hidden `data-fff-asset-batch` JSON plus optional `data-fff-asset-consumer` markers. The runtime promotes URLs to managed `<link data-fff-managed-asset>` nodes and uninstalls when `refCount(url) === 0` (debounced), except `core.css` and playground bundles.
 
-`load-stylesheet` passes `livewireKey` + `consumerComponent` into `emit-assets` for every form field. Table columns flush via `queued-stylesheets` with page-scoped `table-columns` consumer ids.
+`load-stylesheet` emits the **full** `stylesheetsFor($component)` + `alpineChunksFor($component)` URL set with a **required** CRG consumer id via `FlexFieldAssets::resolveAssetConsumerLivewireKey()` / `consumerAttributesForComponent()`. When Filament `getLivewireKey()` is null, it falls back to `{livewireId}.{component}` or `page.{component}` — never a consumer-less batch (those load then get uninstalled ~150ms later). `emit-assets` itself refuses to ship batches without consumer attrs (defense in depth). Schema shells that own layout CSS (`ItemCardStack`, `ItemCardGroup`) register a default key with `isInheritable: false` so CRG gets a stable Livewire path without doubling child field keys. Table columns enqueue in `setUp()` and emit the same full root set from the first rendered cell via `EmitsFlexFieldTableColumnAssets`. Panel `queued-stylesheets` remains a safety net for empty tables.
 
 #### Preload & delivery (server)
 

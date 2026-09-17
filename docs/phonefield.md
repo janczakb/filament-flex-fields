@@ -60,10 +60,12 @@ PhoneField::make('phone')
 | Key | Description | Example |
 |-----|-------------|---------|
 | `country` | ISO 3166-1 alpha-2 region code | `PL` |
-| `national` | National number digits only | `512345678` |
-| `e164` | E.164 format when valid | `+48512345678` |
+| `national` | After a successful `normalizeState()`, libphonenumber **NATIONAL** formatting by default (spaces / punctuation). Opt-in `nationalDigitsOnly()` / `nationalFormat('digits')` stores digits only. The Alpine as-you-type UI keeps digits internally and formats for display. | `512 345 678` or `512345678` |
+| `e164` | E.164 when the number is valid; otherwise may be empty or a provisional dial+digits string | `+48512345678` |
+| `international` / `rfc3966` | Optional — when `includeFormats([...])` is enabled | `+48 512 345 678`, `tel:+48-512-345-678` |
+| `carrier` / `geo` / `timezones` / `type` | Optional — when `includeMetadata([...])` is enabled (PHP libphonenumber mappers; zero JS cost) | `Orange`, `Poland`, `["Europe/Warsaw"]`, `MOBILE` |
 
-On hydrate and dehydrate, `normalizeState()` runs automatically. A plain `string` state (e.g. `+48 512 345 678`) is parsed on hydrate.
+On hydrate and dehydrate, `normalizeState()` runs automatically. A plain `string` state (e.g. `+48 512 345 678`) is parsed on hydrate. Default `national` stays NATIONAL-formatted for BC; use digits-only or `e164` when you need machine-friendly values.
 
 ### Validation
 
@@ -71,18 +73,20 @@ On hydrate and dehydrate, `normalizeState()` runs automatically. A plain `string
 |-----------|--------|
 | Built-in | Custom rule on normalized array; uses libphonenumber |
 | `required()` | `national` must not be empty |
-| `mobileOnly()` | Number type must be mobile (or fixed-line-or-mobile) |
-| `fixedLineOnly()` | Number type must be fixed line (or fixed-line-or-mobile) |
+| `mobileOnly()` | Sugar for `allowTypes([MOBILE])` (also accepts `FIXED_LINE_OR_MOBILE` unless `strictTypes()`) |
+| `fixedLineOnly()` | Sugar for `allowTypes([FIXED_LINE])` |
+| `allowTypes([...])` | Explicit libphonenumber types (`MOBILE`, `VOIP`, …) |
+| `validateForRegion()` | `isValidNumberForRegion` against the selected country |
 | Filament `required` rule | Overridden to `nullable` — validation handled by custom rule |
 
-> Do not combine `mobileOnly()` and `fixedLineOnly()` on the same field — throws `InvalidArgumentException`.
+> Do not combine `mobileOnly()` and `fixedLineOnly()` on the same field — throws `InvalidArgumentException`. Prefer `allowTypes()` for multi-type rules.
 
 ### Configuration API
 
 #### `variant(string|Closure $variant)`
 
 
-Visual style shared with FlexTextInput. Values: `primary` (default), `secondary`, `flat`.
+Visual style shared with FlexTextInput. Values: `primary` (default), `secondary`, `flat`, `soft`.
 
 ```php
 ->variant('secondary')
@@ -198,13 +202,44 @@ PhoneField::make('phone')->locale('pl');
 ```
 #### `placeholder(string|Closure|null $placeholder)`
 
-
-Inherited from Filament `HasPlaceholder`.
+Inherited from Filament `HasPlaceholder`. When omitted, the field uses a libphonenumber national example for the default country (and mobile/fixed type when constrained), otherwise the package language string.
 
 ```php
 PhoneField::make('field_name')
     ->placeholder('Enter value...');
 ```
+#### `allowTypes(array|Closure|null $types)`
+
+Restrict accepted libphonenumber number types (`PhoneNumberType` cases or names like `MOBILE`, `VOIP`). When set, overrides `mobileOnly()` / `fixedLineOnly()` sugar.
+
+```php
+PhoneField::make('phone')->allowTypes(['MOBILE', 'VOIP']);
+```
+
+#### `strictTypes(bool|Closure $condition = true)`
+
+Do not auto-accept `FIXED_LINE_OR_MOBILE` alongside `MOBILE` / `FIXED_LINE`.
+
+#### `validateForRegion(bool|Closure $condition = true)`
+
+Require `isValidNumberForRegion()` for the selected country (stricter than global `isValidNumber`).
+
+#### `nationalFormat(PhoneNationalFormat|string|Closure $format)` / `nationalDigitsOnly()`
+
+Default `national` (BC). Digits-only is opt-in:
+
+```php
+PhoneField::make('phone')->nationalDigitsOnly();
+```
+
+#### `includeFormats(array|Closure $formats)`
+
+Add `international` and/or `rfc3966` keys to dehydrated state (valid numbers only).
+
+#### `includeMetadata(array|Closure $metadata)`
+
+Add PHP-side `carrier`, `geo`, `timezones`, and/or `type` keys (valid numbers only). No JS / phone-lib budget impact.
+
 #### `readOnly(bool|Closure $condition = true)`
 
 
@@ -262,6 +297,12 @@ PhoneField::make('field_name')
 | `international_prefix` | `internationalPrefix()` |
 | `mobile_only` | `mobileOnly()` |
 | `fixed_line_only` | `fixedLineOnly()` |
+| `allow_types` | `allowTypes()` |
+| `strict_types` | `strictTypes()` |
+| `validate_for_region` | `validateForRegion()` |
+| `national_format` | `nationalFormat()` / `nationalDigitsOnly()` |
+| `include_formats` | `includeFormats()` |
+| `include_metadata` | `includeMetadata()` |
 | `browser_locale_default` | `browserLocaleDefault()` |
 | `browser_locale_sort_first` | `browserLocaleSortFirst()` |
 | `locale` | `locale()` |
@@ -296,6 +337,11 @@ Slug: **`phone-field`**
 | Default | Searchable country picker, E.164 validation |
 | Restricted countries | Whitelist + mobile-only |
 | Browser locale | `browserLocaleDefault()` + sort-first |
+| Fixed line only | `fixedLineOnly()` |
+| Except countries | `exceptCountries()` |
+| Non-searchable / read-only | Full list `searchable(false)`, `readOnly()` |
+| Digits / region / enriched | `nationalDigitsOnly()`, `validateForRegion()`, formats + metadata |
+| Allow types | `allowTypes(['VOIP','MOBILE'])` |
 
 `/admin/flex-fields-playground/phone-field` — see [Playground](/docs/index#playground).
 
