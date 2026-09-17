@@ -18,7 +18,13 @@ class PhoneFieldStateCast implements StateCast
      */
     public function get(mixed $state): array
     {
-        return $this->field->normalizeState($state);
+        $normalized = $this->field->normalizeState($state);
+
+        return [
+            'country' => (string) $normalized['country'],
+            'national' => (string) $normalized['national'],
+            'e164' => (string) $normalized['e164'],
+        ];
     }
 
     /**
@@ -36,6 +42,10 @@ class PhoneFieldStateCast implements StateCast
             }
         }
 
-        return $normalized;
+        return [
+            'country' => (string) $normalized['country'],
+            'national' => (string) $normalized['national'],
+            'e164' => (string) $normalized['e164'],
+        ];
     }
 }

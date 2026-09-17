@@ -8,9 +8,11 @@ use Bjanczak\FilamentFlexFields\Enums\PlaygroundCategory;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldsPlaygroundRegistry;
 use Bjanczak\FilamentFlexFields\Support\Playground\PlaygroundArtCatalog;
 use Bjanczak\FilamentFlexFields\Support\Playground\PlaygroundRelatedHubs;
+use Filament\Navigation\NavigationItem;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Auth;
 
 class FlexFieldsPlaygroundIndexPage extends Page
 {
@@ -39,7 +41,7 @@ class FlexFieldsPlaygroundIndexPage extends Page
     public static function canAccess(): bool
     {
         return FlexFieldsPlaygroundRegistry::isEnabled()
-            && auth()->check();
+            && Auth::check();
     }
 
     public function getTitle(): string|Htmlable
@@ -53,7 +55,7 @@ class FlexFieldsPlaygroundIndexPage extends Page
     }
 
     /**
-     * @return list<\Filament\Navigation\NavigationItem>
+     * @return list<NavigationItem>
      */
     public function getSubNavigation(): array
     {
@@ -84,7 +86,7 @@ class FlexFieldsPlaygroundIndexPage extends Page
                     'slug' => $slug,
                     'label' => $definition['label'],
                     'icon' => $definition['icon'],
-                    'url' => PlaygroundRelatedHubs::urlForSlug($slug) ?? '/admin/flex-fields-playground/'.$slug,
+                    'url' => PlaygroundRelatedHubs::urlForSlug($slug),
                     'image' => PlaygroundArtCatalog::urlFor($slug),
                 ];
             }

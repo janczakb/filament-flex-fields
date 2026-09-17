@@ -10,6 +10,7 @@ use Filament\Clusters\Cluster;
 use Filament\Facades\Filament;
 use Filament\Navigation\NavigationItem;
 use Filament\Pages\Enums\SubNavigationPosition;
+use Illuminate\Support\Facades\Auth;
 
 class FlexFieldsPlaygroundCluster extends Cluster
 {
@@ -33,7 +34,7 @@ class FlexFieldsPlaygroundCluster extends Cluster
     public static function canAccess(): bool
     {
         return FlexFieldsPlaygroundRegistry::isEnabled()
-            && auth()->check();
+            && Auth::check();
     }
 
     public static function getNavigationGroup(): string|\UnitEnum|null
@@ -58,7 +59,7 @@ class FlexFieldsPlaygroundCluster extends Cluster
     }
 
     /**
-     * @return array<NavigationItem>
+     * @return list<NavigationItem>
      */
     public function getSubNavigation(): array
     {

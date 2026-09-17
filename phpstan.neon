@@ -17,12 +17,6 @@ parameters:
             message: '#^Trait Bjanczak\\FilamentFlexFields\\Concerns\\HasFlexFields is used zero times#'
             path: src/Concerns/HasFlexFields.php
         -
-            message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::check\(\)\.$#'
-            path: src/Filament/Pages/FlexFieldsPlaygroundCluster.php
-        -
-            message: '#^Call to an undefined method Illuminate\\Contracts\\Auth\\Factory::check\(\)\.$#'
-            path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
-        -
             message: '#^Access to an undefined property Bjanczak\\FilamentFlexFields\\Filament\\Pages\\FlexFieldsPlaygroundComponentPage::\$form\.$#'
             path: src/Filament/Pages/FlexFieldsPlaygroundComponentPage.php
         -

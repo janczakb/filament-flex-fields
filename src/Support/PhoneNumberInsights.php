@@ -20,7 +20,7 @@ use libphonenumber\PhoneNumberUtil;
 final class PhoneNumberInsights
 {
     /**
-     * @param  list<PhoneNumberType|string|int>|null  $types
+     * @param  array<int|string, mixed>|null  $types
      * @return list<PhoneNumberType>|null
      */
     public static function normalizeAllowedTypes(?array $types): ?array
@@ -32,7 +32,15 @@ final class PhoneNumberInsights
         $resolved = [];
 
         foreach ($types as $type) {
+            if (! is_int($type) && ! is_string($type) && ! $type instanceof PhoneNumberType) {
+                continue;
+            }
+
             $resolved[] = self::coerceType($type);
+        }
+
+        if ($resolved === []) {
+            return null;
         }
 
         return array_values(array_unique($resolved, SORT_REGULAR));

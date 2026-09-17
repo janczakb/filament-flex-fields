@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Component;
 use Filament\Schemas\Schema;
 use Filament\Support\Enums\Width;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Support\Facades\Auth;
 
 class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
 {
@@ -37,7 +38,7 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
     public static function canAccess(): bool
     {
         return FlexFieldsPlaygroundRegistry::isEnabled()
-            && auth()->check()
+            && Auth::check()
             && filled(static::resolveDefinition());
     }
 
@@ -137,7 +138,7 @@ class FlexFieldsPlaygroundComponentPage extends Page implements HasForms
     }
 
     /**
-     * @return array<NavigationItem>
+     * @return list<NavigationItem>
      */
     public function getSubNavigation(): array
     {

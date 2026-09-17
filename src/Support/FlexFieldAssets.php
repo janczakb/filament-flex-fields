@@ -13,6 +13,7 @@ namespace Bjanczak\FilamentFlexFields\Support;
 use Bjanczak\FilamentFlexFields\FilamentFlexFieldsPlugin;
 use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Filesystem\Filesystem;
+use Livewire\LivewireManager;
 
 class FlexFieldAssets
 {
@@ -594,8 +595,10 @@ class FlexFieldAssets
         }
 
         $component = self::resolveCanonicalComponent($component);
-        $livewire = \Livewire\Livewire::current();
-        $livewireId = is_object($livewire) ? $livewire->getId() : null;
+        $livewire = app(LivewireManager::class)->current();
+        $livewireId = is_object($livewire) && method_exists($livewire, 'getId')
+            ? $livewire->getId()
+            : null;
 
         if (filled($livewireId)) {
             return $livewireId.'.'.$component;
@@ -891,7 +894,7 @@ class FlexFieldAssets
 
         // HTTP auto-publish is local/testing DX only — never staging/production
         // (avoids re-copying large static trees onto ephemeral disks every request).
-        return app()->environment('local', 'testing');
+        return in_array(app()->environment(), ['local', 'testing'], true);
     }
 
     public static function publishRegisteredFilamentAssetsIfStale(Filesystem $filesystem): void

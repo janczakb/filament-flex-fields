@@ -511,18 +511,6 @@ parameters:
 			path: src/Filament/Forms/Components/NpsField.php
 
 		-
-			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PhoneField\:\:getPhoneValidationMessage\(\) should return string\|null but returns array\|string\.$#'
-			identifier: return.type
-			count: 4
-			path: src/Filament/Forms/Components/PhoneField.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between array\|non\-empty\-string and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Filament/Forms/Components/PhoneField.php
-
-		-
 			message: '#^Method Bjanczak\\FilamentFlexFields\\Filament\\Forms\\Components\\PriceRangeField\:\:getHistogram\(\) should return list\<float\> but returns array\<int, float\>\.$#'
 			identifier: return.type
 			count: 1

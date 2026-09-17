@@ -640,7 +640,9 @@ class PhoneField extends Field
             return $example;
         }
 
-        return (string) __('filament-flex-fields::default.phone.placeholder');
+        return is_string($message = __('filament-flex-fields::default.phone.placeholder'))
+            ? $message
+            : 'Phone number';
     }
 
     /**
@@ -669,7 +671,7 @@ class PhoneField extends Field
                 $util,
                 $this->storesNationalDigitsOnly(),
             );
-        } catch (NumberParseException | InvalidArgumentException) {
+        } catch (NumberParseException|InvalidArgumentException) {
             return null;
         }
     }
@@ -721,7 +723,7 @@ class PhoneField extends Field
                     $e164 = PhoneCountries::dialCode($country).$national;
                 }
             } catch (NumberParseException) {
-                if ($e164 === '' && $national !== '') {
+                if ($e164 === '') {
                     $e164 = PhoneCountries::dialCode($country).$national;
                 }
             }
@@ -757,41 +759,52 @@ class PhoneField extends Field
             $parsed = $util->parse($raw, (string) $state['country']);
 
             if (! $util->isValidNumber($parsed)) {
-                return __('filament-flex-fields::default.validation.phone.invalid');
+                return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.invalid');
             }
 
             if ($this->shouldValidateForRegion() && ! $util->isValidNumberForRegion($parsed, (string) $state['country'])) {
-                return __('filament-flex-fields::default.validation.phone.invalid_for_region');
+                return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.invalid_for_region');
             }
 
             $type = $util->getNumberType($parsed);
 
             if ($allowedTypes !== null && ! PhoneNumberInsights::typeIsAllowed($type, $allowedTypes, $this->usesStrictTypes())) {
                 if ($this->isMobileOnly() && $this->getEvaluatedAllowTypes() === null) {
-                    return __('filament-flex-fields::default.validation.phone.mobile_only');
+                    return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.mobile_only');
                 }
 
                 if ($this->isFixedLineOnly() && $this->getEvaluatedAllowTypes() === null) {
-                    return __('filament-flex-fields::default.validation.phone.fixed_line_only');
+                    return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.fixed_line_only');
                 }
 
-                return __('filament-flex-fields::default.validation.phone.type_not_allowed');
+                return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.type_not_allowed');
             }
         } catch (NumberParseException) {
-            return __('filament-flex-fields::default.validation.phone.invalid');
+            return $this->translatedPhoneMessage('filament-flex-fields::default.validation.phone.invalid');
         }
 
         return null;
     }
 
     /**
-     * @return list<PhoneNumberType|string|int>|null
+     * @return list<PhoneNumberType>|null
      */
     protected function getEvaluatedAllowTypes(): ?array
     {
         $explicit = $this->evaluate($this->allowTypes);
 
-        return is_array($explicit) && $explicit !== [] ? $explicit : null;
+        if (! is_array($explicit) || $explicit === []) {
+            return null;
+        }
+
+        return PhoneNumberInsights::normalizeAllowedTypes($explicit);
+    }
+
+    protected function translatedPhoneMessage(string $key): string
+    {
+        $message = __($key);
+
+        return is_string($message) ? $message : $key;
     }
 
     /**

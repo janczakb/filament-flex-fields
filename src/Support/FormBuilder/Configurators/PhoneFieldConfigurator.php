@@ -7,6 +7,7 @@ namespace Bjanczak\FilamentFlexFields\Support\FormBuilder\Configurators;
 use Bjanczak\FilamentFlexFields\Filament\Forms\Components\PhoneField;
 use Bjanczak\FilamentFlexFields\Support\FormBuilder\Contracts\FieldConfigurator;
 use Filament\Schemas\Components\Component;
+use libphonenumber\PhoneNumberType;
 
 final class PhoneFieldConfigurator implements FieldConfigurator
 {
@@ -59,7 +60,10 @@ final class PhoneFieldConfigurator implements FieldConfigurator
         }
 
         if (array_key_exists('allow_types', $config) && is_array($config['allow_types'])) {
-            $field->allowTypes($config['allow_types']);
+            $field->allowTypes(array_values(array_filter(
+                $config['allow_types'],
+                static fn (mixed $type): bool => is_int($type) || is_string($type) || $type instanceof PhoneNumberType,
+            )));
         }
 
         if (array_key_exists('strict_types', $config)) {
@@ -75,11 +79,17 @@ final class PhoneFieldConfigurator implements FieldConfigurator
         }
 
         if (array_key_exists('include_formats', $config) && is_array($config['include_formats'])) {
-            $field->includeFormats($config['include_formats']);
+            $field->includeFormats(array_values(array_filter(
+                $config['include_formats'],
+                static fn (mixed $format): bool => is_string($format),
+            )));
         }
 
         if (array_key_exists('include_metadata', $config) && is_array($config['include_metadata'])) {
-            $field->includeMetadata($config['include_metadata']);
+            $field->includeMetadata(array_values(array_filter(
+                $config['include_metadata'],
+                static fn (mixed $meta): bool => is_string($meta),
+            )));
         }
 
         if (array_key_exists('browser_locale_default', $config)) {

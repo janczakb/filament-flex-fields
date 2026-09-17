@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.19] - 2026-09-17
+
+### Fixed
+
+- **CI PHPStan (quality)** — Playground pages use `Auth::check()`; `urlForSlug()` no longer null-coalesced; PhoneField validation messages / allow-types / state cast narrowed for level 8; Whisper install progress callback and FlexFieldAssets Livewire/env checks typed cleanly.
+
 ## [3.1.18] - 2026-09-17
 
 ### Fixed

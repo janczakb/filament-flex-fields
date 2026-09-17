@@ -135,7 +135,10 @@ final class WhisperRuntime
 
         foreach (WhisperRuntimeManifest::FILES as $filename => $expectedHash) {
             $index++;
-            $onProgress?->__invoke($filename, $index, $total);
+
+            if ($onProgress !== null) {
+                $onProgress($filename, $index, $total);
+            }
 
             $url = WhisperRuntimeManifest::downloadUrl($filename);
             $target = $directory.'/'.$filename;
