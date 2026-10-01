@@ -158,11 +158,10 @@ class FlexTimeSegmentsField extends Field
             'fff-flex-time-segments-field',
             'fff-flex-text-input-field',
             'fff-flex-time-segments-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-time-segments-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

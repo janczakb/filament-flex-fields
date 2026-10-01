@@ -501,11 +501,10 @@ class CurrencyField extends Field
             'fff-currency-field',
             'fff-flex-text-input-field',
             'fff-currency-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-currency-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 

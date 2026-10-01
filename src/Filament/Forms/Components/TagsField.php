@@ -173,11 +173,10 @@ class TagsField extends TagsInput
             'fff-tags-field',
             'fff-flex-text-input',
             'fff-tags-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-tags-field--'.$this->getVariant(),
             'fff-flex-text-input--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
             'fi-color-'.($this->getColor() ?? 'primary'),
         ];
     }

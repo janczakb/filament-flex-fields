@@ -491,11 +491,10 @@ class TimezoneField extends Field
             'fff-timezone-field',
             'fff-flex-text-input-field',
             'fff-timezone-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-timezone-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

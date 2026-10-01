@@ -38,7 +38,7 @@ class UrlMetaScrapeController extends Controller
         }
 
         try {
-            $key = 'fff-url-meta:'.($request->user()?->getAuthIdentifier() ?? $request->ip());
+            $key = 'fff-url-meta:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'anonymous');
 
             if (RateLimiter::tooManyAttempts($key, $maxAttempts)) {
                 throw ValidationException::withMessages([
@@ -47,6 +47,8 @@ class UrlMetaScrapeController extends Controller
             }
 
             RateLimiter::hit($key, 60);
+        } catch (ValidationException $exception) {
+            throw $exception;
         } catch (QueryException $exception) {
             report($exception);
         }

@@ -253,10 +253,9 @@ class SlugField extends Field
             'fff-slug-field-field',
             'fff-flex-text-input-field',
             'fff-slug-field-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-slug-field-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

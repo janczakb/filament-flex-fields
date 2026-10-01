@@ -12,6 +12,8 @@ use Bjanczak\FilamentFlexFields\Support\Schema\FlexFieldGroupValidator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Admin-managed JSON flex-field group (M8 schema product).
@@ -21,8 +23,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $slug
  * @property string $target_type
  * @property array<int, array<string, mixed>>|null $fields
+ * @property array<int, array<string, mixed>>|null $sections
  * @property int $order
  * @property string $tenant_id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class FlexFieldGroup extends Model
 {
@@ -172,29 +177,31 @@ class FlexFieldGroup extends Model
      */
     public function rollbackRegistryVersion(int $version): array
     {
-        $record = SchemaRegistry::rollback($this->registrySchemaId(), $version, $this->id);
+        return DB::transaction(function () use ($version): array {
+            $record = SchemaRegistry::rollback($this->registrySchemaId(), $version, $this->id);
 
-        $schema = $record['schema'];
-        $fields = $schema['fields'] ?? [];
+            $schema = $record['schema'];
+            $fields = $schema['fields'] ?? [];
 
-        if (is_array($fields)) {
-            $this->fields = array_values($fields);
+            if (is_array($fields)) {
+                $this->fields = array_values($fields);
 
-            if (isset($schema['sections']) && is_array($schema['sections'])) {
-                $this->sections = array_values($schema['sections']);
+                if (isset($schema['sections']) && is_array($schema['sections'])) {
+                    $this->sections = array_values($schema['sections']);
+                }
+
+                if (isset($schema['label']) && is_string($schema['label']) && $schema['label'] !== '') {
+                    $this->name = $schema['label'];
+                }
+
+                if (isset($schema['target']) && is_string($schema['target']) && $schema['target'] !== '') {
+                    $this->target_type = $schema['target'];
+                }
+
+                $this->save();
             }
 
-            if (isset($schema['label']) && is_string($schema['label']) && $schema['label'] !== '') {
-                $this->name = $schema['label'];
-            }
-
-            if (isset($schema['target']) && is_string($schema['target']) && $schema['target'] !== '') {
-                $this->target_type = $schema['target'];
-            }
-
-            $this->save();
-        }
-
-        return $record;
+            return $record;
+        });
     }
 }

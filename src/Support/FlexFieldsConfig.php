@@ -196,9 +196,14 @@ class FlexFieldsConfig
         return is_string($locale) && filled($locale) ? $locale : null;
     }
 
-    public static function getSlugRequiredTitleLocales(): mixed
+    /**
+     * @return array<int|string, mixed>|null
+     */
+    public static function getSlugRequiredTitleLocales(): ?array
     {
-        return config('filament-flex-fields.slug.required_title_locales');
+        $locales = config('filament-flex-fields.slug.required_title_locales');
+
+        return is_array($locales) ? $locales : null;
     }
 
     public static function isSlugSpatieTranslatable(): bool

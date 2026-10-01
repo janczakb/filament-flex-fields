@@ -46,6 +46,11 @@ class SafeMediaUrl
         }
 
         if (str_starts_with($trimmed, '/')) {
+            // Block protocol-relative URLs (//host/path) — not a safe relative path.
+            if (str_starts_with($trimmed, '//')) {
+                return null;
+            }
+
             return $trimmed;
         }
 

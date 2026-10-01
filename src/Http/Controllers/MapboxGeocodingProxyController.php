@@ -54,7 +54,7 @@ class MapboxGeocodingProxyController extends Controller
 
     protected function ensureWithinRateLimit(Request $request): void
     {
-        $key = 'fff-geocode:'.($request->user()?->getAuthIdentifier() ?? $request->ip());
+        $key = 'fff-geocode:'.($request->user()?->getAuthIdentifier() ?? $request->ip() ?? 'anonymous');
         $maxAttempts = (int) config(
             'filament-flex-fields.geocoding.rate_limit_per_minute',
             config('filament-flex-fields.mapbox.rate_limit_per_minute', 60),

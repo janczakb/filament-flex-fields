@@ -166,11 +166,10 @@ class AddressAutocompleteField extends Field
             'fff-address-autocomplete-field',
             'fff-flex-text-input-field',
             'fff-address-autocomplete-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-address-autocomplete-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }

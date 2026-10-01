@@ -277,11 +277,10 @@ class FlexColorPickerField extends Field
             'fff-flex-color-picker-field',
             'fff-flex-text-input-field',
             'fff-flex-color-picker-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-color-picker-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 

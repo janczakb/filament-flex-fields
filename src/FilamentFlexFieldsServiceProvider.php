@@ -243,7 +243,11 @@ class FilamentFlexFieldsServiceProvider extends ServiceProvider
         });
 
         $this->app->booted(function (): void {
-            app(FlexFieldGroupRegistrySync::class)->syncAllFromDatabase();
+            try {
+                app(FlexFieldGroupRegistrySync::class)->syncAllFromDatabase();
+            } catch (\Throwable $e) {
+                report($e);
+            }
         });
     }
 

@@ -91,6 +91,11 @@ class FlexMatrixTablePlayground
                                 $rowKey = $statePathParts[count($statePathParts) - 2] ?? null;
 
                                 $matrix = $component->getContainer()->getParentComponent();
+
+                                if (! $matrix instanceof FlexMatrixTable) {
+                                    return null;
+                                }
+
                                 $rows = $matrix->getNormalizedRows();
 
                                 return $rows[$rowKey]['suffix'] ?? null;
@@ -124,6 +129,11 @@ class FlexMatrixTablePlayground
                                 $rowKey = $statePathParts[count($statePathParts) - 2] ?? null;
 
                                 $matrix = $component->getContainer()->getParentComponent();
+
+                                if (! $matrix instanceof FlexMatrixTable) {
+                                    return null;
+                                }
+
                                 $rows = $matrix->getNormalizedRows();
 
                                 return $rows[$rowKey]['suffix'] ?? null;

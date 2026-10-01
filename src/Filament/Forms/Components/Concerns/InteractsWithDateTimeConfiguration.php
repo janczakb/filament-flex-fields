@@ -510,11 +510,10 @@ trait InteractsWithDateTimeConfiguration
             'fff-flex-text-input-field',
             'fff-date-time-field--'.$this->getMode()->value,
             'fff-date-time-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-flex-text-input-field--'.$this->getSize(),
-            'fff-rounding-'.$this->getRounding(),
             'fff-date-time-field--'.$this->getVariant(),
             'fff-flex-text-input-field--'.$this->getVariant(),
+            'fff-rounding-'.$this->getRounding(),
         ];
     }
 }
