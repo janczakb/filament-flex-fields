@@ -1028,43 +1028,27 @@ Sample bundles (10 of **69** production CSS files). Full per-file metrics — ev
 
 ## License
 
-Flex Fields is **source-available and dual-licensed**. In **most real-world cases** you can use it **for free** under **Permitted Free Use** in [LICENSE](LICENSE) (v1.1) — no purchase required. A **commercial license** is only needed when you go beyond that (typical examples: your own commercial SaaS/product where Flex Fields is a material dependency, or redistributing Flex Fields as a kit).
+Flex Fields is **source-available**, with free-use and commercial grants defined in [LICENSE](LICENSE) **v2.0**. Public source availability does not authorize every commercial use or redistribution. Existing licenses retain their agreed terms.
 
-### What free use (Permitted Free Use) allows
+| Use | Licensing route |
+|---|---|
+| Qualifying personal, educational, research, or internal operational use | **Free** under LICENSE §1.7 |
+| Private evaluation of a prospective SaaS | **Free** before live customer operations, paid pilots, or production launch |
+| Qualifying bespoke internal client work, or a client-owned app using the client's own entitlement | See LICENSE §§1.7(b), 5.6 and the [agency guide](COMMERCIAL.md#7-agencies-freelancers-and-client-owned-applications) |
+| One named commercial hosted Product, owned by one person/entity | **Single Product — $249 one-time** |
+| Unlimited current/future hosted Products owned by one entity | **Unlimited Company — $699 one-time** |
+| Hosted Products across a named parent and its 100%-owned subsidiaries | **Enterprise Group — $1,499 one-time** |
+| Customer installations, Software source delivery, starter kits, OEM, or redistribution | **Custom / OEM — from $2,999**, subject to an express written agreement |
 
-| You can… | Free? |
-|----------|-------|
-| Run Flex Fields in your **company’s internal / staff** Filament admin | Yes — LICENSE §1.7(a) |
-| Use **staging, preview, CI, and local** environments for the same entity | Yes |
-| Keep `vendor/` and published Filament assets in a **private application repo** (no standalone FF transfer to third parties) | Yes — §1.5(iii) |
-| **Override app CSS** that targets Flex Fields output (e.g. `.fff-*`) | Yes — §2.3 |
-| Apply **local patches under `vendor/`** only for your permitted install | Yes — §2.4 |
-| Build **one client project** as work-for-hire — client gets the **running app**, not a reusable standalone copy of Flex Fields | Yes — §1.7(b) |
+Standard commercial plans are perpetual within their scope and include unlimited users, tenants, developers, servers, and environments. They allow private modifications and ordinary browser assets; they do **not** include customer installations or redistribution. An agency's Unlimited Company license does not cover client-owned Products. Two Single Product licenses cost $498; Unlimited becomes cheaper from three Products at current prices.
 
-### Quick counsel
+Free internal use does not include a commercial software service merely because its fields are behind a staff login. Tenant logos and custom domains alone do not require OEM; delivering an application containing Flex Fields to a customer's infrastructure does. Genuine bespoke development under the client's own entitlement follows LICENSE §5.6.
 
-| Question | Answer |
-|----------|--------|
-| Internal staff back-office | **Free** — §1.7(a) |
-| Private app repo + published assets | **Allowed** (free) |
-| App CSS override of `.fff-*` | **Allowed** (free) |
-| Local `vendor/` patch only for your install | **Allowed** (free) |
-| **Publishing / redistributing** a modified copy as a kit or standalone package | **Commercial license** required |
+- [LICENSE](LICENSE) — binding grants and restrictions, version 2.0.
+- [COMMERCIAL.md](COMMERCIAL.md) — detailed plan boundaries, examples, upgrade credits, and purchase process. Prices are USD before applicable taxes.
+- [CREDITS.md](CREDITS.md) — third-party attributions.
 
-Free §1.7(b) **does not** apply if the client **resells, licenses, or commercially distributes** the product to third parties — then the **distributing party** needs a commercial license.
-
-### When a commercial license is typically required
-
-| Situation | Plan (from [COMMERCIAL.md](COMMERCIAL.md)) |
-|-----------|---------------------------------------------|
-| Your **commercial SaaS / product**; customers use **your app only** (no standalone Flex Fields copy) | **Single Product** ($169) or **Unlimited** ($299) — one-time |
-| You **sell or redistribute Flex Fields itself** (starter kit, OEM, white-label field pack) | **Custom** (from $1,500) |
-
-- Full license text: [LICENSE](LICENSE) (v1.1)
-- Commercial plans, Custom / OEM, and purchase: [COMMERCIAL.md](COMMERCIAL.md)
-- Third-party attributions: [CREDITS.md](CREDITS.md)
-
-Questions: open a GitHub issue or email [barek122@gmail.com](mailto:barek122@gmail.com).
+Questions: [barek122@gmail.com](mailto:barek122@gmail.com).
 
 ---
 

@@ -1,492 +1,655 @@
 ================================================================================
-        SOURCE-AVAILABLE & DUAL-COMMERCIAL LICENSE — VERSION 1.1
-          janczakb/filament-flex-fields (the "Software")
+          SOURCE-AVAILABLE & COMMERCIAL LICENSE — VERSION 2.0
+              janczakb/filament-flex-fields (the "Software")
+                       Effective: 1 October 2026
 ================================================================================
 
 Copyright (c) 2026 Bartłomiej Janczak. All rights reserved.
+Copyright Holder: Bartłomiej Janczak
 Contact: barek122@gmail.com
 
-IMPORTANT — READ CAREFULLY BEFORE DOWNLOADING, INSTALLING, OR USING THIS
-SOFTWARE. BY TAKING ANY OF THOSE ACTIONS, YOU UNCONDITIONALLY ACCEPT EVERY
-TERM AND CONDITION OF THIS AGREEMENT. IF YOU DO NOT ACCEPT, DO NOT DOWNLOAD,
-INSTALL, OR USE THE SOFTWARE IN ANY WAY.
+This is a source-available license, not an open-source license. Public access to
+source code does not grant unrestricted commercial use or redistribution.
+By exercising rights granted by this License, You agree to its terms. A person
+accepting for an organization must have authority to bind that organization.
+Commercial plans are intended for professional/business use. Nothing here
+excludes rights that mandatory applicable law makes non-excludable.
 
-This License is intended for professional and business use (B2B). You represent
-that You are acquiring the Software for professional purposes and not as a
-consumer acting outside Your trade, business, craft, or profession, to the
-extent such qualification is relevant under applicable law.
+This document contains the free-use grant AND the standard commercial grants.
+COMMERCIAL.md explains those grants and lists current prices. Paying for a plan
+authorizes only that plan's stated scope; it does not waive other restrictions.
+Previously issued licenses are protected by Section 10.6.
 
 ================================================================================
 SECTION 1 — DEFINITIONS
 ================================================================================
 
-1.1  "Software" means the PHP/Laravel/Filament package published by Bartłomiej
-     Janczak under the identifier janczakb/filament-flex-fields, including all
-     source code, compiled CSS/JS assets, configuration files, documentation,
-     and any future updates, patches, or versions thereof.
+1.1  "Software" means the original code and materials in the
+     janczakb/filament-flex-fields package, including PHP, Blade, CSS, JavaScript,
+     assets, configuration, documentation, and modifications of those materials.
+     Third-party components retain their own licenses under Section 6.4.
+     Other packages, including Flex Forms, are not included merely because they
+     integrate with the Software or share its author or branding.
 
-1.2  "Copyright Holder" means Bartłomiej Janczak, sole and exclusive author
-     and owner of all intellectual property rights in and to the Software,
-     except for third-party components governed by Section 6.4.
+1.2  "You" or "Licensee" means the named natural person or single legal entity
+     exercising the grant. A sole proprietor is the named natural person
+     trading under a business name; several trading names do not create several
+     licensees. An incorporated company is distinct from its founders, employees,
+     shareholders, clients, parent, subsidiaries, and sister companies.
 
-1.3  "You" (or "Your") means the individual or legal entity exercising rights
-     under this License.
+1.3  "Official Distribution Channels" means the Copyright Holder's official
+     GitHub repository, its official Packagist listing, and other channels
+     expressly authorized by the Copyright Holder. Obtaining the Software from
+     those channels is not redistribution by the recipient. Downloading a public
+     package, including through Composer, does not itself confer commercial rights.
 
-1.4  "Official Distribution Channels" means distribution points operated or
-     expressly authorized in writing by the Copyright Holder, including
-     without limitation:
-     (a) the official GitHub repository maintained by the Copyright Holder;
-     (b) the janczakb/filament-flex-fields package listing on Packagist.org;
-     (c) any mirror, release artifact, or update channel explicitly linked
-         from the official repository or Copyright Holder website.
-     Receiving a copy through an Official Distribution Channel at the Copyright
-     Holder's direction is not "redistribution" by You.
+1.4  "Authorized Personnel" means employees, individual contractors, agencies,
+     and hosting/build/service providers accessing the Software solely to develop,
+     maintain, secure, or operate a permitted application on Your behalf. They
+     must be bound by employment duties or contractual obligations protecting
+     the Software against unauthorized use or disclosure. They receive no right
+     to use Your license for their own or other clients' products. You remain
+     responsible for their compliance within the access You authorize.
 
-1.5  "Software Transfer" means, with respect to the Software or any portion
-     thereof (including unmodified vendor copies, source trees, archives,
-     Composer packages, Docker images, or deployment artifacts from which the
-     Software can be extracted):
-     (a) delivering, disclosing, publishing, or making accessible such copies
-         to any third party;
-     (b) granting any third party the right or practical ability to copy,
-         redistribute, sublicense, republish, or further transfer the Software;
-     (c) placing the Software in a repository, package index, shared drive,
-         client portal, or artifact store where the client or any third party
-         may obtain standalone copies independent of Your controlled runtime;
-     (d) licensing or selling access to the Software itself, rather than to
-         services or outcomes produced using the Software under this License.
-     For the avoidance of doubt, Software Transfer does NOT include:
-     (i)   operating the Software on infrastructure controlled by You or Your
-           client where the client receives no standalone copy and no rights
-           to extract, republish, or sublicense the Software;
-     (ii)  delivering an integrated application to a client under Section
-           1.7(b) when the client receives only runtime access and no rights
-           described in subsections (a) through (d) above;
-     (iii) storing Composer vendor copies, published Filament assets produced by
-           `php artisan filament:assets` (or equivalent), backups, CI caches, or
-           other deployment artifacts of the Software inside Your private
-           application Repository or private artifact store when ALL of the
-           following are true: (1) access is limited to You, Your employees, and
-           contractors bound to confidentiality for Permitted Free Use; (2) the
-           copy is kept as part of Your integrated application runtime or build
-           pipeline rather than offered as a standalone package of the Software;
-           and (3) You do not grant any third party rights described in
-           subsections (a) through (d) above.
+1.5  "Software Transfer" means providing or making available a copy of the
+     Software, modified or unmodified, to a party outside the applicable grant,
+     including in source, archives, vendor directories, repositories, registries,
+     installers, containers, virtual machines, binaries, or deployment artifacts.
+     A copy need not be standalone, readily extractable, or editable to count.
+     A contractual promise not to extract a delivered copy does not prevent a
+     Software Transfer. The following are limited permitted exceptions:
+     (a) private access and copies for Authorized Personnel, solely for the
+         licensed use, with no independent reuse or distribution rights;
+     (b) private repositories, internal package caches or forks, CI artifacts,
+         backups, and deployment copies accessible only within the applicable
+         grant, including Covered Entities under Enterprise Group;
+     (c) Runtime Access and Browser Assets under Section 1.6;
+     (d) contributions to the Copyright Holder under Section 4;
+     (e) copies expressly authorized by a Custom agreement under Section 5.5.
+     Public forks, mirrors, customer source access, and customer downloads are
+     not permitted merely because the upstream package is publicly available.
 
-1.6  "Distinct Client Engagement" means one separately contracted scope of work
-     for one end client identified in writing before deployment begins. Multiple
-     projects, environments, brands, or business units of the same client
-     constitute separate engagements unless expressly covered by one written
-     statement of work.
+1.6  "Runtime Access" means using an application's interface or API without
+     receiving its server-side Software, installation artifacts, or rights to
+     independently install, maintain, copy, distribute, or sublicense the Software.
+     Application administration, tenant settings, and data exports alone are
+     Runtime Access; access to server files, vendor directories, repositories,
+     container images, or reusable Software code is not.
+     "Browser Assets" means HTML, CSS, JavaScript, fonts, and other assets
+     ordinarily delivered to a browser to operate the permitted application,
+     including its hosted forms or widgets embedded on another website. Serving,
+     caching, or publishing those necessary assets through a CDN or a build step
+     such as `php artisan filament:assets` is allowed. This exception does not
+     authorize an SDK, component download, public source mirror, or asset bundle
+     offered for independent reuse. User data, filled forms, ordinary generated
+     documents, and configurations containing no Software code are not Software.
 
-1.7  "Permitted Free Use" means use that satisfies ALL of Sections 1.7(a) or
-     (b) and every restriction in Section 3:
-     (a) Personal, educational, research, or internal business use by a single
-         natural person or a single legal entity solely for that entity's own
-         internal operations and commercial activities, including staging and
-         non-production environments controlled by that same entity;
-     (b) Deployment of the Software for one Distinct Client Engagement as a
-         work-for-hire or freelance project, provided that:
-         (i)   You remain the sole licensee and operator responsible for
-               compliance with this License;
-         (ii)  You do not perform any Software Transfer to the client or any
-               third party, except that the client may receive compiled or
-               integrated application access without standalone Software copies
-               or redistribution rights as described in Section 1.5;
-         (iii) the client does not resell, license, distribute, or operate the
-               Software as a product for third parties.
+1.7  "Permitted Free Use" means the uses below, subject to Section 3:
+     (a) Personal, educational, research, or internal operational use by one
+         person or entity. Internal use includes staff administration, managing
+         Your own goods/services, and incidental customer/supplier portals for
+         those operations, provided You are not supplying the application itself
+         as a Commercial Product. A staff-only back office that administers an
+         otherwise independently functioning business is internal use; components
+         forming or configuring the software service sold to users are not made
+         internal merely by hiding them behind a staff login.
+     (b) Bespoke work-for-hire for a Distinct Client Engagement, where You remain
+         the responsible licensee/operator, the client receives Runtime Access
+         only, the application serves that client's own internal operations
+         described in (a), and the client does not offer it as a software product
+         or service to others. Each engagement must independently qualify; there
+         is no agency-wide right to sell copies or productized installations.
+     (c) Private development, testing, and evaluation, including a non-production
+         demonstration, of a prospective Commercial Product. This does not cover
+         live customer operations, a paid pilot, or a production launch. Obtain
+         the appropriate commercial grant before such use begins.
+     Earning revenue from Your ordinary business or charging for bespoke labor
+     does not alone disqualify (a) or (b). Conversely, calling a hosted software
+     service "consulting," "internal," or "free" does not make it free use when
+     it is in substance a Commercial Product. Section 5.6 explains client-owned
+     applications and direct licensing without Software Transfer by the agency.
 
-1.8  "Commercial Distribution" means any act of selling, renting, leasing,
-     sublicensing, or otherwise transferring — for monetary gain, in-kind
-     consideration, or any other commercial benefit — the Software, or any
-     Derivative Work, or any Bundled Product, to one or more third parties.
-     For the avoidance of doubt, Commercial Distribution includes but is not
-     limited to:
-     (a) selling or licensing a website, web application, theme, template,
-         boilerplate, starter kit, admin panel pack, or codebase that embeds
-         or depends upon the Software, whether the Software is disclosed or
-         concealed;
-     (b) offering form builders, dynamic-field systems, Filament component
-         libraries, or admin UI kits as a paid product, subscription, or
-         multi-tenant SaaS in which the Software's functionality is a material
-         component;
-     (c) providing the Software to a client under a contract where the client
-         subsequently resells, licenses, or distributes the resulting product
-         to end users;
-     (d) performing any Software Transfer for consideration or as part of a
-         commercial deliverable.
+1.8  "Distinct Client Engagement" means an individually identified client and
+     written scope of bespoke work, documented before production deployment.
+     Several projects may be one engagement only if that written scope covers
+     them. Each client's use must satisfy Section 1.7(b), irrespective of how
+     many engagements You perform. Repeated installation or sale of Your own
+     product is not bespoke work-for-hire for this purpose.
 
-1.9  "Derivative Work" means any work that is based upon, incorporates,
-     modifies, adapts, translates, or is otherwise derived from the Software
-     or any substantial part thereof, regardless of the programming language,
-     file format, or packaging used.
+1.9  "Commercial Product" means an application or software service supplied to
+     third parties for fees, subscriptions, licensing revenue, advertising,
+     bundled consideration, or another commercial benefit, where the Software
+     is integrated into that product's functionality. It includes paid SaaS,
+     monetized platforms, freemium products, customer-facing software tools,
+     and hosted form builders. No minimum revenue, user count, tenant count,
+     percentage of Software code, or visibility threshold applies.
+     An ordinary business website, shop, booking/contact form, or internal
+     portal is not a Commercial Product merely because it supports selling
+     Your own non-software goods or services, if Section 1.7(a) otherwise applies.
 
-1.10 "Bundled Product" means any software application, plugin, extension,
-     theme, template, framework, boilerplate, starter kit, digital product, or
-     service offering in which the Software — in whole or in any part, modified
-     or unmodified — is included, embedded, required as a dependency, or
-     integrated in any manner, irrespective of whether the Software constitutes
-     the primary component or a minor ancillary element.
+1.10 "Product" means one identifiable application or service with a coherent
+     purpose and product identity, owned by its licensee and offered/operated
+     as one product. It includes versions, upgrades, language editions, pricing
+     tiers, feature modules, regional deployments, disaster recovery, and
+     dedicated tenant instances of that same product. Domains, servers,
+     repositories, or databases alone do not determine product count.
+     A separately offered application with an independent purpose or product
+     identity is a separate Product, even if it shares code or is sold in a
+     bundle. A rebrand replacing an existing name is not a new Product; an
+     independently offered fork or second product is. Cosmetic tenant branding
+     under Section 5.1 is not a separate Product or OEM right.
 
-1.11 "Repository" means any version-control hosting service or platform,
-     including without limitation GitHub, GitLab, Bitbucket, Codeberg, or any
-     self-hosted equivalent, whether public, private, or restricted.
+1.11 "Hosted Use" means operation by You or Authorized Personnel on infrastructure
+     under Your operational control, with customers receiving Runtime Access
+     only. Commercial cloud hosting and dedicated instances in Your provider
+     account qualify. Customer-owned servers, customer cloud accounts/VPCs, or
+     delivered customer appliances are Customer Installations when a copy is
+     placed there for that customer to possess, administer, or independently
+     operate. A managed-service contract, encryption, or retained vendor admin
+     access does not turn that installation into Hosted Use. Section 5.6 permits
+     a contractor to administer its client's directly licensed own application.
 
-1.12 "Package Registry" means any software distribution index, including
-     without limitation Packagist, npm, PyPI, or any equivalent service.
+1.12 "Customer Installation" means delivery or deployment of Your product with
+     the Software to an external customer's infrastructure or control, including
+     on-premises, customer-cloud, self-hosted, downloadable, or offline editions.
+     "Redistribution" includes Software Transfer as part of any application,
+     kit, plugin, library, or other deliverable, whether sold or given away.
+     "OEM" means embedding or supplying the Software in a product for another
+     business to distribute, install, rebrand, or sublicense. A sales/referral
+     agent arranging Your direct SaaS contracts, without such rights, is not OEM.
 
-================================================================================
-SECTION 2 — GRANT OF FREE LICENSE
-================================================================================
+1.13 "Derivative Work" means a modification or adaptation of the Software or
+     incorporation of its protected code. Integration alone does not transfer
+     ownership of Your independently written application to the Copyright Holder.
+     "Bundled Product" means an application, library, kit, template, starter,
+     boilerplate, or other offering containing or commercially requiring the
+     Software. A dependency declaration is not itself a copy of Software, but
+     omitting vendor files does not remove the Custom requirement for selling
+     a starter or distributable product designed around the Software.
 
-Subject strictly to the conditions and restrictions in Sections 3 and 4, the
-Copyright Holder grants You a worldwide, royalty-free, non-exclusive,
-non-sublicensable, non-transferable license to:
+1.14 "Covered Entities" under Enterprise Group means the named parent legal
+     entity and subsidiaries in which it owns, directly or through wholly owned
+     subsidiaries, 100% of the ownership interests and voting rights, for as
+     long as that relationship continues. There is no subsidiary or team count
+     limit. Majority ownership, common founders, shared investors, joint ventures,
+     franchises, and contractual control alone do not qualify. The named parent's
+     own parent or sister companies are not covered unless within this definition
+     under the parent actually named in the License Confirmation.
 
-2.1  Obtain copies of the Software only through Official Distribution Channels
-     or other channels expressly authorized in writing by the Copyright Holder,
-     and install and use the Software solely for Permitted Free Use as defined
-     in Section 1.7, including local modifications permitted under Section 2.4.
-     Merely downloading or installing a copy from an Official Distribution
-     Channel does not constitute redistribution by You.
-
-2.2  Make a reasonable number of backup copies and deployment artifacts
-     strictly necessary to operate Permitted Free Use, provided such copies
-     remain under Your control and are not subject to Software Transfer. This
-     expressly includes regenerating published Filament CSS/JS assets into Your
-     application's `public/` (or similar) directory via
-     `php artisan filament:assets` or an equivalent build step, whether those
-     files are regenerated on each deploy or stored under Section 1.5(iii).
-
-2.3  Style, theme, or otherwise present the rendered HTML/CSS/JS output of the
-     Software in Your own application by adding rules, themes, or assets that
-     live outside the Software's package files (for example, Your Filament panel
-     theme, application stylesheet, or Blade layout). Such application-level
-     presentation overrides are ordinary use of the Software's output and do
-     not require editing the installed Software package.
-
-2.4  LOCAL MODIFICATIONS FOR PERMITTED FREE USE. You may modify, patch, fork,
-     or adapt the Software (including files under
-     `vendor/janczakb/filament-flex-fields` or any equivalent install path)
-     solely for Permitted Free Use on systems You control, provided that:
-     (a) the modified Software remains under Your control and is used only for
-         Your Permitted Free Use (or, where Section 1.7(b) applies, only as
-         runtime within that Distinct Client Engagement without Software
-         Transfer of the modified copy);
-     (b) You do not publish, redistribute, sublicense, sell, or otherwise
-         perform Software Transfer of the modified Software, in whole or in
-         part, except as expressly allowed without transfer in Section
-         1.5(i)–(iii);
-     (c) You preserve copyright notices and this License text in any retained
-         copy to the extent practicable; and
-     (d) You accept that modified copies are unsupported unless You contribute
-         the change upstream under Section 4 or obtain a Commercial License
-         that expressly covers support for modifications.
-     Application-level overrides under Section 2.3 remain encouraged for
-     presentation changes that do not require editing package files.
-
-No rights are granted except those expressly set out in this Section 2.
-All other rights are reserved exclusively by the Copyright Holder.
+1.15 "License Confirmation" means an email or instrument issued or expressly
+     authenticated by the Copyright Holder identifying the licensee, plan,
+     effective date, applicable License version, price/currency, payment reference,
+     and scope, including the named Product for Single Product or named parent
+     for Enterprise Group. A payment receipt alone is not a grant unless it
+     expressly contains that authenticated confirmation. A "Custom agreement"
+     must expressly identify every additional or varied right it grants.
 
 ================================================================================
-SECTION 3 — STRICT RESTRICTIONS AND PROHIBITIONS
+SECTION 2 — FREE LICENSE AND COMMON OPERATING PERMISSIONS
 ================================================================================
 
-The following acts are CATEGORICALLY AND UNCONDITIONALLY PROHIBITED unless
-You hold a valid, current Commercial License issued by the Copyright Holder
-under Section 5:
+2.1  Subject to this License, the Copyright Holder grants a worldwide,
+     non-exclusive, royalty-free, non-transferable, non-sublicensable license
+     to obtain the Software from Official Distribution Channels and reproduce,
+     install, execute, display, and use it solely for Permitted Free Use.
+     Commercial rights arise only under Section 5 and a License Confirmation.
 
-3.1  REDISTRIBUTION OF MODIFICATIONS AND UNAUTHORIZED DERIVATIVE WORKS. Local
-     modifications for Permitted Free Use under Section 2.4 are permitted.
-     You may not, without a Commercial License:
-     (a) publish, redistribute, sublicense, sell, or otherwise perform Software
-         Transfer of any modified Software or Derivative Work;
-     (b) offer a modified Software or Derivative Work to third parties as a
-         package, library, plugin, starter kit, or competing product; or
-     (c) reverse engineer or decompile the Software except to the minimum
-         extent mandatory applicable law expressly permits and cannot be waived.
-     Application-level presentation overrides under Section 2.3 are always
-     permitted for Permitted Free Use and are not restricted by this
-     Section 3.1.
+2.2  Both free use and licensed commercial use allow the copies reasonably
+     necessary for the permitted scope: production where authorized, development,
+     local machines, staging, preview, QA, CI, disaster recovery, backups,
+     replicas, and migrations. These environments and their servers are not
+     separately charged. An environment labeled "test" that actually serves
+     live customers must have the rights required for that production use.
 
-3.2  REDISTRIBUTION IN ANY FORM. You may not publish, upload, transmit,
-     broadcast, mirror, host, or otherwise make available the Software — in
-     whole or in any part — through any means intended to let third parties
-     obtain standalone copies of the Software, including but not limited to:
-     (a) any public Repository, or any private Repository or shared drive from
-         which a third party outside Permitted Free Use under Section 1.5(iii)
-         can obtain the Software as a standalone package, mirror, or fork;
-     (b) any Package Registry, except Official Distribution Channels operated
-         by the Copyright Holder;
-     (c) file-sharing platforms, cloud storage, or peer-to-peer networks used
-         to distribute the Software beyond Your controlled Permitted Free Use;
-     (d) email, instant messaging, or any other communication channel used to
-         transfer the Software to third parties outside Section 1.5(i)–(iii).
-     Section 3.2 does not prohibit the storage described in Section 1.5(iii)
-     or the deployment artifacts described in Section 2.2.
+2.3  You may style, theme, configure, and integrate the Software in a permitted
+     application, including application CSS/Blade overrides and Browser Assets.
+     You need not display a public "Powered by Flex Fields" badge. Retain the
+     copyright/license notices in code and distributed assets where present;
+     ordinary application branding does not authorize relabeling the Software.
 
-3.3  SOFTWARE TRANSFER. You may not perform any Software Transfer except as
-     expressly allowed without transfer in Section 1.5(i)–(iii) and Section
-     1.7(b)(ii). Section 1.5(iii) storage may include locally modified copies
-     created under Section 2.4, but does not authorize Software Transfer of
-     those modified copies to third parties.
+2.4  You may inspect, patch, adapt, and privately fork the Software for Your
+     permitted scope, including changes under vendor/. Private package feeds
+     for Authorized Personnel or Covered Entities are permitted under Section
+     1.5(b). Modifications do not enlarge the license, remove attribution, or
+     authorize public forks or external redistribution. Support for modifications
+     is not promised. Contributions follow Section 4.
 
-3.4  BUNDLING AND COMMERCIAL EXPLOITATION. You may not:
-     (a) include, embed, bundle, or integrate the Software, in whole or in any
-         part, into any Bundled Product that is or will be subject to
-         Commercial Distribution;
-     (b) sell, license, rent, or otherwise commercially transfer any
-         application, website, codebase, or digital product that contains or
-         depends upon the Software, even if the Software represents only a
-         minor or incidental component of the total offering;
-     (c) use the Software as a component of any product offered as a template,
-         boilerplate, or starter kit sold or licensed to multiple clients or
-         end users, whether individually priced or as part of a bundle or
-         subscription.
-
-3.5  COMMERCIAL DISTRIBUTION. You may not engage in any act constituting
-     Commercial Distribution as defined in Section 1.8.
-
-3.6  RELABELING AND MISATTRIBUTION. You may not:
-     (a) publish, distribute, or otherwise make available the Software under a
-         different package name, author name, or vendor identity;
-     (b) remove, obscure, alter, or misrepresent the copyright notice, license
-         text, or author attribution in any copy or portion of the Software;
-     (c) represent, imply, or permit others to believe that the Software was
-         created by anyone other than Bartłomiej Janczak.
-
-3.7  SUBLICENSING AND TRANSFER OF LICENSE RIGHTS. You may not grant any
-     sublicense, assign any rights, or otherwise transfer this License or any
-     rights granted hereunder to any third party. Hosting the Software for a
-     client under Section 1.7(b) does not sublicense rights to the client.
-
-3.8  CIRCUMVENTION. You may not structure any transaction, arrangement, or
-     technical implementation with the intent or effect of circumventing any
-     restriction in this Section 3, including without limitation by splitting a
-     Bundled Product into artificially separate components, using an
-     intermediary entity, masking the Software as a different dependency,
-     or separating repositories solely to evade transfer or redistribution
-     prohibitions.
-
-3.9  COMPETING PRODUCTS. You may not use the Software, or any Derivative Work,
-     as the core of a substantially similar dynamic-fields, form-component, or
-     Filament UI kit product offered to third parties, whether open or closed
-     source, except under a Commercial License.
+2.5  There are no developer-seat, user, tenant, server, CPU, region, or revenue
+     limits for a use otherwise within the applicable grant. Unlimited scale
+     does not expand the number of Products or entities licensed, authorize
+     Customer Installations, or grant redistribution or sublicensing rights.
 
 ================================================================================
-SECTION 4 — CONTRIBUTOR LICENSE AGREEMENT (CLA)
+SECTION 3 — RESTRICTIONS APPLYING TO EVERY PLAN
 ================================================================================
 
-4.1  By submitting any contribution (including but not limited to Pull
-     Requests, patches, bug fixes, documentation edits, or any other
-     modification) to the Software or to the official repository, You
-     irrevocably grant to Bartłomiej Janczak a perpetual, worldwide,
-     royalty-free, non-exclusive, sublicensable license to use, reproduce,
-     modify, distribute, and sublicense Your contribution under any license
-     terms the Copyright Holder deems appropriate, including proprietary terms.
+3.1  No license is granted beyond the rights expressly stated in Sections 2
+     and 5 and the applicable License Confirmation. Single Product, Unlimited
+     Company, and Enterprise Group are "Standard Plans." Their additional
+     commercial grant is limited to Section 5.1 and their respective scope.
+     Merely holding a commercial license does not waive this Section 3.
 
-4.2  You represent and warrant that:
-     (a) You are the sole author of the contribution or have obtained all
-         rights necessary to grant the license in Section 4.1;
-     (b) the contribution does not infringe any third-party intellectual
-         property rights;
-     (c) the contribution is not subject to any license, agreement, or
-         obligation that would conflict with the grant in Section 4.1;
-     (d) if the contribution includes work created for an employer or client,
-         You have authority to submit it under Section 4.1.
+3.2  Except for Section 1.5's limited exceptions or express Custom rights, You
+     may not redistribute, sell, sublicense, publish, mirror, or transfer the
+     Software or a Derivative Work, alone or inside a Bundled Product. This
+     includes public/private customer repositories, package feeds, email copies,
+     source handovers, downloadable builds, and Customer Installations. The
+     restriction applies even if the Software is incidental, encrypted, compiled,
+     supplied without a separate charge, or customers promise not to extract it.
 
-4.3  The Copyright Holder retains the right to reject any contribution without
-     giving reasons and without incurring any obligation to the contributor.
+3.3  Standard Plans do not authorize selling or distributing templates, starter
+     kits, boilerplates, SDKs, component libraries, or reusable application source
+     incorporating or commercially requiring the Software. Requiring the buyer
+     to fetch it from official channels does not by itself authorize that
+     distribution business. Genuine bespoke client development with direct
+     licensing is separately permitted under Section 5.6.
 
-================================================================================
-SECTION 5 — COMMERCIAL LICENSING
-================================================================================
+3.4  Standard Plans do not authorize white-label/OEM arrangements in which
+     another business receives the Software or independent rights to operate,
+     resell, or sublicense a Software-based product as its own. Cosmetic SaaS
+     tenant branding and ordinary referrals are permitted under Sections 1.10,
+     1.12, and 5.1; white-label product distribution or reseller operating rights
+     require an express Custom agreement.
 
-5.1  Any use not expressly permitted by Section 2 — including Commercial
-     Distribution, Software Transfer beyond Section 1.5(i)–(iii), Bundled
-     Product distribution, redistribution of modified Software beyond
-     Section 2.4, competing products under Section 3.9, or any other commercial
-     exploitation of the Software — requires a separate Commercial License
-     issued by the Copyright Holder prior to such use.
+3.5  You may not market the Software or a Derivative Work as Your own field
+     library, UI kit, plugin, or substantially substitutable developer toolkit
+     without express Custom rights. A hosted business application, including a
+     hosted form builder, is not prohibited merely because it uses the Software's
+     fields extensively, if users receive Runtime Access/ordinary output only.
+     Exporting reusable Software code or supplying a competing component kit
+     requires Custom rights. Independently developed code containing no protected
+     Software material is not claimed by this License.
 
-5.2  Current commercial plans, pricing, plan scope, and the distinction between
-     standard in-product licenses and custom kit / redistribution / OEM terms
-     are published in the COMMERCIAL.md file in the official Software repository
-     (same directory as this LICENSE). That document describes the standard
-     public offerings (including Single Product and Unlimited) and the Custom
-     kit / redistribution path. To inquire about or obtain a Commercial License,
-     or to request custom terms not covered by the standard plans in
-     COMMERCIAL.md, contact:
+3.6  Preserve copyright, license, and third-party notices. Do not misrepresent
+     authorship or use the Copyright Holder's trademarks to imply endorsement.
+     Renaming or rebranding the Software itself requires express Custom rights;
+     those rights do not implicitly transfer copyright or permit false authorship.
 
-         Bartłomiej Janczak
-         E-mail: barek122@gmail.com
+3.7  Do not assign, sell, lend, pool, share, or sublicense license rights except
+     as expressly permitted in Section 5. End users may use Your application
+     under Your own terms, but receive no independent Software rights from You.
+     Separate purchases may legitimately cover separate Products/entities; they
+     cannot be pooled to create redistribution rights or an unlicensed group.
 
-5.3  Commercial Licenses are issued at the Copyright Holder's sole discretion.
-     Standard public pricing and plan descriptions in COMMERCIAL.md apply to new
-     purchases of those plans unless a different written instrument is signed or
-     otherwise authenticated by the Copyright Holder. The Copyright Holder may
-     also agree to a one-time fee, recurring royalty, revenue-sharing
-     arrangement, OEM / redistribution terms, or other custom terms in a written
-     instrument. No Commercial License is effective until so signed or otherwise
-     authenticated by the Copyright Holder. Published prices in COMMERCIAL.md may
-     be updated for future purchasers; an issued written license confirmation
-     controls the terms of that license.
+3.8  Do not evade scope limits by changing names, splitting vendor files from a
+     downloadable product, using intermediaries, or describing Software delivery
+     as hosting. Classification follows the actual ownership, operation,
+     deliverables, and rights, not invoice wording or package format.
 
-5.4  Any act of Commercial Distribution, prohibited Software Transfer,
-     Bundled Product distribution, redistribution of modified Software beyond
-     Section 2.4, or competing use under Section 3.9 without a valid Commercial
-     License:
-     (a) is null and void ab initio;
-     (b) constitutes a material breach of this License;
-     (c) constitutes direct infringement of the Copyright Holder's exclusive
-         rights under the Act of 4 February 1994 on Copyright and Related
-         Rights (Dz.U. 2022 poz. 2509, as amended) and applicable
-         international copyright treaties;
-     (d) entitles the Copyright Holder to seek all available remedies,
-         including injunctive relief, actual damages, disgorgement of profits,
-         and statutory damages to the maximum extent permitted by applicable law.
+3.9  Mandatory-law rights, including any non-waivable rights to necessary backup,
+     observation, study, testing, interoperability, or lawful transfer, are not
+     excluded. This License does not grant other uses beyond its express scope.
 
 ================================================================================
-SECTION 6 — INTELLECTUAL PROPERTY
+SECTION 4 — CONTRIBUTIONS
 ================================================================================
 
-6.1  The Software is licensed, not sold. Bartłomiej Janczak retains all right,
-     title, and interest in and to the Software, including all copyrights,
-     moral rights, trade secrets, and any other intellectual property rights,
-     worldwide, except as expressly granted in this License.
+4.1  By intentionally submitting a contribution to the Copyright Holder for
+     inclusion in the Software, You grant Bartłomiej Janczak a perpetual,
+     worldwide, non-exclusive, royalty-free, sublicensable license to use,
+     reproduce, modify, distribute, and license that contribution, including
+     under proprietary terms. You retain ownership of Your original contribution.
 
-6.2  This License does not transfer to You any ownership interest in or to the
-     Software, any trademarks, trade names, or service marks of the Copyright
-     Holder, or any goodwill associated therewith.
+4.2  You represent that You hold the rights necessary for that grant, including
+     any employer/client authorization, and disclose relevant third-party terms.
+     Contributions may be rejected. Submission does not entitle You to payment,
+     commercial rights, support, or acceptance of the proposed change.
 
-6.3  You must preserve and reproduce in all permitted copies and portions of
-     the Software:
-     (a) this entire License text, unmodified;
-     (b) the copyright notice: "Copyright (c) 2026 Bartłomiej Janczak."
-
-6.4  The Software incorporates third-party libraries (including but not limited
-     to Laravel, Filament, and their respective dependencies). Those components
-     are governed exclusively by their own licenses. This License applies only
-     to the original code authored by Bartłomiej Janczak within the
-     janczakb/filament-flex-fields package and does not modify or supersede the
-     terms of any third-party license.
-
-6.5  PATENTS. No patent rights are granted except to the minimum extent
-     necessary for You to exercise the copyright permissions expressly granted
-     in Section 2 during Permitted Free Use or under a valid Commercial License.
-     All other patent rights are reserved.
+4.3  You may send patches privately to the Copyright Holder or through the
+     official repository's contribution workflow. A minimal contribution fork
+     required by that workflow is permitted solely to submit the change, with
+     existing notices retained. This is not permission to maintain or promote
+     an independent Software distribution; remove the submission fork after the
+     contribution is accepted or finally closed. Ordinary code-free discussion,
+     issue reports, and links to official sources are not redistribution.
 
 ================================================================================
-SECTION 7 — TERMINATION
+SECTION 5 — COMMERCIAL PLANS AND COMMERCIAL LIFECYCLE
 ================================================================================
 
-7.1  This License and all rights granted hereunder terminate automatically and
-     immediately, without notice and without judicial action, if You breach any
-     term or condition of this License.
+5.1  COMMON STANDARD GRANT. Once effective under Section 5.7, a Standard Plan
+     grants worldwide, non-exclusive commercial rights to reproduce, install,
+     run, modify, and integrate the Software in Products within its scope, and
+     to sell subscriptions or other Runtime Access to those Products in Hosted
+     Use. Section 2's operating permissions also apply. You must own the Product
+     (excluding third-party dependencies) and operate it directly or through
+     Authorized Personnel; Enterprise Group permits ownership/operation by its
+     Covered Entities collectively. A mere license to resell another owner's
+     Product is not Product ownership for these plans.
+     All Standard Plans include unlimited users, tenants, Authorized Personnel,
+     and environments for covered Products. Custom domains, tenant logos/colors,
+     separate tenant databases, and dedicated instances remain covered when
+     You retain the Product and service relationship and grant no independent
+     reseller rights. Neither a Standard Plan nor a large customer count
+     authorizes Customer Installations, Software redistribution, or OEM rights.
 
-7.2  Upon termination, You must:
-     (a) immediately cease all use, reproduction, and distribution of the
-         Software;
-     (b) permanently delete all copies, full or partial, of the Software in
-         Your possession or control, including backups, deployment artifacts,
-         and archived copies;
-     (c) upon request, certify in writing to the Copyright Holder that You have
-         complied with Section 7.2(b).
+5.2  SINGLE PRODUCT — USD 249, ONE-TIME CURRENT LIST PRICE.
+     One named natural person or legal entity may use the Software in one
+     named Product, including all its permitted versions and environments.
+     The Product is identified in the License Confirmation before commercial
+     deployment. You may develop its features and replace its brand without
+     buying again; record a changed name with the Copyright Holder by email.
+     A separately offered Product requires another Single Product license or
+     an upgrade. Retiring a Product does not free a reusable license slot.
+     No other legal entity is covered except as Authorized Personnel working
+     solely for the named licensee. A Product sale follows Section 5.10.
 
-7.3  Sections 4, 5.4, 6, 7, 8, 9, and 10 survive termination of this License.
+5.3  UNLIMITED COMPANY — USD 699, ONE-TIME CURRENT LIST PRICE.
+     One named natural person operating as a sole proprietor, or one named
+     legal entity, may use the Software in unlimited current and future Products
+     it owns and operates. Multiple brands, departments, employees, and teams
+     within that entity are included. A founder's separate company, parent,
+     subsidiary, sister company, client, or joint venture is not included.
+     There is no group extension by shared ownership, billing, domain, office,
+     or development team. Other entities need their own applicable grants or
+     coverage under Enterprise Group or an express Custom agreement.
+
+5.4  ENTERPRISE GROUP — USD 1,499, ONE-TIME CURRENT LIST PRICE.
+     The named parent and its Covered Entities may use the Software across
+     unlimited Products owned/operated within that group, including shared
+     development teams, internal hosting, and private repositories. This is a
+     direct extension of the Copyright Holder's grant to qualifying entities,
+     administered by the parent, not a general right to sublicense.
+     (a) The parent must have authority to accept for Covered Entities and
+         remains responsible for group compliance. Each participating entity
+         must comply with this License.
+     (b) Current and future wholly owned subsidiaries qualify automatically
+         while Section 1.14 is satisfied, without a per-subsidiary fee. Keep
+         an up-to-date list and notify the Copyright Holder of changes within
+         thirty (30) calendar days. Notification is administrative, not a
+         separate purchase or discretionary approval requirement.
+     (c) An entity leaving the group may continue only its existing deployments
+         for ninety (90) calendar days after departure, solely to transition
+         to its own license or remove the Software. It may maintain/security-
+         patch those deployments but may not launch new Products or redistribute
+         the Software under this transition. At its end, separate rights are
+         required. The parent's remaining covered use continues.
+     (d) Partial ownership, joint ventures, and entities outside the named
+         parent's qualifying chain require separate licenses or an expressly
+         negotiated extension; "Enterprise" alone does not include them.
+     (e) Covered entities may exchange copies for covered use. Delivery to
+         external customers still requires Custom rights. Enterprise Group
+         contains no OEM, customer-installation, or external redistribution grant.
+
+5.5  CUSTOM / OEM / REDISTRIBUTION — QUOTATIONS START AT USD 2,999.
+     A separate written agreement is required for Customer Installations,
+     distribution of Products containing or commercially requiring the Software,
+     OEM, resale, developer kits, Software white-labeling, or sublicensing beyond
+     Standard Plans. The starting price is an entry point for a narrowly scoped
+     agreement, not a flat price for all rights, an automatic license, or a cap.
+     No particular Custom right is included until expressly written into the
+     agreement. A quote must identify:
+     (a) licensees, Products, Software versions, and permitted modifications;
+     (b) delivery methods, installation/customer limits, territories, channels,
+         and the duration of the grant;
+     (c) downstream runtime/source/modification rights, attribution, and any
+         permitted further sublicensing or distribution;
+     (d) applicable fees: one-time, per-installation, royalty, revenue share,
+         recurring minimums, or another expressly agreed basis;
+     (e) any reporting, support, update entitlement, and treatment of deployed
+         customer copies at expiry or termination.
+     Copyright ownership, exclusivity, public registry publication, unlimited
+     downstream use, and direct support of Your customers are not included by
+     implication. Requests may be declined. Non-standard group coverage can also
+     be negotiated; this does not itself confer any redistribution rights.
+
+5.6  AGENCIES, CONTRACTORS, AND DIRECT CLIENT LICENSES.
+     (a) A genuine client-owned bespoke application may be developed and
+         maintained by its agency as Authorized Personnel of that client. The
+         client obtains the Software directly from Official Distribution Channels
+         and relies on its own Permitted Free Use or commercial grant. The agency
+         may install it into the client's controlled environment on that client's
+         behalf and access that environment solely to provide services.
+     (b) The agency may deliver its independently written application code without
+         Software copies and identify the official dependency. This exception
+         applies to bespoke development for the identified owner, not resale of
+         the agency's reusable product, template, boilerplate, or customer edition.
+         It does not sublicense the agency's license or transfer its private fork.
+     (c) A client's own internal application can therefore qualify for free use;
+         a client-owned SaaS requires that client's suitable Standard Plan for
+         Hosted Use. The agency's Unlimited Company never covers client-owned
+         Products. The client needs Custom rights if it subsequently distributes
+         Software-containing Products to its own customers.
+     (d) Selling or installing Your own product for many customers is not converted
+         into bespoke development by separate invoices or customer downloads
+         from Packagist. That model requires Custom authorization for the vendor.
+         Customer licenses alone do not confer distribution rights on the vendor.
+
+5.7  FORMATION, PAYMENT, AND PRECEDENCE.
+     (a) Before payment, the order must identify the licensee, plan/scope,
+         applicable License version, price, taxes where applicable, and any
+         departures from standard terms. These terms must be available to the
+         purchaser before acceptance. A later email cannot unilaterally reduce
+         the accepted grant.
+     (b) Commercial rights become effective when payment is confirmed and the
+         Copyright Holder issues/authenticates the License Confirmation, unless
+         that instrument expressly agrees a different payment/effective date.
+         Keep both confirmation and payment record. A donation, unaccepted quote,
+         public price listing, or unsupported payment is not a commercial grant.
+     (c) Priority is: an expressly agreed Custom agreement/amendment; the accepted
+         License Confirmation for its named scope and commercial particulars;
+         the applicable version of this LICENSE; then the matching COMMERCIAL.md
+         guide for explanation. A routine Standard Plan confirmation cannot
+         silently add redistribution rights. Such rights require express Custom
+         terms identifying the relevant exception.
+     (d) The USD amounts above are this version's public list prices, excluding
+         applicable VAT/sales tax. Actual taxes/currency and the final amount
+         must be disclosed in the quote/checkout. New public prices may change
+         for future orders; accepted orders and issued grants are unaffected.
+         No subsequent price increase creates a balance due on a paid license.
+
+5.8  DURATION, VERSIONS, UPDATES, AND SUPPORT.
+     Standard Plans are perpetual within the licensed scope, subject to their
+     conditions and Section 7. No annual fee, per-user royalty, or renewal is
+     required to continue that use. To the extent permitted by law, the Copyright
+     Holder will not terminate a paid Standard Plan merely for convenience.
+     The grant covers the package version obtained and subsequent updates,
+     including major versions of this same package, released by the Copyright
+     Holder through Official Distribution Channels. Those updates may be used
+     under the issued commercial grant; a new embedded license text does not
+     reduce it without agreement. Separate products/add-ons are excluded.
+     Current source and releases are available through public official channels.
+     Payment buys usage rights, not a private update subscription. There is no
+     promise to create future releases, maintain public hosting indefinitely,
+     support every framework version, supply fixes by a deadline, or provide an
+     SLA. You may retain permitted copies. Discontinuation or choosing not to
+     update does not end perpetual rights to versions already covered.
+     Support, customization, training, indemnities, and service commitments are
+     included only when expressly agreed. Custom duration/updates follow its
+     agreement. No runtime activation or periodic online validation is required
+     by the Standard Plans; lack of a technical check does not expand rights.
+
+5.9  STANDARD PLAN UPGRADES.
+     For licenses originally issued under version 2.0, the holder may request
+     an upgrade from Single Product to Unlimited Company or Enterprise Group,
+     or from Unlimited Company to Enterprise Group. There is no upgrade deadline.
+     The upgrade fee is the then-current destination list price minus eligible
+     net license fees already paid, with a minimum of zero. Eligible credit
+     excludes taxes, refunds, chargebacks, support, and Custom fees; it cannot
+     be redeemed for cash or used twice. Several lower-tier grants may be
+     consolidated only if all their Products/entities fit the destination scope,
+     their holders consent, and the grants are identified in the new confirmation.
+     Upgraded grants are replaced, not retained as transferable spare licenses.
+     Consolidation does not authorize historical out-of-scope use. Custom and
+     pre-2.0 upgrade credits require an individual written quote; there is no
+     automatic downgrade refund or Custom credit. The expanded scope starts
+     only when the upgrade is paid and confirmed under Section 5.7.
+
+5.10 OWNERSHIP CHANGES AND TRANSFERS.
+     A change of trading name or shareholders does not transfer a license if
+     the same legal licensee remains and scope conditions continue. Notify the
+     Copyright Holder of legal-name/contact changes. Under Enterprise Group,
+     acquisition of the named parent does not automatically cover the acquirer's
+     other entities; subsidiary departures follow Section 5.4(c).
+     A sale of a Product, assignment to another company, incorporation of a sole
+     proprietorship, or merger into a different legal entity does not automatically
+     transfer rights, except where mandatory law provides otherwise. Obtain
+     written transfer approval, appropriate new licenses, or an agreed transition
+     before the recipient begins using the Software under the transferred scope.
+     The Copyright Holder may agree a Single Product transfer with its entire
+     Product; it does not carry unrelated portfolio rights. Transfers of Products
+     within an existing Enterprise Group remain covered while both entities
+     qualify and the Product stays within the group.
+
+5.11 REFUNDS AND REMEDIES.
+     Voluntary refunds follow the terms disclosed for the accepted order. Unless
+     that order or the payment provider's applicable policy provides otherwise,
+     issued commercial grants are non-refundable. Mandatory refund, withdrawal,
+     and other statutory rights are preserved. If payment was collected but the
+     Copyright Holder declines to issue the agreed grant, the license payment
+     must be refunded. A full license refund cancels that commercial grant; a
+     partial price adjustment does not unless expressly agreed. A billing dispute
+     is not itself a license breach; actual non-payment follows Section 7.
 
 ================================================================================
-SECTION 8 — DISCLAIMER OF WARRANTIES
+SECTION 6 — INTELLECTUAL PROPERTY AND THIRD-PARTY RIGHTS
 ================================================================================
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT. THE COPYRIGHT
-HOLDER DOES NOT WARRANT THAT THE SOFTWARE WILL MEET YOUR REQUIREMENTS, OPERATE
-WITHOUT INTERRUPTION, OR BE FREE FROM ERRORS OR SECURITY VULNERABILITIES.
+6.1  The Software is licensed, not sold. The Copyright Holder retains ownership
+     of the Software and its intellectual property, subject to third-party
+     rights. Your application, data, and independently authored code remain Yours.
 
-YOU ASSUME THE ENTIRE RISK AS TO THE QUALITY, PERFORMANCE, SECURITY, AND
-RESULTS OF YOUR USE OF THE SOFTWARE. YOU ARE SOLELY RESPONSIBLE FOR ANY DAMAGE
-TO YOUR SYSTEMS, DATA, BUSINESS, OR THIRD PARTIES ARISING FROM YOUR USE OR
-INABILITY TO USE THE SOFTWARE.
+6.2  No trademark, exclusivity, or copyright assignment is implied. Any patent
+     permission extends only to rights controlled by the Copyright Holder and
+     necessary to exercise the expressly granted use, for its authorized duration.
 
-================================================================================
-SECTION 9 — LIMITATION OF LIABILITY (LICENSEE CLAIMS AGAINST COPYRIGHT HOLDER)
-================================================================================
+6.3  Retain this License and the Software's copyright notices in permitted copies.
+     Maintain evidence of commercial rights separately; You need not publish
+     confidential License Confirmations or commercial terms to end users.
+     Browser output requires no additional badge beyond existing asset notices.
 
-This Section limits claims that a Licensee (or any user acting under this
-License) may bring AGAINST the Copyright Holder. It does NOT limit, reduce,
-or cap any remedy, claim, or enforcement action that the Copyright Holder may
-bring against You for breach of this License, copyright infringement, or
-unauthorized use.
-
-9.1  EXCLUSION OF DAMAGES. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW,
-     THE COPYRIGHT HOLDER SHALL NOT BE LIABLE TO YOU FOR ANY DAMAGES OF ANY
-     KIND OR NATURE ARISING OUT OF OR IN CONNECTION WITH THIS LICENSE OR THE
-     SOFTWARE, EVEN IF THE COPYRIGHT HOLDER HAS BEEN ADVISED OF THE POSSIBILITY
-     OF SUCH DAMAGES.
-
-9.2  ZERO LIABILITY FOR PROFESSIONAL USE. WHERE PERMITTED FOR PROFESSIONAL OR
-     BUSINESS USE (B2B), THE COPYRIGHT HOLDER SHALL HAVE NO LIABILITY
-     WHATSOEVER TO YOU UNDER OR IN CONNECTION WITH THIS LICENSE.
-
-9.3  MANDATORY-LAW FLOOR. IF A COMPETENT COURT FINALLY DETERMINES THAT ANY
-     PART OF SECTIONS 9.1 OR 9.2 CANNOT BE ENFORCED FOR A PARTICULAR CLAIM,
-     THE COPYRIGHT HOLDER'S TOTAL AGGREGATE LIABILITY FOR THAT CLAIM SHALL NOT
-     EXCEED THE GREATER OF EUR 0 (ZERO EURO) OR FEES ACTUALLY PAID BY YOU FOR
-     A VALID COMMERCIAL LICENSE IN THE TWELVE (12) MONTHS PRECEDING THE EVENT,
-     AND ONLY TO THE MINIMUM EXTENT REQUIRED BY MANDATORY APPLICABLE LAW.
-
-9.4  EXCLUSIVE REMEDY. YOUR SOLE AND EXCLUSIVE REMEDY FOR DISSATISFACTION WITH
-     THE SOFTWARE IS TO DISCONTINUE USE AND DELETE ALL COPIES IN YOUR POSSESSION
-     OR CONTROL.
-
-9.5  NO LIMITATION ON COPYRIGHT HOLDER ENFORCEMENT. If You breach this License,
-     the Copyright Holder may pursue all remedies available under this License
-     and applicable law without regard to this Section 9.
+6.4  Third-party code, libraries, icons, services, and dependencies are governed
+     by their own licenses/terms. See CREDITS.md and the relevant components.
+     This License neither restricts rights independently granted by third parties
+     nor licenses services, API credentials, or other packages on their behalf.
 
 ================================================================================
-SECTION 10 — GENERAL PROVISIONS
+SECTION 7 — BREACH, TERMINATION, AND SURVIVAL
 ================================================================================
 
-10.1 GOVERNING LAW. This License is governed by the substantive law of Poland,
-     in particular the Act of 4 February 1994 on Copyright and Related Rights,
-     without regard to conflict-of-laws rules.
+7.1  Out-of-scope use is never authorized merely because another use is licensed.
+     You must stop unauthorized copying, distribution, or use immediately.
+     Subject to mandatory law, the Copyright Holder may terminate the affected
+     grant by written notice for an unremedied material breach after thirty (30)
+     calendar days' written notice describing it and an opportunity to cure.
+     Deliberate unauthorized redistribution, fraudulent licensing information,
+     or repeated material breach after a prior cure may justify immediate written
+     termination. No cure period grants temporary rights for the disputed use.
 
-10.2 JURISDICTION. Any dispute arising out of or in connection with this
-     License shall be submitted to the exclusive jurisdiction of the competent
-     courts in Warsaw, Poland.
+7.2  A late payment or administrative error that can be remedied is subject to
+     the cure process. A minor breach does not automatically extinguish all
+     perpetual rights. For separate identifiable grants, termination affects the
+     breached grant, not unrelated compliant grants, unless those grants are
+     themselves implicated in the breach.
 
-10.3 SEVERABILITY. If any provision is held invalid, illegal, or unenforceable,
-     that provision shall be modified to the minimum extent necessary to make
-     it enforceable, or severed, while the remaining provisions continue in
-     full force and effect.
+7.3  After termination, cease use under the terminated grant and remove its
+     Software copies, including working copies and deployment artifacts. One
+     inaccessible archival copy may be retained where legally required, and
+     immutable backups may expire through their ordinary retention cycle if
+     not restored to active use. Any independently valid grant remains effective
+     for its own scope. Confirm compliance reasonably upon written request.
+     Custom downstream treatment follows its express agreement; Standard Plans
+     do not create downstream sublicenses that survive independently.
 
-10.4 ENTIRE AGREEMENT. This License constitutes the entire agreement between
-     the parties with respect to the Software.
+7.4  Rights/remedies accrued before termination, Section 4 contribution grants,
+     Section 6 ownership/notices, Sections 8–10 as applicable, and obligations
+     necessary to enforce scope and termination survive. Unauthorized use may
+     support contractual or copyright remedies to the extent available under
+     applicable law; this License does not predetermine a court's findings or
+     create remedies unavailable under that law.
 
-10.5 WAIVER. Failure to enforce any provision does not constitute a waiver of
-     the right to enforce that provision in the future.
+================================================================================
+SECTION 8 — WARRANTIES
+================================================================================
 
-10.6 MODIFICATIONS TO THIS LICENSE. The Copyright Holder may publish revised
-     versions. The version under which You obtained the Software governs Your
-     use unless expressly stated otherwise. This is version 1.1, effective
-     12 August 2026. Version 1.1 clarifies Sections 1.5, 2.2–2.4, 3.1–3.3,
-     5.1, 5.4, and 10.8 (private deployment artifacts, application CSS
-     overrides, local modifications for Permitted Free Use, and audit form);
-     it does not reduce rights previously granted under version 1.0 for
-     Permitted Free Use.
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED
+"AS IS" AND "AS AVAILABLE," WITHOUT IMPLIED WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. NO PROMISE IS MADE THAT
+IT WILL BE ERROR-FREE, UNINTERRUPTED, SECURE IN EVERY CONFIGURATION, OR SUITABLE
+FOR YOUR PARTICULAR REQUIREMENTS. YOU ARE RESPONSIBLE FOR EVALUATION, TESTING,
+DEPLOYMENT, ACCESS CONTROL, AND BACKUPS. THIS DOES NOT EXCLUDE EXPRESS WRITTEN
+COMMITMENTS OR WARRANTIES/REMEDIES THAT CANNOT LAWFULLY BE EXCLUDED.
 
-10.7 LANGUAGE. This License is written in English. Any translation is provided
-     for convenience only; the English text prevails.
+================================================================================
+SECTION 9 — LIABILITY
+================================================================================
 
-10.8 AUDIT. Upon reasonable prior written notice (email is sufficient), the
-     Copyright Holder may request written confirmation that Your use remains
-     within Permitted Free Use. A good-faith reply from an authorized company
-     representative (for example legal, engineering, or procurement) by email
-     within thirty (30) calendar days is enough; no special form, portal, or
-     on-site audit is required unless separately agreed in a Commercial
-     License. Refusal or material misrepresentation constitutes a breach.
+9.1  To the extent permitted by law, the Copyright Holder is not liable for
+     indirect or consequential loss, lost profits/revenue, business interruption,
+     or loss of data arising from the Software or this License.
+
+9.2  Subject to Section 9.3, the Copyright Holder's aggregate liability arising
+     from an affected grant is limited to the license fees actually paid for that
+     grant, including its upgrade fees, excluding taxes and unrelated services.
+     For a free grant, liability is excluded to the extent permitted by law.
+     The cap does not decrease merely because a perpetual license is older
+     than twelve months.
+
+9.3  Nothing excludes or limits liability for intentional wrongdoing, fraud,
+     or any liability/rights that cannot be excluded or limited by applicable
+     law. Required refunds under Section 5.11 are not removed by this Section.
+
+9.4  This Section limits claims against the Copyright Holder; it does not grant
+     permission to infringe, cap Your agreed license fees, or create automatic
+     penalties. Each party's remedies remain subject to applicable law.
+
+================================================================================
+SECTION 10 — GENERAL TERMS AND VERSION PROTECTION
+================================================================================
+
+10.1 Polish substantive law governs this License, including the Act of
+     4 February 1994 on Copyright and Related Rights, as amended. Mandatory
+     protections applicable irrespective of this choice of law are preserved.
+
+10.2 Subject to mandatory jurisdiction rules, disputes are submitted to the
+     competent courts in Warsaw, Poland. A business-use statement does not
+     waive statutory protections that apply to a particular purchaser.
+
+10.3 If a provision is unenforceable, the remaining provisions continue so far
+     as legally possible. Mandatory law prevails over conflicting restrictions.
+
+10.4 This License and the accepted License Confirmation and any expressly agreed
+     amendments constitute the license agreement in the priority set out in
+     Section 5.7(c). COMMERCIAL.md is an explanatory/pricing guide, not an
+     independent redistribution grant. Purchase orders or customer policies do
+     not amend this agreement unless expressly accepted by the Copyright Holder.
+
+10.5 Failure to enforce a provision is not a waiver. License correspondence may
+     be by email to the contact above and the licensee's designated address,
+     subject to any form requirements of mandatory applicable law.
+
+10.6 VERSION AND EXISTING-LICENSE PROTECTION. This is version 2.0, effective
+     1 October 2026. It replaces the public 1.1 text for new grants under this
+     version. It introduces explicit Standard Plan scopes, Enterprise Group,
+     the new price schedule, and revised operational/commercial terms; it is
+     not presented as a merely editorial clarification of version 1.1.
+     (a) Previously issued commercial licenses retain their agreed prices,
+         scope, duration, update rights, and license version. They are not
+         automatically narrowed, repriced, upgraded, or renamed. A prior
+         Unlimited grant does not become Enterprise Group or OEM by implication.
+     (b) Copies previously obtained under a valid free license remain governed
+         by that version for those copies. It does not automatically grant rights
+         to future versions; assess the terms accompanying each new version.
+     (c) Existing customers need not pay again solely because this document or
+         public pricing changes. Expanded use needs the rights applicable to
+         that expansion; preserve the original grant unless an agreed upgrade
+         or replacement expressly supersedes it.
+     (d) Issued version-2.0 commercial grants retain their terms for updates
+         covered by Section 5.8. No later website, repository, or price-list
+         edit unilaterally reduces rights already granted.
+
+10.7 English is the governing language; translations are for convenience.
+
+10.8 PROPORTIONATE VERIFICATION. On reasonable written notice, the Copyright
+     Holder may request confirmation of Product identities, entity coverage,
+     ownership relationships, and hosting/distribution model relevant to this
+     grant. An authorized representative's email within thirty (30) calendar
+     days is sufficient; redacted supporting records may be used. Requests are
+     limited to once per twelve months unless there is reasonable evidence of
+     non-compliance or a relevant scope change. No source-code disclosure,
+     customer personal data, server access, telemetry, or on-site audit is
+     required under Standard Plans. Material misrepresentation or persistent
+     refusal to provide proportionate confirmation is subject to Section 7.
 
 ================================================================================
 END OF LICENSE
