@@ -31,7 +31,7 @@
         "watch:css": "npx @tailwindcss/cli -i ./resources/css/core.css -o ./resources/dist/css/core.css --watch"
     },
     "devDependencies": {
-        "@playwright/test": "^1.62.1",
+        "@playwright/test": "^1.64.0",
         "@tailwindcss/cli": "^4.3.3",
         "@tiptap/core": "^3.31.3",
         "@tiptap/extension-youtube": "^3.31.2",
