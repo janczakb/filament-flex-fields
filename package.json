@@ -59,7 +59,7 @@
     "devDependencies": {
         "@playwright/test": "^1.64.0",
         "@tailwindcss/cli": "^4.3.3",
-        "@tiptap/core": "^3.31.4",
+        "@tiptap/core": "^3.32.0",
         "@tiptap/extension-youtube": "^3.31.4",
         "esbuild": "^0.28.2",
         "tailwindcss": "^4.3.3",
