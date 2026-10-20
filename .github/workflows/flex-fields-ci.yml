@@ -111,7 +111,7 @@ jobs:
 
       - name: Retain source-stamped acceptance logs and measurements
         if: always() && matrix.php == '8.3'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: core-acceptance-quality-${{ github.sha }}
           path: build/core-acceptance/**
@@ -150,7 +150,7 @@ jobs:
         run: node scripts/core/release-acceptance.mjs --phase=composer --browser=${{ matrix.browser }}
       - name: Retain source-stamped browser acceptance
         if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: core-acceptance-${{ matrix.browser }}-${{ github.sha }}
           path: build/core-acceptance/**
@@ -183,7 +183,7 @@ jobs:
       - name: Verify complete phases, commit, source, asset release and log digests
         run: node scripts/core/certify-acceptance.mjs --input=build/downloaded-acceptance --output=build/release-acceptance.json
       - name: Retain the automated acceptance report
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-acceptance-${{ github.sha }}
           path: |
@@ -216,7 +216,7 @@ jobs:
             build/verified-release/release-metadata/build-provenance.json
             build/verified-release/release-metadata/sbom.cdx.json
       - name: Retain the verification bundle
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: release-attestation-${{ github.sha }}
           path: ${{ steps.provenance_attestation.outputs.bundle-path }}
