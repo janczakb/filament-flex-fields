@@ -40,6 +40,37 @@ test('suggestions use full-shell live width, inset the last option and cannot se
     } finally {f.instance.dispose();globalThis.document=previous}
 })
 
+for (const asyncSuggestions of [false, true]) {
+    for (const position of ['below', 'trailing']) {
+        test(`${asyncSuggestions ? 'async' : 'local'} suggestions keep rich text and selection with ${position} descriptions`, async () => {
+            const previous = globalThis.document
+            const records = [{ value: '001', label: '<b>001</b>', description: 'Customer <script>name</script>' }]
+            const f = fixture({ asyncSuggestions, suggestionDescriptionPosition: position, suggestions: records })
+            f.owner.$wire = { callSchemaComponentMethod: async () => records }
+            try {
+                f.instance.schedule(); await tick(); await tick()
+                assert.equal(f.panel.dataset.descriptionPosition, position)
+                const content = f.list.children[0].children[0].children[0]
+                assert.equal(content.children[0].textContent, '<b>001</b>')
+                assert.equal(content.children[1].textContent, 'Customer <script>name</script>')
+                f.list.children[0].dispatchEvent(new Event('click'))
+                assert.equal(f.input.value, '001')
+                assert.equal(f.owner.suggestionsOpen, false)
+            } finally { f.instance.dispose(); globalThis.document = previous }
+        })
+    }
+}
+
+test('description position defaults below for older payloads and is isolated per instance', () => {
+    const previous = globalThis.document
+    const trailing = fixture({ suggestionDescriptionPosition: 'trailing' })
+    const below = fixture()
+    try {
+        assert.equal(trailing.panel.dataset.descriptionPosition, 'trailing')
+        assert.equal(below.panel.dataset.descriptionPosition, 'below')
+    } finally { trailing.instance.dispose(); below.instance.dispose(); globalThis.document = previous }
+})
+
 test('empty suggestions show a safe title and free-text hint; disposal removes the panel',async()=>{
     const previous=globalThis.document;const f=fixture();f.input.value='<no-match>'
     try {f.instance.schedule();await tick();const state=f.list.children[0]

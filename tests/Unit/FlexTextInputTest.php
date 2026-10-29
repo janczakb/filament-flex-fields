@@ -11,6 +11,20 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TextInput\Actions\CopyAction;
 use Filament\Support\Icons\Heroicon;
 
+it('defaults suggestion descriptions below and resolves per-field trailing configuration', function () {
+    $default = FlexTextInput::make('default');
+    $trailing = FlexTextInput::make('trailing')->suggestionDescriptionPosition(fn (): string => 'trailing');
+
+    expect($default->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('below')
+        ->and($trailing->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('trailing')
+        ->and($default->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('below');
+});
+
+it('rejects unsupported suggestion description positions', function () {
+    expect(fn () => FlexTextInput::make('city')->suggestionDescriptionPosition('sideways')->getTextInputEditingOptions())
+        ->toThrow(InvalidArgumentException::class);
+});
+
 it('extends filament text input and exposes styling api', function () {
     $field = FlexTextInput::make('title')
         ->placeholder('Enter title')

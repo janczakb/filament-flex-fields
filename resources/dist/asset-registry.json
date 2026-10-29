@@ -790,7 +790,7 @@
       "package": "janczakb/filament-flex-fields",
       "path": "components/flex-text-input.js",
       "type": "module",
-      "sha256": "9f90faab59f7a55f62e37117d78ad0f6c64851acc498ab3814167191aaa08843",
+      "sha256": "328fdafc401934c8cda8382920dc318a6a4e8decf47bd8a6d44f14fce5fb7f55",
       "bytes": 12660
     },
     "distribution:components/flex-textarea.js": {
@@ -1326,8 +1326,8 @@
       "package": "janczakb/filament-flex-fields",
       "path": "css/flex-text-input.css",
       "type": "stylesheet",
-      "sha256": "0c0890fceb18bf00b2a9749f82bfc71086f220f1cdc7c440df43f090414f3335",
-      "bytes": 19509
+      "sha256": "9c88ca95962c5addc89cc5e51281b58f6ad632f4f6c705b4a0a57e4f39c0e624",
+      "bytes": 20095
     },
     "distribution:css/flex-textarea.css": {
       "origin": "distribution",

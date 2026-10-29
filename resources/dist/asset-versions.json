@@ -1,6 +1,6 @@
 {
   "format": 2,
-  "release": "979a2eb797150c7fd7c50f1cc0755ef224080fdf0a494a949289f61daeed961a",
+  "release": "c4ad3de59c53e9c6a550aad01c63a81e6f364895fea3e9c5d10e68728b3302f0",
   "assets": {
     "assets/barcode-scanner-field/barcode-scan-success.mp3": "fef38e83de67a096494b3b0ae7fc0e5a5a84df59cfa1e3ea65fd5d06595e9f8a",
     "assets/country-flags/ac.svg": "3acc0d1b3156debe149d1ea086c7eda3dfd5ecd7fd14b7a3e385ae63cd71ab64",
@@ -353,7 +353,7 @@
     "components/flex-fields-components-text-input-dictation-NFJ52KJM.js": "fba420b081ed3fd797ab7b58fe33221364c6a35253ba0d023e96710d33dfee80",
     "components/flex-fields-components-text-input-drafts-XMGLTVJD.js": "eb006b2bb24cdf436f5be166cf597563b35e5fd774f3ff6e1c4ac544227ae552",
     "components/flex-fields-components-text-input-presentation-UZ6BEZDV.js": "aa8151a546f9a91856a2e9d3fc30c3f695b8c8d23c9aa9f09610f80039aa612f",
-    "components/flex-fields-components-text-input-suggestions-LZKNIWPO.js": "8a2f35858f89770b52f92fbc14d336094ad419d37a13cce3264b324af1da8b2e",
+    "components/flex-fields-components-text-input-suggestions-VLP4GSX2.js": "f75aaf6791f6bbebe68f3071197cab692e58b60e68f154e061e211a74e6f7e56",
     "components/flex-fields-components-text-input-verification-FVHESD32.js": "61cd750bd2b9ddc168ba47ce63f97112162c2f1793867660bdf512c5a631e32e",
     "components/flex-fields-confirmation-motion-CEO765XF.js": "b529661a3efc6c605d02d57fcacf5fdd63da1f650e88bc88d01772057174abf1",
     "components/flex-fields-date-time-calendar-availability-IVAOFSLK.js": "60407d8f7d50da771aee0dec323b60813ba2fc73f1be6f5f826d0fccc239829e",
@@ -457,7 +457,7 @@
     "components/flex-rich-editor.js": "c0b585b2fa606505094dea502649db28764b7e78f4b724e63e5a0bcb20e33560",
     "components/flex-runtime-sdk.js": "32036644a1ce82e85cba9a50d0d0d4953ec2baa8336dd00f1e299b385a28072b",
     "components/flex-slider.js": "03e7fca8cab6396871780b90562b005dd7aeee170019e3ba7a7128f910e5d713",
-    "components/flex-text-input.js": "9f90faab59f7a55f62e37117d78ad0f6c64851acc498ab3814167191aaa08843",
+    "components/flex-text-input.js": "328fdafc401934c8cda8382920dc318a6a4e8decf47bd8a6d44f14fce5fb7f55",
     "components/flex-textarea.js": "be7ec5107c83cc6d9220fe413ac123acbd9d6513c9c40f1de0f5776e8480c376",
     "components/flex-time-picker.js": "754ac1a33cfebf60823e2a0346747ca1a4c2c7a0924d62ecedfc92cc6dbbd36b",
     "components/flex-time-segments.js": "9654a5a141720a3706e5120f13a2fe5ed10ef8e7a2692baa63c3cfd6eecf42b8",
@@ -528,7 +528,7 @@
     "css/flex-file-upload.css": "08cdb18213a782e6a94b5847971792294915018b0309fb923934d53adddd2a1e",
     "css/flex-license-guide.css": "69e2a847cbd6dd79555e380b9f1a11f12849917691cd245a113c867fa9913eae",
     "css/flex-slider.css": "bf8ab295ee0f28da41830dd596fca351f3704ac2210090ebce81921ae5ccdf3e",
-    "css/flex-text-input.css": "0c0890fceb18bf00b2a9749f82bfc71086f220f1cdc7c440df43f090414f3335",
+    "css/flex-text-input.css": "9c88ca95962c5addc89cc5e51281b58f6ad632f4f6c705b4a0a57e4f39c0e624",
     "css/flex-textarea.css": "2d787534baa49e88860dc217d5676dceddc8f486504d97d7b2b9858ef84e8a40",
     "css/flex-time-picker.css": "308720b0bb1df797b81b1e97a7ef7fd65a7d2d43a707ce7b56d7ea2cd7c51adf",
     "css/flex-time-segments.css": "34c18758d7f78a44cbbfd6aed070c43118655960dcae91ed0184c85d072b9799",
@@ -937,7 +937,7 @@
     "components/flex-fields-components-text-input-dictation-NFJ52KJM.js": 3620,
     "components/flex-fields-components-text-input-drafts-XMGLTVJD.js": 1072,
     "components/flex-fields-components-text-input-presentation-UZ6BEZDV.js": 415,
-    "components/flex-fields-components-text-input-suggestions-LZKNIWPO.js": 6323,
+    "components/flex-fields-components-text-input-suggestions-VLP4GSX2.js": 6402,
     "components/flex-fields-components-text-input-verification-FVHESD32.js": 1366,
     "components/flex-fields-confirmation-motion-CEO765XF.js": 2848,
     "components/flex-fields-date-time-calendar-availability-IVAOFSLK.js": 5807,
@@ -1112,7 +1112,7 @@
     "css/flex-file-upload.css": 46326,
     "css/flex-license-guide.css": 3174,
     "css/flex-slider.css": 22759,
-    "css/flex-text-input.css": 19509,
+    "css/flex-text-input.css": 20095,
     "css/flex-textarea.css": 26142,
     "css/flex-time-picker.css": 474,
     "css/flex-time-segments.css": 6104,
@@ -1170,7 +1170,7 @@
     "support/flex-rich-editor-youtube-extension.js": 8218
   },
   "metadata": {
-    "resources/dist/components/alpine-manifest.json": "b57f7061e130b7841980788ae1881e2f14f42622074a36f9d730e60d91942b83",
+    "resources/dist/components/alpine-manifest.json": "69cc5f6aadb50fd267d6c27a963aff47f802ceb365e604a39cb2a1f50c2d908d",
     "src/Support/Assets/BuiltInComponentIndex.php": "bcfed335b9eba28a4d3e082dd44a39a9353a3704a8113ef9e47dbcf205a82aa1"
   }
 }

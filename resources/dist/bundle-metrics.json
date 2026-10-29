@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T16:38:29.158Z",
+  "generatedAt": "2026-10-29T17:20:52.384Z",
   "css": {
     "address-autocomplete.css": {
       "bytes": 1501,
@@ -167,9 +167,9 @@
       "gzipKb": 3.79
     },
     "flex-text-input.css": {
-      "bytes": 19509,
-      "kb": 19.05,
-      "gzipKb": 3.69
+      "bytes": 20095,
+      "kb": 19.62,
+      "gzipKb": 3.79
     },
     "flex-textarea.css": {
       "bytes": 26142,
@@ -863,10 +863,10 @@
       "kb": 0.41,
       "gzipKb": 0.26
     },
-    "flex-fields-components-text-input-suggestions-LZKNIWPO.js": {
-      "bytes": 6323,
-      "kb": 6.17,
-      "gzipKb": 2.3
+    "flex-fields-components-text-input-suggestions-VLP4GSX2.js": {
+      "bytes": 6402,
+      "kb": 6.25,
+      "gzipKb": 2.33
     },
     "flex-fields-components-text-input-verification-FVHESD32.js": {
       "bytes": 1366,

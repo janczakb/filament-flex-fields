@@ -680,7 +680,7 @@
     "flex-fields-components-text-input-dictation-NFJ52KJM.js",
     "flex-fields-components-text-input-drafts-XMGLTVJD.js",
     "flex-fields-components-text-input-presentation-UZ6BEZDV.js",
-    "flex-fields-components-text-input-suggestions-LZKNIWPO.js",
+    "flex-fields-components-text-input-suggestions-VLP4GSX2.js",
     "flex-fields-components-text-input-verification-FVHESD32.js",
     "flex-fields-confirmation-motion-CEO765XF.js",
     "flex-fields-date-time-calendar-availability-IVAOFSLK.js",
@@ -809,7 +809,7 @@
       "flex-fields-runtime-lifecycle-callback-effects-2JDMHD5R.js",
       "flex-fields-runtime-lifecycle-effect-errors-ANGODKWZ.js"
     ],
-    "flex-fields-components-text-input-suggestions-LZKNIWPO.js": [
+    "flex-fields-components-text-input-suggestions-VLP4GSX2.js": [
       "flex-fields-flex-dropdown-coordinator-PX45RHEK.js",
       "flex-fields-observability-ZSQ5ZUOF.js",
       "flex-fields-overlay-backdrop-3MNXNS2X.js",
@@ -1821,7 +1821,7 @@
       "flex-fields-first-paint-timezone-ce2c01f7493ddabd58699dd17f10b9a541f378fd42c1aacadffc4bb43750b3d6.js"
     ],
     "flex-fields-catalog-demo-focus-H4T53ASM.js": [],
-    "flex-fields-components-text-input-suggestions-LZKNIWPO.js": [],
+    "flex-fields-components-text-input-suggestions-VLP4GSX2.js": [],
     "flex-fields-components-text-input-drafts-XMGLTVJD.js": [],
     "flex-fields-components-text-input-verification-FVHESD32.js": [],
     "flex-fields-components-text-input-dictation-NFJ52KJM.js": [],
@@ -1970,7 +1970,7 @@
       "flex-fields-catalog-demo-focus-H4T53ASM.js",
       "flex-fields-components-text-input-dictation-NFJ52KJM.js",
       "flex-fields-components-text-input-drafts-XMGLTVJD.js",
-      "flex-fields-components-text-input-suggestions-LZKNIWPO.js",
+      "flex-fields-components-text-input-suggestions-VLP4GSX2.js",
       "flex-fields-components-text-input-verification-FVHESD32.js",
       "flex-fields-emoji-A7PZPZ24.js"
     ],
@@ -2085,7 +2085,7 @@
     "flex-fields-catalog-demo-focus-H4T53ASM.js": [
       "catalog/demo-focus.js"
     ],
-    "flex-fields-components-text-input-suggestions-LZKNIWPO.js": [
+    "flex-fields-components-text-input-suggestions-VLP4GSX2.js": [
       "components/text-input/suggestions.js"
     ],
     "flex-fields-components-text-input-drafts-XMGLTVJD.js": [

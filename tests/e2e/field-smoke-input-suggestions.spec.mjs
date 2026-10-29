@@ -7,7 +7,7 @@ const root = fileURLToPath(new URL('../..', import.meta.url))
 const bundle = await build({
     stdin: { resolveDir: root, contents: `
         import { createInputSuggestions } from './resources/js/components/text-input/suggestions.js';
-        window.mountSuggestions = () => {
+        window.mountSuggestions = (options = {}) => {
             const input = document.querySelector('input');
             window.owner = { $refs: { input }, $el: input.parentElement,
                 options: { editable: true, suggestionsEnabled: true, suggestionMinLength: 0,
@@ -15,8 +15,10 @@ const bundle = await build({
                     messages: { suggestions_empty: 'No suggestions', suggestions_empty_hint: 'Enter a value',
                         suggestions_error: 'Error', suggestions_loading: 'Loading', retry: 'Retry' },
                     suggestions: Array.from({ length: 12 }, (_, index) => ({ value: 'value-' + index, label: 'Option ' + index })),
+                    ...options,
                 }, commitToolValue(value) { input.value = value; },
             };
+            owner.$wire = { callSchemaComponentMethod: async () => owner.options.suggestions };
             window.suggestions = createInputSuggestions(owner);
             input.addEventListener('input', () => suggestions.schedule());
             input.focus(); suggestions.schedule();
@@ -26,6 +28,49 @@ const bundle = await build({
 })
 const css = ['core.css', 'overlay-runtime.css', 'select-field.css', 'flex-text-input.css']
     .map(name => readFileSync(new URL(`../../resources/dist/css/${name}`, import.meta.url), 'utf8')).join('\n')
+
+for (const position of ['below', 'trailing']) {
+    for (const direction of ['ltr', 'rtl']) {
+        for (const mode of ['light', 'dark']) {
+            for (const asyncSuggestions of [false, true]) {
+                test(`${position} ${direction} ${mode} ${asyncSuggestions ? 'async' : 'local'} suggestion descriptions preserve layout and value`, async ({ page }) => {
+                    await page.setViewportSize({ width: 900, height: 700 })
+                    await page.setContent(`<html dir="${direction}" class="${mode === 'dark' ? 'dark' : ''}"><body><div class="fff-flex-text-input__shell" style="margin:80px 24px;width:300px"><input aria-label="Order" id="order" style="height:40px;width:100%"></div></body></html>`)
+                    await page.addStyleTag({ content: css })
+                    await page.addScriptTag({ content: bundle.outputFiles[0].text })
+                    await page.evaluate(({ position, asyncSuggestions }) => window.mountSuggestions({
+                        suggestionDescriptionPosition: position,
+                        asyncSuggestions,
+                        suggestions: [{ value: '001', label: '001', description: 'A long customer description '.repeat(7) }],
+                    }), { position, asyncSuggestions })
+
+                    const option = page.getByRole('option').first()
+                    await expect(option).toBeVisible()
+                    const label = option.locator('.fff-select-headless-option-label')
+                    const description = option.locator('.fff-input-suggestions__description')
+                    const labelBox = await label.boundingBox()
+                    const descriptionBox = await description.boundingBox()
+                    if (position === 'trailing') {
+                        expect(Math.abs(labelBox.y - descriptionBox.y)).toBeLessThan(8)
+                        if (direction === 'ltr') {
+                            expect(descriptionBox.x).toBeGreaterThanOrEqual(labelBox.x + labelBox.width)
+                        } else {
+                            expect(descriptionBox.x + descriptionBox.width).toBeLessThanOrEqual(labelBox.x)
+                        }
+                        await expect(description).toHaveCSS('text-overflow', 'ellipsis')
+                        expect(await label.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true)
+                        expect(await description.evaluate(el => el.scrollWidth > el.clientWidth)).toBe(true)
+                    } else {
+                        expect(descriptionBox.y).toBeGreaterThanOrEqual(labelBox.y + labelBox.height)
+                    }
+                    await option.click()
+                    await expect(page.getByLabel('Order')).toHaveValue('001')
+                    await page.evaluate(() => suggestions.dispose())
+                })
+            }
+        }
+    }
+}
 
 test('native mobile handle drag preserves input focus, then option selection and blur still close suggestions', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })

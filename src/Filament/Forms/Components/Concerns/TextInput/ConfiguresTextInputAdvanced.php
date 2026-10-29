@@ -136,6 +136,11 @@ trait ConfiguresTextInputAdvanced
         return $this->textInputOption('suggestionPlacement', $placement);
     }
 
+    public function suggestionDescriptionPosition(string|Closure $position): static
+    {
+        return $this->textInputOption('suggestionDescriptionPosition', $position);
+    }
+
     public function suggestionDebounce(int|Closure $milliseconds): static
     {
         return $this->textInputOption('suggestionDebounce', $milliseconds);
