@@ -42,6 +42,12 @@ final class FlexTextInputAsyncRequestTest extends TestCase
         self::assertSame('Amsterdam', $reply[0]['value']);
     }
 
+    public function test_async_trailing_descriptions_keep_metadata_without_rerendering_the_focused_field(): void
+    {
+        $reply = $this->request('async_suggestions_trailing', 'getTextInputSuggestionsForJs', ['search' => 'ams'], 'ams');
+        self::assertSame([['value' => 'Amsterdam', 'label' => 'Amsterdam', 'description' => 'Netherlands', 'disabled' => false]], $reply);
+    }
+
     public function test_async_verification_does_not_render_the_focused_field_with_a_bundled_update(): void
     {
         $reply = $this->request('verification', 'verifyTextInputForJs', ['value' => 'audit@example.test'], 'audit@example.test');

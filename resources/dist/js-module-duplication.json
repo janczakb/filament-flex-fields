@@ -18,9 +18,9 @@
     },
     {
       "id": "components",
-      "inputs": 1322,
+      "inputs": 1339,
       "outputs": 185,
-      "outputBytes": 2128596
+      "outputBytes": 2133797
     },
     {
       "id": "flex-rich-editor-block-image-extension",
@@ -68,8 +68,8 @@
         "reason": "Optional separately installed browser JS/ONNX WASM; exact source bytes verified against the installer manifest.",
         "files": {
           "node_modules/@huggingface/transformers/dist/transformers.min.js": {
-            "bytes": 586230,
-            "sha256": "8d6716d9086f57c30a4bf367dba61b887593573c770c454465e8019b2703e743"
+            "bytes": 587917,
+            "sha256": "8b5a3171f8876bab2b1820a7d65eb87628e3d30bb5ea85b9dd398e76eb34decb"
           },
           "node_modules/@huggingface/transformers/node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs": {
             "bytes": 24381,
@@ -86,12 +86,12 @@
             "sha256": "ce2ce78732a15ddcaf52fe5f26c801a05ff149abda4e875dc2837d8a99e455b2"
           },
           "node_modules/@huggingface/transformers/package.json": {
-            "bytes": 2648,
-            "sha256": "301ae33e44c5ef32b8bd649b880637d4927dbaf248568f7a533e3e2ff831fb0e"
+            "bytes": 2656,
+            "sha256": "127a167c5ca97ca3c9f559523766d3a9efa302dfb1e841f3618ade87ea93a189"
           },
           "src/Support/WhisperRuntimeManifest.php": {
             "bytes": 2284,
-            "sha256": "d76b42c71d4a4fb8d5845af75af28eb9de5286cf47e2e3066158881203a368a6"
+            "sha256": "1f23fdedd3932a13da78cf14f17e6ece02ef39b7b25d07bb668504352a552310"
           }
         }
       }

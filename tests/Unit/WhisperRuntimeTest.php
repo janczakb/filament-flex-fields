@@ -21,9 +21,9 @@ it('pins whisper runtime files with sha256 checksums and no source maps', functi
         ->toHaveKey('transformers.min.js')
         ->not->toHaveKey('transformers.min.js.map')
         ->toHaveKeys(['ort-wasm-simd-threaded.mjs', 'ort-wasm-simd-threaded.wasm'])
-        ->and(WhisperRuntimeManifest::VERSION)->toBe('4.3.1')
+        ->and(WhisperRuntimeManifest::VERSION)->toBe('4.3.2')
         ->and(WhisperRuntimeManifest::downloadUrl('transformers.min.js'))
-        ->toContain('@huggingface/transformers@4.3.1/dist/transformers.min.js');
+        ->toContain('@huggingface/transformers@4.3.2/dist/transformers.min.js');
 });
 
 it('reports whisper runtime as missing when public files are absent', function (): void {

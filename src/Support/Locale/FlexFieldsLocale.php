@@ -84,7 +84,7 @@ final class FlexFieldsLocale
                 \IntlDateFormatter::NONE,
             );
 
-            if ($formatter !== false) {
+            if ($formatter instanceof \IntlDateFormatter) {
                 $formatted = $formatter->format($dateTime);
 
                 if ($formatted !== false) {

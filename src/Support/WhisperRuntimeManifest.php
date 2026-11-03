@@ -14,7 +14,7 @@ final class WhisperRuntimeManifest
 {
     public const PACKAGE = '@huggingface/transformers';
 
-    public const VERSION = '4.3.1';
+    public const VERSION = '4.3.2';
 
     public const ONNX_VERSION = '1.31.0-dev.20260914-8d85527a0';
 
@@ -27,7 +27,7 @@ final class WhisperRuntimeManifest
      * @var array<string, string> filename => sha256 hex
      */
     public const FILES = [
-        'transformers.min.js' => '8d6716d9086f57c30a4bf367dba61b887593573c770c454465e8019b2703e743',
+        'transformers.min.js' => '8b5a3171f8876bab2b1820a7d65eb87628e3d30bb5ea85b9dd398e76eb34decb',
         'ort-wasm-simd-threaded.mjs' => 'c57ca56328877353a575e51bbca6f18450027d6c9bf2307a2cb2c41363b4de9f',
         'ort-wasm-simd-threaded.wasm' => '06ba057753da3847e4c24f02d91ab133455b0817c69a44993a9a53a2146df9e3',
     ];

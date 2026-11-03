@@ -57,8 +57,37 @@ final class TextInputDemo
         $add('actions', 'custom_copy', 'Custom copy feedback', ['copyable' => [true, 'Copied!', 1200], 'copyIcon' => FlexIcon::Copy, 'copyFeedback' => 'both']);
         $add('password', 'custom_password', 'Custom strength labels & reveal icons', ['password' => true, 'autocomplete' => 'new-password', 'revealable' => true, 'passwordStrength' => true, 'passwordStrengthLabels' => ['very_weak' => '0/4', 'weak' => '1/4', 'fair' => '2/4', 'good' => '3/4', 'strong' => '4/4'], 'showPasswordIcon' => FlexIcon::View, 'hidePasswordIcon' => FlexIcon::ViewOff], 'Fern!82Violet#47');
         $add('actions', 'loading', 'Inline loading · no empty toolbar', ['loading' => true, 'live' => [false, 500], 'clearable' => true]);
-        $add('assistance', 'suggestions', 'Local suggestions · free text', ['suggestions' => [['value' => 'Laravel', 'label' => 'Laravel', 'description' => 'PHP framework'], ['value' => 'Livewire', 'label' => 'Livewire', 'description' => 'Reactive UI'], ['value' => 'Filament', 'label' => 'Filament', 'description' => 'Admin panel'], ['value' => 'Symfony', 'label' => 'Symfony · disabled example', 'description' => 'Disabled options cannot be selected.', 'disabled' => true]], 'suggestionMinLength' => 0], '');
-        $add('assistance', 'async_suggestions', 'Async suggestions · bounded request', ['suggestionsUsing' => fn (string $search): array => array_values(array_filter(['Amsterdam', 'Athens', 'Berlin', 'Lisbon', 'London', 'Paris', 'Warsaw'], fn (string $city): bool => str_contains(strtolower($city), strtolower($search)))), 'suggestionMinLength' => 1], '');
+        $frameworks = [
+            ['value' => 'Laravel', 'label' => 'Laravel', 'description' => 'PHP framework'],
+            ['value' => 'Livewire', 'label' => 'Livewire', 'description' => 'Reactive UI'],
+            ['value' => 'Filament', 'label' => 'Filament', 'description' => 'Admin panel'],
+            ['value' => 'Symfony', 'label' => 'Symfony · disabled example', 'description' => 'Disabled options cannot be selected.', 'disabled' => true],
+        ];
+        $cities = [
+            ['value' => 'Amsterdam', 'label' => 'Amsterdam', 'description' => 'Netherlands'],
+            ['value' => 'Athens', 'label' => 'Athens', 'description' => 'Greece'],
+            ['value' => 'Berlin', 'label' => 'Berlin', 'description' => 'Germany'],
+            ['value' => 'Lisbon', 'label' => 'Lisbon', 'description' => 'Portugal'],
+            ['value' => 'London', 'label' => 'London', 'description' => 'United Kingdom'],
+            ['value' => 'Paris', 'label' => 'Paris', 'description' => 'France'],
+            ['value' => 'Warsaw', 'label' => 'Warsaw', 'description' => 'Poland'],
+        ];
+        $searchCities = static fn (string $search): array => array_values(array_filter($cities,
+            static fn (array $city): bool => str_contains(strtolower($city['label']), strtolower($search))));
+        $add('assistance', 'suggestions', 'Local suggestions · descriptions below', [
+            'suggestions' => $frameworks, 'suggestionMinLength' => 0, 'placeholder' => 'Click to browse frameworks…',
+        ], '');
+        $add('assistance', 'suggestions_trailing', 'Local suggestions · trailing descriptions', [
+            'suggestions' => $frameworks, 'suggestionDescriptionPosition' => 'trailing', 'suggestionMinLength' => 0,
+            'placeholder' => 'Click to browse frameworks…',
+        ], '');
+        $add('assistance', 'async_suggestions', 'Async suggestions · descriptions below', [
+            'suggestionsUsing' => $searchCities, 'suggestionMinLength' => 1, 'placeholder' => 'Type a city, e.g. a…',
+        ], '');
+        $add('assistance', 'async_suggestions_trailing', 'Async suggestions · trailing descriptions', [
+            'suggestionsUsing' => $searchCities, 'suggestionDescriptionPosition' => 'trailing', 'suggestionMinLength' => 1,
+            'placeholder' => 'Type a city, e.g. a…',
+        ], '');
         $add('assistance', 'verification', 'Async verification · latest result wins', ['verifyUsing' => fn (string $value): array => ['state' => filter_var($value, FILTER_VALIDATE_EMAIL) ? 'success' : 'error', 'message' => filter_var($value, FILTER_VALIDATE_EMAIL) ? 'Valid email format' : 'Enter a valid email address'], 'verificationDebounce' => 300, 'verificationMinLength' => 3], '');
         $add('tools', 'associated_icon', 'Text & icon · Hugeicons', ['iconPicker' => ['associated_icon', fn (IconPickerField $picker) => $picker->label('Choose associated icon')->sets(['hugeicons'])->perPage(48)->clearable()]], 'Contact us');
         $add('tools', 'curated_icon', 'Text & icon · curated libraries', ['iconPicker' => ['curated_icon', fn (IconPickerField $picker) => $picker->label('Choose curated icon')->sets(['heroicons'])->icons(['heroicon-o-star', 'heroicon-o-heart', 'heroicon-o-envelope'])->gridColumns(3)->perPage(12)]], 'Featured');
@@ -70,6 +99,10 @@ final class TextInputDemo
                 $key = $method.'_'.$index;
                 $calls = self::dependencies($group, $key);
                 $calls[$method] = $choice;
+                if ($method === 'suggestionDescriptionPosition') {
+                    $calls['suggestions'] = $frameworks;
+                    $calls['suggestionMinLength'] = 0;
+                }
                 if ($method === 'toolsOrder' || $method === 'toolsVisibility') {
                     $calls['emojiPicker'] = true;
                     $calls['speechDictation'] = true;

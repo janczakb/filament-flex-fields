@@ -38,7 +38,7 @@ class DateTimeMonthLabels
                 $pattern,
             );
 
-            $labels[] = $formatter !== false
+            $labels[] = $formatter instanceof \IntlDateFormatter
                 ? (string) $formatter->format(new \DateTimeImmutable(sprintf('2024-%02d-01', $month)))
                 : self::fallbackLabels($display)[$month - 1];
         }

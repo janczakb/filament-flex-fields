@@ -7,9 +7,46 @@ use Bjanczak\FilamentFlexFields\Filament\Forms\Components\FlexTextInput;
 use Bjanczak\FilamentFlexFields\Support\Assets\ComponentAssetPlan;
 use Bjanczak\FilamentFlexFields\Support\FlexFieldAssets;
 use Bjanczak\FilamentFlexFields\Support\GravityIcon;
+use Bjanczak\FilamentFlexFields\Support\Playground\TextInput\TextInputDemo;
+use Bjanczak\FilamentFlexFields\Support\TextInput\TextInputOptions;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TextInput\Actions\CopyAction;
 use Filament\Support\Icons\Heroicon;
+
+it('defaults suggestion descriptions below and resolves per-field trailing configuration', function () {
+    $default = FlexTextInput::make('default');
+    $trailing = FlexTextInput::make('trailing')->suggestionDescriptionPosition(fn (): string => 'trailing');
+
+    expect($default->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('below')
+        ->and($trailing->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('trailing')
+        ->and($default->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe('below');
+});
+
+it('exposes suggestion description placement through the managed schema contract', function (): void {
+    expect(TextInputOptions::schemaDefaults()['suggestion_description_position'])->toBe('below')
+        ->and(TextInputOptions::schemaOverrides(['suggestion_description_position' => 'trailing']))
+        ->toBe(['suggestionDescriptionPosition' => 'trailing']);
+});
+
+it('rejects unsupported suggestion description positions', function () {
+    expect(fn () => FlexTextInput::make('city')->suggestionDescriptionPosition('sideways')->getTextInputEditingOptions())
+        ->toThrow(InvalidArgumentException::class);
+});
+
+it('showcases rich descriptions in both local and asynchronous playground layouts', function (string $name, string $position, bool $async): void {
+    $scenarios = TextInputDemo::groups()['assistance'];
+    $scenario = collect($scenarios)->firstWhere('key', 'flex_text_input__'.$name);
+    expect($scenario)->not->toBeNull();
+    $field = TextInputDemo::field($scenario);
+    expect($field->getTextInputEditingOptions()['suggestionDescriptionPosition'])->toBe($position);
+    $records = $async ? $scenario['calls']['suggestionsUsing']('ams') : $scenario['calls']['suggestions'];
+    expect($records)->not->toBeEmpty()->and($records[0]['description'])->not->toBeEmpty();
+})->with([
+    ['suggestions', 'below', false],
+    ['suggestions_trailing', 'trailing', false],
+    ['async_suggestions', 'below', true],
+    ['async_suggestions_trailing', 'trailing', true],
+]);
 
 it('extends filament text input and exposes styling api', function () {
     $field = FlexTextInput::make('title')

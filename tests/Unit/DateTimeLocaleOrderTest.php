@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 use Bjanczak\FilamentFlexFields\Enums\DateTimeFieldMode;
 use Bjanczak\FilamentFlexFields\Enums\DateTimeGranularity;
+use Bjanczak\FilamentFlexFields\Enums\MonthDisplay;
 use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeConstraintResolver;
 use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeFieldValue;
 use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeLocaleOrder;
+use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeMonthLabels;
 use Bjanczak\FilamentFlexFields\Support\DateTime\DateTimeSegmentHydrator;
 use Carbon\Carbon;
 
@@ -117,3 +119,29 @@ it('normalizes duration values as time strings', function () {
     expect($normalizer->normalize('2:30:15'))->toBe('02:30:15')
         ->and($normalizer->normalize('02:30'))->toBe('02:30:00');
 });
+
+it('falls back when ICU cannot create a date formatter', function (): void {
+    $previous = ini_set('intl.use_exceptions', '0');
+    $locale = str_repeat('x', 300);
+    try {
+        expect(IntlDateFormatter::create($locale, IntlDateFormatter::SHORT, IntlDateFormatter::NONE))->toBeNull()
+            ->and(DateTimeLocaleOrder::dateSegmentParts($locale))->toBe(['month', 'day', 'year'])
+            ->and(DateTimeLocaleOrder::separatorAfter('month', ['month', 'day', 'year'], $locale))->toBe('/');
+    } finally {
+        ini_set('intl.use_exceptions', $previous);
+    }
+})->skip(! extension_loaded('intl'), 'ICU failure case requires intl');
+
+it('keeps all month labels when ICU cannot create a date formatter', function (MonthDisplay $display, string $first): void {
+    $previous = ini_set('intl.use_exceptions', '0');
+    try {
+        $labels = DateTimeMonthLabels::labels(str_repeat('x', 300), $display);
+        expect($labels)->toHaveCount(12)->and($labels[0])->toBe($first)
+            ->and(array_filter($labels, fn (string $label): bool => $label === ''))->toBe([]);
+    } finally {
+        ini_set('intl.use_exceptions', $previous);
+    }
+})->with([
+    'long' => [MonthDisplay::Long, 'January'],
+    'short' => [MonthDisplay::Short, 'Jan'],
+])->skip(! extension_loaded('intl'), 'ICU failure case requires intl');

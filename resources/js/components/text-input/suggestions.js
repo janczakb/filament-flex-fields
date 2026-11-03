@@ -9,6 +9,7 @@ export function createInputSuggestions(owner, { createSurface = createImperative
     const panel = document.createElement('div')
     const list = document.createElement('div')
     panel.className = 'fi-dropdown-panel fff-select-dropdown-panel fff-select-dropdown-panel--md fff-select-headless-menu fff-teleported-menu fff-input-suggestions'
+    panel.dataset.descriptionPosition = owner.options.suggestionDescriptionPosition ?? 'below'
     panel.hidden = true
     list.className = 'fi-select-input-options-ctn fff-input-suggestions__list'
     list.id = `${input.id}-fff-suggestions`

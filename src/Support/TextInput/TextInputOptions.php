@@ -27,6 +27,7 @@ final class TextInputOptions
         'normalizeOnBlur' => 'none', 'pasteMode' => 'preserve', 'unicodeNormalization' => 'none',
         'readingTime' => false, 'readingWordsPerMinute' => 200,
         'suggestionLimit' => 8, 'suggestionMinLength' => 1, 'suggestionPlacement' => 'auto',
+        'suggestionDescriptionPosition' => 'below',
         'suggestionDebounce' => 200, 'verificationDebounce' => 400, 'verificationMinLength' => 1, 'draftKey' => null, 'draftStorage' => 'session', 'draftLifetime' => 86400,
     ];
 
@@ -38,6 +39,7 @@ final class TextInputOptions
         'textDirection' => [null, 'auto', 'ltr', 'rtl'],
         'enterKeyHint' => [null, 'enter', 'done', 'go', 'next', 'previous', 'search', 'send'],
         'emojiPickerPlacement' => ['auto', 'top', 'bottom'], 'suggestionPlacement' => ['auto', 'top', 'bottom'],
+        'suggestionDescriptionPosition' => ['below', 'trailing'],
         'speechDictationMode' => ['append', 'replace-selection'], 'toolsVisibility' => ['always', 'focus', 'hover'],
         'passwordStrengthAlgorithm' => ['balanced', 'requirements'],
         'normalizeOnBlur' => ['none', 'trim', 'lowercase', 'uppercase', 'collapse-whitespace'],

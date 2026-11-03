@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Bjanczak\FilamentFlexFields\Filament\Media;
 
+use Bjanczak\FilamentFlexFields\Support\Media\Presentation\NativeImageConfiguration;
 use Bjanczak\FilamentFlexFields\Support\Media\Spatie\SpatieMediaUrls;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
@@ -12,7 +13,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 trait UsesSpatieMediaUrls
 {
-    public function getImageUrl(?string $state = null): ?string
+    public function getImageUrl(?string $state = null, ?Model $relatedRecord = null): ?string
     {
         if ($state === null || ! in_array($state, $this->getState(), true)) {
             return null;
@@ -28,7 +29,10 @@ trait UsesSpatieMediaUrls
                 $minutes = config('filament.temporary_file_url_expiry_minutes', 30);
                 $minutes = is_int($minutes) && $minutes > 0 && $minutes <= 10080 ? $minutes : 30;
 
-                return app(SpatieMediaUrls::class)->forMedia($media, $this->getVisibility(), now()->addMinutes($minutes), $this->getConversion() ?? '');
+                $visibility = NativeImageConfiguration::resolve($this, 'getVisibility', true, $state, $relatedRecord) ?? throw new \LogicException('Media images require resolved visibility.');
+                $conversion = NativeImageConfiguration::resolve($this, 'getConversion', true, $state, $relatedRecord);
+
+                return app(SpatieMediaUrls::class)->forMedia($media, $visibility, now()->addMinutes($minutes), $conversion ?? '');
             }
         }
 

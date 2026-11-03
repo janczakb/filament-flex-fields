@@ -93,6 +93,7 @@ final class SpatieMediaOsTest extends TestCase
         });
         $file->shouldReceive('getClientOriginalName')->andReturn('voice.wav');
         $file->shouldReceive('getClientOriginalExtension')->andReturn('wav');
+        $file->shouldReceive('hashName')->andReturn('recorded-voice.wav');
         $uuid = app(SpatieUploadBridge::class)->save($field, $file, $record, stage: false);
         $this->assertIsString($uuid);
         $media = app(OwnedMedia::class)->find($record, $uuid, 'voice-notes');
@@ -297,6 +298,7 @@ final class SpatieMediaOsTest extends TestCase
         });
         $file->shouldReceive('getClientOriginalName')->andReturn('upload.txt');
         $file->shouldReceive('getClientOriginalExtension')->andReturn('txt');
+        $file->shouldReceive('hashName')->andReturn('uploaded-document.txt');
         $file->shouldNotReceive('get');
         $uuid = SpatieMediaCaptureAdapter::saveUploadedFile($field, $file, $record);
         $this->assertIsString($uuid);

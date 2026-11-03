@@ -89,7 +89,7 @@ final class DateTimeOs implements DateTimeStorageContract
         if (extension_loaded('intl')) {
             $calendar = \IntlCalendar::createInstance(null, $locale);
 
-            if ($calendar !== false) {
+            if ($calendar instanceof \IntlCalendar) {
                 $icuDay = $calendar->getFirstDayOfWeek();
 
                 return max(0, min(6, $icuDay - 1));

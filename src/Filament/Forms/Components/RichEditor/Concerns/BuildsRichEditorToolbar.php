@@ -30,7 +30,14 @@ trait BuildsRichEditorToolbar
                 continue;
             }
 
-            $key = 'filament-forms::components.rich_editor.tools.'.Str::snake($tool->getName());
+            // Native grid column tools intentionally reuse table column translations.
+            $name = match ($tool->getName()) {
+                'gridAddColumnBefore' => 'table_add_column_before',
+                'gridAddColumnAfter' => 'table_add_column_after',
+                'gridDeleteColumn' => 'table_delete_column',
+                default => Str::snake($tool->getName()),
+            };
+            $key = 'filament-forms::components.rich_editor.tools.'.$name;
             $label = $labelProperty->getValue($tool);
 
             if (is_string($label) && $label === Translations::get($key)) {

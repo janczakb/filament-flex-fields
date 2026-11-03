@@ -23,7 +23,7 @@ class DateTimeLocaleOrder
             \IntlDateFormatter::NONE,
         );
 
-        if ($formatter === false) {
+        if (! $formatter instanceof \IntlDateFormatter) {
             return ['month', 'day', 'year'];
         }
 
@@ -77,7 +77,7 @@ class DateTimeLocaleOrder
             \IntlDateFormatter::NONE,
         );
 
-        if ($formatter === false) {
+        if (! $formatter instanceof \IntlDateFormatter) {
             return self::fallbackSeparator($part);
         }
 

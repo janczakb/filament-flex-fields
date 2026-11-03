@@ -226,10 +226,10 @@ php artisan fff:whisper:install
 
 What this does:
 
-1. Downloads the pinned `@huggingface/transformers` **4.3.1** browser bundle and its matching ONNX WASM/loader from the jsDelivr npm CDN.
+1. Downloads the pinned `@huggingface/transformers` **4.3.2** browser bundle and its matching ONNX WASM/loader from the jsDelivr npm CDN.
 2. Verifies each file with **SHA-256** against the package manifest (`WhisperRuntimeManifest`).
-3. Writes them to `public/filament-flex-fields-assets/whisper/4.3.1/`.
-4. Writes `public/filament-flex-fields-assets/whisper/4.3.1/.installed.json` (version + hashes + timestamp).
+3. Writes them to `public/filament-flex-fields-assets/whisper/4.3.2/`.
+4. Writes `public/filament-flex-fields-assets/whisper/4.3.2/.installed.json` (version + hashes + timestamp).
 5. Does **not** install source maps (`.map` files are excluded on purpose).
 
 After a successful install, hard-refresh the admin panel and use `->transcription()` as usual.
@@ -264,7 +264,7 @@ Re-fetches all files even when the current install already verifies. Use after a
 
 | Command | Purpose |
 |---------|---------|
-| `php artisan fff:whisper:install` | Download + SHA-256 verify + write `public/.../whisper/4.3.1/` |
+| `php artisan fff:whisper:install` | Download + SHA-256 verify + write `public/.../whisper/4.3.2/` |
 | `php artisan fff:whisper:install --force` | Same, always re-download |
 | `php artisan fff:whisper:install --check` | Verify only (CI); exit `1` if missing/corrupt |
 | `php artisan fff:whisper:status` | Human-readable installed vs expected |
@@ -273,23 +273,23 @@ Re-fetches all files even when the current install already verifies. Use after a
 
 | Path | Role |
 |------|------|
-| `public/filament-flex-fields-assets/whisper/4.3.1/transformers.min.js` | Transformers runtime module |
-| `public/filament-flex-fields-assets/whisper/4.3.1/ort-wasm-simd-threaded.wasm` | ONNX Runtime CPU/WASM binary |
-| `public/filament-flex-fields-assets/whisper/4.3.1/ort-wasm-simd-threaded.mjs` | Matching ONNX module loader |
-| `public/filament-flex-fields-assets/whisper/4.3.1/.installed.json` | Lockfile written by install |
+| `public/filament-flex-fields-assets/whisper/4.3.2/transformers.min.js` | Transformers runtime module |
+| `public/filament-flex-fields-assets/whisper/4.3.2/ort-wasm-simd-threaded.wasm` | ONNX Runtime CPU/WASM binary |
+| `public/filament-flex-fields-assets/whisper/4.3.2/ort-wasm-simd-threaded.mjs` | Matching ONNX module loader |
+| `public/filament-flex-fields-assets/whisper/4.3.2/.installed.json` | Lockfile written by install |
 
 The field resolves the installed runtime URLs automatically. Each runtime version has its own directory so cached modules and already-open pages cannot mix different runtime versions. The manifest also pins the matching `onnxruntime-web` release; its `.mjs` loader and `.wasm` file are installed together.
 
 ##### Deploy notes
 
-- Run `fff:whisper:install` on each environment that needs transcription (or copy the verified `public/filament-flex-fields-assets/whisper/4.3.1/` directory as a build artifact).
+- Run `fff:whisper:install` on each environment that needs transcription (or copy the verified `public/filament-flex-fields-assets/whisper/4.3.2/` directory as a build artifact).
 - Commit the whisper directory only if your deploy strategy requires it; many teams install during CI/CD instead.
 - Do **not** expect `composer install` or `filament:assets` alone to restore Whisper after an upgrade.
 - Upgrading from an older Flex Fields release that **bundled** Whisper in Composer: remove any stale vendor/public copies from the old layout, then run `fff:whisper:install` once.
 
 ##### Network requirements for install
 
-The install command needs outbound HTTPS to the jsDelivr npm CDN (`cdn.jsdelivr.net/npm/@huggingface/transformers@…`). Air-gapped hosts must vendor the verified files into `public/filament-flex-fields-assets/whisper/4.3.1/` by another channel, then confirm with `fff:whisper:install --check`. Install access must allow both the pinned `@huggingface/transformers` and `onnxruntime-web` npm packages.
+The install command needs outbound HTTPS to the jsDelivr npm CDN (`cdn.jsdelivr.net/npm/@huggingface/transformers@…`). Air-gapped hosts must vendor the verified files into `public/filament-flex-fields-assets/whisper/4.3.2/` by another channel, then confirm with `fff:whisper:install --check`. Install access must allow both the pinned `@huggingface/transformers` and `onnxruntime-web` npm packages.
 
 Model **weights** (Hugging Face) are still downloaded in the **browser** on first Transcribe — that is separate from this artisan install.
 
@@ -438,7 +438,7 @@ AudioField::make('foreign_clip')
 | Symptom | Likely cause | What to try |
 |---------|--------------|-------------|
 | Install CTA / Transcribe UI missing though `->transcription()` is set | Whisper runtime not installed on this host | `php artisan fff:whisper:install`, then `fff:whisper:status`, hard refresh |
-| `fff:whisper:install --check` exits `1` | Missing files or SHA-256 mismatch | `fff:whisper:install --force`; confirm deploy includes `public/.../whisper/4.3.1/` |
+| `fff:whisper:install --check` exits `1` | Missing files or SHA-256 mismatch | `fff:whisper:install --force`; confirm deploy includes `public/.../whisper/4.3.2/` |
 | SHA-256 mismatch during install | Truncated download or CDN/proxy tampering | Retry `--force`; allowlist `cdn.jsdelivr.net`; check disk space |
 | "Whisper runtime assets are not configured" | Runtime URLs empty / not installed | `fff:whisper:install` (not `filament:assets` alone) |
 | "Could not fetch the audio file" | CORS or 403 on audio URL | Same-origin URL, signed URL with CORS, or proxy |

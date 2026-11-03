@@ -18,16 +18,27 @@ require_once dirname(__DIR__, 2).'/vendor/autoload.php';
  * Read trusted installed declarations. Parse default expressions instead of
  * ReflectionParameter::getDefaultValue(), which can construct new objects.
  */
-function apiType(?ReflectionType $type): ?string
+function apiType(?ReflectionType $type, ?ReflectionClass $context = null): ?string
 {
     if ($type === null) {
         return null;
     }
     if ($type instanceof ReflectionUnionType || $type instanceof ReflectionIntersectionType) {
-        $parts = array_map(apiType(...), $type->getTypes());
+        $parts = array_map(static fn (ReflectionType $part): ?string => apiType($part, $context), $type->getTypes());
         sort($parts, SORT_STRING);
 
         return '('.implode($type instanceof ReflectionUnionType ? '|' : '&', $parts).')';
+    }
+
+    if ($type instanceof ReflectionNamedType && $context !== null) {
+        $resolved = match ($type->getName()) {
+            'self' => $context->getName(),
+            'parent' => ($parent = $context->getParentClass()) ? $parent->getName() : null,
+            default => null,
+        };
+        if ($resolved !== null) {
+            return ($type->allowsNull() ? '?' : '').$resolved;
+        }
     }
 
     return (string) $type;
@@ -124,7 +135,7 @@ function publicApiClass(string $name): array
         $parameters = [];
         foreach ($method->getParameters() as $parameter) {
             $parameters[] = [
-                'name' => $parameter->getName(), 'type' => apiType($parameter->getType()),
+                'name' => $parameter->getName(), 'type' => apiType($parameter->getType(), $method->getDeclaringClass()),
                 'optional' => $parameter->isOptional(), 'variadic' => $parameter->isVariadic(),
                 'byReference' => $parameter->isPassedByReference(),
                 'hasDefault' => $parameter->isDefaultValueAvailable(),
@@ -134,7 +145,7 @@ function publicApiClass(string $name): array
         $methods[$method->getName()] = [
             'visibility' => $method->isPublic() ? 'public' : 'protected',
             'static' => $method->isStatic(), 'abstract' => $method->isAbstract(), 'final' => $method->isFinal(),
-            'returnsReference' => $method->returnsReference(), 'return' => apiType($method->getReturnType()),
+            'returnsReference' => $method->returnsReference(), 'return' => apiType($method->getReturnType(), $method->getDeclaringClass()),
             'parameters' => $parameters,
         ];
     }
@@ -146,7 +157,7 @@ function publicApiClass(string $name): array
         $properties[$property->getName()] = [
             'visibility' => $property->isPublic() ? 'public' : 'protected',
             'static' => $property->isStatic(), 'readonly' => $property->isReadOnly(),
-            'type' => apiType($property->getType()), 'hasDefault' => $property->hasDefaultValue(),
+            'type' => apiType($property->getType(), $property->getDeclaringClass()), 'hasDefault' => $property->hasDefaultValue(),
             'default' => apiPropertyDefault($property),
         ];
     }

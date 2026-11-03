@@ -5,6 +5,25 @@ All notable changes to `filament-flex-fields` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.16] - 2026-11-03
+
+### Added
+
+- **Text Input suggestion descriptions** — configure `suggestionDescriptionPosition('trailing')` to display metadata beside each suggestion. The existing `below` layout remains the default. Local and asynchronous suggestions share the setting, including RTL and mobile sheets, with bounded long labels and descriptions.
+
+### Changed
+
+- **Dependency updates** — update virtual scrolling, Motion animations, TipTap, phone metadata, PHPStan and optional Spatie packages. Upgrade the optional Whisper browser runtime to Transformers.js 4.3.2 with refreshed integrity hashes; reinstall it with `php artisan fff:whisper:install` when using browser transcription.
+
+### Fixed
+
+- **Cross-version API checks** — compare `self` and `parent` types consistently on PHP 8.3–8.5 while preserving late static binding and detection of genuine API changes.
+- **Locale formatting fallbacks** — handle nullable ICU formatter/calendar creation safely instead of calling methods on a failed formatter. Preserve fallback date ordering and month labels.
+- **Repeatable schema context** — prevent initial layout preparation from evaluating `RepeatableEntry`, `Repeater` and `Builder` child templates against the parent record or state. Preparation follows native item schemas, preserving typed visibility callbacks and excluding unused builder blocks.
+- **Rich Editor grid tools** — preserve runtime locale changes for native grid column tools that reuse table translation labels.
+- **Filament 5.11 image previews** — support the native optional related-record argument on image columns and entries, including Spatie integration, while preserving compatibility with earlier Filament 5 APIs and private-media URL checks.
+- **Native page isolation** — prepare initial layout from rendered tab groups instead of installing a root-schema traversal on every page. Native fields retain their visibility evaluation, and repeated tab instances keep independent record context while inactive tabs, collapsed sections and Livewire fragments remain dormant.
+
 ## [4.0.15] - 2026-10-29
 
 ### Added

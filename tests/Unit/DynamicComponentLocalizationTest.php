@@ -51,6 +51,9 @@ it('updates retained rich editor tools including inherited and plugin tools afte
             $key = match ($name) {
                 'clearContent' => 'filament-flex-fields::default.rich_editor.clear_content',
                 'youtube' => 'filament-flex-fields::default.rich_editor.youtube.tool',
+                'gridAddColumnBefore' => 'filament-forms::components.rich_editor.tools.table_add_column_before',
+                'gridAddColumnAfter' => 'filament-forms::components.rich_editor.tools.table_add_column_after',
+                'gridDeleteColumn' => 'filament-forms::components.rich_editor.tools.table_delete_column',
                 default => 'filament-forms::components.rich_editor.tools.'.Str::snake($name),
             };
             expect($tool->getLabel())->toBe(__($key));

@@ -63,22 +63,22 @@
         "audit:core:metadata": "node scripts/core/generate-release-metadata.mjs --output=build/core-reports/release-metadata"
     },
     "devDependencies": {
-        "@huggingface/transformers": "4.3.1",
+        "@huggingface/transformers": "4.3.2",
         "@playwright/test": "^1.64.1",
         "@tailwindcss/cli": "^4.3.3",
-        "@tiptap/core": "^3.32.0",
-        "@tiptap/extension-youtube": "^3.32.0",
+        "@tiptap/core": "^3.32.2",
+        "@tiptap/extension-youtube": "^3.32.2",
         "esbuild": "^0.28.2",
         "tailwindcss": "^4.3.3"
     },
     "dependencies": {
         "@internationalized/date": "^3.12.4",
-        "@tanstack/virtual-core": "^3.19.6",
+        "@tanstack/virtual-core": "^3.19.9",
         "@zxing/browser": "^0.2.1",
         "@zxing/library": "^0.23.0",
         "emoji-picker-element": "^1.29.1",
         "libphonenumber-js": "^1.13.15",
-        "motion": "14.3.0",
+        "motion": "14.9.0",
         "nouislider": "^15.8.1",
         "number-flow": "^0.6.2"
     },

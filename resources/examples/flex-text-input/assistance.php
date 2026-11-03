@@ -125,3 +125,22 @@ FlexTextInput::make('flex_text_input__verification')
     ->verificationDebounce(300)
     ->verificationMinLength(3)
     ->skipRenderAfterStateUpdated();
+
+// The same local records with descriptions aligned to the end of the row.
+FlexTextInput::make('framework')
+    ->suggestions([
+        ['value' => 'Laravel', 'label' => 'Laravel', 'description' => 'PHP framework'],
+        ['value' => 'Livewire', 'label' => 'Livewire', 'description' => 'Reactive UI'],
+        ['value' => 'Filament', 'label' => 'Filament', 'description' => 'Admin panel'],
+    ])
+    ->suggestionDescriptionPosition('trailing')
+    ->suggestionMinLength(0);
+
+// Server-side search keeps structured metadata and commits only the value.
+FlexTextInput::make('city')
+    ->suggestionsUsing(fn (string $search): array => array_values(array_filter([
+        ['value' => 'Amsterdam', 'label' => 'Amsterdam', 'description' => 'Netherlands'],
+        ['value' => 'Warsaw', 'label' => 'Warsaw', 'description' => 'Poland'],
+    ], fn (array $city): bool => str_contains(strtolower($city['label']), strtolower($search)))))
+    ->suggestionDescriptionPosition('trailing')
+    ->suggestionMinLength(1);

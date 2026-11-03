@@ -2,11 +2,29 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import fs from 'node:fs'
 import path from 'node:path'
+import { execFileSync } from 'node:child_process'
 import { capturePublicApi, comparePublicApi } from '../../scripts/core/public-api.mjs'
 
 const root = path.resolve(import.meta.dirname, '../..')
 const fixture = () => JSON.parse(fs.readFileSync(path.join(root, 'tests/fixtures/core-public-api-v1.json')))
 const type = 'Bjanczak\\FilamentFlexFields\\Support\\Media\\FlexMedia'
+
+test('relative PHP types use the declaring class across supported PHP versions without erasing late static binding', () => {
+    const prefix = 'Bjanczak\\FilamentFlexFields\\Tests\\PublicApiVersions\\'
+    const code = 'require $argv[1]; require $argv[2]; echo json_encode([publicApiClass($argv[3]), publicApiClass($argv[4])], JSON_THROW_ON_ERROR);'
+    const [child, grandchild] = JSON.parse(execFileSync(process.env.PHP_BINARY ?? 'php', ['-r', code,
+        path.join(root, 'scripts/core/export-php-api.php'), path.join(root, 'tests/fixtures/core-public-api-types.php'),
+        prefix + 'ChildType', prefix + 'GrandchildType'], { cwd: root }))
+    for (const declaration of [child, grandchild]) {
+        assert.equal(declaration.methods.copy.parameters[0].type, '?' + prefix + 'ParentType')
+        assert.equal(declaration.methods.copy.return, '?' + prefix + 'ChildType')
+        assert.equal(declaration.properties.child.type, '?' + prefix + 'ChildType')
+        assert.equal(declaration.properties.parent.type, '?' + prefix + 'ParentType')
+        assert.equal(declaration.methods.combine.return, '(' + prefix + 'ChildType|DateTimeInterface|null)')
+        assert.equal(declaration.methods.combine.parameters[0].type, declaration.methods.combine.return)
+        assert.equal(declaration.methods.late.return, 'static')
+    }
+})
 
 test('installed declarations and compiled public SDK facade match the reviewed compatibility fixture', async () => {
     const report = comparePublicApi(fixture(), await capturePublicApi(root))

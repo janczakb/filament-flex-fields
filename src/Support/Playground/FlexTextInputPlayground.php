@@ -34,12 +34,12 @@ final class FlexTextInputPlayground
             $schema = FilamentSchemaCompatibility::supportsDeferredLoading()
                 ? Schema::make()->key('input-demo-'.$group)->deferLoading($group !== 'overview')->components($components)
                 : $components;
-            $tabs[] = SegmentTab::make(TextInputMessages::get('demo.'.$group))
+            $tabs[] = SegmentTab::make(TextInputMessages::get('demo.'.$group))->key($group)
                 ->schema($schema);
         }
 
         return [Section::make('Flex Text Input')
             ->description(TextInputMessages::get('demo.intro'))
-            ->schema([SegmentTabs::make('input-features')->tabs($tabs)])];
+            ->schema([SegmentTabs::make('input-features')->persistTabInQueryString('input-tab')->tabs($tabs)])];
     }
 }

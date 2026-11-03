@@ -300,6 +300,7 @@ LookTop and MultiplicationSign. Override with `microphoneIcon()`, `emojiIcon()`,
 | `suggestionLimit()` | `8` | 1–20 results |
 | `suggestionMinLength()` | `1` | 0–100 code points |
 | `suggestionPlacement()` | `auto` | auto, top, bottom |
+| `suggestionDescriptionPosition()` | `below` | below or trailing; applies to local and async descriptions |
 | `suggestionDebounce()` | `200` | 0–2000 ms |
 | `verificationDebounce()` | `400` | 0–2000 ms |
 | `verificationMinLength()` | `1` | 0–100 code points |
@@ -311,7 +312,7 @@ LookTop and MultiplicationSign. Override with `microphoneIcon()`, `emojiIcon()`,
 FlexTextInput::make('city')->suggestions([
     ['value' => 'Warsaw', 'label' => 'Warsaw', 'description' => 'Poland'],
     ['value' => 'London', 'label' => 'London', 'description' => 'United Kingdom'],
-])->suggestionLimit(8);
+])->suggestionLimit(8)->suggestionDescriptionPosition('trailing');
 
 FlexTextInput::make('city')
     ->suggestionsUsing(fn (string $search): array => City::query()
@@ -336,6 +337,8 @@ inside callbacks. These independent examples use native
 `skipRenderAfterStateUpdated()` so a deferred text update bundled with a lookup
 does not replace the focused input. Keep normal rendering when your server-side
 state hooks must update other fields or the input configuration.
+
+`suggestionDescriptionPosition('trailing')` places the description at the logical end of each suggestion row, including RTL layouts. Long descriptions truncate within the menu. The default `below` keeps the existing stacked layout. This applies to both `suggestions()` and `suggestionsUsing()` records containing a `description`; labels and descriptions remain plain text, and selecting a row still commits only its `value`.
 
 Static suggestions accept at most 200 normalized records;
 value ≤512, label ≤120 and description ≤240 characters. Disabled records remain visible but cannot
